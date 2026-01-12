@@ -1,0 +1,18 @@
+package io.github.smithjustinn.domain.usecases
+
+import dev.zacsweers.metro.Inject
+import io.github.smithjustinn.domain.models.GameStats
+import io.github.smithjustinn.domain.repositories.GameStatsRepository
+import kotlinx.coroutines.flow.Flow
+
+/**
+ * Use case to retrieve game statistics for a specific difficulty.
+ */
+@Inject
+class GetGameStatsUseCase(
+    private val gameStatsRepository: GameStatsRepository
+) {
+    operator fun invoke(pairCount: Int): Flow<GameStats?> {
+        return gameStatsRepository.getStatsForDifficulty(pairCount)
+    }
+}

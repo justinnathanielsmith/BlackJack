@@ -54,17 +54,20 @@ import io.github.smithjustinn.components.ConfettiEffect
 import io.github.smithjustinn.components.ExplosionEffect
 import io.github.smithjustinn.components.PlayingCard
 import io.github.smithjustinn.di.LocalAppGraph
-import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.GameDomainEvent
-import io.github.smithjustinn.domain.models.GameStats
-import io.github.smithjustinn.domain.models.LeaderboardEntry
-import io.github.smithjustinn.domain.models.MatchComment
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoreBreakdown
-import io.github.smithjustinn.domain.repositories.GameStateRepository
-import io.github.smithjustinn.domain.repositories.GameStatsRepository
-import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import io.github.smithjustinn.domain.models.MatchComment
+import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
+import io.github.smithjustinn.domain.usecases.GetGameStatsUseCase
+import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
+import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
+import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
+import io.github.smithjustinn.domain.usecases.FlipCardUseCase
+import io.github.smithjustinn.domain.usecases.ResetErrorCardsUseCase
+import io.github.smithjustinn.domain.usecases.SaveGameResultUseCase
+import io.github.smithjustinn.domain.usecases.StartNewGameUseCase
 import io.github.smithjustinn.platform.CommonTransient
 import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.services.HapticsService
@@ -100,7 +103,6 @@ import memory_match.sharedui.generated.resources.score_move_bonus
 import memory_match.sharedui.generated.resources.score_time_bonus
 import memory_match.sharedui.generated.resources.time_label
 import org.jetbrains.compose.resources.stringResource
-import kotlin.time.Clock
 
 /**
  * Represents the overall state of the game screen, including the UI-only state.
@@ -128,13 +130,19 @@ sealed class GameIntent {
 @Inject
 class GameScreenModel(
     private val hapticsService: HapticsService,
-    private val gameStatsRepository: GameStatsRepository,
-    private val leaderboardRepository: LeaderboardRepository,
-    private val gameStateRepository: GameStateRepository
+    private val startNewGameUseCase: StartNewGameUseCase,
+    private val flipCardUseCase: FlipCardUseCase,
+    private val resetErrorCardsUseCase: ResetErrorCardsUseCase,
+    private val calculateFinalScoreUseCase: CalculateFinalScoreUseCase,
+    private val getGameStatsUseCase: GetGameStatsUseCase,
+    private val saveGameResultUseCase: SaveGameResultUseCase,
+    private val getSavedGameUseCase: GetSavedGameUseCase,
+    private val saveGameStateUseCase: SaveGameStateUseCase,
+    private val clearSavedGameUseCase: ClearSavedGameUseCase
 ) : ScreenModel {
     private val _state = MutableStateFlow(GameUIState())
     val state: StateFlow<GameUIState> = _state.asStateFlow()
-    
+
     private var timerJob: Job? = null
     private var commentJob: Job? = null
     private var statsJob: Job? = null
@@ -151,7 +159,7 @@ class GameScreenModel(
 
     private fun startGame(pairCount: Int) {
         screenModelScope.launch {
-            val savedGame = gameStateRepository.getSavedGameState()
+            val savedGame = getSavedGameUseCase()
             if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameWon) {
                 _state.update {
                     it.copy(
@@ -162,17 +170,17 @@ class GameScreenModel(
                     )
                 }
             } else {
-                val initialGameState = MemoryGameLogic.createInitialState(pairCount)
-                _state.update { 
+                val initialGameState = startNewGameUseCase(pairCount)
+                _state.update {
                     it.copy(
                         game = initialGameState,
                         elapsedTimeSeconds = 0,
                         showComboExplosion = false,
                         isNewHighScore = false
-                    ) 
+                    )
                 }
             }
-            
+
             observeStats(pairCount)
             startTimer()
         }
@@ -181,7 +189,7 @@ class GameScreenModel(
     private fun observeStats(pairCount: Int) {
         statsJob?.cancel()
         statsJob = screenModelScope.launch {
-            gameStatsRepository.getStatsForDifficulty(pairCount).collect { stats ->
+            getGameStatsUseCase(pairCount).collect { stats ->
                 _state.update { it.copy(
                     bestScore = stats?.bestScore ?: 0,
                     bestTimeSeconds = stats?.bestTimeSeconds ?: 0
@@ -206,8 +214,8 @@ class GameScreenModel(
     }
 
     private fun flipCard(cardId: Int) {
-        val (newState, event) = MemoryGameLogic.flipCard(_state.value.game, cardId)
-        
+        val (newState, event) = flipCardUseCase(_state.value.game, cardId)
+
         _state.update { it.copy(game = newState) }
         saveGame()
 
@@ -231,27 +239,27 @@ class GameScreenModel(
         hapticsService.vibrateMismatch()
         screenModelScope.launch {
             delay(1000)
-            _state.update { it.copy(game = MemoryGameLogic.resetErrorCards(it.game)) }
+            _state.update { it.copy(game = resetErrorCardsUseCase(it.game)) }
         }
     }
 
     private fun handleGameWon(newState: MemoryGameState) {
         hapticsService.vibrateMatch()
         stopTimer()
-        
-        val gameWithBonuses = MemoryGameLogic.applyFinalBonuses(newState, _state.value.elapsedTimeSeconds)
+
+        val gameWithBonuses = calculateFinalScoreUseCase(newState, _state.value.elapsedTimeSeconds)
         val isNewHigh = gameWithBonuses.score > _state.value.bestScore
-        
+
         _state.update { it.copy(
             game = gameWithBonuses,
             isNewHighScore = isNewHigh
         ) }
-        
+
         saveStats(gameWithBonuses.pairCount, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves)
         clearCommentAfterDelay()
-        
+
         screenModelScope.launch {
-            gameStateRepository.clearSavedGameState()
+            clearSavedGameUseCase()
         }
     }
 
@@ -274,31 +282,15 @@ class GameScreenModel(
 
     private fun saveStats(pairCount: Int, score: Int, time: Long, moves: Int) {
         screenModelScope.launch(Dispatchers.IO) {
-            val currentBestScore = _state.value.bestScore
-            val currentBestTime = _state.value.bestTimeSeconds
-            
-            val newBestScore = if (score > currentBestScore) score else currentBestScore
-            val newBestTime = if (currentBestTime == 0L || time < currentBestTime) time else currentBestTime
-            
-            gameStatsRepository.updateStats(GameStats(pairCount, newBestScore, newBestTime))
-            
-            leaderboardRepository.addEntry(
-                LeaderboardEntry(
-                    pairCount = pairCount,
-                    score = score,
-                    timeSeconds = time,
-                    moves = moves,
-                    timestamp = Clock.System.now()
-                )
-            )
+            saveGameResultUseCase(pairCount, score, time, moves)
         }
     }
-    
+
     private fun saveGame() {
         val currentState = _state.value
         if (!currentState.game.isGameWon) {
             screenModelScope.launch {
-                gameStateRepository.saveGameState(currentState.game, currentState.elapsedTimeSeconds)
+                saveGameStateUseCase(currentState.game, currentState.elapsedTimeSeconds)
             }
         }
     }
@@ -330,10 +322,10 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
         val graph = LocalAppGraph.current
         val screenModel = rememberScreenModel { graph.gameScreenModel }
         _model = screenModel
-        
+
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
-        
+
         LaunchedEffect(pairCount) {
             screenModel.handleIntent(GameIntent.StartGame(pairCount))
         }
@@ -388,7 +380,7 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
                 if (state.game.isGameWon) {
                     BouncingCardsOverlay(state.game.cards)
                     ConfettiEffect()
-                    
+
                     if (state.isNewHighScore) {
                         NewHighScoreSnackbar(
                             modifier = Modifier
@@ -486,7 +478,7 @@ private fun GameTopBar(
         title = {
             Column {
                 Text(stringResource(Res.string.app_name), style = MaterialTheme.typography.titleMedium)
-                
+
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.spacedBy(12.dp),

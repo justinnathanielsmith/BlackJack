@@ -8,6 +8,13 @@ import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import io.github.smithjustinn.domain.repositories.GameStateRepository
+import io.github.smithjustinn.domain.usecases.StartNewGameUseCase
+import io.github.smithjustinn.domain.usecases.FlipCardUseCase
+import io.github.smithjustinn.domain.usecases.ResetErrorCardsUseCase
+import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
+import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
+import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
+import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
 
 interface AppGraph {
     val difficultyScreenModel: DifficultyScreenModel
@@ -17,6 +24,13 @@ interface AppGraph {
     val gameStatsRepository: GameStatsRepository
     val leaderboardRepository: LeaderboardRepository
     val gameStateRepository: GameStateRepository
+    val startNewGameUseCase: StartNewGameUseCase
+    val flipCardUseCase: FlipCardUseCase
+    val resetErrorCardsUseCase: ResetErrorCardsUseCase
+    val calculateFinalScoreUseCase: CalculateFinalScoreUseCase
+    val getSavedGameUseCase: GetSavedGameUseCase
+    val saveGameStateUseCase: SaveGameStateUseCase
+    val clearSavedGameUseCase: ClearSavedGameUseCase
 }
 
 val LocalAppGraph = staticCompositionLocalOf<AppGraph> {

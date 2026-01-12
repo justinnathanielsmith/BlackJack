@@ -21,6 +21,13 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.data.repositories.GameStatsRepositoryImpl
 import io.github.smithjustinn.data.repositories.LeaderboardRepositoryImpl
 import io.github.smithjustinn.data.repositories.GameStateRepositoryImpl
+import io.github.smithjustinn.domain.usecases.StartNewGameUseCase
+import io.github.smithjustinn.domain.usecases.FlipCardUseCase
+import io.github.smithjustinn.domain.usecases.ResetErrorCardsUseCase
+import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
+import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
+import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
+import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
 import platform.Foundation.NSHomeDirectory
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -35,6 +42,13 @@ interface IosAppGraph : AppGraph {
     override val gameStatsRepository: GameStatsRepository
     override val leaderboardRepository: LeaderboardRepository
     override val gameStateRepository: GameStateRepository
+    override val startNewGameUseCase: StartNewGameUseCase
+    override val flipCardUseCase: FlipCardUseCase
+    override val resetErrorCardsUseCase: ResetErrorCardsUseCase
+    override val calculateFinalScoreUseCase: CalculateFinalScoreUseCase
+    override val getSavedGameUseCase: GetSavedGameUseCase
+    override val saveGameStateUseCase: SaveGameStateUseCase
+    override val clearSavedGameUseCase: ClearSavedGameUseCase
 
     @Provides
     fun provideHapticsService(impl: IosHapticsServiceImpl): HapticsService = impl
