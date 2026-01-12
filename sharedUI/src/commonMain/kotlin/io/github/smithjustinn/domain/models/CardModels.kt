@@ -1,5 +1,8 @@
 package io.github.smithjustinn.domain.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class Suit(val symbol: String) {
     Hearts("♥"),
     Diamonds("♦"),
@@ -9,6 +12,7 @@ enum class Suit(val symbol: String) {
     val isRed: Boolean get() = this == Hearts || this == Diamonds
 }
 
+@Serializable
 enum class Rank(val symbol: String) {
     Ace("A"),
     Two("2"),
@@ -25,6 +29,7 @@ enum class Rank(val symbol: String) {
     King("K")
 }
 
+@Serializable
 data class CardState(
     val id: Int,
     val suit: Suit,

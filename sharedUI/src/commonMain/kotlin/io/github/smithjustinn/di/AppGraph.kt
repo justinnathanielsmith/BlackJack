@@ -7,6 +7,7 @@ import io.github.smithjustinn.screens.StatsScreenModel
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import io.github.smithjustinn.domain.repositories.GameStateRepository
 
 interface AppGraph {
     val difficultyScreenModel: DifficultyScreenModel
@@ -15,6 +16,7 @@ interface AppGraph {
     val hapticsService: HapticsService
     val gameStatsRepository: GameStatsRepository
     val leaderboardRepository: LeaderboardRepository
+    val gameStateRepository: GameStateRepository
 }
 
 val LocalAppGraph = staticCompositionLocalOf<AppGraph> {

@@ -1,11 +1,13 @@
 package io.github.smithjustinn.domain.models
 
-import memory_match.sharedui.generated.resources.*
+import kotlinx.serialization.Serializable
+import kotlinx.serialization.Transient
 import org.jetbrains.compose.resources.StringResource
 
 /**
  * Configuration for game scoring and bonuses.
  */
+@Serializable
 data class ScoringConfig(
     val baseMatchPoints: Int = 20,
     val comboBonusPoints: Int = 50,
@@ -17,6 +19,7 @@ data class ScoringConfig(
 /**
  * Breakdown of the final score.
  */
+@Serializable
 data class ScoreBreakdown(
     val matchPoints: Int = 0,
     val timeBonus: Int = 0,
@@ -32,6 +35,7 @@ data class MatchComment(val res: StringResource, val args: List<Any> = emptyList
 /**
  * Represents the core state of the memory game.
  */
+@Serializable
 data class MemoryGameState(
     val cards: List<CardState> = emptyList(),
     val pairCount: Int = 8,
@@ -39,7 +43,7 @@ data class MemoryGameState(
     val moves: Int = 0,
     val score: Int = 0,
     val comboMultiplier: Int = 1,
-    val matchComment: MatchComment? = null,
+    @Transient val matchComment: MatchComment? = null,
     val config: ScoringConfig = ScoringConfig(),
     val scoreBreakdown: ScoreBreakdown = ScoreBreakdown()
 )

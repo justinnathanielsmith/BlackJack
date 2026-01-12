@@ -13,12 +13,16 @@ import io.github.smithjustinn.services.JvmHapticsServiceImpl
 import io.github.smithjustinn.data.local.AppDatabase
 import io.github.smithjustinn.data.local.GameStatsDao
 import io.github.smithjustinn.data.local.LeaderboardDao
+import io.github.smithjustinn.data.local.GameStateDao
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.data.repositories.GameStatsRepositoryImpl
 import io.github.smithjustinn.data.repositories.LeaderboardRepositoryImpl
+import io.github.smithjustinn.data.repositories.GameStateRepositoryImpl
 import java.io.File
 import kotlinx.coroutines.Dispatchers
+import kotlinx.serialization.json.Json
 
 @DependencyGraph
 interface JvmAppGraph : AppGraph {
@@ -28,6 +32,7 @@ interface JvmAppGraph : AppGraph {
     override val hapticsService: HapticsService
     override val gameStatsRepository: GameStatsRepository
     override val leaderboardRepository: LeaderboardRepository
+    override val gameStateRepository: GameStateRepository
 
     @Provides
     fun provideHapticsService(impl: JvmHapticsServiceImpl): HapticsService = impl
@@ -40,7 +45,7 @@ interface JvmAppGraph : AppGraph {
         )
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3)
+        .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4)
         .build()
     }
 
@@ -51,10 +56,19 @@ interface JvmAppGraph : AppGraph {
     fun provideLeaderboardDao(database: AppDatabase): LeaderboardDao = database.leaderboardDao()
 
     @Provides
+    fun provideGameStateDao(database: AppDatabase): GameStateDao = database.gameStateDao()
+
+    @Provides
     fun provideGameStatsRepository(impl: GameStatsRepositoryImpl): GameStatsRepository = impl
 
     @Provides
     fun provideLeaderboardRepository(impl: LeaderboardRepositoryImpl): LeaderboardRepository = impl
+
+    @Provides
+    fun provideGameStateRepository(impl: GameStateRepositoryImpl): GameStateRepository = impl
+
+    @Provides
+    fun provideJson(): Json = Json { ignoreUnknownKeys = true }
 }
 
 fun createJvmGraph(): AppGraph = createGraph<JvmAppGraph>()

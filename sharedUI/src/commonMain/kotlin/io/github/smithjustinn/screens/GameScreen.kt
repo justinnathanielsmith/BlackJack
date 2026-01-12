@@ -62,6 +62,7 @@ import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.domain.models.MatchComment
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoreBreakdown
+import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import io.github.smithjustinn.platform.CommonTransient
@@ -121,13 +122,15 @@ sealed class GameIntent {
     data class StartGame(val pairCount: Int) : GameIntent()
     data class FlipCard(val cardId: Int) : GameIntent()
     data class SetExitDialogVisible(val visible: Boolean) : GameIntent()
+    data object SaveGame : GameIntent()
 }
 
 @Inject
 class GameScreenModel(
     private val hapticsService: HapticsService,
     private val gameStatsRepository: GameStatsRepository,
-    private val leaderboardRepository: LeaderboardRepository
+    private val leaderboardRepository: LeaderboardRepository,
+    private val gameStateRepository: GameStateRepository
 ) : ScreenModel {
     private val _state = MutableStateFlow(GameUIState())
     val state: StateFlow<GameUIState> = _state.asStateFlow()
@@ -142,23 +145,37 @@ class GameScreenModel(
             is GameIntent.StartGame -> startGame(intent.pairCount)
             is GameIntent.FlipCard -> flipCard(intent.cardId)
             is GameIntent.SetExitDialogVisible -> _state.update { it.copy(showExitDialog = intent.visible) }
+            is GameIntent.SaveGame -> saveGame()
         }
     }
 
     private fun startGame(pairCount: Int) {
-        val initialGameState = MemoryGameLogic.createInitialState(pairCount)
-        
-        _state.update { 
-            it.copy(
-                game = initialGameState,
-                elapsedTimeSeconds = 0,
-                showComboExplosion = false,
-                isNewHighScore = false
-            ) 
+        screenModelScope.launch {
+            val savedGame = gameStateRepository.getSavedGameState()
+            if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameWon) {
+                _state.update {
+                    it.copy(
+                        game = savedGame.first,
+                        elapsedTimeSeconds = savedGame.second,
+                        showComboExplosion = false,
+                        isNewHighScore = false
+                    )
+                }
+            } else {
+                val initialGameState = MemoryGameLogic.createInitialState(pairCount)
+                _state.update { 
+                    it.copy(
+                        game = initialGameState,
+                        elapsedTimeSeconds = 0,
+                        showComboExplosion = false,
+                        isNewHighScore = false
+                    ) 
+                }
+            }
+            
+            observeStats(pairCount)
+            startTimer()
         }
-        
-        observeStats(pairCount)
-        startTimer()
     }
 
     private fun observeStats(pairCount: Int) {
@@ -192,6 +209,7 @@ class GameScreenModel(
         val (newState, event) = MemoryGameLogic.flipCard(_state.value.game, cardId)
         
         _state.update { it.copy(game = newState) }
+        saveGame()
 
         when (event) {
             GameDomainEvent.MatchSuccess -> handleMatchSuccess(newState)
@@ -231,6 +249,10 @@ class GameScreenModel(
         
         saveStats(gameWithBonuses.pairCount, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves)
         clearCommentAfterDelay()
+        
+        screenModelScope.launch {
+            gameStateRepository.clearSavedGameState()
+        }
     }
 
     private fun triggerComboExplosion() {
@@ -271,12 +293,22 @@ class GameScreenModel(
             )
         }
     }
+    
+    private fun saveGame() {
+        val currentState = _state.value
+        if (!currentState.game.isGameWon) {
+            screenModelScope.launch {
+                gameStateRepository.saveGameState(currentState.game, currentState.elapsedTimeSeconds)
+            }
+        }
+    }
 
     override fun onDispose() {
         stopTimer()
         commentJob?.cancel()
         statsJob?.cancel()
         explosionJob?.cancel()
+        saveGame()
     }
 }
 
