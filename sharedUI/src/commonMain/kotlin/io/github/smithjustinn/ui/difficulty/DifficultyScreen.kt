@@ -1,45 +1,9 @@
 package io.github.smithjustinn.ui.difficulty
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.offset
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuAnchorType
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -59,13 +23,7 @@ import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.ui.game.GameScreen
 import io.github.smithjustinn.ui.settings.SettingsScreen
 import io.github.smithjustinn.ui.stats.StatsScreen
-import memory_match.sharedui.generated.resources.Res
-import memory_match.sharedui.generated.resources.app_name
-import memory_match.sharedui.generated.resources.how_many_pairs
-import memory_match.sharedui.generated.resources.pairs_format
-import memory_match.sharedui.generated.resources.resume_game
-import memory_match.sharedui.generated.resources.select_difficulty
-import memory_match.sharedui.generated.resources.start
+import memory_match.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 
 class DifficultyScreen : Screen, JavaSerializable {
@@ -88,10 +46,10 @@ class DifficultyScreen : Screen, JavaSerializable {
                     title = {},
                     actions = {
                         IconButton(onClick = { navigator.push(SettingsScreen()) }) {
-                            Icon(AppIcons.Settings, contentDescription = "Settings")
+                            Icon(AppIcons.Settings, contentDescription = stringResource(Res.string.settings))
                         }
                         IconButton(onClick = { navigator.push(StatsScreen()) }) {
-                            Icon(AppIcons.Info, contentDescription = "Stats")
+                            Icon(AppIcons.Info, contentDescription = stringResource(Res.string.stats))
                         }
                     }
                 )
@@ -219,7 +177,7 @@ private fun DifficultySelectionSection(
     Column(
         modifier = modifier.widthIn(max = 400.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.spacedBy(24.dp)
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
             text = stringResource(Res.string.how_many_pairs),
@@ -273,41 +231,55 @@ private fun DifficultySelectionSection(
             }
         }
 
-        Button(
-            onClick = onStartGame,
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            shape = MaterialTheme.shapes.medium
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
-            Text(
-                text = stringResource(Res.string.start),
-                style = MaterialTheme.typography.titleMedium,
-                fontWeight = FontWeight.Bold
-            )
-        }
+            if (state.hasSavedGame) {
+                Button(
+                    onClick = onResumeGame,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = MaterialTheme.shapes.medium,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.secondary
+                    )
+                ) {
+                    Text(
+                        text = stringResource(Res.string.resume_game),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
 
-        AnimatedVisibility(
-            visible = state.hasSavedGame,
-            enter = fadeIn(),
-            exit = fadeOut()
-        ) {
-            Button(
-                onClick = onResumeGame,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                shape = MaterialTheme.shapes.medium,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                )
-            ) {
-                Text(
-                    text = stringResource(Res.string.resume_game),
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold
-                )
+                OutlinedButton(
+                    onClick = onStartGame,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text(
+                        text = stringResource(Res.string.start),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
+            } else {
+                Button(
+                    onClick = onStartGame,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(56.dp),
+                    shape = MaterialTheme.shapes.medium
+                ) {
+                    Text(
+                        text = stringResource(Res.string.start),
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }

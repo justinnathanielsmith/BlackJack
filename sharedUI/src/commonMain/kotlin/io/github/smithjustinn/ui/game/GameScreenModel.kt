@@ -32,7 +32,6 @@ import kotlinx.coroutines.launch
  */
 data class GameUIState(
     val game: MemoryGameState = MemoryGameState(),
-    val showExitDialog: Boolean = false,
     val elapsedTimeSeconds: Long = 0,
     val bestScore: Int = 0,
     val bestTimeSeconds: Long = 0,
@@ -48,7 +47,6 @@ data class GameUIState(
 sealed class GameIntent {
     data class StartGame(val pairCount: Int) : GameIntent()
     data class FlipCard(val cardId: Int) : GameIntent()
-    data class SetExitDialogVisible(val visible: Boolean) : GameIntent()
     data object SaveGame : GameIntent()
     data object PeekCards : GameIntent()
 }
@@ -89,7 +87,6 @@ class GameScreenModel(
         when (intent) {
             is GameIntent.StartGame -> startGame(intent.pairCount)
             is GameIntent.FlipCard -> flipCard(intent.cardId)
-            is GameIntent.SetExitDialogVisible -> _state.update { it.copy(showExitDialog = intent.visible) }
             is GameIntent.SaveGame -> saveGame()
             is GameIntent.PeekCards -> peekCards()
         }

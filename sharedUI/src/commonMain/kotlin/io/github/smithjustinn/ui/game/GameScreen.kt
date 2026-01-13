@@ -19,7 +19,6 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.smithjustinn.components.game.BouncingCardsOverlay
 import io.github.smithjustinn.components.game.ConfettiEffect
 import io.github.smithjustinn.components.game.ExplosionEffect
-import io.github.smithjustinn.components.game.ExitGameDialog
 import io.github.smithjustinn.components.game.GameGrid
 import io.github.smithjustinn.components.game.GameTopBar
 import io.github.smithjustinn.components.game.MatchCommentSnackbar
@@ -36,10 +35,7 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
     private var _model: GameScreenModel? = null
 
     override fun handleBack(): Boolean {
-        val m = _model ?: return true
-        if (m.state.value.game.isGameWon) return true
-        m.handleIntent(GameIntent.SetExitDialogVisible(true))
-        return false
+        return true
     }
 
     @OptIn(ExperimentalMaterial3Api::class)
@@ -56,16 +52,6 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
             screenModel.handleIntent(GameIntent.StartGame(pairCount))
         }
 
-        if (state.showExitDialog) {
-            ExitGameDialog(
-                onConfirm = {
-                    screenModel.handleIntent(GameIntent.SetExitDialogVisible(false))
-                    navigator.pop()
-                },
-                onDismiss = { screenModel.handleIntent(GameIntent.SetExitDialogVisible(false)) }
-            )
-        }
-
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             topBar = {
@@ -76,9 +62,7 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
                     bestTime = state.bestTimeSeconds,
                     combo = state.game.comboMultiplier,
                     onBackClick = {
-                        if (handleBack()) {
-                            navigator.pop()
-                        }
+                        navigator.pop()
                     },
                     onPeekClick = if (!state.game.isGameWon && state.isPeekFeatureEnabled) {
                         { screenModel.handleIntent(GameIntent.PeekCards) }
