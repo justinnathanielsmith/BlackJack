@@ -1,9 +1,25 @@
-package io.github.smithjustinn.screens
+package io.github.smithjustinn.ui.stats
 
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -12,56 +28,22 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import co.touchlab.kermit.Logger
-import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.components.AppIcons
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.LeaderboardEntry
-import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.utils.formatTime
-import kotlinx.coroutines.flow.*
-import memory_match.sharedui.generated.resources.*
+import memory_match.sharedui.generated.resources.Res
+import memory_match.sharedui.generated.resources.high_scores
+import memory_match.sharedui.generated.resources.no_stats_yet
+import memory_match.sharedui.generated.resources.pairs_format
+import memory_match.sharedui.generated.resources.score_label
 import org.jetbrains.compose.resources.stringResource
-
-data class StatsState(
-    val difficultyLeaderboards: List<Pair<DifficultyLevel, List<LeaderboardEntry>>> = emptyList()
-)
-
-@Inject
-class StatsScreenModel(
-    private val leaderboardRepository: LeaderboardRepository,
-    private val logger: Logger
-) : ScreenModel {
-    private val _state = MutableStateFlow(StatsState())
-    val state: StateFlow<StatsState> = _state.asStateFlow()
-
-    init {
-        loadLeaderboards()
-    }
-
-    private fun loadLeaderboards() {
-        val difficulties = DifficultyLevel.defaultLevels
-        val flows = difficulties.map { level ->
-            leaderboardRepository.getTopEntries(level.pairs).map { entries -> level to entries }
-        }
-
-        combine(flows) { pairs ->
-            StatsState(difficultyLeaderboards = pairs.toList())
-        }.onEach { newState ->
-            _state.update { newState }
-        }.catch { e ->
-            logger.e(e) { "Error loading leaderboards" }
-        }.launchIn(screenModelScope)
-    }
-}
 
 class StatsScreen : Screen, JavaSerializable {
     @OptIn(ExperimentalMaterial3Api::class)

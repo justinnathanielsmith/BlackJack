@@ -1,4 +1,4 @@
-package io.github.smithjustinn.screens
+package io.github.smithjustinn.utils
 
 /**
  * Interface for screens that need to handle back press events.

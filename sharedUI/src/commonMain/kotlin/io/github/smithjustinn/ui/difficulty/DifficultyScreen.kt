@@ -1,4 +1,4 @@
-package io.github.smithjustinn.screens
+package io.github.smithjustinn.ui.difficulty
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.LinearEasing
@@ -45,27 +45,19 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.rememberScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import co.touchlab.kermit.Logger
-import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.components.AppIcons
 import io.github.smithjustinn.components.PlayingCard
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
-import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.platform.JavaSerializable
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import io.github.smithjustinn.ui.game.GameScreen
+import io.github.smithjustinn.ui.stats.StatsScreen
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.app_name
 import memory_match.sharedui.generated.resources.how_many_pairs
@@ -74,66 +66,6 @@ import memory_match.sharedui.generated.resources.resume_game
 import memory_match.sharedui.generated.resources.select_difficulty
 import memory_match.sharedui.generated.resources.start
 import org.jetbrains.compose.resources.stringResource
-
-/**
- * Represents the state of the difficulty selection screen.
- */
-data class DifficultyState(
-    val difficulties: List<DifficultyLevel> = DifficultyLevel.defaultLevels,
-    val selectedDifficulty: DifficultyLevel = DifficultyLevel.defaultLevels[1],
-    val hasSavedGame: Boolean = false,
-    val savedGamePairCount: Int = 0
-)
-
-/**
- * Sealed class representing user intents for the difficulty screen.
- */
-sealed class DifficultyIntent {
-    data class SelectDifficulty(val level: DifficultyLevel) : DifficultyIntent()
-    data class StartGame(val pairs: Int) : DifficultyIntent()
-    data object CheckSavedGame : DifficultyIntent()
-    data object ResumeGame : DifficultyIntent()
-}
-
-@Inject
-class DifficultyScreenModel(
-    private val gameStateRepository: GameStateRepository,
-    private val logger: Logger
-) : ScreenModel {
-    private val _state = MutableStateFlow(DifficultyState())
-    val state: StateFlow<DifficultyState> = _state.asStateFlow()
-
-    fun handleIntent(intent: DifficultyIntent, onNavigate: (Int) -> Unit = {}) {
-        when (intent) {
-            is DifficultyIntent.SelectDifficulty -> {
-                _state.update { it.copy(selectedDifficulty = intent.level) }
-            }
-            is DifficultyIntent.StartGame -> {
-                onNavigate(intent.pairs)
-            }
-            is DifficultyIntent.CheckSavedGame -> {
-                screenModelScope.launch {
-                    try {
-                        val savedGame = gameStateRepository.getSavedGameState()
-                        _state.update { 
-                            it.copy(
-                                hasSavedGame = savedGame != null && !savedGame.first.isGameWon,
-                                savedGamePairCount = savedGame?.first?.pairCount ?: 0
-                            ) 
-                        }
-                    } catch (e: Exception) {
-                        logger.e(e) { "Error checking for saved game" }
-                    }
-                }
-            }
-            is DifficultyIntent.ResumeGame -> {
-                if (_state.value.hasSavedGame) {
-                    onNavigate(_state.value.savedGamePairCount)
-                }
-            }
-        }
-    }
-}
 
 class DifficultyScreen : Screen, JavaSerializable {
     @OptIn(ExperimentalMaterial3Api::class)

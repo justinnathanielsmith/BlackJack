@@ -2,9 +2,9 @@ package io.github.smithjustinn.di
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import co.touchlab.kermit.Logger
-import io.github.smithjustinn.screens.DifficultyScreenModel
-import io.github.smithjustinn.screens.GameScreenModel
-import io.github.smithjustinn.screens.StatsScreenModel
+import io.github.smithjustinn.ui.difficulty.DifficultyScreenModel
+import io.github.smithjustinn.ui.game.GameScreenModel
+import io.github.smithjustinn.ui.stats.StatsScreenModel
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository

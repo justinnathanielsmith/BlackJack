@@ -6,9 +6,6 @@ import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraph
-import io.github.smithjustinn.screens.DifficultyScreenModel
-import io.github.smithjustinn.screens.GameScreenModel
-import io.github.smithjustinn.screens.StatsScreenModel
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.services.JvmHapticsServiceImpl
 import io.github.smithjustinn.data.local.AppDatabase
@@ -28,6 +25,9 @@ import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
 import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
+import io.github.smithjustinn.ui.difficulty.DifficultyScreenModel
+import io.github.smithjustinn.ui.game.GameScreenModel
+import io.github.smithjustinn.ui.stats.StatsScreenModel
 import java.io.File
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json

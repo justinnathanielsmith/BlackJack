@@ -6,8 +6,8 @@ import cafe.adriel.voyager.navigator.Navigator
 import cafe.adriel.voyager.transitions.SlideTransition
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.di.LocalAppGraph
-import io.github.smithjustinn.screens.BackPressScreen
-import io.github.smithjustinn.screens.DifficultyScreen
+import io.github.smithjustinn.utils.BackPressScreen
+import io.github.smithjustinn.ui.difficulty.DifficultyScreen
 import io.github.smithjustinn.theme.AppTheme
 
 @Composable
