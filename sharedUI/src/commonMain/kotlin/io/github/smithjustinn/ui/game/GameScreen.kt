@@ -79,14 +79,18 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
                         if (handleBack()) {
                             navigator.pop()
                         }
-                    }
+                    },
+                    onPeekClick = if (!state.game.isGameWon && state.isPeekFeatureEnabled) {
+                        { screenModel.handleIntent(GameIntent.PeekCards) }
+                    } else null
                 )
             }
         ) { paddingValues ->
             Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
                 GameGrid(
                     cards = state.game.cards,
-                    onCardClick = { cardId -> screenModel.handleIntent(GameIntent.FlipCard(cardId)) }
+                    onCardClick = { cardId -> screenModel.handleIntent(GameIntent.FlipCard(cardId)) },
+                    isPeeking = state.isPeeking
                 )
 
                 MatchCommentSnackbar(

@@ -6,6 +6,7 @@ import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.repositories.SettingsRepository
 import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
 import io.github.smithjustinn.domain.usecases.FlipCardUseCase
@@ -36,7 +37,9 @@ data class GameUIState(
     val bestScore: Int = 0,
     val bestTimeSeconds: Long = 0,
     val showComboExplosion: Boolean = false,
-    val isNewHighScore: Boolean = false
+    val isNewHighScore: Boolean = false,
+    val isPeeking: Boolean = false,
+    val isPeekFeatureEnabled: Boolean = true
 )
 
 /**
@@ -47,6 +50,7 @@ sealed class GameIntent {
     data class FlipCard(val cardId: Int) : GameIntent()
     data class SetExitDialogVisible(val visible: Boolean) : GameIntent()
     data object SaveGame : GameIntent()
+    data object PeekCards : GameIntent()
 }
 
 @Inject
@@ -61,6 +65,7 @@ class GameScreenModel(
     private val getSavedGameUseCase: GetSavedGameUseCase,
     private val saveGameStateUseCase: SaveGameStateUseCase,
     private val clearSavedGameUseCase: ClearSavedGameUseCase,
+    private val settingsRepository: SettingsRepository,
     private val logger: Logger
 ) : ScreenModel {
     private val _state = MutableStateFlow(GameUIState())
@@ -70,6 +75,15 @@ class GameScreenModel(
     private var commentJob: Job? = null
     private var statsJob: Job? = null
     private var explosionJob: Job? = null
+    private var peekJob: Job? = null
+
+    init {
+        screenModelScope.launch {
+            settingsRepository.isPeekEnabled.collect { enabled ->
+                _state.update { it.copy(isPeekFeatureEnabled = enabled) }
+            }
+        }
+    }
 
     fun handleIntent(intent: GameIntent) {
         when (intent) {
@@ -77,6 +91,7 @@ class GameScreenModel(
             is GameIntent.FlipCard -> flipCard(intent.cardId)
             is GameIntent.SetExitDialogVisible -> _state.update { it.copy(showExitDialog = intent.visible) }
             is GameIntent.SaveGame -> saveGame()
+            is GameIntent.PeekCards -> peekCards()
         }
     }
 
@@ -90,9 +105,11 @@ class GameScreenModel(
                             game = savedGame.first,
                             elapsedTimeSeconds = savedGame.second,
                             showComboExplosion = false,
-                            isNewHighScore = false
+                            isNewHighScore = false,
+                            isPeeking = false
                         )
                     }
+                    startTimer()
                 } else {
                     val initialGameState = startNewGameUseCase(pairCount)
                     _state.update {
@@ -100,16 +117,34 @@ class GameScreenModel(
                             game = initialGameState,
                             elapsedTimeSeconds = 0,
                             showComboExplosion = false,
-                            isNewHighScore = false
+                            isNewHighScore = false,
+                            isPeeking = false
                         )
+                    }
+                    if (_state.value.isPeekFeatureEnabled) {
+                        peekCards()
+                    } else {
+                        startTimer()
                     }
                 }
 
                 observeStats(pairCount)
-                startTimer()
             } catch (e: Exception) {
                 logger.e(e) { "Error starting game" }
             }
+        }
+    }
+
+    private fun peekCards() {
+        if (!_state.value.isPeekFeatureEnabled) return
+
+        peekJob?.cancel()
+        peekJob = screenModelScope.launch {
+            stopTimer()
+            _state.update { it.copy(isPeeking = true) }
+            delay(3000) // Peek for 3 seconds
+            _state.update { it.copy(isPeeking = false) }
+            startTimer()
         }
     }
 
@@ -141,6 +176,8 @@ class GameScreenModel(
     }
 
     private fun flipCard(cardId: Int) {
+        if (_state.value.isPeeking) return
+
         try {
             val (newState, event) = flipCardUseCase(_state.value.game, cardId)
 
@@ -231,6 +268,7 @@ class GameScreenModel(
         commentJob?.cancel()
         statsJob?.cancel()
         explosionJob?.cancel()
+        peekJob?.cancel()
         saveGame()
     }
 }

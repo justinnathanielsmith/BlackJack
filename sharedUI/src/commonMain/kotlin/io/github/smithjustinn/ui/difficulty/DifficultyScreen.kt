@@ -57,6 +57,7 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.ui.game.GameScreen
+import io.github.smithjustinn.ui.settings.SettingsScreen
 import io.github.smithjustinn.ui.stats.StatsScreen
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.app_name
@@ -86,6 +87,9 @@ class DifficultyScreen : Screen, JavaSerializable {
                 TopAppBar(
                     title = {},
                     actions = {
+                        IconButton(onClick = { navigator.push(SettingsScreen()) }) {
+                            Icon(AppIcons.Settings, contentDescription = "Settings")
+                        }
                         IconButton(onClick = { navigator.push(StatsScreen()) }) {
                             Icon(AppIcons.Info, contentDescription = "Stats")
                         }

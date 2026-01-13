@@ -14,7 +14,8 @@ import io.github.smithjustinn.domain.models.CardState
 @Composable
 fun GameGrid(
     cards: List<CardState>,
-    onCardClick: (Int) -> Unit
+    onCardClick: (Int) -> Unit,
+    isPeeking: Boolean = false
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 80.dp),
@@ -27,7 +28,7 @@ fun GameGrid(
             PlayingCard(
                 suit = card.suit,
                 rank = card.rank,
-                isFaceUp = card.isFaceUp,
+                isFaceUp = card.isFaceUp || isPeeking,
                 isMatched = card.isMatched,
                 isError = card.isError,
                 onClick = { onCardClick(card.id) }

@@ -9,13 +9,22 @@ import androidx.room.migration.Migration
 import androidx.sqlite.SQLiteConnection
 import androidx.sqlite.execSQL
 
-@Database(entities = [GameStatsEntity::class, LeaderboardEntity::class, GameStateEntity::class], version = 4)
+@Database(
+    entities = [
+        GameStatsEntity::class,
+        LeaderboardEntity::class,
+        GameStateEntity::class,
+        SettingsEntity::class
+    ],
+    version = 5
+)
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun gameStatsDao(): GameStatsDao
     abstract fun leaderboardDao(): LeaderboardDao
     abstract fun gameStateDao(): GameStateDao
+    abstract fun settingsDao(): SettingsDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -28,8 +37,6 @@ abstract class AppDatabase : RoomDatabase() {
 
         val MIGRATION_2_3 = object : Migration(2, 3) {
             override fun migrate(connection: SQLiteConnection) {
-                // No schema changes needed for switching to TypeConverter if the underlying type (INTEGER/Long) remains the same.
-                // However, we increment the version to ensure the new TypeConverter logic is applied and to follow best practices.
             }
         }
 
@@ -37,6 +44,14 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "CREATE TABLE IF NOT EXISTS `saved_game_state` (`id` INTEGER NOT NULL, `gameStateJson` TEXT NOT NULL, `elapsedTimeSeconds` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+                )
+            }
+        }
+
+        val MIGRATION_4_5 = object : Migration(4, 5) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL(
+                    "CREATE TABLE IF NOT EXISTS `settings` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, PRIMARY KEY(`id`))"
                 )
             }
         }

@@ -61,4 +61,5 @@
     <string name="no_stats_yet">No games played yet</string>
     <string name="new_high_score">New High Score! 🎉</string>
     <string name="resume_game">Resume Game</string>
+    <string name="peek_cards">Peek Cards</string>
 </resources>

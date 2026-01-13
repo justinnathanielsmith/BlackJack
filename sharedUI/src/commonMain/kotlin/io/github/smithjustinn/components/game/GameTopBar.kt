@@ -25,6 +25,7 @@ import memory_match.sharedui.generated.resources.back_content_description
 import memory_match.sharedui.generated.resources.best_score_label
 import memory_match.sharedui.generated.resources.best_time_label
 import memory_match.sharedui.generated.resources.combo_format
+import memory_match.sharedui.generated.resources.peek_cards
 import memory_match.sharedui.generated.resources.score_label
 import memory_match.sharedui.generated.resources.time_label
 import org.jetbrains.compose.resources.stringResource
@@ -37,7 +38,8 @@ fun GameTopBar(
     bestScore: Int,
     bestTime: Long,
     combo: Int,
-    onBackClick: () -> Unit
+    onBackClick: () -> Unit,
+    onPeekClick: (() -> Unit)? = null
 ) {
     TopAppBar(
         title = {
@@ -90,6 +92,11 @@ fun GameTopBar(
                     color = MaterialTheme.colorScheme.primary,
                     fontWeight = FontWeight.Bold
                 )
+            }
+            if (onPeekClick != null) {
+                IconButton(onClick = onPeekClick) {
+                    Icon(AppIcons.Visibility, contentDescription = stringResource(Res.string.peek_cards))
+                }
             }
         },
         navigationIcon = {
