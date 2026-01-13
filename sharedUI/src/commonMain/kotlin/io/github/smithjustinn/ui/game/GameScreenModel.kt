@@ -45,7 +45,7 @@ data class GameUIState(
  * Sealed class representing user intents for the game screen.
  */
 sealed class GameIntent {
-    data class StartGame(val pairCount: Int) : GameIntent()
+    data class StartGame(val pairCount: Int, val forceNewGame: Boolean = false) : GameIntent()
     data class FlipCard(val cardId: Int) : GameIntent()
     data object SaveGame : GameIntent()
     data object PeekCards : GameIntent()
@@ -85,17 +85,17 @@ class GameScreenModel(
 
     fun handleIntent(intent: GameIntent) {
         when (intent) {
-            is GameIntent.StartGame -> startGame(intent.pairCount)
+            is GameIntent.StartGame -> startGame(intent.pairCount, intent.forceNewGame)
             is GameIntent.FlipCard -> flipCard(intent.cardId)
             is GameIntent.SaveGame -> saveGame()
             is GameIntent.PeekCards -> peekCards()
         }
     }
 
-    private fun startGame(pairCount: Int) {
+    private fun startGame(pairCount: Int, forceNewGame: Boolean) {
         screenModelScope.launch {
             try {
-                val savedGame = getSavedGameUseCase()
+                val savedGame = if (forceNewGame) null else getSavedGameUseCase()
                 if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameWon) {
                     _state.update {
                         it.copy(

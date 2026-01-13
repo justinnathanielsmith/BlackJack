@@ -74,12 +74,12 @@ class DifficultyScreen : Screen, JavaSerializable {
                     },
                     onStartGame = {
                         screenModel.handleIntent(DifficultyIntent.StartGame(state.selectedDifficulty.pairs)) { pairs ->
-                            navigator.push(GameScreen(pairs))
+                            navigator.push(GameScreen(pairs, forceNewGame = true))
                         }
                     },
                     onResumeGame = {
                         screenModel.handleIntent(DifficultyIntent.ResumeGame) { pairs ->
-                            navigator.push(GameScreen(pairs))
+                            navigator.push(GameScreen(pairs, forceNewGame = false))
                         }
                     }
                 )

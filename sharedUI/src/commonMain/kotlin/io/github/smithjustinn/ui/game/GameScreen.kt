@@ -29,7 +29,10 @@ import io.github.smithjustinn.platform.CommonTransient
 import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.utils.BackPressScreen
 
-data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSerializable {
+data class GameScreen(
+    val pairCount: Int,
+    val forceNewGame: Boolean = false
+) : Screen, BackPressScreen, JavaSerializable {
 
     @CommonTransient
     private var _model: GameScreenModel? = null
@@ -48,8 +51,8 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
 
-        LaunchedEffect(pairCount) {
-            screenModel.handleIntent(GameIntent.StartGame(pairCount))
+        LaunchedEffect(pairCount, forceNewGame) {
+            screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame))
         }
 
         Scaffold(
@@ -108,7 +111,7 @@ data class GameScreen(val pairCount: Int) : Screen, BackPressScreen, JavaSeriali
                         moves = state.game.moves,
                         elapsedTimeSeconds = state.elapsedTimeSeconds,
                         scoreBreakdown = state.game.scoreBreakdown,
-                        onPlayAgain = { screenModel.handleIntent(GameIntent.StartGame(pairCount)) },
+                        onPlayAgain = { screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true)) },
                         modifier = Modifier.align(Alignment.Center)
                     )
                 }
