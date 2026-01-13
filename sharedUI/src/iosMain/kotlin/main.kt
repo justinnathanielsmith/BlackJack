@@ -12,6 +12,7 @@ import platform.UIKit.setStatusBarStyle
 
 fun MainViewController(): UIViewController = ComposeUIViewController { 
     val appGraph = remember { createIosGraph() }
+    appGraph.logger.i { "Logging initialized via Metro" }
     App(
         appGraph = appGraph,
         onThemeChanged = { ThemeChanged(it) }

@@ -19,6 +19,7 @@ fun main() = application {
     ) {
         window.minimumSize = Dimension(800, 600)
         val appGraph = remember { createJvmGraph() }
+        appGraph.logger.i { "Logging initialized via Metro" }
         App(appGraph = appGraph)
     }
 }

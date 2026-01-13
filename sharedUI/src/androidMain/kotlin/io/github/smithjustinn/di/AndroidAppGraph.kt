@@ -4,6 +4,7 @@ import android.app.Application
 import android.content.Context
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
+import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.DependencyGraph
 import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.createGraphFactory
@@ -32,8 +33,9 @@ import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.serialization.json.Json
 
-@DependencyGraph
+@DependencyGraph(AppScope::class)
 interface AndroidAppGraph : AppGraph {
+    override val logger: Logger
     override val difficultyScreenModel: DifficultyScreenModel
     override val gameScreenModel: GameScreenModel
     override val statsScreenModel: StatsScreenModel

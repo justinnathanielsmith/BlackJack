@@ -1,6 +1,7 @@
 package io.github.smithjustinn.di
 
 import androidx.compose.runtime.staticCompositionLocalOf
+import co.touchlab.kermit.Logger
 import io.github.smithjustinn.screens.DifficultyScreenModel
 import io.github.smithjustinn.screens.GameScreenModel
 import io.github.smithjustinn.screens.StatsScreenModel
@@ -17,6 +18,7 @@ import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
 
 interface AppGraph {
+    val logger: Logger
     val difficultyScreenModel: DifficultyScreenModel
     val gameScreenModel: GameScreenModel
     val statsScreenModel: StatsScreenModel
