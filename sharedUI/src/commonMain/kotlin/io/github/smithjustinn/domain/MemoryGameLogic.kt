@@ -95,7 +95,8 @@ object MemoryGameLogic {
             moves = moves,
             score = state.score + pointsEarned,
             comboMultiplier = state.comboMultiplier + 1,
-            matchComment = comment
+            matchComment = comment,
+            movesSinceLastMatch = 0
         )
 
         return newState to if (isWon) GameDomainEvent.GameWon else GameDomainEvent.MatchSuccess
@@ -105,6 +106,7 @@ object MemoryGameLogic {
         val newState = state.copy(
             moves = state.moves + 1,
             comboMultiplier = 1,
+            movesSinceLastMatch = state.movesSinceLastMatch + 1,
             cards = state.cards.map { card ->
                 if (card.id == first.id || card.id == second.id) {
                     card.copy(isError = true)
@@ -114,6 +116,28 @@ object MemoryGameLogic {
             }
         )
         return newState to GameDomainEvent.MatchFailure
+    }
+
+    fun shuffleRemainingCards(state: MemoryGameState): MemoryGameState {
+        val unmatchedCards = state.cards.filter { !it.isMatched }
+        val matchedCards = state.cards.filter { it.isMatched }
+        
+        val shuffledUnmatched = unmatchedCards.shuffled().mapIndexed { _, card ->
+            // We need to keep the original IDs or at least ensure they are unique and consistent. However,
+            //  for UI stability, it's often better to just swap the content (suit/rank)
+            // or re-map the IDs if the UI uses IDs for keys.
+            // Let's re-map IDs to match their new positions in the combined list.
+            card.copy(isFaceUp = false, isError = false)
+        }
+
+        val allCards = (matchedCards + shuffledUnmatched).mapIndexed { index, card ->
+            card.copy(id = index)
+        }
+
+        return state.copy(
+            cards = allCards,
+            movesSinceLastMatch = 0
+        )
     }
 
     fun resetErrorCards(state: MemoryGameState): MemoryGameState {

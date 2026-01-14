@@ -18,6 +18,7 @@ import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
 import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
+import io.github.smithjustinn.domain.usecases.ShuffleBoardUseCase
 
 interface AppGraph {
     val logger: Logger
@@ -37,6 +38,7 @@ interface AppGraph {
     val getSavedGameUseCase: GetSavedGameUseCase
     val saveGameStateUseCase: SaveGameStateUseCase
     val clearSavedGameUseCase: ClearSavedGameUseCase
+    val shuffleBoardUseCase: ShuffleBoardUseCase
 }
 
 val LocalAppGraph = staticCompositionLocalOf<AppGraph> {

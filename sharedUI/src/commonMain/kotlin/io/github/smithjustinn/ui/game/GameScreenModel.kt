@@ -17,6 +17,7 @@ import io.github.smithjustinn.domain.usecases.ResetErrorCardsUseCase
 import io.github.smithjustinn.domain.usecases.SaveGameResultUseCase
 import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.StartNewGameUseCase
+import io.github.smithjustinn.domain.usecases.ShuffleBoardUseCase
 import io.github.smithjustinn.services.HapticsService
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.IO
@@ -25,6 +26,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -42,9 +44,12 @@ data class GameUIState(
     val isNewHighScore: Boolean = false,
     val isPeeking: Boolean = false,
     val isPeekFeatureEnabled: Boolean = true,
+    val isHiddenBoardEnabled: Boolean = false,
+    val movesBeforeShuffle: Int = 5,
     val showTimeGain: Boolean = false,
     val timeGainAmount: Int = 0,
-    val isMegaBonus: Boolean = false
+    val isMegaBonus: Boolean = false,
+    val showShuffleWarning: Boolean = false
 )
 
 /**
@@ -72,6 +77,7 @@ class GameScreenModel(
     private val getSavedGameUseCase: GetSavedGameUseCase,
     private val saveGameStateUseCase: SaveGameStateUseCase,
     private val clearSavedGameUseCase: ClearSavedGameUseCase,
+    private val shuffleBoardUseCase: ShuffleBoardUseCase,
     private val settingsRepository: SettingsRepository,
     private val logger: Logger
 ) : ScreenModel {
@@ -84,11 +90,22 @@ class GameScreenModel(
     private var explosionJob: Job? = null
     private var peekJob: Job? = null
     private var timeGainJob: Job? = null
+    private var shuffleWarningJob: Job? = null
 
     init {
         screenModelScope.launch {
-            settingsRepository.isPeekEnabled.collect { enabled ->
-                _state.update { it.copy(isPeekFeatureEnabled = enabled) }
+            combine(
+                settingsRepository.isPeekEnabled,
+                settingsRepository.isHiddenBoardEnabled,
+                settingsRepository.movesBeforeShuffle
+            ) { peek, hidden, moves ->
+                Triple(peek, hidden, moves)
+            }.collect { (peek, hidden, moves) ->
+                _state.update { it.copy(
+                    isPeekFeatureEnabled = peek,
+                    isHiddenBoardEnabled = hidden,
+                    movesBeforeShuffle = moves
+                ) }
             }
         }
     }
@@ -227,10 +244,10 @@ class GameScreenModel(
 
             when (event) {
                 GameDomainEvent.MatchSuccess -> handleMatchSuccess(newState)
-                GameDomainEvent.MatchFailure -> handleMatchFailure()
+                GameDomainEvent.MatchFailure -> handleMatchFailure(newState)
                 GameDomainEvent.GameWon -> handleGameWon(newState)
                 GameDomainEvent.GameOver -> handleGameOver()
-                null -> {}
+                else -> {}
             }
         } catch (e: Exception) {
             logger.e(e) { "Error flipping card: $cardId" }
@@ -271,11 +288,49 @@ class GameScreenModel(
         }
     }
 
-    private fun handleMatchFailure() {
+    private fun handleMatchFailure(newState: MemoryGameState) {
         hapticsService.vibrateMismatch()
+        
+        val isHiddenBoard = _state.value.isHiddenBoardEnabled
+        val threshold = _state.value.movesBeforeShuffle
+        
         screenModelScope.launch {
             delay(1000)
-            _state.update { it.copy(game = resetErrorCardsUseCase(it.game)) }
+            val resetState = resetErrorCardsUseCase(newState)
+            
+            if (isHiddenBoard && resetState.movesSinceLastMatch >= threshold) {
+                triggerShuffle()
+            } else {
+                _state.update { it.copy(game = resetState) }
+                
+                // Show warning if close to shuffle
+                if (isHiddenBoard && resetState.movesSinceLastMatch == threshold - 1) {
+                    showShuffleWarning()
+                }
+            }
+        }
+    }
+
+    private fun triggerShuffle() {
+        screenModelScope.launch {
+            _state.update { it.copy(showShuffleWarning = true) }
+            hapticsService.vibrateMatch() // Use a distinct vibration if available
+            delay(1000)
+            _state.update { 
+                it.copy(
+                    game = shuffleBoardUseCase(it.game),
+                    showShuffleWarning = false
+                )
+            }
+        }
+    }
+
+    private fun showShuffleWarning() {
+        shuffleWarningJob?.cancel()
+        shuffleWarningJob = screenModelScope.launch {
+            _state.update { it.copy(showShuffleWarning = true) }
+            delay(2000)
+            _state.update { it.copy(showShuffleWarning = false) }
         }
     }
 
@@ -346,6 +401,7 @@ class GameScreenModel(
         explosionJob?.cancel()
         peekJob?.cancel()
         timeGainJob?.cancel()
+        shuffleWarningJob?.cancel()
         saveGame()
     }
 }
