@@ -35,6 +35,7 @@ import kotlinx.coroutines.launch
 data class GameUIState(
     val game: MemoryGameState = MemoryGameState(),
     val elapsedTimeSeconds: Long = 0,
+    val maxTimeSeconds: Long = 0,
     val bestScore: Int = 0,
     val bestTimeSeconds: Long = 0,
     val showComboExplosion: Boolean = false,
@@ -101,10 +102,12 @@ class GameScreenModel(
             try {
                 val savedGame = if (forceNewGame) null else getSavedGameUseCase()
                 if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameOver && savedGame.first.mode == mode) {
+                    val initialTime = if (mode == GameMode.TIME_ATTACK) calculateInitialTime(pairCount) else 0L
                     _state.update {
                         it.copy(
                             game = savedGame.first,
                             elapsedTimeSeconds = savedGame.second,
+                            maxTimeSeconds = initialTime,
                             showComboExplosion = false,
                             isNewHighScore = false,
                             isPeeking = false
@@ -119,6 +122,7 @@ class GameScreenModel(
                         it.copy(
                             game = initialGameState,
                             elapsedTimeSeconds = initialTime,
+                            maxTimeSeconds = initialTime,
                             showComboExplosion = false,
                             isNewHighScore = false,
                             isPeeking = false

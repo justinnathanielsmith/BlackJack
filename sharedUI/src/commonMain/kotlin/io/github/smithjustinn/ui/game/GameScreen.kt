@@ -69,7 +69,9 @@ data class GameScreen(
                     onBackClick = {
                         navigator.pop()
                     },
-                    isPeeking = state.isPeeking
+                    isPeeking = state.isPeeking,
+                    mode = mode,
+                    maxTime = state.maxTimeSeconds
                 )
             }
         ) { paddingValues ->
