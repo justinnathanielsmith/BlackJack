@@ -2,6 +2,7 @@ package io.github.smithjustinn.domain.usecases
 
 import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.GameStats
 import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
@@ -19,8 +20,9 @@ class SaveGameResultUseCase(
     private val leaderboardRepository: LeaderboardRepository,
     private val logger: Logger
 ) {
-    suspend operator fun invoke(pairCount: Int, score: Int, timeSeconds: Long, moves: Int) {
+    suspend operator fun invoke(pairCount: Int, score: Int, timeSeconds: Long, moves: Int, gameMode: GameMode) {
         try {
+            // Stats are currently per difficulty, we might want to separate them by mode too in the future
             val currentStats = gameStatsRepository.getStatsForDifficulty(pairCount).firstOrNull()
             
             val newBestScore = if (currentStats == null || score > currentStats.bestScore) score else currentStats.bestScore
@@ -38,7 +40,8 @@ class SaveGameResultUseCase(
                     score = score,
                     timeSeconds = timeSeconds,
                     moves = moves,
-                    timestamp = Clock.System.now()
+                    timestamp = Clock.System.now(),
+                    gameMode = gameMode
                 )
             )
         } catch (e: Exception) {

@@ -18,6 +18,9 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
@@ -35,11 +38,14 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.smithjustinn.components.common.AppIcons
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.utils.formatTime
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.high_scores
+import memory_match.sharedui.generated.resources.mode_standard
+import memory_match.sharedui.generated.resources.mode_time_attack
 import memory_match.sharedui.generated.resources.no_stats_yet
 import memory_match.sharedui.generated.resources.pairs_format
 import memory_match.sharedui.generated.resources.score_label
@@ -70,16 +76,54 @@ class StatsScreen : Screen, JavaSerializable {
                 )
             }
         ) { paddingValues ->
-            LazyColumn(
+            Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues),
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp)
+                    .padding(paddingValues)
             ) {
-                items(state.difficultyLeaderboards) { (level, entries) ->
-                    LeaderboardSection(level, entries)
+                ModeSelector(
+                    selectedMode = state.selectedGameMode,
+                    onModeSelected = { screenModel.onGameModeSelected(it) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
+                )
+
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    items(state.difficultyLeaderboards) { (level, entries) ->
+                        LeaderboardSection(level, entries)
+                    }
                 }
+            }
+        }
+    }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    @Composable
+    private fun ModeSelector(
+        selectedMode: GameMode,
+        onModeSelected: (GameMode) -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        SingleChoiceSegmentedButtonRow(modifier = modifier) {
+            GameMode.entries.forEachIndexed { index, mode ->
+                SegmentedButton(
+                    shape = SegmentedButtonDefaults.itemShape(index = index, count = GameMode.entries.size),
+                    onClick = { onModeSelected(mode) },
+                    selected = mode == selectedMode,
+                    label = {
+                        Text(
+                            text = when (mode) {
+                                GameMode.STANDARD -> stringResource(Res.string.mode_standard)
+                                GameMode.TIME_ATTACK -> stringResource(Res.string.mode_time_attack)
+                            }
+                        )
+                    }
+                )
             }
         }
     }

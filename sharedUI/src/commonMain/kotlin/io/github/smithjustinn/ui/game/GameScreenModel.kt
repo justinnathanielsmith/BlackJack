@@ -248,7 +248,7 @@ class GameScreenModel(
             isNewHighScore = isNewHigh
         ) }
 
-        saveStats(gameWithBonuses.pairCount, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves)
+        saveStats(gameWithBonuses.pairCount, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves, gameWithBonuses.mode)
         clearCommentAfterDelay()
 
         screenModelScope.launch {
@@ -281,9 +281,9 @@ class GameScreenModel(
         }
     }
 
-    private fun saveStats(pairCount: Int, score: Int, time: Long, moves: Int) {
+    private fun saveStats(pairCount: Int, score: Int, time: Long, moves: Int, gameMode: GameMode) {
         screenModelScope.launch(Dispatchers.IO) {
-            saveGameResultUseCase(pairCount, score, time, moves)
+            saveGameResultUseCase(pairCount, score, time, moves, gameMode)
         }
     }
 

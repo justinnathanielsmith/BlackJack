@@ -11,5 +11,6 @@ data class LeaderboardEntry(
     val score: Int,
     val timeSeconds: Long,
     val moves: Int,
-    val timestamp: Instant
+    val timestamp: Instant,
+    val gameMode: GameMode = GameMode.STANDARD
 )

@@ -16,7 +16,7 @@ import androidx.sqlite.execSQL
         GameStateEntity::class,
         SettingsEntity::class
     ],
-    version = 5
+    version = 6
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -52,6 +52,14 @@ abstract class AppDatabase : RoomDatabase() {
             override fun migrate(connection: SQLiteConnection) {
                 connection.execSQL(
                     "CREATE TABLE IF NOT EXISTS `settings` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, PRIMARY KEY(`id`))"
+                )
+            }
+        }
+
+        val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL(
+                    "ALTER TABLE `leaderboard` ADD COLUMN `gameMode` TEXT NOT NULL DEFAULT 'STANDARD'"
                 )
             }
         }

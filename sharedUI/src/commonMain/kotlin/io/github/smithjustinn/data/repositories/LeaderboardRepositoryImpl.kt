@@ -3,6 +3,7 @@ package io.github.smithjustinn.data.repositories
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.data.local.LeaderboardDao
 import io.github.smithjustinn.data.local.LeaderboardEntity
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import dev.zacsweers.metro.Inject
@@ -16,13 +17,13 @@ class LeaderboardRepositoryImpl(
     private val dao: LeaderboardDao,
     private val logger: Logger
 ) : LeaderboardRepository {
-    override fun getTopEntries(pairCount: Int): Flow<List<LeaderboardEntry>> =
-        dao.getTopEntries(pairCount)
+    override fun getTopEntries(pairCount: Int, gameMode: GameMode): Flow<List<LeaderboardEntry>> =
+        dao.getTopEntries(pairCount, gameMode)
             .map { entities ->
                 entities.map { it.toDomain() }
             }
             .catch { e ->
-                logger.e(e) { "Error fetching leaderboard for difficulty: $pairCount" }
+                logger.e(e) { "Error fetching leaderboard for difficulty: $pairCount, mode: $gameMode" }
                 emit(emptyList())
             }
 
@@ -40,7 +41,8 @@ class LeaderboardRepositoryImpl(
         score = score,
         timeSeconds = timeSeconds,
         moves = moves,
-        timestamp = timestamp
+        timestamp = timestamp,
+        gameMode = gameMode
     )
 
     private fun LeaderboardEntry.toEntity(): LeaderboardEntity = LeaderboardEntity(
@@ -49,6 +51,7 @@ class LeaderboardRepositoryImpl(
         score = score,
         timeSeconds = timeSeconds,
         moves = moves,
-        timestamp = timestamp
+        timestamp = timestamp,
+        gameMode = gameMode
     )
 }
