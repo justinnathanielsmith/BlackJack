@@ -32,7 +32,6 @@ import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
 import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
-import io.github.smithjustinn.domain.usecases.ShuffleBoardUseCase
 import io.github.smithjustinn.ui.difficulty.DifficultyScreenModel
 import io.github.smithjustinn.ui.game.GameScreenModel
 import io.github.smithjustinn.ui.stats.StatsScreenModel
@@ -60,7 +59,6 @@ interface AndroidAppGraph : AppGraph {
     override val getSavedGameUseCase: GetSavedGameUseCase
     override val saveGameStateUseCase: SaveGameStateUseCase
     override val clearSavedGameUseCase: ClearSavedGameUseCase
-    override val shuffleBoardUseCase: ShuffleBoardUseCase
 
     @Provides fun provideApplicationContext(application: Application): Context = application
 
@@ -86,14 +84,7 @@ interface AndroidAppGraph : AppGraph {
         )
         .setDriver(BundledSQLiteDriver())
         .setQueryCoroutineContext(Dispatchers.IO)
-        .addMigrations(
-            AppDatabase.MIGRATION_1_2,
-            AppDatabase.MIGRATION_2_3,
-            AppDatabase.MIGRATION_3_4,
-            AppDatabase.MIGRATION_4_5,
-            AppDatabase.MIGRATION_5_6,
-            AppDatabase.MIGRATION_6_7
-        )
+        .fallbackToDestructiveMigration(dropAllTables = true)
         .build()
     }
 

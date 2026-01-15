@@ -56,8 +56,7 @@ data class MemoryGameState(
     @Transient val matchComment: MatchComment? = null,
     val config: ScoringConfig = ScoringConfig(),
     val scoreBreakdown: ScoreBreakdown = ScoreBreakdown(),
-    val mode: GameMode = GameMode.STANDARD,
-    val movesSinceLastMatch: Int = 0
+    val mode: GameMode = GameMode.STANDARD
 )
 
 /**

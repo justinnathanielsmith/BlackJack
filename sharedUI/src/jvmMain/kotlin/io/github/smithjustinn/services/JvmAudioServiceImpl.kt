@@ -1,9 +1,12 @@
 package io.github.smithjustinn.services
 
+import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject
 
 @Inject
-class JvmAudioServiceImpl : AudioService {
+class JvmAudioServiceImpl(
+    private val logger: Logger
+) : AudioService {
     override fun playFlip() {
         // TODO: Implement JVM audio playback
     }
@@ -21,6 +24,10 @@ class JvmAudioServiceImpl : AudioService {
     }
 
     override fun playClick() {
+        // TODO: Implement JVM audio playback
+    }
+
+    override fun playDeal() {
         // TODO: Implement JVM audio playback
     }
 }

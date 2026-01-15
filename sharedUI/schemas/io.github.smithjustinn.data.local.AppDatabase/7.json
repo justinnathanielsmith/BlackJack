@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 7,
-    "identityHash": "87fdcd8d66b3da1faf431013ce0acdf0",
+    "identityHash": "557d65abf20c7906a06db56b14dca207",
     "entities": [
       {
         "tableName": "game_stats",
@@ -120,7 +120,7 @@
       },
       {
         "tableName": "settings",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, `isHiddenBoardEnabled` INTEGER NOT NULL, `movesBeforeShuffle` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -131,18 +131,6 @@
           {
             "fieldPath": "isPeekEnabled",
             "columnName": "isPeekEnabled",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "isHiddenBoardEnabled",
-            "columnName": "isHiddenBoardEnabled",
-            "affinity": "INTEGER",
-            "notNull": true
-          },
-          {
-            "fieldPath": "movesBeforeShuffle",
-            "columnName": "movesBeforeShuffle",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -157,7 +145,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '87fdcd8d66b3da1faf431013ce0acdf0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '557d65abf20c7906a06db56b14dca207')"
     ]
   }
 }

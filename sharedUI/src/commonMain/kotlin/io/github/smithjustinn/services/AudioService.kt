@@ -6,4 +6,5 @@ interface AudioService {
     fun playMismatch()
     fun playWin()
     fun playClick()
+    fun playDeal()
 }

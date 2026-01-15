@@ -1,38 +1,22 @@
 package io.github.smithjustinn.ui.game
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import io.github.smithjustinn.components.game.BouncingCardsOverlay
-import io.github.smithjustinn.components.game.ConfettiEffect
-import io.github.smithjustinn.components.game.ExplosionEffect
-import io.github.smithjustinn.components.game.GameGrid
-import io.github.smithjustinn.components.game.GameTopBar
-import io.github.smithjustinn.components.game.MatchCommentSnackbar
-import io.github.smithjustinn.components.game.NewHighScoreSnackbar
-import io.github.smithjustinn.components.game.ResultsCard
+import io.github.smithjustinn.components.game.*
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.platform.CommonTransient
@@ -106,31 +90,6 @@ data class GameScreen(
                         modifier = Modifier.fillMaxSize(),
                         particleCount = 50
                     )
-                }
-
-                // Shuffle Warning Overlay
-                AnimatedVisibility(
-                    visible = state.showShuffleWarning,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                    modifier = Modifier.align(Alignment.Center)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .background(
-                                color = Color.Black.copy(alpha = 0.7f),
-                                shape = RoundedCornerShape(12.dp)
-                            )
-                            .padding(24.dp),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            text = "SHUFFLING!",
-                            style = MaterialTheme.typography.headlineLarge,
-                            color = Color.White,
-                            fontWeight = FontWeight.Bold
-                        )
-                    }
                 }
 
                 if (state.game.isGameOver) {

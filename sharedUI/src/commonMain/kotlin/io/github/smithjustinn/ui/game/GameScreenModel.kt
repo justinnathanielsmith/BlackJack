@@ -8,29 +8,11 @@ import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.repositories.SettingsRepository
-import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
-import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
-import io.github.smithjustinn.domain.usecases.FlipCardUseCase
-import io.github.smithjustinn.domain.usecases.GetGameStatsUseCase
-import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
-import io.github.smithjustinn.domain.usecases.ResetErrorCardsUseCase
-import io.github.smithjustinn.domain.usecases.SaveGameResultUseCase
-import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
-import io.github.smithjustinn.domain.usecases.StartNewGameUseCase
-import io.github.smithjustinn.domain.usecases.ShuffleBoardUseCase
-import io.github.smithjustinn.services.HapticsService
+import io.github.smithjustinn.domain.usecases.*
 import io.github.smithjustinn.services.AudioService
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.launch
+import io.github.smithjustinn.services.HapticsService
+import kotlinx.coroutines.*
+import kotlinx.coroutines.flow.*
 
 /**
  * Represents the overall state of the game screen, including the UI-only state.
@@ -45,12 +27,9 @@ data class GameUIState(
     val isNewHighScore: Boolean = false,
     val isPeeking: Boolean = false,
     val isPeekFeatureEnabled: Boolean = true,
-    val isHiddenBoardEnabled: Boolean = false,
-    val movesBeforeShuffle: Int = 5,
     val showTimeGain: Boolean = false,
     val timeGainAmount: Int = 0,
-    val isMegaBonus: Boolean = false,
-    val showShuffleWarning: Boolean = false
+    val isMegaBonus: Boolean = false
 )
 
 /**
@@ -79,7 +58,6 @@ class GameScreenModel(
     private val getSavedGameUseCase: GetSavedGameUseCase,
     private val saveGameStateUseCase: SaveGameStateUseCase,
     private val clearSavedGameUseCase: ClearSavedGameUseCase,
-    private val shuffleBoardUseCase: ShuffleBoardUseCase,
     private val settingsRepository: SettingsRepository,
     private val logger: Logger
 ) : ScreenModel {
@@ -92,22 +70,11 @@ class GameScreenModel(
     private var explosionJob: Job? = null
     private var peekJob: Job? = null
     private var timeGainJob: Job? = null
-    private var shuffleWarningJob: Job? = null
 
     init {
         screenModelScope.launch {
-            combine(
-                settingsRepository.isPeekEnabled,
-                settingsRepository.isHiddenBoardEnabled,
-                settingsRepository.movesBeforeShuffle
-            ) { peek, hidden, moves ->
-                Triple(peek, hidden, moves)
-            }.collect { (peek, hidden, moves) ->
-                _state.update { it.copy(
-                    isPeekFeatureEnabled = peek,
-                    isHiddenBoardEnabled = hidden,
-                    movesBeforeShuffle = moves
-                ) }
+            settingsRepository.isPeekEnabled.collect { peek ->
+                _state.update { it.copy(isPeekFeatureEnabled = peek) }
             }
         }
     }
@@ -154,6 +121,8 @@ class GameScreenModel(
                         )
                     }
                     
+                    audioService.playDeal() // Play deal sound when a new game starts
+
                     // Wait for the settings to be loaded if they haven't been yet
                     val isPeekEnabled = settingsRepository.isPeekEnabled.first()
                     if (isPeekEnabled) {
@@ -297,47 +266,11 @@ class GameScreenModel(
         hapticsService.vibrateMismatch()
         audioService.playMismatch()
         
-        val isHiddenBoard = _state.value.isHiddenBoardEnabled
-        val threshold = _state.value.movesBeforeShuffle
-        
         screenModelScope.launch {
             delay(1000)
             audioService.playFlip() // Play flip sound when cards hide after mismatch
             val resetState = resetErrorCardsUseCase(newState)
-            
-            if (isHiddenBoard && resetState.movesSinceLastMatch >= threshold) {
-                triggerShuffle()
-            } else {
-                _state.update { it.copy(game = resetState) }
-                
-                // Show warning if close to shuffle
-                if (isHiddenBoard && resetState.movesSinceLastMatch == threshold - 1) {
-                    showShuffleWarning()
-                }
-            }
-        }
-    }
-
-    private fun triggerShuffle() {
-        screenModelScope.launch {
-            _state.update { it.copy(showShuffleWarning = true) }
-            hapticsService.vibrateMatch() // Use a distinct vibration if available
-            delay(1000)
-            _state.update { 
-                it.copy(
-                    game = shuffleBoardUseCase(it.game),
-                    showShuffleWarning = false
-                )
-            }
-        }
-    }
-
-    private fun showShuffleWarning() {
-        shuffleWarningJob?.cancel()
-        shuffleWarningJob = screenModelScope.launch {
-            _state.update { it.copy(showShuffleWarning = true) }
-            delay(2000)
-            _state.update { it.copy(showShuffleWarning = false) }
+            _state.update { it.copy(game = resetState) }
         }
     }
 
@@ -409,7 +342,6 @@ class GameScreenModel(
         explosionJob?.cancel()
         peekJob?.cancel()
         timeGainJob?.cancel()
-        shuffleWarningJob?.cancel()
         saveGame()
     }
 }
