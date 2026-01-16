@@ -30,26 +30,34 @@ class JvmAudioServiceImpl(
             .launchIn(scope)
 
         scope.launch {
-            val sounds = listOf("flip.wav", "match.wav", "mismatch.wav", "win.wav", "click.wav", "deal.wav")
-            sounds.forEach { path ->
+            val sounds = listOf(
+                AudioService.FLIP,
+                AudioService.MATCH,
+                AudioService.MISMATCH,
+                AudioService.WIN,
+                AudioService.CLICK,
+                AudioService.DEAL
+            )
+            sounds.forEach { name ->
                 try {
+                    val path = "$name.wav"
                     val bytes = Res.readBytes("files/$path")
                     val inputStream = ByteArrayInputStream(bytes)
                     val audioStream = AudioSystem.getAudioInputStream(BufferedInputStream(inputStream))
                     val clip = AudioSystem.getClip()
                     clip.open(audioStream)
-                    clips[path] = clip
+                    clips[name] = clip
                 } catch (e: Exception) {
-                    logger.e(e) { "Error pre-loading sound: $path" }
+                    logger.e(e) { "Error pre-loading sound: $name" }
                 }
             }
         }
     }
 
-    private fun playSound(path: String) {
+    private fun playSound(name: String) {
         if (!isSoundEnabled) return
 
-        val clip = clips[path] ?: return
+        val clip = clips[name] ?: return
         if (clip.isRunning) {
             clip.stop()
         }
@@ -57,10 +65,10 @@ class JvmAudioServiceImpl(
         clip.start()
     }
 
-    override fun playFlip() = playSound("flip.wav")
-    override fun playMatch() = playSound("match.wav")
-    override fun playMismatch() = playSound("mismatch.wav")
-    override fun playWin() = playSound("win.wav")
-    override fun playClick() = playSound("click.wav")
-    override fun playDeal() = playSound("deal.wav")
+    override fun playFlip() = playSound(AudioService.FLIP)
+    override fun playMatch() = playSound(AudioService.MATCH)
+    override fun playMismatch() = playSound(AudioService.MISMATCH)
+    override fun playWin() = playSound(AudioService.WIN)
+    override fun playClick() = playSound(AudioService.CLICK)
+    override fun playDeal() = playSound(AudioService.DEAL)
 }

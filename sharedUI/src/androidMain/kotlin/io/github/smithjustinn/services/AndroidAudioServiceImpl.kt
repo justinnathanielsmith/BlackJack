@@ -42,7 +42,6 @@ class AndroidAudioServiceImpl(
     private var isSoundEnabled = true
 
     init {
-        // Observe sound settings
         settingsRepository.isSoundEnabled
             .onEach { isSoundEnabled = it }
             .launchIn(scope)
@@ -53,50 +52,58 @@ class AndroidAudioServiceImpl(
             }
         }
 
-        // Pre-load all sounds
         scope.launch {
-            listOf("flip.m4a", "match.m4a", "mismatch.m4a", "win.m4a", "click.m4a", "deal.m4a").forEach { path ->
-                loadSound(path)
+            listOf(
+                AudioService.FLIP,
+                AudioService.MATCH,
+                AudioService.MISMATCH,
+                AudioService.WIN,
+                AudioService.CLICK,
+                AudioService.DEAL
+            ).forEach { name ->
+                loadSound(name)
             }
         }
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private suspend fun loadSound(path: String): Int? {
+    private suspend fun loadSound(name: String): Int? {
+        val fileName = "$name.m4a"
         return try {
-            val bytes = Res.readBytes("files/$path")
-            val tempFile = File(context.cacheDir, path)
+            val bytes = Res.readBytes("files/$fileName")
+            val tempFile = File(context.cacheDir, fileName)
             withContext(Dispatchers.IO) {
                 FileOutputStream(tempFile).use { it.write(bytes) }
             }
             val id = soundPool.load(tempFile.absolutePath, 1)
-            soundMap[path] = id
+            soundMap[name] = id
             id
         } catch (e: Exception) {
-            logger.e(e) { "Error loading sound: $path" }
+            logger.e(e) { "Error loading sound: $name" }
             null
         }
     }
 
-    private fun playSound(path: String) {
+    private fun playSound(name: String) {
         if (!isSoundEnabled) return
 
-        val soundId = soundMap[path]
+        val soundId = soundMap[name]
         if (soundId != null && loadedSounds.contains(soundId)) {
             val streamId = soundPool.play(soundId, 1f, 1f, 1, 0, 1f)
             if (streamId == 0) {
-                playFallback(path)
+                playFallback(name)
             }
         } else {
-            playFallback(path)
+            playFallback(name)
         }
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private fun playFallback(path: String) {
+    private fun playFallback(name: String) {
+        val fileName = "$name.m4a"
         scope.launch {
             try {
-                val tempFile = File(context.cacheDir, path)
+                val tempFile = File(context.cacheDir, fileName)
                 if (tempFile.exists()) {
                     MediaPlayer().apply {
                         setDataSource(tempFile.absolutePath)
@@ -106,15 +113,15 @@ class AndroidAudioServiceImpl(
                     }
                 }
             } catch (e: Exception) {
-                logger.e(e) { "Error playing fallback sound: $path" }
+                logger.e(e) { "Error playing fallback sound: $name" }
             }
         }
     }
 
-    override fun playFlip() = playSound("flip.m4a")
-    override fun playMatch() = playSound("match.m4a")
-    override fun playMismatch() = playSound("mismatch.m4a")
-    override fun playWin() = playSound("win.m4a")
-    override fun playClick() = playSound("click.m4a")
-    override fun playDeal() = playSound("deal.m4a")
+    override fun playFlip() = playSound(AudioService.FLIP)
+    override fun playMatch() = playSound(AudioService.MATCH)
+    override fun playMismatch() = playSound(AudioService.MISMATCH)
+    override fun playWin() = playSound(AudioService.WIN)
+    override fun playClick() = playSound(AudioService.CLICK)
+    override fun playDeal() = playSound(AudioService.DEAL)
 }
