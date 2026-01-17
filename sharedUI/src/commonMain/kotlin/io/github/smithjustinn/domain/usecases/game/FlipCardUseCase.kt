@@ -1,4 +1,4 @@
-package io.github.smithjustinn.domain.usecases
+package io.github.smithjustinn.domain.usecases.game
 
 import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.MemoryGameLogic

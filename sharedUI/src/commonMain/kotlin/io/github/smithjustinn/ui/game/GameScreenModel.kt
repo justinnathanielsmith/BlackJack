@@ -8,7 +8,9 @@ import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.repositories.SettingsRepository
-import io.github.smithjustinn.domain.usecases.*
+import io.github.smithjustinn.domain.usecases.game.*
+import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
+import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticsService
 import kotlinx.coroutines.*

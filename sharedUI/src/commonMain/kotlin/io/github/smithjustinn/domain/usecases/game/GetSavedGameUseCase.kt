@@ -1,4 +1,4 @@
-package io.github.smithjustinn.domain.usecases
+package io.github.smithjustinn.domain.usecases.game
 
 import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject
@@ -6,18 +6,19 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 
 /**
- * Usecase to save the current game state.
+ * Use case to retrieve the saved game state.
  */
 @Inject
-class SaveGameStateUseCase(
+class GetSavedGameUseCase(
     private val gameStateRepository: GameStateRepository,
     private val logger: Logger
 ) {
-    suspend operator fun invoke(state: MemoryGameState, elapsedTimeSeconds: Long) {
-        try {
-            gameStateRepository.saveGameState(state, elapsedTimeSeconds)
+    suspend operator fun invoke(): Pair<MemoryGameState, Long>? {
+        return try {
+            gameStateRepository.getSavedGameState()
         } catch (e: Exception) {
-            logger.e(e) { "Failed to save game state via use case" }
+            logger.e(e) { "Failed to get saved game state via use case" }
+            null
         }
     }
 }

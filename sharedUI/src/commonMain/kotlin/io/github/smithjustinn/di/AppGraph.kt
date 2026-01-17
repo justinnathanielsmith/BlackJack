@@ -12,13 +12,13 @@ import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
-import io.github.smithjustinn.domain.usecases.StartNewGameUseCase
-import io.github.smithjustinn.domain.usecases.FlipCardUseCase
-import io.github.smithjustinn.domain.usecases.ResetErrorCardsUseCase
-import io.github.smithjustinn.domain.usecases.CalculateFinalScoreUseCase
-import io.github.smithjustinn.domain.usecases.GetSavedGameUseCase
-import io.github.smithjustinn.domain.usecases.SaveGameStateUseCase
-import io.github.smithjustinn.domain.usecases.ClearSavedGameUseCase
+import io.github.smithjustinn.domain.usecases.game.StartNewGameUseCase
+import io.github.smithjustinn.domain.usecases.game.FlipCardUseCase
+import io.github.smithjustinn.domain.usecases.game.ResetErrorCardsUseCase
+import io.github.smithjustinn.domain.usecases.game.CalculateFinalScoreUseCase
+import io.github.smithjustinn.domain.usecases.game.GetSavedGameUseCase
+import io.github.smithjustinn.domain.usecases.game.SaveGameStateUseCase
+import io.github.smithjustinn.domain.usecases.game.ClearSavedGameUseCase
 
 interface AppGraph {
     val logger: Logger

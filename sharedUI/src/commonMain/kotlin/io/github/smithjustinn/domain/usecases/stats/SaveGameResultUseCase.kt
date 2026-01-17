@@ -1,4 +1,4 @@
-package io.github.smithjustinn.domain.usecases
+package io.github.smithjustinn.domain.usecases.stats
 
 import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject

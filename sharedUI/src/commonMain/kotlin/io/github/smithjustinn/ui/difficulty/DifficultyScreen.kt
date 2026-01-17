@@ -14,7 +14,6 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.smithjustinn.components.common.AppIcons
-import io.github.smithjustinn.components.game.PlayingCard
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
@@ -22,6 +21,7 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.ui.game.GameScreen
+import io.github.smithjustinn.ui.game.components.PlayingCard
 import io.github.smithjustinn.ui.settings.SettingsScreen
 import io.github.smithjustinn.ui.stats.StatsScreen
 import memory_match.sharedui.generated.resources.*
