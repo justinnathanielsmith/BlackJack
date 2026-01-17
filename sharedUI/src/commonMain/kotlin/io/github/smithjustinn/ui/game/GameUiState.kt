@@ -35,3 +35,16 @@ sealed class GameIntent {
     data class FlipCard(val cardId: Int) : GameIntent()
     data object SaveGame : GameIntent()
 }
+
+/**
+ * Sealed class representing one-time UI events triggered by the ViewModel.
+ */
+sealed class GameUiEvent {
+    data object PlayFlip : GameUiEvent()
+    data object PlayMatch : GameUiEvent()
+    data object PlayMismatch : GameUiEvent()
+    data object PlayWin : GameUiEvent()
+    data object PlayDeal : GameUiEvent()
+    data object VibrateMatch : GameUiEvent()
+    data object VibrateMismatch : GameUiEvent()
+}

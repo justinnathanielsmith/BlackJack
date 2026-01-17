@@ -47,9 +47,25 @@ data class GameScreen(
 
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val audioService = graph.audioService
+        val hapticsService = graph.hapticsService
 
         LaunchedEffect(pairCount, forceNewGame, mode) {
             screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame, mode))
+        }
+
+        LaunchedEffect(Unit) {
+            screenModel.events.collect { event ->
+                when (event) {
+                    GameUiEvent.PlayFlip -> audioService.playFlip()
+                    GameUiEvent.PlayMatch -> audioService.playMatch()
+                    GameUiEvent.PlayMismatch -> audioService.playMismatch()
+                    GameUiEvent.PlayWin -> audioService.playWin()
+                    GameUiEvent.PlayDeal -> audioService.playDeal()
+                    GameUiEvent.VibrateMatch -> hapticsService.vibrateMatch()
+                    GameUiEvent.VibrateMismatch -> hapticsService.vibrateMismatch()
+                }
+            }
         }
 
         Box(
@@ -74,6 +90,7 @@ data class GameScreen(
                         bestScore = state.bestScore,
                         combo = state.game.comboMultiplier,
                         onBackClick = {
+                            audioService.playClick()
                             navigator.pop()
                         },
                         isPeeking = state.isPeeking,
@@ -129,7 +146,10 @@ data class GameScreen(
                             moves = state.game.moves,
                             elapsedTimeSeconds = state.elapsedTimeSeconds,
                             scoreBreakdown = state.game.scoreBreakdown,
-                            onPlayAgain = { screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode)) },
+                            onPlayAgain = {
+                                audioService.playClick()
+                                screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode))
+                            },
                             modifier = Modifier.align(Alignment.Center),
                             mode = mode
                         )

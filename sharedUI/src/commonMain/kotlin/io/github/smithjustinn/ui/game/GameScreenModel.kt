@@ -12,15 +12,12 @@ import io.github.smithjustinn.domain.repositories.SettingsRepository
 import io.github.smithjustinn.domain.usecases.game.*
 import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
 import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
-import io.github.smithjustinn.services.AudioService
-import io.github.smithjustinn.services.HapticsService
 import kotlinx.coroutines.*
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 
 @Inject
 class GameScreenModel(
-    private val hapticsService: HapticsService,
-    private val audioService: AudioService,
     private val startNewGameUseCase: StartNewGameUseCase,
     private val flipCardUseCase: FlipCardUseCase,
     private val resetErrorCardsUseCase: ResetErrorCardsUseCase,
@@ -35,6 +32,9 @@ class GameScreenModel(
 ) : ScreenModel {
     private val _state = MutableStateFlow(GameUIState())
     val state: StateFlow<GameUIState> = _state.asStateFlow()
+
+    private val _events = Channel<GameUiEvent>(Channel.BUFFERED)
+    val events: Flow<GameUiEvent> = _events.receiveAsFlow()
 
     private var timerJob: Job? = null
     private var commentJob: Job? = null
@@ -101,7 +101,7 @@ class GameScreenModel(
                         )
                     }
                     
-                    audioService.playDeal() // Play deal sound when a new game starts
+                    _events.send(GameUiEvent.PlayDeal)
 
                     // Wait for the settings to be loaded if they haven't been yet
                     val isPeekEnabled = settingsRepository.isPeekEnabled.first()
@@ -126,7 +126,7 @@ class GameScreenModel(
             _state.update { it.copy(isPeeking = true) }
             delay(3000) // Peek for 3 seconds
             _state.update { it.copy(isPeeking = false) }
-            audioService.playFlip() // Play flip sound when cards hide after peek
+            _events.send(GameUiEvent.PlayFlip)
             startTimer(mode)
         }
     }
@@ -183,7 +183,7 @@ class GameScreenModel(
             saveGame()
 
             when (event) {
-                GameDomainEvent.CardFlipped -> audioService.playFlip()
+                GameDomainEvent.CardFlipped -> screenModelScope.launch { _events.send(GameUiEvent.PlayFlip) }
                 GameDomainEvent.MatchSuccess -> handleMatchSuccess(newState)
                 GameDomainEvent.MatchFailure -> handleMatchFailure(newState)
                 GameDomainEvent.GameWon -> handleGameWon(newState)
@@ -196,8 +196,10 @@ class GameScreenModel(
     }
 
     private fun handleMatchSuccess(newState: MemoryGameState) {
-        hapticsService.vibrateMatch()
-        audioService.playMatch()
+        screenModelScope.launch {
+            _events.send(GameUiEvent.VibrateMatch)
+            _events.send(GameUiEvent.PlayMatch)
+        }
         clearCommentAfterDelay()
         
         if (newState.mode == GameMode.TIME_ATTACK) {
@@ -229,8 +231,10 @@ class GameScreenModel(
     }
 
     private fun handleMatchFailure(newState: MemoryGameState) {
-        hapticsService.vibrateMismatch()
-        audioService.playMismatch()
+        screenModelScope.launch {
+            _events.send(GameUiEvent.VibrateMismatch)
+            _events.send(GameUiEvent.PlayMismatch)
+        }
         
         var isGameOver = false
         if (newState.mode == GameMode.TIME_ATTACK) {
@@ -254,7 +258,7 @@ class GameScreenModel(
                 delay(1000)
                 // Re-check game over state before resetting cards to avoid race conditions
                 if (!_state.value.game.isGameOver) {
-                    audioService.playFlip() // Play flip sound when cards hide after mismatch
+                    _events.send(GameUiEvent.PlayFlip)
                     val resetState = resetErrorCardsUseCase(newState)
                     _state.update { it.copy(game = resetState) }
                 }
@@ -271,8 +275,10 @@ class GameScreenModel(
     }
 
     private fun handleGameWon(newState: MemoryGameState) {
-        hapticsService.vibrateMatch()
-        audioService.playWin()
+        screenModelScope.launch {
+            _events.send(GameUiEvent.VibrateMatch)
+            _events.send(GameUiEvent.PlayWin)
+        }
         stopTimer()
 
         val gameWithBonuses = calculateFinalScoreUseCase(newState, _state.value.elapsedTimeSeconds)

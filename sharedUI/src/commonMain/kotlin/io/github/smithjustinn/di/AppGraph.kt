@@ -7,6 +7,7 @@ import io.github.smithjustinn.ui.game.GameScreenModel
 import io.github.smithjustinn.ui.stats.StatsScreenModel
 import io.github.smithjustinn.ui.settings.SettingsScreenModel
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.services.HapticsService
 
 /**
  * The primary entry point for the dependency graph.
@@ -19,6 +20,7 @@ interface AppGraph {
     val statsScreenModel: StatsScreenModel
     val settingsScreenModel: SettingsScreenModel
     val audioService: AudioService
+    val hapticsService: HapticsService
 }
 
 val LocalAppGraph = staticCompositionLocalOf<AppGraph> {

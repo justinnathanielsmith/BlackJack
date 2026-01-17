@@ -43,48 +43,9 @@ Before generating code, you **MUST** align with the project state:
 3. **UI** (`sharedUI/src/commonMain`):
 * *Screens (Voyager), ViewModels (ScreenModels), Composables.*
 
-
-
 ---
 
-## 🔄 2. The "3-Step" Agent Workflow
-
-You must strictly follow this loop to prevent hallucinations and architectural drift.
-
-### 🛑 Phase 1: Context & Discovery (Internal Monologue)
-
-*Before* speaking, analyze:
-
-* "Does this require a new Metro Graph binding?"
-* "Am I using a deprecated API (e.g., `viewModelScope`)?"
-* "Is there an existing `UseCase` I can reuse?"
-
-### 📝 Phase 2: The Plan (Required Output)
-
-You must output a `<plan>` block before writing code.
-
-```xml
-<plan>
-  <objective>Add "mark as read" feature to MessageScreen</objective>
-  <changes>
-    <file action="create">domain/usecase/MarkMessageReadUseCase.kt</file>
-    <file action="modify">ui/message/MessageScreenModel.kt</file>
-  </changes>
-  <verification>Check Metro binding for the new UseCase.</verification>
-</plan>
-
-```
-
-*Wait for user approval if the plan involves >3 files.*
-
-### 🚀 Phase 3: Execution (Atomic & Verifiable)
-
-* Implement **one logical layer** at a time (Domain -> Data -> UI).
-* **Self-Correction**: If you encounter a compilation error, do not guess. Re-read the `AGENTS.md` section on that library.
-
----
-
-## 📏 3. Coding Standards (2026)
+## 📏 2. Coding Standards (2026)
 
 ### Kotlin 2.x Idioms
 
@@ -109,7 +70,6 @@ when (val response = api.get()) {
 
 ```
 
-
 * **Multi-Dollar Strings**: Use `$$` for JSON/Regex to avoid escaping.
 
 ### Compose UI & Voyager
@@ -125,9 +85,17 @@ if (windowClass.widthSizeClass == WindowWidthSizeClass.Expanded) { ... }
 * **Slot APIs**: Pass `@Composable` lambdas for flexibility, not specific sub-components.
 * **Modifiers**: The **first** optional parameter of ANY Composable must be `modifier`.
 
+### 🔊 Audio & Haptics (UX Feedback vs. Logic Result)
+
+* **Immediate UX Feedback**: Trigger directly from the UI (Composable).
+    * *Example*: Button clicks, toggle switches.
+* **Logic Result Events**: Trigger via ViewModel using a `Channel` or `SharedFlow` collected in the UI.
+    * *Example*: Match success, game won, error buzzer.
+* **Implementation**: Define interfaces (e.g., `AudioService`) in `commonMain` and inject via `AppGraph`.
+
 ---
 
-## 💉 4. Metro DI Guidelines (Strict)
+## 💉 3. Metro DI Guidelines (Strict)
 
 Metro is a **compiler plugin** (similar to Dagger/Anvil but KMP-native).
 
@@ -163,7 +131,7 @@ interface DataModule {
 
 ---
 
-## 🧪 5. Testing Standards (Turbine & Mokkery)
+## 🧪 4. Testing Standards (Turbine & Mokkery)
 
 1. **Mocking**: Use **Mokkery** (`mock()`).
     * *Note*: Final classes (like Kermit `Logger`) cannot be mocked. Use real instances with `StaticConfig()`.
@@ -187,7 +155,7 @@ fun `example test`() = runTest {
 
 ---
 
-## 🚫 6. Prohibited Patterns (The "Kill List")
+## 🚫 5. Prohibited Patterns (The "Kill List")
 
 | Pattern | Why it's banned | Fix |
 | --- | --- | --- |
@@ -200,7 +168,7 @@ fun `example test`() = runTest {
 
 ---
 
-## 🛠 7. Platform Specifics
+## 🛠 6. Platform Specifics
 
 ### iOS (Kotlin/Native)
 
@@ -215,7 +183,7 @@ fun `example test`() = runTest {
 
 ---
 
-## 📋 8. Feature Checklist
+## 📋 7. Feature Checklist
 
 When the user asks for **"Feature X"**, generate:
 
