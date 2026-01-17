@@ -188,43 +188,53 @@ object AppIcons {
                 defaultHeight = 24.0.dp,
                 viewportWidth = 24.0f,
                 viewportHeight = 24.0f
-            ).apply {
-                path(fill = SolidColor(Color.Black)) {
-                    moveTo(19.0f, 5.0f)
-                    horizontalLineToRelative(-2.0f)
-                    verticalLineTo(3.0f)
-                    horizontalLineTo(7.0f)
-                    verticalLineToRelative(2.0f)
-                    horizontalLineTo(5.0f)
-                    curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
-                    verticalLineToRelative(4.0f)
-                    curveToRelative(0.0f, 2.55f, 1.92f, 4.63f, 4.39f, 4.94f)
-                    curveTo(8.33f, 17.9f, 10.0f, 19.3f, 12.0f, 19.3f)
-                    reflectiveCurveToRelative(3.67f, -1.4f, 4.61f, -3.36f)
-                    curveTo(19.08f, 15.63f, 21.0f, 13.55f, 21.0f, 11.0f)
-                    verticalLineTo(7.0f)
-                    curveToRelative(0.0f, -1.1f, -0.9f, -2.0f, -2.0f, -2.0f)
-                    close()
-                    moveTo(5.0f, 11.0f)
-                    verticalLineTo(7.0f)
-                    horizontalLineToRelative(2.0f)
-                    verticalLineToRelative(4.0f)
-                    curveToRelative(0.0f, 1.1f, -0.9f, 2.0f, -2.0f, 2.0f)
-                    reflectiveCurveToRelative(-2.0f, -0.9f, -2.0f, -2.0f)
-                    close()
-                    moveTo(19.0f, 11.0f)
-                    curveToRelative(0.0f, 1.1f, -0.9f, 2.0f, -2.0f, 2.0f)
-                    reflectiveCurveToRelative(-2.0f, -0.9f, -2.0f, -2.0f)
-                    verticalLineTo(7.0f)
-                    horizontalLineToRelative(2.0f)
-                    verticalLineToRelative(4.0f)
-                    close()
-                    moveTo(12.0f, 21.0f)
-                    curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
-                    horizontalLineToRelative(4.0f)
-                    curveToRelative(0.0f, -1.1f, -0.9f, -2.0f, -2.0f, -2.0f)
-                    close()
-                }
+            ).path(
+                fill = SolidColor(Color(0xFF000000)),
+                strokeLineWidth = 0f,
+                strokeLineCap = StrokeCap.Butt,
+                strokeLineJoin = StrokeJoin.Miter,
+                pathFillType = PathFillType.NonZero
+            ) {
+                // The main cup body
+                moveTo(19.0f, 5.0f)
+                horizontalLineTo(5.0f)
+                verticalLineTo(7.0f)
+                curveTo(5.0f, 10.86f, 8.13f, 14.0f, 12.0f, 14.0f)
+                reflectiveCurveTo(19.0f, 10.86f, 19.0f, 7.0f)
+                verticalLineTo(5.0f)
+                close()
+
+                // The stem and base
+                moveTo(11.0f, 15.0f)
+                horizontalLineTo(13.0f)
+                verticalLineTo(18.0f)
+                horizontalLineTo(16.0f)
+                verticalLineTo(20.0f)
+                horizontalLineTo(8.0f)
+                verticalLineTo(18.0f)
+                horizontalLineTo(11.0f)
+                verticalLineTo(15.0f)
+                close()
+
+                // Right Handle
+                moveTo(21.0f, 7.0f)
+                curveTo(22.66f, 7.0f, 24.0f, 8.34f, 24.0f, 10.0f)
+                curveTo(24.0f, 11.66f, 22.66f, 13.0f, 21.0f, 13.0f)
+                verticalLineTo(11.0f)
+                curveTo(21.55f, 11.0f, 22.0f, 10.55f, 22.0f, 10.0f)
+                curveTo(22.0f, 9.45f, 21.55f, 9.0f, 21.0f, 9.0f)
+                verticalLineTo(7.0f)
+                close()
+
+                // Left Handle (Mirrored)
+                moveTo(3.0f, 7.0f)
+                verticalLineTo(9.0f)
+                curveTo(2.45f, 9.0f, 2.0f, 9.45f, 2.0f, 10.0f)
+                curveTo(2.0f, 10.55f, 2.45f, 11.0f, 3.0f, 11.0f)
+                verticalLineTo(13.0f)
+                curveTo(1.34f, 13.0f, 0.0f, 11.66f, 0.0f, 10.0f)
+                curveTo(0.0f, 8.34f, 1.34f, 7.0f, 3.0f, 7.0f)
+                close()
             }.build()
             return _trophy!!
         }
