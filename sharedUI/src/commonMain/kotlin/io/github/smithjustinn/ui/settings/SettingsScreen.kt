@@ -118,6 +118,41 @@ class SettingsScreen : Screen {
                             }
                         )
                     }
+
+                    SettingsCard {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = "Reset Walkthrough",
+                                    style = MaterialTheme.typography.titleMedium,
+                                    fontWeight = FontWeight.Bold
+                                )
+                                Text(
+                                    text = "Show the tutorial again on the next game",
+                                    style = MaterialTheme.typography.bodySmall,
+                                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    lineHeight = 16.sp
+                                )
+                            }
+                            Button(
+                                onClick = {
+                                    audioService.playClick()
+                                    screenModel.resetWalkthrough()
+                                },
+                                enabled = state.isWalkthroughCompleted,
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                )
+                            ) {
+                                Text("Reset")
+                            }
+                        }
+                    }
                 }
             }
         }

@@ -10,7 +10,8 @@ import kotlinx.coroutines.launch
 
 data class SettingsUIState(
     val isPeekEnabled: Boolean = true,
-    val isSoundEnabled: Boolean = true
+    val isSoundEnabled: Boolean = true,
+    val isWalkthroughCompleted: Boolean = false
 )
 
 sealed class SettingsUiEvent {
@@ -27,9 +28,14 @@ class SettingsScreenModel(
 
     val state: StateFlow<SettingsUIState> = combine(
         settingsRepository.isPeekEnabled,
-        settingsRepository.isSoundEnabled
-    ) { peek, sound ->
-        SettingsUIState(isPeekEnabled = peek, isSoundEnabled = sound)
+        settingsRepository.isSoundEnabled,
+        settingsRepository.isWalkthroughCompleted
+    ) { peek, sound, walkthrough ->
+        SettingsUIState(
+            isPeekEnabled = peek,
+            isSoundEnabled = sound,
+            isWalkthroughCompleted = walkthrough
+        )
     }.stateIn(
         scope = screenModelScope,
         started = SharingStarted.WhileSubscribed(5000),
@@ -45,6 +51,12 @@ class SettingsScreenModel(
     fun toggleSoundEnabled(enabled: Boolean) {
         screenModelScope.launch {
             settingsRepository.setSoundEnabled(enabled)
+        }
+    }
+
+    fun resetWalkthrough() {
+        screenModelScope.launch {
+            settingsRepository.setWalkthroughCompleted(false)
         }
     }
 }
