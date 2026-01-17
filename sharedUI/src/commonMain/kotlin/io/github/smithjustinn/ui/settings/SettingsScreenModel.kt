@@ -4,10 +4,8 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.repositories.SettingsRepository
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 data class SettingsUIState(
@@ -15,10 +13,17 @@ data class SettingsUIState(
     val isSoundEnabled: Boolean = true
 )
 
+sealed class SettingsUiEvent {
+    data object PlayClick : SettingsUiEvent()
+}
+
 @Inject
 class SettingsScreenModel(
     private val settingsRepository: SettingsRepository
 ) : ScreenModel {
+
+    private val _events = Channel<SettingsUiEvent>(Channel.BUFFERED)
+    val events: Flow<SettingsUiEvent> = _events.receiveAsFlow()
 
     val state: StateFlow<SettingsUIState> = combine(
         settingsRepository.isPeekEnabled,

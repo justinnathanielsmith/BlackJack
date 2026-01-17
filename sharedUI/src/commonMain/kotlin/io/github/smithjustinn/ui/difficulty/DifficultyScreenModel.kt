@@ -7,10 +7,8 @@ import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.repositories.GameStateRepository
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
 /**
@@ -36,6 +34,13 @@ sealed class DifficultyIntent {
     data object ResumeGame : DifficultyIntent()
 }
 
+/**
+ * Sealed class representing one-time UI events triggered by the ViewModel.
+ */
+sealed class DifficultyUiEvent {
+    data class NavigateToGame(val pairs: Int, val mode: GameMode, val forceNewGame: Boolean) : DifficultyUiEvent()
+}
+
 @Inject
 class DifficultyScreenModel(
     private val gameStateRepository: GameStateRepository,
@@ -44,7 +49,10 @@ class DifficultyScreenModel(
     private val _state = MutableStateFlow(DifficultyState())
     val state: StateFlow<DifficultyState> = _state.asStateFlow()
 
-    fun handleIntent(intent: DifficultyIntent, onNavigate: (Int, GameMode) -> Unit = { _, _ -> }) {
+    private val _events = Channel<DifficultyUiEvent>(Channel.BUFFERED)
+    val events: Flow<DifficultyUiEvent> = _events.receiveAsFlow()
+
+    fun handleIntent(intent: DifficultyIntent) {
         when (intent) {
             is DifficultyIntent.SelectDifficulty -> {
                 _state.update { it.copy(selectedDifficulty = intent.level) }
@@ -53,7 +61,9 @@ class DifficultyScreenModel(
                 _state.update { it.copy(selectedMode = intent.mode) }
             }
             is DifficultyIntent.StartGame -> {
-                onNavigate(intent.pairs, intent.mode)
+                screenModelScope.launch {
+                    _events.send(DifficultyUiEvent.NavigateToGame(intent.pairs, intent.mode, forceNewGame = true))
+                }
             }
             is DifficultyIntent.CheckSavedGame -> {
                 screenModelScope.launch {
@@ -73,7 +83,15 @@ class DifficultyScreenModel(
             }
             is DifficultyIntent.ResumeGame -> {
                 if (_state.value.hasSavedGame) {
-                    onNavigate(_state.value.savedGamePairCount, _state.value.savedGameMode)
+                    screenModelScope.launch {
+                        _events.send(
+                            DifficultyUiEvent.NavigateToGame(
+                                _state.value.savedGamePairCount,
+                                _state.value.savedGameMode,
+                                forceNewGame = false
+                            )
+                        )
+                    }
                 }
             }
         }

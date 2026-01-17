@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -34,6 +35,15 @@ class SettingsScreen : Screen {
         val screenModel = rememberScreenModel { graph.settingsScreenModel }
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val audioService = graph.audioService
+
+        LaunchedEffect(Unit) {
+            screenModel.events.collect { event ->
+                when (event) {
+                    SettingsUiEvent.PlayClick -> audioService.playClick()
+                }
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -61,7 +71,10 @@ class SettingsScreen : Screen {
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                         navigationIcon = {
-                            IconButton(onClick = { navigator.pop() }) {
+                            IconButton(onClick = { 
+                                audioService.playClick()
+                                navigator.pop() 
+                            }) {
                                 Icon(
                                     imageVector = AppIcons.ArrowBack,
                                     contentDescription = stringResource(Res.string.back_content_description),
@@ -84,7 +97,10 @@ class SettingsScreen : Screen {
                             title = "Sound Effects",
                             description = "Play sounds for card flips, matches, and wins",
                             checked = state.isSoundEnabled,
-                            onCheckedChange = { screenModel.toggleSoundEnabled(it) }
+                            onCheckedChange = { 
+                                audioService.playClick()
+                                screenModel.toggleSoundEnabled(it) 
+                            }
                         )
                         
                         HorizontalDivider(
@@ -96,7 +112,10 @@ class SettingsScreen : Screen {
                             title = "Enable Memory Peek",
                             description = "Show cards briefly at the start of the game",
                             checked = state.isPeekEnabled,
-                            onCheckedChange = { screenModel.togglePeekEnabled(it) }
+                            onCheckedChange = { 
+                                audioService.playClick()
+                                screenModel.togglePeekEnabled(it) 
+                            }
                         )
                     }
                 }

@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
@@ -33,6 +34,15 @@ class StatsScreen : Screen, JavaSerializable {
         val screenModel = rememberScreenModel { graph.statsScreenModel }
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val audioService = graph.audioService
+
+        LaunchedEffect(Unit) {
+            screenModel.events.collect { event ->
+                when (event) {
+                    StatsUiEvent.PlayClick -> audioService.playClick()
+                }
+            }
+        }
 
         Box(
             modifier = Modifier
@@ -60,7 +70,10 @@ class StatsScreen : Screen, JavaSerializable {
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                         navigationIcon = {
-                            IconButton(onClick = { navigator.pop() }) {
+                            IconButton(onClick = { 
+                                audioService.playClick()
+                                navigator.pop() 
+                            }) {
                                 Icon(
                                     imageVector = AppIcons.ArrowBack,
                                     contentDescription = "Back",
@@ -78,7 +91,10 @@ class StatsScreen : Screen, JavaSerializable {
                 ) {
                     ModeSelector(
                         selectedMode = state.selectedGameMode,
-                        onModeSelected = { screenModel.onGameModeSelected(it) },
+                        onModeSelected = { 
+                            audioService.playClick()
+                            screenModel.onGameModeSelected(it) 
+                        },
                         modifier = Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 12.dp)

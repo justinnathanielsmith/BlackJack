@@ -38,9 +38,20 @@ class DifficultyScreen : Screen, JavaSerializable {
         val screenModel = rememberScreenModel { graph.difficultyScreenModel }
         val state by screenModel.state.collectAsState()
         val navigator = LocalNavigator.currentOrThrow
+        val audioService = graph.audioService
 
         LaunchedEffect(Unit) {
             screenModel.handleIntent(DifficultyIntent.CheckSavedGame)
+        }
+
+        LaunchedEffect(Unit) {
+            screenModel.events.collect { event ->
+                when (event) {
+                    is DifficultyUiEvent.NavigateToGame -> {
+                        navigator.push(GameScreen(event.pairs, forceNewGame = event.forceNewGame, mode = event.mode))
+                    }
+                }
+            }
         }
 
         Box(
@@ -71,7 +82,7 @@ class DifficultyScreen : Screen, JavaSerializable {
                 ) {
                     IconButton(
                         onClick = {
-                            graph.audioService.playClick()
+                            audioService.playClick()
                             navigator.push(SettingsScreen())
                         },
                         modifier = Modifier
@@ -86,7 +97,7 @@ class DifficultyScreen : Screen, JavaSerializable {
                     Spacer(modifier = Modifier.width(8.dp))
                     IconButton(
                         onClick = {
-                            graph.audioService.playClick()
+                            audioService.playClick()
                             navigator.push(StatsScreen())
                         },
                         modifier = Modifier
@@ -114,29 +125,25 @@ class DifficultyScreen : Screen, JavaSerializable {
                     DifficultySelectionSection(
                         state = state,
                         onDifficultySelected = { level ->
-                            graph.audioService.playClick()
+                            audioService.playClick()
                             screenModel.handleIntent(DifficultyIntent.SelectDifficulty(level))
                         },
                         onModeSelected = { mode ->
-                            graph.audioService.playClick()
+                            audioService.playClick()
                             screenModel.handleIntent(DifficultyIntent.SelectMode(mode))
                         },
                         onStartGame = {
-                            graph.audioService.playClick()
+                            audioService.playClick()
                             screenModel.handleIntent(
                                 DifficultyIntent.StartGame(
                                     state.selectedDifficulty.pairs,
                                     state.selectedMode
                                 )
-                            ) { pairs, mode ->
-                                navigator.push(GameScreen(pairs, forceNewGame = true, mode = mode))
-                            }
+                            )
                         },
                         onResumeGame = {
-                            graph.audioService.playClick()
-                            screenModel.handleIntent(DifficultyIntent.ResumeGame) { pairs, mode ->
-                                navigator.push(GameScreen(pairs, forceNewGame = false, mode = mode))
-                            }
+                            audioService.playClick()
+                            screenModel.handleIntent(DifficultyIntent.ResumeGame)
                         }
                     )
                 }
