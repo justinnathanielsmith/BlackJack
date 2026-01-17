@@ -11,6 +11,7 @@ plugins {
     alias(libs.plugins.metro)
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
+    alias(libs.plugins.mokkery)
 }
 
 kotlin {
@@ -58,6 +59,7 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.compose.ui.test)
             implementation(libs.kotlinx.coroutines.test)
+            implementation(libs.turbine)
         }
 
         androidMain.dependencies {

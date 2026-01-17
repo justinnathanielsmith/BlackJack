@@ -14,6 +14,7 @@ Before generating code, you **MUST** align with the project state:
 1. **Verify Kotlin Version**: Assume Kotlin **2.3+ (K2 Mode)**.
 2. **Verify UI Stack**: Compose Multiplatform **1.10.0+** (Stable Hot Reload compatible).
 3. **Check Context**: If you see `context(...)` in code, use **Context Parameters** (`-Xcontext-parameters`), NOT the deprecated Context Receivers.
+4. **Conventional Commits**: All commit messages must follow the [Conventional Commits](https://www.conventionalcommits.org/) specification (e.g., `feat:`, `fix:`, `chore:`, `refactor:`).
 
 ---
 
@@ -27,6 +28,7 @@ Before generating code, you **MUST** align with the project state:
 | **Nav** | **Voyager** | ScreenModel + Type-safe `Screen` classes. |
 | **DB** | **Room (KMP)** | Schema in `sharedUI/schemas`. Use Bundled SQLite drivers. |
 | **Network** | **Ktor 3.x** | CIO Engine. `ContentNegotiation` + `kotlinx.serialization`. |
+| **Testing** | **Turbine + Mokkery** | **Turbine** for Flows, **Mokkery** for mocking (KSP-based). |
 
 ### 🏛️ The "Clean KMP" Layering
 
@@ -161,7 +163,31 @@ interface DataModule {
 
 ---
 
-## 🚫 5. Prohibited Patterns (The "Kill List")
+## 🧪 5. Testing Standards (Turbine & Mokkery)
+
+1. **Mocking**: Use **Mokkery** (`mock()`).
+    * *Note*: Final classes (like Kermit `Logger`) cannot be mocked. Use real instances with `StaticConfig()`.
+2. **Flows**: Use **Turbine** (`flow.test { ... }`).
+3. **Coroutines**: Use `runTest` and `StandardTestDispatcher`.
+4. **Structure**: Organize tests into `// region` blocks (Setup, Initial State, Intents, Navigation).
+
+```kotlin
+@Test
+fun `example test`() = runTest {
+    val repository = mock<Repository>()
+    everySuspend { repository.getData() } returns "Success"
+    
+    viewModel.state.test {
+        awaitItem() // Initial
+        viewModel.handleIntent(Intent.Load)
+        assertEquals("Success", awaitItem().data)
+    }
+}
+```
+
+---
+
+## 🚫 6. Prohibited Patterns (The "Kill List")
 
 | Pattern | Why it's banned | Fix |
 | --- | --- | --- |
@@ -174,7 +200,7 @@ interface DataModule {
 
 ---
 
-## 🛠 6. Platform Specifics
+## 🛠 7. Platform Specifics
 
 ### iOS (Kotlin/Native)
 
@@ -189,7 +215,7 @@ interface DataModule {
 
 ---
 
-## 📋 7. Feature Checklist
+## 📋 8. Feature Checklist
 
 When the user asks for **"Feature X"**, generate:
 
@@ -200,3 +226,4 @@ When the user asks for **"Feature X"**, generate:
 5. [ ] `ui/x/XScreen.kt` (Voyager Screen)
 6. [ ] `ui/x/XScreenModel.kt` (State Holder)
 7. [ ] **Metro Update**: Add `@BindingContainer` or `@Provides` entry.
+8. [ ] **Tests**: `ui/x/XScreenModelTest.kt` (Turbine + Mokkery).
