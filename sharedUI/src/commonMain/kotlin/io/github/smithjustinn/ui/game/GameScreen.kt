@@ -1,9 +1,9 @@
 package io.github.smithjustinn.ui.game
 
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -11,6 +11,8 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.model.rememberScreenModel
 import cafe.adriel.voyager.core.screen.Screen
@@ -50,72 +52,87 @@ data class GameScreen(
             screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame, mode))
         }
 
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            topBar = {
-                GameTopBar(
-                    score = state.game.score,
-                    time = state.elapsedTimeSeconds,
-                    bestScore = state.bestScore,
-                    bestTime = state.bestTimeSeconds,
-                    combo = state.game.comboMultiplier,
-                    onBackClick = {
-                        navigator.pop()
-                    },
-                    isPeeking = state.isPeeking,
-                    mode = mode,
-                    maxTime = state.maxTimeSeconds,
-                    showTimeGain = state.showTimeGain,
-                    timeGainAmount = state.timeGainAmount,
-                    isMegaBonus = state.isMegaBonus
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(
+                            MaterialTheme.colorScheme.surface,
+                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                            MaterialTheme.colorScheme.surface
+                        )
+                    )
                 )
-            }
-        ) { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                GameGrid(
-                    cards = state.game.cards,
-                    onCardClick = { cardId -> screenModel.handleIntent(GameIntent.FlipCard(cardId)) },
-                    isPeeking = state.isPeeking
-                )
-
-                MatchCommentSnackbar(
-                    matchComment = state.game.matchComment,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
-                )
-
-                if (state.showComboExplosion) {
-                    ExplosionEffect(
-                        modifier = Modifier.fillMaxSize(),
-                        particleCount = 50
+        ) {
+            Scaffold(
+                containerColor = Color.Transparent,
+                modifier = Modifier.fillMaxSize(),
+                topBar = {
+                    GameTopBar(
+                        score = state.game.score,
+                        time = state.elapsedTimeSeconds,
+                        bestScore = state.bestScore,
+                        bestTime = state.bestTimeSeconds,
+                        combo = state.game.comboMultiplier,
+                        onBackClick = {
+                            navigator.pop()
+                        },
+                        isPeeking = state.isPeeking,
+                        mode = mode,
+                        maxTime = state.maxTimeSeconds,
+                        showTimeGain = state.showTimeGain,
+                        timeGainAmount = state.timeGainAmount,
+                        isMegaBonus = state.isMegaBonus
                     )
                 }
+            ) { paddingValues ->
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    GameGrid(
+                        cards = state.game.cards,
+                        onCardClick = { cardId -> screenModel.handleIntent(GameIntent.FlipCard(cardId)) },
+                        isPeeking = state.isPeeking
+                    )
 
-                if (state.game.isGameOver) {
-                    if (state.game.isGameWon) {
-                        BouncingCardsOverlay(state.game.cards)
-                        ConfettiEffect()
+                    MatchCommentSnackbar(
+                        matchComment = state.game.matchComment,
+                        modifier = Modifier
+                            .align(Alignment.BottomCenter)
+                            .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
+                    )
 
-                        if (state.isNewHighScore) {
-                            NewHighScoreSnackbar(
-                                modifier = Modifier
-                                    .align(Alignment.TopCenter)
-                                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                            )
-                        }
+                    if (state.showComboExplosion) {
+                        ExplosionEffect(
+                            modifier = Modifier.fillMaxSize(),
+                            particleCount = 50
+                        )
                     }
 
-                    ResultsCard(
-                        isWon = state.game.isGameWon,
-                        score = state.game.score,
-                        moves = state.game.moves,
-                        elapsedTimeSeconds = state.elapsedTimeSeconds,
-                        scoreBreakdown = state.game.scoreBreakdown,
-                        onPlayAgain = { screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode)) },
-                        modifier = Modifier.align(Alignment.Center),
-                        mode = mode
-                    )
+                    if (state.game.isGameOver) {
+                        if (state.game.isGameWon) {
+                            BouncingCardsOverlay(state.game.cards)
+                            ConfettiEffect()
+
+                            if (state.isNewHighScore) {
+                                NewHighScoreSnackbar(
+                                    modifier = Modifier
+                                        .align(Alignment.TopCenter)
+                                        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                                )
+                            }
+                        }
+
+                        ResultsCard(
+                            isWon = state.game.isGameWon,
+                            score = state.game.score,
+                            moves = state.game.moves,
+                            elapsedTimeSeconds = state.elapsedTimeSeconds,
+                            scoreBreakdown = state.game.scoreBreakdown,
+                            onPlayAgain = { screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode)) },
+                            modifier = Modifier.align(Alignment.Center),
+                            mode = mode
+                        )
+                    }
                 }
             }
         }

@@ -69,4 +69,6 @@
 
     <string name="mode_standard">Standard</string>
     <string name="mode_time_attack">Time Attack</string>
+    <string name="game_mode">Game Mode</string>
+    <string name="pairs_label">Pairs</string>
 </resources>
