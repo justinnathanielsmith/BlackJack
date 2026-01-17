@@ -120,6 +120,10 @@ data class GameScreen(
                             .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
                     )
 
+                    if (state.isPeeking) {
+                        PeekCountdownOverlay(countdown = state.peekCountdown)
+                    }
+
                     if (state.game.isGameOver) {
                         Box(
                             modifier = Modifier

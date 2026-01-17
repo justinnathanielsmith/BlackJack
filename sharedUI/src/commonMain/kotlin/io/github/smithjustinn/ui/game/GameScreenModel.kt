@@ -124,9 +124,15 @@ class GameScreenModel(
         peekJob?.cancel()
         peekJob = screenModelScope.launch {
             stopTimer()
-            _state.update { it.copy(isPeeking = true) }
-            delay(3000) // Peek for 3 seconds
-            _state.update { it.copy(isPeeking = false) }
+            val peekDuration = 3
+            _state.update { it.copy(isPeeking = true, peekCountdown = peekDuration) }
+            
+            for (i in peekDuration downTo 1) {
+                _state.update { it.copy(peekCountdown = i) }
+                delay(1000)
+            }
+            
+            _state.update { it.copy(isPeeking = false, peekCountdown = 0) }
             _events.send(GameUiEvent.PlayFlip)
             startTimer(mode)
         }

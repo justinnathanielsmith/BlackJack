@@ -15,6 +15,7 @@ data class GameUIState(
     val showComboExplosion: Boolean = false,
     val isNewHighScore: Boolean = false,
     val isPeeking: Boolean = false,
+    val peekCountdown: Int = 0,
     val isPeekFeatureEnabled: Boolean = true,
     val showTimeGain: Boolean = false,
     val timeGainAmount: Int = 0,
