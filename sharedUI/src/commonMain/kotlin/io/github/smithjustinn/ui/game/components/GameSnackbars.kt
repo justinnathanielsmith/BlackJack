@@ -20,7 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.components.common.AppIcons
+import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.domain.models.MatchComment
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.new_high_score
