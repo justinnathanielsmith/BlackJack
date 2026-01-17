@@ -85,13 +85,18 @@ if (windowClass.widthSizeClass == WindowWidthSizeClass.Expanded) { ... }
 * **Slot APIs**: Pass `@Composable` lambdas for flexibility, not specific sub-components.
 * **Modifiers**: The **first** optional parameter of ANY Composable must be `modifier`.
 
-### 🔊 Audio & Haptics (UX Feedback vs. Logic Result)
+### 🔊 Audio, Haptics & Navigation (One-Time Events)
 
 * **Immediate UX Feedback**: Trigger directly from the UI (Composable).
     * *Example*: Button clicks, toggle switches.
 * **Logic Result Events**: Trigger via ViewModel using a `Channel` or `SharedFlow` collected in the UI.
     * *Example*: Match success, game won, error buzzer.
-* **Implementation**: Define interfaces (e.g., `AudioService`) in `commonMain` and inject via `AppGraph`.
+* **Navigation Events**: Trigger via ViewModel using a `Channel` or `SharedFlow` collected in the UI.
+    * *Example*: Navigating to a game screen after checking for a saved game.
+* **Implementation**: 
+    * Define a `UiEvent` sealed class in the UI package.
+    * Use a `Channel(Channel.BUFFERED)` in the `ScreenModel`.
+    * Collect in the Composable using `LaunchedEffect(Unit)`.
 
 ---
 
