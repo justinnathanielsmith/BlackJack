@@ -145,7 +145,7 @@ object AppIcons {
                     lineToRelative(1.92f, 3.32f)
                     curveToRelative(0.12f, 0.22f, 0.37f, 0.29f, 0.59f, 0.22f)
                     lineToRelative(2.39f, -0.96f)
-                    curveToRelative(0.5f, 0.38f, 1.03f, 0.7f, 1.62f, 0.94f)
+                    curveToRelative(0.5f, -0.38f, 1.03f, -0.7f, 1.62f, -0.94f)
                     lineToRelative(0.36f, 2.54f)
                     curveToRelative(0.05f, 0.24f, 0.24f, 0.41f, 0.48f, 0.41f)
                     horizontalLineToRelative(3.84f)
@@ -167,5 +167,56 @@ object AppIcons {
                 }
             }.build()
             return _settings!!
+        }
+
+    private var _trophy: ImageVector? = null
+    val Trophy: ImageVector
+        get() {
+            if (_trophy != null) return _trophy!!
+            _trophy = ImageVector.Builder(
+                name = "Trophy",
+                defaultWidth = 24.0.dp,
+                defaultHeight = 24.0.dp,
+                viewportWidth = 24.0f,
+                viewportHeight = 24.0f
+            ).apply {
+                path(fill = SolidColor(Color.Black)) {
+                    moveTo(19.0f, 5.0f)
+                    horizontalLineToRelative(-2.0f)
+                    verticalLineTo(3.0f)
+                    horizontalLineTo(7.0f)
+                    verticalLineToRelative(2.0f)
+                    horizontalLineTo(5.0f)
+                    curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+                    verticalLineToRelative(4.0f)
+                    curveToRelative(0.0f, 2.55f, 1.92f, 4.63f, 4.39f, 4.94f)
+                    curveTo(8.33f, 17.9f, 10.0f, 19.3f, 12.0f, 19.3f)
+                    reflectiveCurveToRelative(3.67f, -1.4f, 4.61f, -3.36f)
+                    curveTo(19.08f, 15.63f, 21.0f, 13.55f, 21.0f, 11.0f)
+                    verticalLineTo(7.0f)
+                    curveToRelative(0.0f, -1.1f, -0.9f, -2.0f, -2.0f, -2.0f)
+                    close()
+                    moveTo(5.0f, 11.0f)
+                    verticalLineTo(7.0f)
+                    horizontalLineToRelative(2.0f)
+                    verticalLineToRelative(4.0f)
+                    curveToRelative(0.0f, 1.1f, -0.9f, 2.0f, -2.0f, 2.0f)
+                    reflectiveCurveToRelative(-2.0f, -0.9f, -2.0f, -2.0f)
+                    close()
+                    moveTo(19.0f, 11.0f)
+                    curveToRelative(0.0f, 1.1f, -0.9f, 2.0f, -2.0f, 2.0f)
+                    reflectiveCurveToRelative(-2.0f, -0.9f, -2.0f, -2.0f)
+                    verticalLineTo(7.0f)
+                    horizontalLineToRelative(2.0f)
+                    verticalLineToRelative(4.0f)
+                    close()
+                    moveTo(12.0f, 21.0f)
+                    curveToRelative(-1.1f, 0.0f, -2.0f, 0.9f, -2.0f, 2.0f)
+                    horizontalLineToRelative(4.0f)
+                    curveToRelative(0.0f, -1.1f, -0.9f, -2.0f, -2.0f, -2.0f)
+                    close()
+                }
+            }.build()
+            return _trophy!!
         }
 }
