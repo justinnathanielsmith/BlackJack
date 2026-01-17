@@ -9,7 +9,7 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
 import kotlinx.serialization.json.Json
 
 @Inject
-class GameStateRepositoryImpl(
+internal class GameStateRepositoryImpl(
     private val dao: GameStateDao,
     private val json: Json,
     private val logger: Logger

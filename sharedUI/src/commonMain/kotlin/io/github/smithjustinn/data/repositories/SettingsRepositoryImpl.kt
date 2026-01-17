@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 
 @Inject
-class SettingsRepositoryImpl(
+internal class SettingsRepositoryImpl(
     private val dao: SettingsDao
 ) : SettingsRepository {
     

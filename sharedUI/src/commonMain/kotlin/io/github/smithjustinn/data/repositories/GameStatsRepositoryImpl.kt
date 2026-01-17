@@ -11,7 +11,7 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 @Inject
-class GameStatsRepositoryImpl(
+internal class GameStatsRepositoryImpl(
     private val dao: GameStatsDao,
     private val logger: Logger
 ) : GameStatsRepository {

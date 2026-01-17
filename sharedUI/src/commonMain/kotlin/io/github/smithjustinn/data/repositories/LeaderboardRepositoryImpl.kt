@@ -13,7 +13,7 @@ import kotlinx.coroutines.flow.map
 
 
 @Inject
-class LeaderboardRepositoryImpl(
+internal class LeaderboardRepositoryImpl(
     private val dao: LeaderboardDao,
     private val logger: Logger
 ) : LeaderboardRepository {
