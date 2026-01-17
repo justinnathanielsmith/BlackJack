@@ -47,10 +47,9 @@ class DifficultyScreen : Screen, JavaSerializable {
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    Brush.verticalGradient(
+                    Brush.radialGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.3f),
+                            MaterialTheme.colorScheme.surfaceVariant,
                             MaterialTheme.colorScheme.surface
                         )
                     )
@@ -59,74 +58,88 @@ class DifficultyScreen : Screen, JavaSerializable {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
-                    .padding(bottom = 16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceEvenly
+                    .navigationBarsPadding(),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Top Actions
+                // Top Actions - Moved statusBarsPadding here to avoid double spacing with SpaceEvenly
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 8.dp),
+                        .statusBarsPadding()
+                        .padding(horizontal = 16.dp, vertical = 8.dp),
                     horizontalArrangement = Arrangement.End
                 ) {
-                    IconButton(onClick = {
-                        graph.audioService.playClick()
-                        navigator.push(SettingsScreen())
-                    }) {
+                    IconButton(
+                        onClick = {
+                            graph.audioService.playClick()
+                            navigator.push(SettingsScreen())
+                        },
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), MaterialTheme.shapes.medium)
+                    ) {
                         Icon(
                             imageVector = AppIcons.Settings,
                             contentDescription = stringResource(Res.string.settings),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
-                    IconButton(onClick = {
-                        graph.audioService.playClick()
-                        navigator.push(StatsScreen())
-                    }) {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    IconButton(
+                        onClick = {
+                            graph.audioService.playClick()
+                            navigator.push(StatsScreen())
+                        },
+                        modifier = Modifier
+                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), MaterialTheme.shapes.medium)
+                    ) {
                         Icon(
                             imageVector = AppIcons.Info,
                             contentDescription = stringResource(Res.string.stats),
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            tint = MaterialTheme.colorScheme.primary
                         )
                     }
                 }
 
-                DifficultyHeader()
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(bottom = 16.dp),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    DifficultyHeader()
 
-                // Slightly smaller preview to ensure fit on smaller screens
-                CardPreview(modifier = Modifier.heightIn(max = 160.dp))
+                    CardPreview(modifier = Modifier.heightIn(max = 180.dp))
 
-                DifficultySelectionSection(
-                    state = state,
-                    onDifficultySelected = { level ->
-                        graph.audioService.playClick()
-                        screenModel.handleIntent(DifficultyIntent.SelectDifficulty(level))
-                    },
-                    onModeSelected = { mode ->
-                        graph.audioService.playClick()
-                        screenModel.handleIntent(DifficultyIntent.SelectMode(mode))
-                    },
-                    onStartGame = {
-                        graph.audioService.playClick()
-                        screenModel.handleIntent(
-                            DifficultyIntent.StartGame(
-                                state.selectedDifficulty.pairs,
-                                state.selectedMode
-                            )
-                        ) { pairs, mode ->
-                            navigator.push(GameScreen(pairs, forceNewGame = true, mode = mode))
+                    DifficultySelectionSection(
+                        state = state,
+                        onDifficultySelected = { level ->
+                            graph.audioService.playClick()
+                            screenModel.handleIntent(DifficultyIntent.SelectDifficulty(level))
+                        },
+                        onModeSelected = { mode ->
+                            graph.audioService.playClick()
+                            screenModel.handleIntent(DifficultyIntent.SelectMode(mode))
+                        },
+                        onStartGame = {
+                            graph.audioService.playClick()
+                            screenModel.handleIntent(
+                                DifficultyIntent.StartGame(
+                                    state.selectedDifficulty.pairs,
+                                    state.selectedMode
+                                )
+                            ) { pairs, mode ->
+                                navigator.push(GameScreen(pairs, forceNewGame = true, mode = mode))
+                            }
+                        },
+                        onResumeGame = {
+                            graph.audioService.playClick()
+                            screenModel.handleIntent(DifficultyIntent.ResumeGame) { pairs, mode ->
+                                navigator.push(GameScreen(pairs, forceNewGame = false, mode = mode))
+                            }
                         }
-                    },
-                    onResumeGame = {
-                        graph.audioService.playClick()
-                        screenModel.handleIntent(DifficultyIntent.ResumeGame) { pairs, mode ->
-                            navigator.push(GameScreen(pairs, forceNewGame = false, mode = mode))
-                        }
-                    }
-                )
+                    )
+                }
             }
         }
     }

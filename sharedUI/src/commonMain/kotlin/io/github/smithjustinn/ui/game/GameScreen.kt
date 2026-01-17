@@ -56,10 +56,9 @@ data class GameScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    Brush.verticalGradient(
+                    Brush.radialGradient(
                         colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
+                            MaterialTheme.colorScheme.surfaceVariant,
                             MaterialTheme.colorScheme.surface
                         )
                     )
@@ -73,7 +72,6 @@ data class GameScreen(
                         score = state.game.score,
                         time = state.elapsedTimeSeconds,
                         bestScore = state.bestScore,
-                        bestTime = state.bestTimeSeconds,
                         combo = state.game.comboMultiplier,
                         onBackClick = {
                             navigator.pop()
@@ -100,10 +98,16 @@ data class GameScreen(
                         matchComment = state.game.matchComment,
                         modifier = Modifier
                             .align(Alignment.BottomCenter)
-                            .padding(bottom = 24.dp, start = 16.dp, end = 16.dp)
+                            .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
                     )
 
                     if (state.game.isGameOver) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .background(Color.Black.copy(alpha = 0.4f))
+                        )
+
                         if (state.game.isGameWon) {
                             BouncingCardsOverlay(state.game.cards)
                             ConfettiEffect()
