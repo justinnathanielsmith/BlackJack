@@ -2,12 +2,13 @@ package io.github.smithjustinn.ui.game.components
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -66,69 +67,51 @@ fun GameTopBar(
         modifier = Modifier
             .fillMaxWidth()
             .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .padding(horizontal = 16.dp, vertical = 12.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            // Back Button
-            IconButton(
+            // Back Button - Circular and clean
+            Surface(
                 onClick = onBackClick,
-                modifier = Modifier
-                    .shadow(4.dp, RoundedCornerShape(12.dp))
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(12.dp))
+                shape = CircleShape,
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 4.dp,
+                modifier = Modifier.size(44.dp)
             ) {
-                Icon(
-                    AppIcons.ArrowBack,
-                    contentDescription = stringResource(Res.string.back_content_description),
-                    tint = MaterialTheme.colorScheme.primary
-                )
-            }
-
-            // Score and Best Score
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                modifier = Modifier
-                    .shadow(4.dp, RoundedCornerShape(16.dp))
-                    .background(
-                        Brush.verticalGradient(
-                            listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
-                        ),
-                        RoundedCornerShape(16.dp)
-                    )
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-            ) {
-                Text(
-                    text = stringResource(Res.string.score_label, score),
-                    style = MaterialTheme.typography.titleMedium,
-                    color = MaterialTheme.colorScheme.onPrimary,
-                    fontWeight = FontWeight.ExtraBold
-                )
-                if (bestScore > 0) {
-                    Text(
-                        text = stringResource(Res.string.best_score_label, bestScore),
-                        style = MaterialTheme.typography.labelSmall,
-                        color = MaterialTheme.colorScheme.onPrimary.copy(alpha = 0.8f)
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        AppIcons.ArrowBack,
+                        contentDescription = stringResource(Res.string.back_content_description),
+                        tint = MaterialTheme.colorScheme.primary,
+                        modifier = Modifier.size(24.dp)
                     )
                 }
             }
 
-            // Timer / Mode Info
-            Box(
-                contentAlignment = Alignment.Center,
-                modifier = Modifier
-                    .shadow(4.dp, RoundedCornerShape(16.dp))
-                    .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(16.dp))
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+            // Timer Display - Pill shape with subtle border when low
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.surface,
+                tonalElevation = 2.dp,
+                border = if (isLowTime) BorderStroke(1.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) else null,
+                modifier = Modifier.height(44.dp)
             ) {
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.Center
+                ) {
                     Text(
                         text = formatTime(time),
                         style = MaterialTheme.typography.titleLarge.copy(
                             fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 0.5.sp
                         ),
                         modifier = Modifier.scale(timerScale),
                         color = timerColor
@@ -141,90 +124,170 @@ fun GameTopBar(
                     ) {
                         Text(
                             text = "+${timeGainAmount}s",
-                            style = MaterialTheme.typography.labelMedium,
+                            style = MaterialTheme.typography.labelLarge,
                             color = if (isMegaBonus) Color(0xFFFFD700) else Color(0xFF4CAF50),
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 4.dp)
+                            fontWeight = FontWeight.Black,
+                            modifier = Modifier.padding(start = 6.dp)
                         )
+                    }
+                }
+            }
+
+            // Score Display - Modern "Badge" style
+            Surface(
+                shape = RoundedCornerShape(24.dp),
+                color = MaterialTheme.colorScheme.primaryContainer,
+                tonalElevation = 6.dp,
+                modifier = Modifier.height(44.dp)
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    modifier = Modifier.padding(horizontal = 12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        AnimatedContent(
+                            targetState = score,
+                            transitionSpec = {
+                                if (targetState > initialState) {
+                                    (slideInVertically { height -> height } + fadeIn()).togetherWith(
+                                        slideOutVertically { height -> -height } + fadeOut())
+                                } else {
+                                    (slideInVertically { height -> -height } + fadeIn()).togetherWith(
+                                        slideOutVertically { height -> height } + fadeOut())
+                                }.using(SizeTransform(clip = false))
+                            }
+                        ) { targetScore ->
+                            Text(
+                                text = targetScore.toString(),
+                                style = MaterialTheme.typography.titleLarge.copy(
+                                    fontWeight = FontWeight.Black,
+                                    fontSize = 20.sp
+                                ),
+                                color = MaterialTheme.colorScheme.onPrimaryContainer
+                            )
+                        }
+                    }
+
+                    if (bestScore > 0) {
+                        VerticalDivider(
+                            modifier = Modifier.height(20.dp),
+                            color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f)
+                        )
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(
+                                AppIcons.Trophy,
+                                contentDescription = null,
+                                modifier = Modifier.size(14.dp),
+                                tint = Color(0xFFFFD700) // Gold for trophy
+                            )
+                            Text(
+                                text = bestScore.toString(),
+                                style = MaterialTheme.typography.labelSmall,
+                                color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
+                                fontWeight = FontWeight.Bold
+                            )
+                        }
                     }
                 }
             }
         }
 
-        // Fixed height container for Combo and Peek Indicators to prevent layout shifting
-        Box(
+        // Combo and Peek Row
+        Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(48.dp), // Fixed height ensures the grid below doesn't move
-            contentAlignment = Alignment.CenterEnd
+                .height(32.dp),
+            horizontalArrangement = Arrangement.End,
+            verticalAlignment = Alignment.CenterVertically
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.End
+            AnimatedVisibility(
+                visible = combo > 1,
+                enter = fadeIn() + scaleIn(),
+                exit = fadeOut() + scaleOut()
             ) {
-                AnimatedVisibility(
-                    visible = combo > 1,
-                    enter = fadeIn() + expandHorizontally(),
-                    exit = fadeOut() + shrinkHorizontally()
-                ) {
-                    val comboScale by infiniteTransition.animateFloat(
-                        initialValue = 1f,
-                        targetValue = 1.2f,
-                        animationSpec = infiniteRepeatable(
-                            animation = tween(400, easing = LinearEasing),
-                            repeatMode = RepeatMode.Reverse
-                        )
+                val comboScale by infiniteTransition.animateFloat(
+                    initialValue = 1f,
+                    targetValue = 1.1f,
+                    animationSpec = infiniteRepeatable(
+                        animation = tween(400, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse
                     )
+                )
 
-                    Surface(
-                        color = if (isMegaBonus) Color(0xFFFFD700) else MaterialTheme.colorScheme.tertiaryContainer,
-                        shape = RoundedCornerShape(8.dp),
-                        modifier = Modifier
-                            .padding(vertical = 8.dp)
-                            .scale(comboScale)
-                            .shadow(2.dp, RoundedCornerShape(8.dp))
-                    ) {
-                        Text(
-                            text = stringResource(Res.string.combo_format, combo),
-                            modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                            style = MaterialTheme.typography.labelLarge,
-                            color = if (isMegaBonus) Color.Black else MaterialTheme.colorScheme.onTertiaryContainer,
-                            fontWeight = FontWeight.Bold
+                Surface(
+                    color = if (isMegaBonus) Color(0xFFFFD700) else MaterialTheme.colorScheme.tertiary,
+                    shape = RoundedCornerShape(8.dp),
+                    modifier = Modifier
+                        .scale(comboScale)
+                        .shadow(4.dp, RoundedCornerShape(8.dp))
+                ) {
+                    Text(
+                        text = stringResource(Res.string.combo_format, combo),
+                        modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                        style = MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Black,
+                            fontSize = 14.sp
+                        ),
+                        color = if (isMegaBonus) Color.Black else MaterialTheme.colorScheme.onTertiary
+                    )
+                }
+            }
+
+            AnimatedVisibility(
+                visible = isPeeking,
+                enter = fadeIn() + expandHorizontally(),
+                exit = fadeOut() + shrinkHorizontally()
+            ) {
+                Surface(
+                    shape = CircleShape,
+                    color = MaterialTheme.colorScheme.secondaryContainer,
+                    modifier = Modifier
+                        .padding(start = 8.dp)
+                        .size(32.dp)
+                ) {
+                    Box(contentAlignment = Alignment.Center) {
+                        Icon(
+                            imageVector = AppIcons.Visibility,
+                            contentDescription = stringResource(Res.string.peek_cards),
+                            tint = MaterialTheme.colorScheme.onSecondaryContainer,
+                            modifier = Modifier.size(18.dp)
                         )
                     }
-                }
-
-                AnimatedVisibility(
-                    visible = isPeeking,
-                    enter = fadeIn() + expandHorizontally(),
-                    exit = fadeOut() + shrinkHorizontally()
-                ) {
-                    Icon(
-                        imageVector = AppIcons.Visibility,
-                        contentDescription = stringResource(Res.string.peek_cards),
-                        tint = MaterialTheme.colorScheme.primary,
-                        modifier = Modifier
-                            .padding(start = 8.dp)
-                            .size(32.dp)
-                            .shadow(2.dp, RoundedCornerShape(8.dp))
-                            .background(MaterialTheme.colorScheme.surface, RoundedCornerShape(8.dp))
-                            .padding(4.dp)
-                    )
                 }
             }
         }
 
+        // Animated Progress Bar for Time Attack
         if (isTimeAttack && maxTime > 0) {
-            val progress = (time.toFloat() / maxTime.toFloat()).coerceIn(0f, 1f)
-            LinearProgressIndicator(
-                progress = { progress },
+            val progress by animateFloatAsState(
+                targetValue = (time.toFloat() / maxTime.toFloat()).coerceIn(0f, 1f),
+                animationSpec = spring(stiffness = Spring.StiffnessLow)
+            )
+            
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(8.dp)
-                    .clip(RoundedCornerShape(4.dp)),
-                color = if (isLowTime) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primary,
-                trackColor = MaterialTheme.colorScheme.surfaceVariant,
-            )
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            ) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth(progress)
+                        .fillMaxHeight()
+                        .clip(CircleShape)
+                        .background(
+                            Brush.horizontalGradient(
+                                if (isLowTime) {
+                                    listOf(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.errorContainer)
+                                } else {
+                                    listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
+                                }
+                            )
+                        )
+                )
+            }
         }
     }
 }
