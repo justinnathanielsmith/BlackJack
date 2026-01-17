@@ -120,21 +120,19 @@ class DifficultyScreenModelTest {
 
     // region Intent Handling: Navigation
     @Test
-    fun `StartGame intent triggers navigation`() = runTest {
-        var navigatedPairs = -1
-        var navigatedMode: GameMode? = null
-        
-        screenModel.handleIntent(DifficultyIntent.StartGame(10, GameMode.TIME_ATTACK)) { pairs, mode ->
-            navigatedPairs = pairs
-            navigatedMode = mode
+    fun `StartGame intent triggers navigation event`() = runTest {
+        screenModel.events.test {
+            screenModel.handleIntent(DifficultyIntent.StartGame(10, GameMode.TIME_ATTACK))
+            
+            val event = awaitItem() as DifficultyUiEvent.NavigateToGame
+            assertEquals(10, event.pairs)
+            assertEquals(GameMode.TIME_ATTACK, event.mode)
+            assertTrue(event.forceNewGame)
         }
-
-        assertEquals(10, navigatedPairs)
-        assertEquals(GameMode.TIME_ATTACK, navigatedMode)
     }
 
     @Test
-    fun `ResumeGame intent triggers navigation if saved game exists`() = runTest {
+    fun `ResumeGame intent triggers navigation event if saved game exists`() = runTest {
         val savedGame = MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
 
@@ -142,31 +140,27 @@ class DifficultyScreenModelTest {
         screenModel.handleIntent(DifficultyIntent.CheckSavedGame)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        var navigatedPairs = -1
-        var navigatedMode: GameMode? = null
-
-        screenModel.handleIntent(DifficultyIntent.ResumeGame) { pairs, mode ->
-            navigatedPairs = pairs
-            navigatedMode = mode
+        screenModel.events.test {
+            screenModel.handleIntent(DifficultyIntent.ResumeGame)
+            
+            val event = awaitItem() as DifficultyUiEvent.NavigateToGame
+            assertEquals(12, event.pairs)
+            assertEquals(GameMode.TIME_ATTACK, event.mode)
+            assertFalse(event.forceNewGame)
         }
-
-        assertEquals(12, navigatedPairs)
-        assertEquals(GameMode.TIME_ATTACK, navigatedMode)
     }
 
     @Test
-    fun `ResumeGame intent does not trigger navigation if no saved game`() = runTest {
+    fun `ResumeGame intent does not trigger navigation event if no saved game`() = runTest {
         everySuspend { gameStateRepository.getSavedGameState() } returns null
         
         screenModel.handleIntent(DifficultyIntent.CheckSavedGame)
         testDispatcher.scheduler.advanceUntilIdle()
 
-        var navigated = false
-        screenModel.handleIntent(DifficultyIntent.ResumeGame) { _, _ ->
-            navigated = true
+        screenModel.events.test {
+            screenModel.handleIntent(DifficultyIntent.ResumeGame)
+            expectNoEvents()
         }
-
-        assertFalse(navigated)
     }
     // endregion
 }

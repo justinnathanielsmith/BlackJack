@@ -43,9 +43,10 @@ class GameScreenModel(
     private var peekJob: Job? = null
     private var timeGainJob: Job? = null
     private var timeLossJob: Job? = null
+    private var settingsJob: Job? = null
 
     init {
-        screenModelScope.launch {
+        settingsJob = screenModelScope.launch {
             settingsRepository.isPeekEnabled.collect { peek ->
                 _state.update { it.copy(isPeekFeatureEnabled = peek) }
             }
@@ -145,7 +146,7 @@ class GameScreenModel(
 
     private fun startTimer(mode: GameMode) {
         timerJob?.cancel()
-        timerJob = screenModelScope.launch(Dispatchers.IO) {
+        timerJob = screenModelScope.launch {
             while (true) {
                 delay(1000)
                 if (mode == GameMode.TIME_ATTACK) {
@@ -203,7 +204,8 @@ class GameScreenModel(
         clearCommentAfterDelay()
         
         if (newState.mode == GameMode.TIME_ATTACK) {
-            val totalTimeGain = MemoryGameLogic.calculateTimeGain(newState.comboMultiplier)
+            // Use the multiplier from the match just made (newState.comboMultiplier - 1)
+            val totalTimeGain = MemoryGameLogic.calculateTimeGain(newState.comboMultiplier - 1)
             val isMega = newState.comboMultiplier >= 3
 
             _state.update { 
@@ -323,7 +325,7 @@ class GameScreenModel(
     }
 
     private fun saveStats(pairCount: Int, score: Int, time: Long, moves: Int, gameMode: GameMode) {
-        screenModelScope.launch(Dispatchers.IO) {
+        screenModelScope.launch {
             saveGameResultUseCase(pairCount, score, time, moves, gameMode)
         }
     }
@@ -345,6 +347,7 @@ class GameScreenModel(
         peekJob?.cancel()
         timeGainJob?.cancel()
         timeLossJob?.cancel()
+        settingsJob?.cancel()
         saveGame()
     }
 }
