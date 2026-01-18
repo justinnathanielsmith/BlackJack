@@ -18,14 +18,14 @@
     <string name="theme">Theme</string>
     <string name="success_emoji">🎉</string>
     <string name="success_title">Congratulations!</string>
-    <string name="success_message">You\'ve matched all the cards!</string>
+    <string name="success_message">"You've matched all the cards!"</string>
     <string name="play_again">Play Again</string>
     <string name="final_score">Final Score: %1$d</string>
     <string name="final_score_label">Final Score</string>
     <string name="time_label">Time: %1$s</string>
     <string name="moves_label">Moves: %1$d</string>
     <string name="game_over">Game Over</string>
-    <string name="times_up">Time\'s Up!</string>
+    <string name="times_up">"Time's Up!"</string>
 
     <string name="difficulty_toddler">Toddler Mode</string>
     <string name="difficulty_casual">Casual Player</string>
@@ -42,7 +42,7 @@
     <string name="comment_incredible">Incredible! x%1$d Combo! 🔥</string>
     <string name="comment_nice">Nice! x%1$d Combo! ✨</string>
     <string name="comment_first_match">First match! Off to a great start! 🚀</string>
-    <string name="comment_halfway">Halfway there! You\'re doing great! 💪</string>
+    <string name="comment_halfway">"Halfway there! You're doing great! 💪"</string>
     <string name="comment_photographic">Photographic memory? Amazing! 🧠</string>
     <string name="comment_one_more">Just one more! You got this! 🎯</string>
     <string name="comment_great_find">Great find! 🌟</string>
