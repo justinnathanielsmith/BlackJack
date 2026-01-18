@@ -22,10 +22,7 @@ import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.UnconfinedTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
-import kotlinx.coroutines.test.setMain
+import kotlinx.coroutines.test.*
 import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -400,34 +397,35 @@ class GameScreenModelTest {
     @Test
     fun `Game won should calculate final score and check for high score`() = runTest {
         val pairCount = 2
-        val initialState = MemoryGameLogic.createInitialState(pairCount)
-        val card1 = initialState.cards[0]
-        val card2 = initialState.cards.first { it.id != card1.id && it.suit == card1.suit && it.rank == card1.rank }
-        val card3 = initialState.cards.first { it.id != card1.id && it.id != card2.id }
-        val card4 = initialState.cards.first { it.id != card3.id && it.suit == card3.suit && it.rank == card3.rank }
-
         statsFlow.value = GameStats(pairCount, bestScore = 50, bestTimeSeconds = 0L)
         everySuspend { gameStatsRepository.updateStats(any()) } returns Unit
         everySuspend { leaderboardRepository.addEntry(any()) } returns Unit
 
         screenModel.handleIntent(GameIntent.StartGame(pairCount))
 
-        screenModel.handleIntent(GameIntent.FlipCard(card1.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card2.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card3.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card4.id))
-
-        // Wait for coroutines and delays (like clearCommentAfterDelay)
-        testDispatcher.scheduler.advanceUntilIdle()
+        // Get the actual cards generated for this game
+        val cards = screenModel.state.value.game.cards
+        assertTrue(cards.isNotEmpty(), "Game should have cards")
+        
+        val groups = cards.groupBy { it.suit to it.rank }.values
+        
+        // Flip each pair
+        groups.forEach { pair ->
+            pair.forEach { card ->
+                screenModel.handleIntent(GameIntent.FlipCard(card.id))
+            }
+        }
 
         val state = screenModel.state.value
         assertTrue(state.game.isGameOver, "Game should be over. Score: ${state.game.score}")
         assertTrue(state.isNewHighScore, "Should be a new high score")
         assertTrue(state.game.score > 50, "Score ${state.game.score} should be > 50")
         
+        screenModel.onDispose()
+        testDispatcher.scheduler.advanceUntilIdle()
+        
         verifySuspend { leaderboardRepository.addEntry(any()) }
         verifySuspend { gameStateRepository.clearSavedGameState() }
-        screenModel.onDispose()
     }
 
     // endregion
