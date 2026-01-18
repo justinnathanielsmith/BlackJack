@@ -8,6 +8,7 @@ import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 
@@ -20,6 +21,7 @@ sealed class StatsUiEvent {
     data object PlayClick : StatsUiEvent()
 }
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Inject
 class StatsScreenModel(
     private val leaderboardRepository: LeaderboardRepository,

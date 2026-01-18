@@ -15,6 +15,10 @@ plugins {
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xexpect-actual-classes")
+    }
+
     android {
         namespace = "io.github.smithjustinn"
         compileSdk = 36
