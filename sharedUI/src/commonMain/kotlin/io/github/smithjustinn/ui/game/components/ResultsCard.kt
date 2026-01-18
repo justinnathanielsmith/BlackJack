@@ -10,28 +10,18 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.ScoreBreakdown
-import io.github.smithjustinn.utils.formatTime
 import memory_match.sharedui.generated.resources.Res
-import memory_match.sharedui.generated.resources.final_score_label
 import memory_match.sharedui.generated.resources.game_complete
 import memory_match.sharedui.generated.resources.game_over
-import memory_match.sharedui.generated.resources.moves_label
 import memory_match.sharedui.generated.resources.play_again
-import memory_match.sharedui.generated.resources.score_breakdown_title
-import memory_match.sharedui.generated.resources.score_match_points
-import memory_match.sharedui.generated.resources.score_move_bonus
-import memory_match.sharedui.generated.resources.score_time_bonus
-import memory_match.sharedui.generated.resources.time_label
 import memory_match.sharedui.generated.resources.times_up
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
@@ -86,29 +76,35 @@ fun ResultsCard(
                 containerColor = MaterialTheme.colorScheme.surface
             )
         ) {
+            val contentPadding = if (isCompactHeight) 12.dp else 24.dp
+            val verticalSpacing = if (isCompactHeight) 8.dp else 16.dp
+            val headerColor = if (isWon) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
+            val headerContainerColor = if (isWon) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
                         Brush.verticalGradient(
-                            listOf(
-                                if (isWon) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.errorContainer,
-                                MaterialTheme.colorScheme.surface
-                            )
+                            listOf(headerContainerColor, MaterialTheme.colorScheme.surface)
                         )
                     )
-                    .padding(if (isCompactHeight) 12.dp else 24.dp)
+                    .padding(contentPadding)
                     .then(if (isCompactHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier),
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(if (isCompactHeight) 8.dp else 16.dp)
+                verticalArrangement = Arrangement.spacedBy(verticalSpacing)
             ) {
                 Text(
                     text = stringResource(titleRes),
-                    style = if (isCompactHeight) MaterialTheme.typography.headlineMedium else MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 2.sp
-                    ),
-                    color = if (isWon) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                    style = if (isCompactHeight) {
+                        MaterialTheme.typography.headlineMedium
+                    } else {
+                        MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.ExtraBold,
+                            letterSpacing = 2.sp
+                        )
+                    },
+                    color = headerColor,
                     textAlign = TextAlign.Center
                 )
 
@@ -131,9 +127,7 @@ fun ResultsCard(
                             onClick = onPlayAgain,
                             modifier = Modifier.height(48.dp),
                             shape = RoundedCornerShape(12.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                containerColor = if (isWon) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                            )
+                            colors = ButtonDefaults.buttonColors(containerColor = headerColor)
                         ) {
                             Text(
                                 text = stringResource(Res.string.play_again).uppercase(),
@@ -149,7 +143,7 @@ fun ResultsCard(
                         moves = moves
                     )
 
-                    BreakdownSection(scoreBreakdown = scoreBreakdown)
+                    ScoreBreakdownSection(scoreBreakdown = scoreBreakdown)
 
                     Button(
                         onClick = onPlayAgain,
@@ -157,9 +151,7 @@ fun ResultsCard(
                             .fillMaxWidth()
                             .height(56.dp),
                         shape = RoundedCornerShape(16.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = if (isWon) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error
-                        ),
+                        colors = ButtonDefaults.buttonColors(containerColor = headerColor),
                         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp)
                     ) {
                         Text(
@@ -173,145 +165,5 @@ fun ResultsCard(
                 }
             }
         }
-    }
-}
-
-@Composable
-private fun ScoreBox(
-    isWon: Boolean,
-    score: Int,
-    elapsedTimeSeconds: Long,
-    moves: Int,
-    modifier: Modifier = Modifier,
-    compact: Boolean = false
-) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
-            .padding(if (compact) 8.dp else 16.dp),
-        contentAlignment = Alignment.Center
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            Text(
-                text = stringResource(Res.string.final_score_label).uppercase(),
-                style = if (compact) {
-                    MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
-                        letterSpacing = 1.2.sp
-                    )
-                } else {
-                    MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.ExtraBold,
-                        letterSpacing = 2.sp
-                    )
-                },
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                textAlign = TextAlign.Center
-            )
-            
-            Text(
-                text = score.toString(),
-                style = if (compact) MaterialTheme.typography.headlineLarge else MaterialTheme.typography.displayMedium.copy(
-                    fontWeight = FontWeight.Black,
-                    color = if (isWon) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error
-                ),
-                color = if (isWon) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error,
-                textAlign = TextAlign.Center
-            )
-            
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 16.dp),
-                modifier = Modifier.padding(top = if (compact) 2.dp else 8.dp)
-            ) {
-                StatItem(
-                    label = stringResource(Res.string.time_label, formatTime(elapsedTimeSeconds)),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    compact = compact
-                )
-                StatItem(
-                    label = stringResource(Res.string.moves_label, moves),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    compact = compact
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun BreakdownSection(scoreBreakdown: ScoreBreakdown) {
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
-            .padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp)
-    ) {
-        Text(
-            text = stringResource(Res.string.score_breakdown_title),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
-        )
-        
-        BreakdownRow(
-            label = stringResource(Res.string.score_match_points),
-            value = scoreBreakdown.matchPoints.toString(),
-            color = MaterialTheme.colorScheme.onSurface
-        )
-        BreakdownRow(
-            label = stringResource(Res.string.score_time_bonus),
-            value = if (scoreBreakdown.timeBonus > 0) "+${scoreBreakdown.timeBonus}" else "0",
-            color = if (scoreBreakdown.timeBonus > 0) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
-        )
-        BreakdownRow(
-            label = stringResource(Res.string.score_move_bonus),
-            value = if (scoreBreakdown.moveBonus > 0) "+${scoreBreakdown.moveBonus}" else "0",
-            color = if (scoreBreakdown.moveBonus > 0) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
-        )
-    }
-}
-
-@Composable
-private fun StatItem(label: String, color: Color, compact: Boolean = false) {
-    Surface(
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-        shape = RoundedCornerShape(8.dp)
-    ) {
-        Text(
-            text = label,
-            modifier = Modifier.padding(horizontal = if (compact) 4.dp else 8.dp, vertical = if (compact) 2.dp else 4.dp),
-            style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
-            color = color,
-            fontWeight = FontWeight.Bold
-        )
-    }
-}
-
-@Composable
-private fun BreakdownRow(label: String, value: String, color: Color) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
-    ) {
-        Text(
-            text = label,
-            style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
-            fontWeight = FontWeight.Medium
-        )
-        Text(
-            text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontFeatureSettings = "tnum"
-            ),
-            color = color,
-            fontWeight = FontWeight.Bold,
-            textAlign = TextAlign.End
-        )
     }
 }
