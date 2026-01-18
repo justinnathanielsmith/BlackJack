@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -84,29 +85,32 @@ class StatsScreen : Screen, JavaSerializable {
                     )
                 }
             ) { paddingValues ->
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                ) {
-                    ModeSelector(
-                        selectedMode = state.selectedGameMode,
-                        onModeSelected = { 
-                            audioService.playClick()
-                            screenModel.onGameModeSelected(it) 
-                        },
+                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    Column(
                         modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 12.dp)
-                    )
-
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp)
+                            .fillMaxSize()
+                            .widthIn(max = 800.dp)
+                            .align(Alignment.TopCenter)
                     ) {
-                        items(state.difficultyLeaderboards) { (level, entries) ->
-                            LeaderboardSection(level, entries)
+                        ModeSelector(
+                            selectedMode = state.selectedGameMode,
+                            onModeSelected = { 
+                                audioService.playClick()
+                                screenModel.onGameModeSelected(it) 
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(horizontal = 24.dp, vertical = 12.dp)
+                        )
+
+                        LazyColumn(
+                            modifier = Modifier.fillMaxSize(),
+                            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                            verticalArrangement = Arrangement.spacedBy(24.dp)
+                        ) {
+                            items(state.difficultyLeaderboards) { (level, entries) ->
+                                LeaderboardSection(level, entries)
+                            }
                         }
                     }
                 }

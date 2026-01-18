@@ -25,7 +25,8 @@ fun ComboBadge(
     combo: Int,
     isMegaBonus: Boolean,
     infiniteTransition: InfiniteTransition,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     AnimatedVisibility(
         visible = combo > 1,
@@ -35,7 +36,7 @@ fun ComboBadge(
     ) {
         val comboScale by infiniteTransition.animateFloat(
             initialValue = 1f,
-            targetValue = 1.1f,
+            targetValue = if (compact) 1.05f else 1.1f,
             animationSpec = infiniteRepeatable(
                 animation = tween(400, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse
@@ -44,17 +45,17 @@ fun ComboBadge(
 
         Surface(
             color = if (isMegaBonus) Color(0xFFFFD700) else MaterialTheme.colorScheme.tertiary,
-            shape = RoundedCornerShape(8.dp),
+            shape = RoundedCornerShape(if (compact) 6.dp else 8.dp),
             modifier = Modifier
                 .scale(comboScale)
-                .shadow(4.dp, RoundedCornerShape(8.dp))
+                .shadow(if (compact) 2.dp else 4.dp, RoundedCornerShape(if (compact) 6.dp else 8.dp))
         ) {
             Text(
                 text = stringResource(Res.string.combo_format, combo),
-                modifier = Modifier.padding(horizontal = 10.dp, vertical = 2.dp),
+                modifier = Modifier.padding(horizontal = if (compact) 6.dp else 10.dp, vertical = if (compact) 1.dp else 2.dp),
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Black,
-                    fontSize = 14.sp
+                    fontSize = if (compact) 11.sp else 14.sp
                 ),
                 color = if (isMegaBonus) Color.Black else MaterialTheme.colorScheme.onTertiary
             )

@@ -2,6 +2,8 @@ package io.github.smithjustinn.ui.difficulty
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -54,7 +56,7 @@ class DifficultyScreen : Screen, JavaSerializable {
             }
         }
 
-        Box(
+        BoxWithConstraints(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
@@ -66,88 +68,176 @@ class DifficultyScreen : Screen, JavaSerializable {
                     )
                 )
         ) {
-            Column(
+            val screenWidth = maxWidth
+            val screenHeight = maxHeight
+            val isLandscape = screenWidth > screenHeight
+            val isCompactHeight = screenHeight < 500.dp
+            val isWide = screenWidth > 800.dp
+            val isNarrow = screenWidth < 600.dp
+            val useLandscapeLayout = isLandscape && (isCompactHeight || isWide)
+
+            Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .navigationBarsPadding(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                    .navigationBarsPadding()
             ) {
-                // Top Actions - Moved statusBarsPadding here to avoid double spacing with SpaceEvenly
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .statusBarsPadding()
-                        .padding(horizontal = 16.dp, vertical = 8.dp),
-                    horizontalArrangement = Arrangement.End
-                ) {
-                    IconButton(
-                        onClick = {
-                            audioService.playClick()
-                            navigator.push(SettingsScreen())
-                        },
+                if (useLandscapeLayout) {
+                    // LANDSCAPE MODE: Side-by-side as preferred by user
+                    Row(
                         modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), MaterialTheme.shapes.medium)
+                            .fillMaxSize()
+                            .padding(horizontal = 32.dp, vertical = 12.dp),
+                        verticalAlignment = Alignment.CenterVertically
                     ) {
-                        Icon(
-                            imageVector = AppIcons.Settings,
-                            contentDescription = stringResource(Res.string.settings),
-                            tint = MaterialTheme.colorScheme.primary
-                        )
+                        // Left Column: Header + Card Preview
+                        Column(
+                            modifier = Modifier.weight(1f),
+                            horizontalAlignment = Alignment.CenterHorizontally,
+                            verticalArrangement = Arrangement.Center
+                        ) {
+                            DifficultyHeader(scale = if (isCompactHeight) 0.75f else 1f)
+                            Spacer(modifier = Modifier.height(if (isCompactHeight) 8.dp else 16.dp))
+                            // Reduced height in compact to ensure visibility
+                            CardPreview(modifier = Modifier.height(if (isCompactHeight) 110.dp else 180.dp))
+                        }
+
+                        // Right Column: Selection Section
+                        Box(
+                            modifier = Modifier
+                                .weight(1.3f)
+                                .verticalScroll(rememberScrollState()),
+                            contentAlignment = Alignment.Center
+                        ) {
+                            DifficultySelectionSection(
+                                state = state,
+                                onDifficultySelected = { level ->
+                                    audioService.playClick()
+                                    screenModel.handleIntent(DifficultyIntent.SelectDifficulty(level))
+                                },
+                                onModeSelected = { mode ->
+                                    audioService.playClick()
+                                    screenModel.handleIntent(DifficultyIntent.SelectMode(mode))
+                                },
+                                onStartGame = {
+                                    audioService.playClick()
+                                    screenModel.handleIntent(
+                                        DifficultyIntent.StartGame(
+                                            state.selectedDifficulty.pairs,
+                                            state.selectedMode
+                                        )
+                                    )
+                                },
+                                onResumeGame = {
+                                    audioService.playClick()
+                                    screenModel.handleIntent(DifficultyIntent.ResumeGame)
+                                },
+                                modifier = Modifier.widthIn(max = 450.dp).padding(vertical = 16.dp),
+                                compact = true
+                            )
+                        }
                     }
-                    Spacer(modifier = Modifier.width(8.dp))
-                    IconButton(
-                        onClick = {
-                            audioService.playClick()
-                            navigator.push(StatsScreen())
-                        },
+                } else {
+                    // PORTRAIT MODE: Explicit spacer to avoid floating button overlap
+                    Column(
                         modifier = Modifier
-                            .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), MaterialTheme.shapes.medium)
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState()),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.Top
                     ) {
-                        Icon(
-                            imageVector = AppIcons.Info,
-                            contentDescription = stringResource(Res.string.stats),
-                            tint = MaterialTheme.colorScheme.primary
+                        // Ensuring enough space for the floating action buttons + status bar
+                        // Increased height significantly to prevent overlap with floating icons
+                        Spacer(modifier = Modifier.height(132.dp).statusBarsPadding())
+
+                        // More aggressive scaling for narrow screens to keep title compact
+                        DifficultyHeader(
+                            modifier = Modifier.padding(horizontal = 32.dp),
+                            scale = if (isNarrow) 0.75f else 1f
                         )
+                        
+                        Spacer(modifier = Modifier.height(24.dp))
+                        
+                        CardPreview(modifier = Modifier.height(180.dp))
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
+
+                        DifficultySelectionSection(
+                            state = state,
+                            onDifficultySelected = { level ->
+                                audioService.playClick()
+                                screenModel.handleIntent(DifficultyIntent.SelectDifficulty(level))
+                            },
+                            onModeSelected = { mode ->
+                                audioService.playClick()
+                                screenModel.handleIntent(DifficultyIntent.SelectMode(mode))
+                            },
+                            onStartGame = {
+                                audioService.playClick()
+                                screenModel.handleIntent(
+                                    DifficultyIntent.StartGame(
+                                        state.selectedDifficulty.pairs,
+                                        state.selectedMode
+                                    )
+                                )
+                            },
+                            onResumeGame = {
+                                audioService.playClick()
+                                screenModel.handleIntent(DifficultyIntent.ResumeGame)
+                            }
+                        )
+                        
+                        Spacer(modifier = Modifier.height(32.dp))
                     }
                 }
 
-                Column(
+                // Global Actions - Floating as preferred by user
+                Row(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(bottom = 16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.SpaceEvenly
+                        .align(Alignment.TopEnd)
+                        .statusBarsPadding()
+                        .padding(16.dp),
+                    horizontalArrangement = Arrangement.End
                 ) {
-                    DifficultyHeader()
-
-                    CardPreview(modifier = Modifier.heightIn(max = 180.dp))
-
-                    DifficultySelectionSection(
-                        state = state,
-                        onDifficultySelected = { level ->
+                    ActionIconButton(
+                        icon = AppIcons.Settings,
+                        contentDescription = stringResource(Res.string.settings),
+                        onClick = {
                             audioService.playClick()
-                            screenModel.handleIntent(DifficultyIntent.SelectDifficulty(level))
-                        },
-                        onModeSelected = { mode ->
+                            navigator.push(SettingsScreen())
+                        }
+                    )
+                    Spacer(modifier = Modifier.width(8.dp))
+                    ActionIconButton(
+                        icon = AppIcons.Info,
+                        contentDescription = stringResource(Res.string.stats),
+                        onClick = {
                             audioService.playClick()
-                            screenModel.handleIntent(DifficultyIntent.SelectMode(mode))
-                        },
-                        onStartGame = {
-                            audioService.playClick()
-                            screenModel.handleIntent(
-                                DifficultyIntent.StartGame(
-                                    state.selectedDifficulty.pairs,
-                                    state.selectedMode
-                                )
-                            )
-                        },
-                        onResumeGame = {
-                            audioService.playClick()
-                            screenModel.handleIntent(DifficultyIntent.ResumeGame)
+                            navigator.push(StatsScreen())
                         }
                     )
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun ActionIconButton(
+        icon: androidx.compose.ui.graphics.vector.ImageVector,
+        contentDescription: String,
+        onClick: () -> Unit
+    ) {
+        IconButton(
+            onClick = onClick,
+            modifier = Modifier
+                .background(MaterialTheme.colorScheme.surface.copy(alpha = 0.7f), MaterialTheme.shapes.medium)
+                .size(40.dp)
+        ) {
+            Icon(
+                imageVector = icon,
+                contentDescription = contentDescription,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(20.dp)
+            )
         }
     }
 }

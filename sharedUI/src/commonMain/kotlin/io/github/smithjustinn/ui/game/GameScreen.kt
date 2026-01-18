@@ -68,103 +68,120 @@ data class GameScreen(
             }
         }
 
-        Box(
-            modifier = Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.radialGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surfaceVariant,
-                            MaterialTheme.colorScheme.surface
+        BoxWithConstraints(modifier = Modifier.fillMaxSize()) {
+            val isLandscape = maxWidth > maxHeight
+            val isCompactHeight = maxHeight < 500.dp
+            val useCompactUI = isLandscape && isCompactHeight
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.radialGradient(
+                            colors = listOf(
+                                MaterialTheme.colorScheme.surfaceVariant,
+                                MaterialTheme.colorScheme.surface
+                            )
                         )
                     )
-                )
-        ) {
-            Scaffold(
-                containerColor = Color.Transparent,
-                modifier = Modifier.fillMaxSize(),
-                topBar = {
-                    GameTopBar(
-                        score = state.game.score,
-                        time = state.elapsedTimeSeconds,
-                        bestScore = state.bestScore,
-                        combo = state.game.comboMultiplier,
-                        onBackClick = {
-                            audioService.playClick()
-                            navigator.pop()
-                        },
-                        isPeeking = state.isPeeking,
-                        mode = mode,
-                        maxTime = state.maxTimeSeconds,
-                        showTimeGain = state.showTimeGain,
-                        timeGainAmount = state.timeGainAmount,
-                        showTimeLoss = state.showTimeLoss,
-                        timeLossAmount = state.timeLossAmount,
-                        isMegaBonus = state.isMegaBonus
-                    )
-                }
-            ) { paddingValues ->
-                Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                    GameGrid(
-                        cards = state.game.cards,
-                        onCardClick = { cardId -> screenModel.handleIntent(GameIntent.FlipCard(cardId)) },
-                        isPeeking = state.isPeeking,
-                        lastMatchedIds = state.game.lastMatchedIds,
-                        showComboExplosion = state.showComboExplosion
-                    )
-
-                    MatchCommentSnackbar(
-                        matchComment = state.game.matchComment,
-                        modifier = Modifier
-                            .align(Alignment.BottomCenter)
-                            .padding(bottom = 32.dp, start = 16.dp, end = 16.dp)
-                    )
-
-                    if (state.isPeeking) {
-                        PeekCountdownOverlay(countdown = state.peekCountdown)
+            ) {
+                Scaffold(
+                    containerColor = Color.Transparent,
+                    modifier = Modifier.fillMaxSize(),
+                    topBar = {
+                        GameTopBar(
+                            score = state.game.score,
+                            time = state.elapsedTimeSeconds,
+                            bestScore = state.bestScore,
+                            combo = state.game.comboMultiplier,
+                            onBackClick = {
+                                audioService.playClick()
+                                navigator.pop()
+                            },
+                            isPeeking = state.isPeeking,
+                            mode = mode,
+                            maxTime = state.maxTimeSeconds,
+                            showTimeGain = state.showTimeGain,
+                            timeGainAmount = state.timeGainAmount,
+                            showTimeLoss = state.showTimeLoss,
+                            timeLossAmount = state.timeLossAmount,
+                            isMegaBonus = state.isMegaBonus,
+                            compact = useCompactUI
+                        )
                     }
-
-                    if (state.game.isGameOver) {
-                        Box(
-                            modifier = Modifier
-                                .fillMaxSize()
-                                .background(Color.Black.copy(alpha = 0.4f))
+                ) { paddingValues ->
+                    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                        GameGrid(
+                            cards = state.game.cards,
+                            onCardClick = { cardId -> screenModel.handleIntent(GameIntent.FlipCard(cardId)) },
+                            isPeeking = state.isPeeking,
+                            lastMatchedIds = state.game.lastMatchedIds,
+                            showComboExplosion = state.showComboExplosion
                         )
 
-                        if (state.game.isGameWon) {
-                            BouncingCardsOverlay(state.game.cards)
-                            ConfettiEffect()
-
-                            if (state.isNewHighScore) {
-                                NewHighScoreSnackbar(
-                                    modifier = Modifier
-                                        .align(Alignment.TopCenter)
-                                        .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                        MatchCommentSnackbar(
+                            matchComment = state.game.matchComment,
+                            modifier = Modifier
+                                .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
+                                .padding(
+                                    bottom = if (useCompactUI) 0.dp else 32.dp,
+                                    top = if (useCompactUI) 8.dp else 0.dp,
+                                    start = 16.dp, 
+                                    end = 16.dp
                                 )
-                            }
+                                .widthIn(max = 600.dp)
+                        )
+
+                        if (state.isPeeking) {
+                            PeekCountdownOverlay(countdown = state.peekCountdown)
                         }
 
-                        ResultsCard(
-                            isWon = state.game.isGameWon,
-                            score = state.game.score,
-                            moves = state.game.moves,
-                            elapsedTimeSeconds = state.elapsedTimeSeconds,
-                            scoreBreakdown = state.game.scoreBreakdown,
-                            onPlayAgain = {
-                                audioService.playClick()
-                                screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode))
-                            },
-                            modifier = Modifier.align(Alignment.Center),
-                            mode = mode
-                        )
-                    }
+                        if (state.game.isGameOver) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(Color.Black.copy(alpha = 0.4f))
+                            )
 
-                    if (state.showWalkthrough) {
-                        WalkthroughOverlay(
-                            step = state.walkthroughStep,
-                            onNext = { screenModel.handleIntent(GameIntent.NextWalkthroughStep) },
-                            onDismiss = { screenModel.handleIntent(GameIntent.CompleteWalkthrough) }
-                        )
+                            if (state.game.isGameWon) {
+                                BouncingCardsOverlay(state.game.cards)
+                                ConfettiEffect()
+
+                                if (state.isNewHighScore) {
+                                    NewHighScoreSnackbar(
+                                        modifier = Modifier
+                                            .align(Alignment.TopCenter)
+                                            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                                            .widthIn(max = 500.dp)
+                                    )
+                                }
+                            }
+
+                            ResultsCard(
+                                isWon = state.game.isGameWon,
+                                score = state.game.score,
+                                moves = state.game.moves,
+                                elapsedTimeSeconds = state.elapsedTimeSeconds,
+                                scoreBreakdown = state.game.scoreBreakdown,
+                                onPlayAgain = {
+                                    audioService.playClick()
+                                    screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode))
+                                },
+                                modifier = Modifier
+                                    .align(Alignment.Center)
+                                    .widthIn(max = 550.dp)
+                                    .padding(vertical = if (useCompactUI) 8.dp else 24.dp),
+                                mode = mode
+                            )
+                        }
+
+                        if (state.showWalkthrough) {
+                            WalkthroughOverlay(
+                                step = state.walkthroughStep,
+                                onNext = { screenModel.handleIntent(GameIntent.NextWalkthroughStep) },
+                                onDismiss = { screenModel.handleIntent(GameIntent.CompleteWalkthrough) }
+                            )
+                        }
                     }
                 }
             }

@@ -21,6 +21,7 @@
     <string name="success_message">You\'ve matched all the cards!</string>
     <string name="play_again">Play Again</string>
     <string name="final_score">Final Score: %1$d</string>
+    <string name="final_score_label">Final Score</string>
     <string name="time_label">Time: %1$s</string>
     <string name="moves_label">Moves: %1$d</string>
     <string name="game_over">Game Over</string>

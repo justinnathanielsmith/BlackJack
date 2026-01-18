@@ -31,7 +31,8 @@ fun GameTopBar(
     timeGainAmount: Int = 0,
     showTimeLoss: Boolean = false,
     timeLossAmount: Long = 0,
-    isMegaBonus: Boolean = false
+    isMegaBonus: Boolean = false,
+    compact: Boolean = false
 ) {
     val isTimeAttack = mode == GameMode.TIME_ATTACK
     val isLowTime = isTimeAttack && time <= 10
@@ -42,16 +43,37 @@ fun GameTopBar(
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .statusBarsPadding()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
+            .then(if (compact) Modifier.statusBarsPadding() else Modifier.statusBarsPadding()) // Always use statusBarsPadding but maybe with different outer padding
+            .padding(
+                horizontal = if (compact) 8.dp else 16.dp, 
+                vertical = if (compact) 4.dp else 12.dp
+            ),
+        verticalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 12.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            BackButton(onClick = onBackClick)
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp)
+            ) {
+                BackButton(onClick = onBackClick, compact = compact)
+                
+                if (compact) {
+                    ComboBadge(
+                        combo = combo,
+                        isMegaBonus = isMegaBonus,
+                        infiniteTransition = infiniteTransition,
+                        compact = true
+                    )
+                    
+                    if (isPeeking) {
+                        PeekIndicator(isVisible = true)
+                    }
+                }
+            }
 
             TimerDisplay(
                 time = time,
@@ -62,36 +84,42 @@ fun GameTopBar(
                 showTimeLoss = showTimeLoss,
                 timeLossAmount = timeLossAmount,
                 isMegaBonus = isMegaBonus,
-                infiniteTransition = infiniteTransition
+                infiniteTransition = infiniteTransition,
+                compact = compact
             )
 
             ScoreDisplay(
                 score = score,
-                bestScore = bestScore
+                bestScore = bestScore,
+                compact = compact
             )
         }
 
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(32.dp),
-            horizontalArrangement = Arrangement.End,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            ComboBadge(
-                combo = combo,
-                isMegaBonus = isMegaBonus,
-                infiniteTransition = infiniteTransition
-            )
+        if (!compact) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(32.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                ComboBadge(
+                    combo = combo,
+                    isMegaBonus = isMegaBonus,
+                    infiniteTransition = infiniteTransition,
+                    compact = false
+                )
 
-            PeekIndicator(isVisible = isPeeking)
+                PeekIndicator(isVisible = isPeeking)
+            }
         }
 
         if (isTimeAttack && maxTime > 0) {
             TimeProgressBar(
                 time = time,
                 maxTime = maxTime,
-                isLowTime = isLowTime
+                isLowTime = isLowTime,
+                compact = compact
             )
         }
     }
@@ -100,21 +128,22 @@ fun GameTopBar(
 @Composable
 private fun BackButton(
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     Surface(
         onClick = onClick,
         shape = CircleShape,
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 4.dp,
-        modifier = modifier.size(44.dp)
+        modifier = modifier.size(if (compact) 36.dp else 44.dp)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 AppIcons.ArrowBack,
                 contentDescription = stringResource(Res.string.back_content_description),
                 tint = MaterialTheme.colorScheme.primary,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(if (compact) 20.dp else 24.dp)
             )
         }
     }
@@ -135,15 +164,15 @@ private fun PeekIndicator(
             shape = CircleShape,
             color = MaterialTheme.colorScheme.secondaryContainer,
             modifier = Modifier
-                .padding(start = 8.dp)
-                .size(32.dp)
+                .padding(start = 4.dp)
+                .size(28.dp)
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     imageVector = AppIcons.Visibility,
                     contentDescription = stringResource(Res.string.peek_cards),
                     tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(18.dp)
+                    modifier = Modifier.size(16.dp)
                 )
             }
         }
@@ -155,7 +184,8 @@ private fun TimeProgressBar(
     time: Long,
     maxTime: Long,
     isLowTime: Boolean,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     val progress by animateFloatAsState(
         targetValue = (time.toFloat() / maxTime.toFloat()).coerceIn(0f, 1f),
@@ -165,7 +195,7 @@ private fun TimeProgressBar(
     Box(
         modifier = modifier
             .fillMaxWidth()
-            .height(8.dp)
+            .height(if (compact) 4.dp else 8.dp)
             .clip(CircleShape)
             .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
     ) {

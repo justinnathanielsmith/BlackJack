@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.game.components
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
@@ -13,8 +14,8 @@ import io.github.smithjustinn.domain.models.CardState
 import kotlin.math.roundToInt
 import kotlin.random.Random
 
-private val CARD_WIDTH = 80.dp
-private val CARD_HEIGHT = 120.dp
+private val BASE_CARD_WIDTH = 60.dp // Reduced from 80dp
+private val BASE_CARD_HEIGHT = 80.dp // 3:4 aspect ratio (approx)
 
 /**
  * Internal state for a bouncing card animation.
@@ -26,7 +27,8 @@ private class BouncingCard(
     initialY: Float,
     initialVx: Float,
     initialVy: Float,
-    val vRot: Float = (Random.nextFloat() - 0.5f) * 5f
+    val vRot: Float = (Random.nextFloat() - 0.5f) * 5f,
+    val scale: Float = 0.8f + Random.nextFloat() * 0.4f // Vary size slightly for better visual
 ) {
     var x by mutableStateOf(initialX)
     var y by mutableStateOf(initialY)
@@ -62,22 +64,33 @@ fun BouncingCardsOverlay(
         val density = LocalDensity.current
         val widthPx = with(density) { maxWidth.toPx() }
         val heightPx = with(density) { maxHeight.toPx() }
-        val cardWidthPx = with(density) { CARD_WIDTH.toPx() }
-        val cardHeightPx = with(density) { CARD_HEIGHT.toPx() }
-
+        
+        // Base size for bouncing cards
+        val cardWidth = BASE_CARD_WIDTH
+        val cardHeight = BASE_CARD_HEIGHT
+        
         val bouncingCards = remember { mutableStateListOf<BouncingCard>() }
 
         // Initialize bouncing cards when the input list changes
         LaunchedEffect(cards) {
             if (bouncingCards.isEmpty() && cards.isNotEmpty()) {
-                cards.forEach { card ->
+                // If there are many cards (high difficulty), we might only want to bounce some of them
+                // to keep the screen clear, but for toddler mode (12 cards) it should be fine.
+                // We'll cap it at 12 cards anyway to prevent chaos on grandmaster mode.
+                cards.take(12).forEach { card ->
+                    // Calculate individual card dimensions for collision
+                    val individualScale = 0.8f + Random.nextFloat() * 0.4f
+                    val cW = with(density) { (cardWidth * individualScale).toPx() }
+                    val cH = with(density) { (cardHeight * individualScale).toPx() }
+
                     bouncingCards.add(
                         BouncingCard(
                             card = card,
-                            initialX = Random.nextFloat() * (widthPx - cardWidthPx).coerceAtLeast(0f),
-                            initialY = Random.nextFloat() * (heightPx - cardHeightPx).coerceAtLeast(0f),
-                            initialVx = (Random.nextFloat() - 0.5f) * 15f,
-                            initialVy = (Random.nextFloat() - 0.5f) * 15f
+                            initialX = Random.nextFloat() * (widthPx - cW).coerceAtLeast(0f),
+                            initialY = Random.nextFloat() * (heightPx - cH).coerceAtLeast(0f),
+                            initialVx = (Random.nextFloat() - 0.5f) * 12f,
+                            initialVy = (Random.nextFloat() - 0.5f) * 12f,
+                            scale = individualScale
                         )
                     )
                 }
@@ -88,7 +101,11 @@ fun BouncingCardsOverlay(
         LaunchedEffect(widthPx, heightPx) {
             while (true) {
                 withFrameNanos {
-                    bouncingCards.forEach { it.update(widthPx, heightPx, cardWidthPx, cardHeightPx) }
+                    bouncingCards.forEach { bCard ->
+                        val cW = with(density) { (cardWidth * bCard.scale).toPx() }
+                        val cH = with(density) { (cardHeight * bCard.scale).toPx() }
+                        bCard.update(widthPx, heightPx, cW, cH)
+                    }
                 }
             }
         }
@@ -101,6 +118,7 @@ fun BouncingCardsOverlay(
                     isFaceUp = true,
                     isMatched = true,
                     modifier = Modifier
+                        .size(cardWidth * bCard.scale, cardHeight * bCard.scale)
                         .offset { IntOffset(bCard.x.roundToInt(), bCard.y.roundToInt()) }
                         .graphicsLayer { rotationZ = bCard.rotation }
                 )

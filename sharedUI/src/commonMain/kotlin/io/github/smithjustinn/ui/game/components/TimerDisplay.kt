@@ -30,7 +30,8 @@ fun TimerDisplay(
     timeLossAmount: Long,
     isMegaBonus: Boolean,
     infiniteTransition: InfiniteTransition,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     val timerColor by animateColorAsState(
         targetValue = when {
@@ -43,7 +44,6 @@ fun TimerDisplay(
         animationSpec = tween(durationMillis = if (showTimeGain || showTimeLoss) 100 else 500)
     )
 
-    // Infinite pulse for critical time
     val infinitePulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.15f,
@@ -53,7 +53,6 @@ fun TimerDisplay(
         )
     )
 
-    // One-off bouncy pulse for time loss
     val lossPulseScale by animateFloatAsState(
         targetValue = if (showTimeLoss) 1.2f else 1f,
         animationSpec = if (showTimeLoss) {
@@ -70,21 +69,21 @@ fun TimerDisplay(
     }
 
     Surface(
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(if (compact) 16.dp else 24.dp),
         color = MaterialTheme.colorScheme.surface,
         tonalElevation = 2.dp,
         border = if (isLowTime || showTimeLoss) BorderStroke(1.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) else null,
-        modifier = modifier.height(44.dp)
+        modifier = modifier.height(if (compact) 36.dp else 44.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 16.dp),
+            modifier = Modifier.padding(horizontal = if (compact) 10.dp else 16.dp),
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = formatTime(time),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 20.sp,
+                    fontSize = if (compact) 16.sp else 20.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp
                 ),
@@ -99,7 +98,7 @@ fun TimerDisplay(
             ) {
                 Text(
                     text = "+${timeGainAmount}s",
-                    style = MaterialTheme.typography.labelLarge,
+                    style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
                     color = if (isMegaBonus) Color(0xFFFFD700) else Color(0xFF4CAF50),
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.padding(start = 6.dp)
@@ -113,7 +112,7 @@ fun TimerDisplay(
             ) {
                 Text(
                     text = "-${timeLossAmount}s",
-                    style = MaterialTheme.typography.labelLarge,
+                    style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
                     color = MaterialTheme.colorScheme.error,
                     fontWeight = FontWeight.Black,
                     modifier = Modifier.padding(start = 6.dp)

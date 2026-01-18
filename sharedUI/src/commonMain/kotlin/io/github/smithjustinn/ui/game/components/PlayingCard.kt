@@ -86,8 +86,8 @@ fun PlayingCard(
 
     Box(
         modifier = modifier
-            .width(80.dp)
-            .height(110.dp)
+            .widthIn(min = 60.dp) // Minimum sensible width
+            .aspectRatio(0.75f) // Standard playing card aspect ratio (3:4)
             .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
             .graphicsLayer {
                 rotationY = rotation
@@ -154,7 +154,9 @@ private fun CardFace(
     suit: Suit,
     suitColor: Color
 ) {
-    Box(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+    BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(6.dp)) {
+        val fontSizeMultiplier = maxWidth.value / 80f
+        
         // Top Left
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(
@@ -162,13 +164,13 @@ private fun CardFace(
                 color = suitColor,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                    fontSize = (14 * fontSizeMultiplier).sp
                 )
             )
             Text(
                 text = suit.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontSizeMultiplier).sp)
             )
         }
 
@@ -176,14 +178,17 @@ private fun CardFace(
         Text(
             text = suit.symbol,
             color = suitColor.copy(alpha = 0.15f),
-            style = MaterialTheme.typography.displayLarge.copy(fontSize = 60.sp),
+            style = MaterialTheme.typography.displayLarge.copy(fontSize = (60 * fontSizeMultiplier).sp),
             modifier = Modifier.align(Alignment.Center)
         )
         
         Text(
             text = rank.symbol,
             color = suitColor,
-            style = MaterialTheme.typography.headlineMedium.copy(fontWeight = FontWeight.ExtraBold),
+            style = MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = (24 * fontSizeMultiplier).sp
+            ),
             modifier = Modifier.align(Alignment.Center)
         )
 
@@ -197,13 +202,13 @@ private fun CardFace(
                 color = suitColor,
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = 14.sp
+                    fontSize = (14 * fontSizeMultiplier).sp
                 )
             )
             Text(
                 text = suit.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp)
+                style = MaterialTheme.typography.labelSmall.copy(fontSize = (10 * fontSizeMultiplier).sp)
             )
         }
     }

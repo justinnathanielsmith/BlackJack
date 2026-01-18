@@ -33,7 +33,7 @@ fun CardPreview(
 
     val floatOffset by infiniteTransition.animateFloat(
         initialValue = 0f,
-        targetValue = -15f,
+        targetValue = -10f,
         animationSpec = infiniteRepeatable(
             animation = tween(2000, easing = EaseInOutQuad),
             repeatMode = RepeatMode.Reverse
@@ -41,15 +41,16 @@ fun CardPreview(
         label = "float"
     )
 
-    Box(
-        modifier = modifier
-            .height(200.dp)
-            .fillMaxWidth(),
+    BoxWithConstraints(
+        modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center
     ) {
+        val containerHeight = maxHeight
+        val cardSize = if (containerHeight < 150.dp) 80.dp else 120.dp
+        
         Box(
             modifier = Modifier
-                .size(150.dp)
+                .size(if (containerHeight < 150.dp) 100.dp else 150.dp)
                 .background(
                     Brush.radialGradient(
                         colors = listOf(
@@ -71,7 +72,8 @@ fun CardPreview(
                 isFaceUp = true,
                 isMatched = true,
                 modifier = Modifier
-                    .offset(x = 20.dp)
+                    .width(cardSize)
+                    .offset(x = (cardSize.value / 4).dp)
                     .graphicsLayer { rotationZ = -15f + swayAngle }
             )
             PlayingCard(
@@ -80,7 +82,8 @@ fun CardPreview(
                 isFaceUp = true,
                 isMatched = true,
                 modifier = Modifier
-                    .offset(x = (-20).dp)
+                    .width(cardSize)
+                    .offset(x = (-cardSize.value / 4).dp)
                     .graphicsLayer { rotationZ = 15f + swayAngle }
             )
         }

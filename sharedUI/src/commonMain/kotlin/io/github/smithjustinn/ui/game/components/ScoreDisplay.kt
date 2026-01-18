@@ -21,27 +21,28 @@ import io.github.smithjustinn.ui.components.AppIcons
 fun ScoreDisplay(
     score: Int,
     bestScore: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     Surface(
-        shape = RoundedCornerShape(24.dp),
+        shape = RoundedCornerShape(if (compact) 16.dp else 24.dp),
         color = MaterialTheme.colorScheme.primaryContainer,
         tonalElevation = 6.dp,
-        modifier = modifier.height(44.dp)
+        modifier = modifier.height(if (compact) 36.dp else 44.dp)
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.padding(horizontal = if (compact) 8.dp else 12.dp),
+            horizontalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 8.dp)
         ) {
-            AnimatedScoreText(score = score)
+            AnimatedScoreText(score = score, compact = compact)
 
             if (bestScore > 0) {
                 VerticalDivider(
-                    modifier = Modifier.height(20.dp),
+                    modifier = Modifier.height(if (compact) 16.dp else 20.dp),
                     color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f)
                 )
-                BestScoreBadge(bestScore = bestScore)
+                BestScoreBadge(bestScore = bestScore, compact = compact)
             }
         }
     }
@@ -50,7 +51,8 @@ fun ScoreDisplay(
 @Composable
 private fun AnimatedScoreText(
     score: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     AnimatedContent(
         targetState = score,
@@ -71,7 +73,7 @@ private fun AnimatedScoreText(
             text = targetScore.toString(),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontWeight = FontWeight.Black,
-                fontSize = 20.sp
+                fontSize = if (compact) 16.sp else 20.sp
             ),
             color = MaterialTheme.colorScheme.onPrimaryContainer
         )
@@ -81,7 +83,8 @@ private fun AnimatedScoreText(
 @Composable
 private fun BestScoreBadge(
     bestScore: Int,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
 ) {
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -90,12 +93,12 @@ private fun BestScoreBadge(
         Icon(
             AppIcons.Trophy,
             contentDescription = null,
-            modifier = Modifier.size(14.dp),
+            modifier = Modifier.size(if (compact) 12.dp else 14.dp),
             tint = Color(0xFFFFD700)
         )
         Text(
             text = bestScore.toString(),
-            style = MaterialTheme.typography.labelSmall,
+            style = MaterialTheme.typography.labelSmall.copy(fontSize = if (compact) 8.sp else 10.sp),
             color = MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.7f),
             fontWeight = FontWeight.Bold
         )
