@@ -329,14 +329,19 @@ class GameScreenModel(
     }
 
     private fun handleGameWon(newState: MemoryGameState) {
-        screenModelScope.launch {
-            _events.send(GameUiEvent.VibrateMatch)
-            _events.send(GameUiEvent.PlayWin)
-        }
         stopTimer()
 
         val gameWithBonuses = calculateFinalScoreUseCase(newState, _state.value.elapsedTimeSeconds)
         val isNewHigh = gameWithBonuses.score > _state.value.bestScore
+
+        screenModelScope.launch {
+            _events.send(GameUiEvent.VibrateMatch)
+            if (isNewHigh) {
+                _events.send(GameUiEvent.PlayHighScore)
+            } else {
+                _events.send(GameUiEvent.PlayWin)
+            }
+        }
 
         _state.update { it.copy(
             game = gameWithBonuses,
