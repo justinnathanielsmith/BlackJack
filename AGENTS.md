@@ -200,3 +200,28 @@ When the user asks for **"Feature X"**, generate:
 6. [ ] `ui/x/XScreenModel.kt` (State Holder)
 7. [ ] **Metro Update**: Add `@BindingContainer` or `@Provides` entry.
 8. [ ] **Tests**: `ui/x/XScreenModelTest.kt` (Turbine + Mokkery).
+
+---
+
+## 🏗️ 8. Build & Test Commands
+
+### 🧪 Running Tests
+Use the provided helper script to run all tests across platforms:
+```bash
+./run_tests.sh
+```
+
+Or run specific module tests via Gradle:
+* **Shared Module (All Platforms)**: `./gradlew :sharedUI:allTests`
+* **Android App**: `./gradlew :androidApp:testDebugUnitTest`
+* **Desktop App**: `./gradlew :desktopApp:test`
+
+### 🏗 Building & Running
+* **Build All**: `./gradlew build`
+* **Run Android**: `./gradlew :androidApp:installDebug`
+* **Run Desktop**: `./gradlew :desktopApp:run`
+* **iOS**: Open `iosApp/iosApp.xcworkspace` in Xcode.
+
+### 🧹 Maintenance
+* **Clean**: `./gradlew clean`
+* **Refresh Dependencies**: `./gradlew build --refresh-dependencies`
