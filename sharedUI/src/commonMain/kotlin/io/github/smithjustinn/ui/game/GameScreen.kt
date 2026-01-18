@@ -61,6 +61,7 @@ data class GameScreen(
                     GameUiEvent.PlayMatch -> audioService.playMatch()
                     GameUiEvent.PlayMismatch -> audioService.playMismatch()
                     GameUiEvent.PlayWin -> audioService.playWin()
+                    GameUiEvent.PlayLose -> audioService.playLose()
                     GameUiEvent.PlayDeal -> audioService.playDeal()
                     GameUiEvent.VibrateMatch -> hapticsService.vibrateMatch()
                     GameUiEvent.VibrateMismatch -> hapticsService.vibrateMismatch()

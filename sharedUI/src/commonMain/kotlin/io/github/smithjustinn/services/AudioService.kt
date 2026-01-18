@@ -5,6 +5,7 @@ interface AudioService {
     fun playMatch()
     fun playMismatch()
     fun playWin()
+    fun playLose()
     fun playClick()
     fun playDeal()
 
@@ -13,6 +14,7 @@ interface AudioService {
         const val MATCH = "match"
         const val MISMATCH = "mismatch"
         const val WIN = "win"
+        const val LOSE = "lose"
         const val CLICK = "click"
         const val DEAL = "deal"
     }

@@ -355,6 +355,7 @@ class GameScreenModel(
         stopTimer()
         _state.update { it.copy(game = it.game.copy(isGameOver = true)) }
         screenModelScope.launch {
+            _events.send(GameUiEvent.PlayLose)
             clearSavedGameUseCase()
         }
     }

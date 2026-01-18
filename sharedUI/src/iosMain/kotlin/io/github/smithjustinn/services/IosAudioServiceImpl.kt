@@ -38,6 +38,7 @@ class IosAudioServiceImpl(
                 AudioService.MATCH,
                 AudioService.MISMATCH,
                 AudioService.WIN,
+                AudioService.LOSE,
                 AudioService.CLICK,
                 AudioService.DEAL
             )
@@ -73,6 +74,7 @@ class IosAudioServiceImpl(
     override fun playMatch() = playSound(AudioService.MATCH)
     override fun playMismatch() = playSound(AudioService.MISMATCH)
     override fun playWin() = playSound(AudioService.WIN)
+    override fun playLose() = playSound(AudioService.LOSE)
     override fun playClick() = playSound(AudioService.CLICK)
     override fun playDeal() = playSound(AudioService.DEAL)
 }
