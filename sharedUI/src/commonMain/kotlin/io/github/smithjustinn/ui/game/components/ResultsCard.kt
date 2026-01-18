@@ -257,9 +257,21 @@ private fun BreakdownSection(scoreBreakdown: ScoreBreakdown) {
             color = MaterialTheme.colorScheme.primary
         )
         
-        BreakdownRow(stringResource(Res.string.score_match_points, scoreBreakdown.matchPoints), MaterialTheme.colorScheme.onSurface)
-        BreakdownRow(stringResource(Res.string.score_time_bonus, scoreBreakdown.timeBonus), if (scoreBreakdown.timeBonus > 0) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface)
-        BreakdownRow(stringResource(Res.string.score_move_bonus, scoreBreakdown.moveBonus), if (scoreBreakdown.moveBonus > 0) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface)
+        BreakdownRow(
+            label = stringResource(Res.string.score_match_points),
+            value = scoreBreakdown.matchPoints.toString(),
+            color = MaterialTheme.colorScheme.onSurface
+        )
+        BreakdownRow(
+            label = stringResource(Res.string.score_time_bonus),
+            value = if (scoreBreakdown.timeBonus > 0) "+${scoreBreakdown.timeBonus}" else "0",
+            color = if (scoreBreakdown.timeBonus > 0) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
+        )
+        BreakdownRow(
+            label = stringResource(Res.string.score_move_bonus),
+            value = if (scoreBreakdown.moveBonus > 0) "+${scoreBreakdown.moveBonus}" else "0",
+            color = if (scoreBreakdown.moveBonus > 0) Color(0xFF4CAF50) else MaterialTheme.colorScheme.onSurface
+        )
     }
 }
 
@@ -280,16 +292,26 @@ private fun StatItem(label: String, color: Color, compact: Boolean = false) {
 }
 
 @Composable
-private fun BreakdownRow(text: String, color: Color) {
+private fun BreakdownRow(label: String, value: String, color: Color) {
     Row(
         modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
     ) {
         Text(
-            text = text,
+            text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = color,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
             fontWeight = FontWeight.Medium
+        )
+        Text(
+            text = value,
+            style = MaterialTheme.typography.bodyMedium.copy(
+                fontFeatureSettings = "tnum"
+            ),
+            color = color,
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.End
         )
     }
 }

@@ -31,7 +31,8 @@ fun TimerDisplay(
     isMegaBonus: Boolean,
     infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier,
-    compact: Boolean = false
+    compact: Boolean = false,
+    minimal: Boolean = false
 ) {
     val timerColor by animateColorAsState(
         targetValue = when {
@@ -39,6 +40,7 @@ fun TimerDisplay(
             showTimeGain && isMegaBonus -> Color(0xFFFFD700)
             showTimeGain -> Color(0xFF4CAF50)
             isLowTime -> MaterialTheme.colorScheme.error
+            minimal -> Color.White
             else -> MaterialTheme.colorScheme.onSurface
         },
         animationSpec = tween(durationMillis = if (showTimeGain || showTimeLoss) 100 else 500)
@@ -68,22 +70,16 @@ fun TimerDisplay(
         else -> 1f
     }
 
-    Surface(
-        shape = RoundedCornerShape(if (compact) 16.dp else 24.dp),
-        color = MaterialTheme.colorScheme.surface,
-        tonalElevation = 2.dp,
-        border = if (isLowTime || showTimeLoss) BorderStroke(1.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) else null,
-        modifier = modifier.height(if (compact) 36.dp else 44.dp)
-    ) {
+    if (minimal) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = if (compact) 10.dp else 16.dp),
+            modifier = modifier,
             horizontalArrangement = Arrangement.Center
         ) {
             Text(
                 text = formatTime(time),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = if (compact) 16.sp else 20.sp,
+                    fontSize = 14.sp,
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp
                 ),
@@ -98,25 +94,64 @@ fun TimerDisplay(
             ) {
                 Text(
                     text = "+${timeGainAmount}s",
-                    style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
+                    style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                     color = if (isMegaBonus) Color(0xFFFFD700) else Color(0xFF4CAF50),
                     fontWeight = FontWeight.Black,
-                    modifier = Modifier.padding(start = 6.dp)
+                    modifier = Modifier.padding(start = 4.dp)
                 )
             }
-
-            AnimatedVisibility(
-                visible = showTimeLoss,
-                enter = fadeIn() + slideInVertically { -it / 2 },
-                exit = fadeOut() + slideOutVertically { it / 2 }
+        }
+    } else {
+        Surface(
+            shape = RoundedCornerShape(if (compact) 16.dp else 24.dp),
+            color = MaterialTheme.colorScheme.surface,
+            tonalElevation = 2.dp,
+            border = if (isLowTime || showTimeLoss) BorderStroke(1.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) else null,
+            modifier = modifier.height(if (compact) 36.dp else 44.dp)
+        ) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.padding(horizontal = if (compact) 10.dp else 16.dp),
+                horizontalArrangement = Arrangement.Center
             ) {
                 Text(
-                    text = "-${timeLossAmount}s",
-                    style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
-                    color = MaterialTheme.colorScheme.error,
-                    fontWeight = FontWeight.Black,
-                    modifier = Modifier.padding(start = 6.dp)
+                    text = formatTime(time),
+                    style = MaterialTheme.typography.titleLarge.copy(
+                        fontSize = if (compact) 16.sp else 20.sp,
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 0.5.sp
+                    ),
+                    modifier = Modifier.scale(timerScale),
+                    color = timerColor
                 )
+
+                AnimatedVisibility(
+                    visible = showTimeGain,
+                    enter = fadeIn() + slideInVertically { it / 2 },
+                    exit = fadeOut() + slideOutVertically { -it / 2 }
+                ) {
+                    Text(
+                        text = "+${timeGainAmount}s",
+                        style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
+                        color = if (isMegaBonus) Color(0xFFFFD700) else Color(0xFF4CAF50),
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
+                }
+
+                AnimatedVisibility(
+                    visible = showTimeLoss,
+                    enter = fadeIn() + slideInVertically { -it / 2 },
+                    exit = fadeOut() + slideOutVertically { it / 2 }
+                ) {
+                    Text(
+                        text = "-${timeLossAmount}s",
+                        style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
+                        color = MaterialTheme.colorScheme.error,
+                        fontWeight = FontWeight.Black,
+                        modifier = Modifier.padding(start = 6.dp)
+                    )
+                }
             }
         }
     }

@@ -54,9 +54,9 @@
     <string name="comment_keep_it_up">Keep it up! ✨</string>
 
     <string name="score_breakdown_title">Score Breakdown</string>
-    <string name="score_match_points">Match Points: %1$d</string>
-    <string name="score_time_bonus">Time Bonus: +%1$d</string>
-    <string name="score_move_bonus">Efficiency Bonus: +%1$d</string>
+    <string name="score_match_points">Match Points</string>
+    <string name="score_time_bonus">Time Bonus</string>
+    <string name="score_move_bonus">Efficiency Bonus</string>
 
     <string name="high_scores">High Scores</string>
     <string name="best_score">Best Score</string>

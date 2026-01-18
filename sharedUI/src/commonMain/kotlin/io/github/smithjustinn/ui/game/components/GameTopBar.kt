@@ -1,19 +1,41 @@
 package io.github.smithjustinn.ui.game.components
 
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.WindowInsetsSides
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.only
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawing
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.ui.components.AppIcons
-import memory_match.sharedui.generated.resources.*
+import memory_match.sharedui.generated.resources.Res
+import memory_match.sharedui.generated.resources.back_content_description
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -32,7 +54,8 @@ fun GameTopBar(
     showTimeLoss: Boolean = false,
     timeLossAmount: Long = 0,
     isMegaBonus: Boolean = false,
-    compact: Boolean = false
+    compact: Boolean = false,
+    isGameOver: Boolean = false
 ) {
     val isTimeAttack = mode == GameMode.TIME_ATTACK
     val isLowTime = isTimeAttack && time <= 10
@@ -40,79 +63,56 @@ fun GameTopBar(
 
     val infiniteTransition = rememberInfiniteTransition()
 
-    // Removed the opaque Surface to make it immersive
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .statusBarsPadding()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
             .padding(
                 horizontal = if (compact) 8.dp else 16.dp, 
                 vertical = if (compact) 4.dp else 8.dp
             ),
         verticalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 8.dp)
     ) {
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp)
-            ) {
-                BackButton(onClick = onBackClick, compact = compact)
-                
-                if (compact) {
-                    ComboBadge(
-                        combo = combo,
+        Box(modifier = Modifier.fillMaxWidth()) {
+            BackButton(
+                onClick = onBackClick, 
+                compact = compact,
+                modifier = Modifier.align(Alignment.CenterStart)
+            )
+
+            DynamicIsland(
+                timerContent = {
+                    TimerDisplay(
+                        time = time,
+                        isLowTime = isLowTime,
+                        isCriticalTime = isCriticalTime,
+                        showTimeGain = showTimeGain,
+                        timeGainAmount = timeGainAmount,
+                        showTimeLoss = showTimeLoss,
+                        timeLossAmount = timeLossAmount,
                         isMegaBonus = isMegaBonus,
                         infiniteTransition = infiniteTransition,
-                        compact = true
+                        minimal = true
                     )
-                    
-                    if (isPeeking) {
-                        PeekIndicator(isVisible = true)
-                    }
-                }
-            }
-
-            TimerDisplay(
-                time = time,
-                isLowTime = isLowTime,
-                isCriticalTime = isCriticalTime,
-                showTimeGain = showTimeGain,
-                timeGainAmount = timeGainAmount,
-                showTimeLoss = showTimeLoss,
-                timeLossAmount = timeLossAmount,
-                isMegaBonus = isMegaBonus,
-                infiniteTransition = infiniteTransition,
-                compact = compact
-            )
-
-            ScoreDisplay(
-                score = score,
+                },
+                scoreContent = {
+                    AnimatedScoreText(
+                        score = score,
+                        style = MaterialTheme.typography.titleMedium.copy(
+                            fontWeight = FontWeight.Black,
+                            fontSize = 15.sp
+                        ),
+                        color = Color.White
+                    )
+                },
+                combo = combo,
+                isGameOver = isGameOver,
+                finalScore = score,
                 bestScore = bestScore,
-                compact = compact
+                isMegaBonus = isMegaBonus,
+                isPeeking = isPeeking,
+                modifier = Modifier.align(Alignment.TopCenter)
             )
-        }
-
-        if (!compact) {
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(24.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                ComboBadge(
-                    combo = combo,
-                    isMegaBonus = isMegaBonus,
-                    infiniteTransition = infiniteTransition,
-                    compact = false
-                )
-
-                PeekIndicator(isVisible = isPeeking)
-            }
         }
 
         if (isTimeAttack && maxTime > 0) {
@@ -146,36 +146,6 @@ private fun BackButton(
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
             )
-        }
-    }
-}
-
-@Composable
-private fun PeekIndicator(
-    isVisible: Boolean,
-    modifier: Modifier = Modifier
-) {
-    androidx.compose.animation.AnimatedVisibility(
-        visible = isVisible,
-        enter = androidx.compose.animation.fadeIn() + androidx.compose.animation.expandHorizontally(),
-        exit = androidx.compose.animation.fadeOut() + androidx.compose.animation.shrinkHorizontally(),
-        modifier = modifier
-    ) {
-        Surface(
-            shape = CircleShape,
-            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f),
-            modifier = Modifier
-                .padding(start = 4.dp)
-                .size(28.dp)
-        ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    imageVector = AppIcons.Visibility,
-                    contentDescription = stringResource(Res.string.peek_cards),
-                    tint = MaterialTheme.colorScheme.onSecondaryContainer,
-                    modifier = Modifier.size(16.dp)
-                )
-            }
         }
     }
 }

@@ -32,7 +32,7 @@ fun GameGrid(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
             .onGloballyPositioned { layoutCoordinates ->
                 gridPosition = layoutCoordinates.positionInRoot()
             },
@@ -105,9 +105,9 @@ fun GameGrid(
             }
         }
 
-        val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
         val horizontalPadding = if (isWide) 32.dp else 16.dp
         val topPadding = if (isCompactHeight) 8.dp else 16.dp
+        val bottomPadding = if (isCompactHeight) 8.dp else 16.dp
 
         LazyVerticalGrid(
             columns = gridCells,
@@ -115,7 +115,7 @@ fun GameGrid(
                 start = horizontalPadding,
                 top = topPadding,
                 end = horizontalPadding,
-                bottom = bottomPadding + (if (isCompactHeight) 8.dp else 16.dp)
+                bottom = bottomPadding
             ),
             verticalArrangement = Arrangement.spacedBy(if (isCompactHeight) 4.dp else if (isWide) 16.dp else 12.dp),
             horizontalArrangement = Arrangement.spacedBy(if (isCompactHeight) 6.dp else if (isWide) 16.dp else 12.dp),
