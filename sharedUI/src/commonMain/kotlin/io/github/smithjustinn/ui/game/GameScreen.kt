@@ -102,6 +102,10 @@ data class GameScreen(
                                 audioService.playClick()
                                 navigator.pop()
                             },
+                            onRestartClick = {
+                                audioService.playClick()
+                                screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode))
+                            },
                             isPeeking = state.isPeeking,
                             mode = mode,
                             maxTime = state.maxTimeSeconds,

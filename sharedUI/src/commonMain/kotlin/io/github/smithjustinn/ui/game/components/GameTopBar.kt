@@ -36,6 +36,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.ui.components.AppIcons
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.back_content_description
+import memory_match.sharedui.generated.resources.restart_content_description
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -45,6 +46,7 @@ fun GameTopBar(
     bestScore: Int,
     combo: Int,
     onBackClick: () -> Unit,
+    onRestartClick: () -> Unit,
     modifier: Modifier = Modifier,
     isPeeking: Boolean = false,
     mode: GameMode = GameMode.STANDARD,
@@ -113,6 +115,12 @@ fun GameTopBar(
                 isPeeking = isPeeking,
                 modifier = Modifier.align(Alignment.TopCenter)
             )
+
+            RestartButton(
+                onClick = onRestartClick,
+                compact = compact,
+                modifier = Modifier.align(Alignment.CenterEnd)
+            )
         }
 
         if (isTimeAttack && maxTime > 0) {
@@ -143,6 +151,30 @@ private fun BackButton(
             Icon(
                 AppIcons.ArrowBack,
                 contentDescription = stringResource(Res.string.back_content_description),
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(if (compact) 20.dp else 24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun RestartButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+        tonalElevation = 4.dp,
+        modifier = modifier.size(if (compact) 36.dp else 44.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                AppIcons.Restart,
+                contentDescription = stringResource(Res.string.restart_content_description),
                 tint = MaterialTheme.colorScheme.primary,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
             )

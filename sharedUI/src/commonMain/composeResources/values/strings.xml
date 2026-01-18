@@ -11,6 +11,7 @@
     <string name="score_label">Score: %1$d</string>
     <string name="combo_format">Combo x%1$d</string>
     <string name="back_content_description">Back</string>
+    <string name="restart_content_description">Restart Game</string>
     <string name="cyclone">Cyclone</string>
     <string name="open_github">Open github</string>
     <string name="start">Start New Game</string>
