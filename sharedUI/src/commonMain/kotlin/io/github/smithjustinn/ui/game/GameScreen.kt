@@ -80,6 +80,7 @@ data class GameScreen(
                         Brush.radialGradient(
                             colors = listOf(
                                 MaterialTheme.colorScheme.surfaceVariant,
+                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
                                 MaterialTheme.colorScheme.surface
                             )
                         )
@@ -88,6 +89,8 @@ data class GameScreen(
                 Scaffold(
                     containerColor = Color.Transparent,
                     modifier = Modifier.fillMaxSize(),
+                    // Use empty insets for Scaffold to prevent it from adding automatic padding/bars
+                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
                     topBar = {
                         GameTopBar(
                             score = state.game.score,
@@ -110,7 +113,8 @@ data class GameScreen(
                         )
                     }
                 ) { paddingValues ->
-                    Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+                    // Handle padding manually to ensure the background is immersive
+                    Box(modifier = Modifier.fillMaxSize().padding(top = paddingValues.calculateTopPadding())) {
                         GameGrid(
                             cards = state.game.cards,
                             onCardClick = { cardId -> screenModel.handleIntent(GameIntent.FlipCard(cardId)) },
@@ -123,6 +127,7 @@ data class GameScreen(
                             matchComment = state.game.matchComment,
                             modifier = Modifier
                                 .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
+                                .navigationBarsPadding() // Proper padding for snackbar
                                 .padding(
                                     bottom = if (useCompactUI) 0.dp else 32.dp,
                                     top = if (useCompactUI) 8.dp else 0.dp,
@@ -151,6 +156,7 @@ data class GameScreen(
                                     NewHighScoreSnackbar(
                                         modifier = Modifier
                                             .align(Alignment.TopCenter)
+                                            .statusBarsPadding()
                                             .padding(top = 16.dp, start = 16.dp, end = 16.dp)
                                             .widthIn(max = 500.dp)
                                     )

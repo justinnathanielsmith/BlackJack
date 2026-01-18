@@ -32,6 +32,7 @@ fun GameGrid(
     BoxWithConstraints(
         modifier = Modifier
             .fillMaxSize()
+            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal))
             .onGloballyPositioned { layoutCoordinates ->
                 gridPosition = layoutCoordinates.positionInRoot()
             },
@@ -58,7 +59,7 @@ fun GameGrid(
                 isWide -> {
                     // Large screen: At least 4 columns, maximize card height while fitting screen
                     val hPadding = 64.dp 
-                    val vPadding = 48.dp // Space for TopBar and bottom padding
+                    val vPadding = 32.dp // Margin to prevent edge-to-edge
                     val spacing = 16.dp
                     val availableWidth = screenWidth - hPadding
                     val availableHeight = screenHeight - vPadding
@@ -104,11 +105,17 @@ fun GameGrid(
             }
         }
 
+        val bottomPadding = WindowInsets.navigationBars.asPaddingValues().calculateBottomPadding()
+        val horizontalPadding = if (isWide) 32.dp else 16.dp
+        val topPadding = if (isCompactHeight) 8.dp else 16.dp
+
         LazyVerticalGrid(
             columns = gridCells,
             contentPadding = PaddingValues(
-                horizontal = if (isWide) 32.dp else 16.dp,
-                vertical = if (isCompactHeight) 4.dp else 16.dp
+                start = horizontalPadding,
+                top = topPadding,
+                end = horizontalPadding,
+                bottom = bottomPadding + (if (isCompactHeight) 8.dp else 16.dp)
             ),
             verticalArrangement = Arrangement.spacedBy(if (isCompactHeight) 4.dp else if (isWide) 16.dp else 12.dp),
             horizontalArrangement = Arrangement.spacedBy(if (isCompactHeight) 6.dp else if (isWide) 16.dp else 12.dp),

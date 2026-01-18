@@ -40,15 +40,16 @@ fun GameTopBar(
 
     val infiniteTransition = rememberInfiniteTransition()
 
+    // Removed the opaque Surface to make it immersive
     Column(
         modifier = modifier
             .fillMaxWidth()
-            .then(if (compact) Modifier.statusBarsPadding() else Modifier.statusBarsPadding()) // Always use statusBarsPadding but maybe with different outer padding
+            .statusBarsPadding()
             .padding(
                 horizontal = if (compact) 8.dp else 16.dp, 
-                vertical = if (compact) 4.dp else 12.dp
+                vertical = if (compact) 4.dp else 8.dp
             ),
-        verticalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 12.dp)
+        verticalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 8.dp)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -99,7 +100,7 @@ fun GameTopBar(
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(32.dp),
+                    .height(24.dp),
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
@@ -134,7 +135,7 @@ private fun BackButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
         tonalElevation = 4.dp,
         modifier = modifier.size(if (compact) 36.dp else 44.dp)
     ) {
@@ -162,7 +163,7 @@ private fun PeekIndicator(
     ) {
         Surface(
             shape = CircleShape,
-            color = MaterialTheme.colorScheme.secondaryContainer,
+            color = MaterialTheme.colorScheme.secondaryContainer.copy(alpha = 0.8f),
             modifier = Modifier
                 .padding(start = 4.dp)
                 .size(28.dp)
