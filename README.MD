@@ -1,142 +1,151 @@
 # Memory-Match
 
-A professional Kotlin Multiplatform (KMP) memory game built with modern development practices, featuring shared UI and logic across Android, iOS, and Desktop.
+**A high-performance, cross-platform memory game built with Kotlin Multiplatform, showcasing modern 2026 development standards.**
+
+<p align="center">
+  <img src="screenshots/Screenshot_20260119_134420.png" width="300" alt="Memory Match Gameplay">
+</p>
 
 ## 🚀 Platform Matrix
 
-| Platform          | Status | Support                               |
-|:------------------|:-------|:--------------------------------------|
-| **Android**       | Stable | Native via Jetpack Compose            |
-| **iOS**           | Beta   | Compose Multiplatform / UIKit Interop |
-| **Desktop (JVM)** | Stable | Compose for Desktop                   |
+| Platform | Status | Support |
+| :--- | :--- | :--- |
+| **Android** | Stable | Native via Jetpack Compose |
+| **iOS** | Beta | Compose Multiplatform (UIKit Interop) |
+| **Desktop (JVM)** | Stable | Compose for Desktop |
 
-## ✨ Features
+---
 
-- **Multiple Game Modes**: Standard and Time Attack modes for varied gameplay.
-- **Difficulty Levels**: Adjustable pair counts to suit all skill levels.
-- **Rich UX**: Smooth animations (Confetti, Bouncing Cards), Audio feedback, and Haptics.
-- **Persistence**: Local high scores and game state saved via Room KMP.
-- **Interactive Tutorial**: Built-in walkthrough for new players.
-- **Adaptive UI**: Responsive layouts for mobile and desktop screens.
+## 📸 Screenshots
+
+<p align="center">
+  <img src="screenshots/Screenshot_20260119_133903.png" width="200" alt="Screen 1">
+  <img src="screenshots/Screenshot_20260119_133921.png" width="200" alt="Screen 2">
+  <img src="screenshots/Screenshot_20260119_133936.png" width="200" alt="Screen 3">
+</p>
+<p align="center">
+  <img src="screenshots/Screenshot_20260119_134035.png" width="200" alt="Screen 4">
+  <img src="screenshots/Screenshot_20260119_134138.png" width="200" alt="Screen 5">
+  <img src="screenshots/Screenshot_20260119_134420.png" width="200" alt="Screen 6">
+</p>
+
+---
 
 ## 🏗 Project Structure
 
-The project follows a modular KMP architecture to maximize code sharing while maintaining platform flexibility.
+The project utilizes a modular strategy within the `sharedUI` module to maximize code sharing while allowing for platform-specific optimizations.
 
 ```text
 .
-├── androidApp/          # Android-specific entry point and resources
-├── iosApp/              # iOS-specific Xcode project and Swift entry point
-├── desktopApp/          # Desktop-specific JVM entry point
-├── sharedUI/            # Shared Compose Multiplatform UI and Business Logic
-│   ├── commonMain/      # Core logic, UI, and data (99% of the code)
-│   ├── androidMain/     # Android-specific implementations
-│   ├── iosMain/         # iOS-specific implementations
-│   └── desktopMain/     # Desktop-specific implementations
-└── gradle/              # Dependency management via Version Catalogs
+├── androidApp/          # Android-specific entry point & Manifest
+├── iosApp/              # iOS-specific Xcode project & Swift UI wrapper
+├── desktopApp/          # Desktop-specific JVM launcher
+├── sharedUI/            # Main KMP module containing logic and UI
+│   ├── commonMain/      # 95%+ of code: Compose UI, ScreenModels, Domain logic
+│   ├── androidMain/     # Android-specific implementations (e.g., Haptics, Audio)
+│   ├── iosMain/         # iOS-specific implementations (e.g., AVFoundation)
+│   └── desktopMain/     # Desktop-specific implementations (e.g., JVM File IO)
+└── gradle/              # Version Catalog (libs.versions.toml)
 ```
 
 ### Architecture Overview
 
-The following diagram illustrates how `commonMain` interacts with platform-specific implementations using the `expect`/`actual` mechanism and Dependency Inversion.
+Built on **Clean Architecture** and **MVI-lite** principles. The following diagram shows how `commonMain` orchestrates logic through platform-specific `actual` implementations.
 
 ```mermaid
 graph TD
     subgraph "sharedUI Module"
         direction TB
-        subgraph "commonMain"
-            UI[Compose UI]
+        subgraph "commonMain (Core Logic)"
+            UI[Compose Multiplatform UI]
             VM[Voyager ScreenModels]
-            Repo[Repository Interfaces]
-            Exp[expect declarations]
+            Domain[Domain UseCases & Repos]
+            Expect[expect declarations]
         end
 
-        subgraph "androidMain"
-            ActAndroid[actual implementations]
-            AndroidSpecific[Android Drivers/Context]
-        end
-
-        subgraph "iosMain"
-            ActIOS[actual implementations]
-            IOSSpecific[iOS Frameworks/Darwin]
-        end
-        
-        subgraph "desktopMain"
-            ActDesktop[actual implementations]
-            DesktopSpecific[JVM/Swing]
+        subgraph "Platform Implementations"
+            Android[androidMain]
+            iOS[iosMain]
+            Desktop[desktopMain]
         end
     end
 
     UI --> VM
-    VM --> Repo
-    Repo -.-> ActAndroid
-    Repo -.-> ActIOS
-    Repo -.-> ActDesktop
-    Exp -.-> ActAndroid
-    Exp -.-> ActIOS
-    Exp -.-> ActDesktop
-    
+    VM --> Domain
+    Domain -.-> Expect
+    Expect -.-> Android
+    Expect -.-> iOS
+    Expect -.-> Desktop
+
     androidApp --> sharedUI
     iosApp --> sharedUI
     desktopApp --> sharedUI
 ```
 
-## 🛠 Tech Stack (2026 Standard)
+---
 
-- **Language:** [Kotlin 2.3.0](https://kotlinlang.org/) (K2 Mode, Context Parameters).
-- **UI Framework:** [Compose Multiplatform 1.10.0](https://www.jetbrains.com/lp/compose-multiplatform/) for shared UI.
-- **Dependency Injection:** [Metro 0.9.4](https://github.com/ZacSweers/metro) for compile-time safe DI.
-- **Networking:** [Ktor 3.3.3](https://ktor.io/) for multiplatform asynchronous HTTP requests.
-- **Persistence:** [Room (KMP) 2.8.4](https://developer.android.com/kotlin/multiplatform/room) for local database storage.
-- **Navigation:** [Voyager 1.1.0](https://voyager.adriel.cafe/) for multiplatform navigation and ScreenModel management.
-- **Concurrency:** [Kotlin Coroutines 1.10.2](https://kotlinlang.org/docs/coroutines-overview.html) & [Flow](https://kotlinlang.org/docs/flow.html).
-- **Image Loading:** [Coil3 3.3.0](https://coil-kt.github.io/coil/) for multiplatform image loading.
-- **Logging:** [Kermit 2.0.8](https://github.com/touchlab/Kermit) for multiplatform logging.
-- **Testing:** [Turbine 1.2.1](https://github.com/cashapp/turbine) and [Mokkery 3.1.1](https://github.com/lupu11/Mokkery).
+## 🛠 Tech Stack Detail
+
+The project leverages a modern stack defined centrally in `gradle/libs.versions.toml` for consistent dependency management.
+
+- **Language:** Kotlin 2.3.0 (K2 Mode, Context Parameters)
+- **UI:** Compose Multiplatform 1.10.0 (Adaptive Layouts)
+- **DI:** [Metro 0.9.4](https://github.com/ZacSweers/metro) (Compile-time safe, no KSP/Kapt)
+- **Navigation:** Voyager 1.1.0-beta03 (Type-safe screens & ScreenModels)
+- **Persistence:** Room (KMP) 2.8.4 (with Bundled SQLite)
+- **Networking:** Ktor 3.3.3 (CIO Engine, Content Negotiation)
+- **Concurrency:** Kotlin Coroutines 1.10.2 & Flow
+- **Image Loading:** Coil3 3.3.0
+- **Testing:** Turbine 1.2.1 (Flow testing) & Mokkery 3.1.1 (Mocking)
+
+---
 
 ## ⚙️ Setup & Installation
 
-### Prerequisites
+### IDE Requirements
+- **Android Studio Ladybug** (2024.2.1) or **IntelliJ IDEA 2024.3+**.
+- **Kotlin Multiplatform** plugin installed and updated.
+- **Compose Multiplatform IDE Support** plugin (recommended).
 
-- **Android Studio Ladybug** (or newer) or **IntelliJ IDEA**.
-- **Kotlin Multiplatform** plugin installed.
-- **Xcode 15+** (for iOS development).
-- **JDK 17+** installed and configured.
+### Platform Specifics
+- **iOS:** Xcode 15.0+ is required for building the `iosApp`.
+- **Desktop:** JDK 17 or higher (Azul Zulu recommended).
 
-### Environment Check
-
-Run the following command to ensure your environment is correctly configured:
-
+### Environment Validation
+Before starting development, run the diagnostic task to ensure all platforms are ready:
 ```bash
 ./gradlew check
 ```
 
+---
+
 ## 🏃 How to Run
 
 ### Android
-Run the application from Android Studio by selecting the `androidApp` configuration or use the CLI:
 ```bash
 ./gradlew :androidApp:installDebug
 ```
 
 ### iOS
-1. Open `iosApp/iosApp.xcodeproj` in Xcode.
-2. Select a simulator or physical device.
-3. Press **Run**.
-
-Alternatively, use Fleet or the `sharedUI` module's iOS targets.
+1. Open `iosApp/iosApp.xcworkspace` in Xcode.
+2. Select your target (Simulator or Device).
+3. Click **Run** (Cmd + R).
+*Alternatively, use **Fleet** for a unified KMP experience.*
 
 ### Desktop
-Run the desktop application using:
 ```bash
 ./gradlew :desktopApp:run
 ```
 
+---
+
 ## 🤝 Contribution Guidelines
 
-1. **Architecture:** Strictly follow Clean Architecture and SOLID principles.
-2. **UI:** All UI should be built using Compose Multiplatform in `sharedUI/commonMain`.
-3. **State Management:** Use Unidirectional Data Flow (UDF) with Voyager ScreenModels.
-4. **Testing:** Ensure logic coverage in `commonTest` using Turbine and Mokkery.
+We follow strict Clean Architecture and Kotlin 2.x idioms.
+1. **Consistency:** Review `AGENTS.md` before making architectural changes.
+2. **UI:** Keep 100% of UI in `sharedUI/commonMain` unless platform-specific interop is required.
+3. **State Management:** Use Unidirectional Data Flow (UDF) via Voyager's `ScreenModel`.
+4. **Commits:** Use [Conventional Commits](https://www.conventionalcommits.org/).
 
-Please read `AGENTS.md` for detailed architectural rules and coding standards.
+---
+*Maintained by the Memory-Match Engineering Team.*
