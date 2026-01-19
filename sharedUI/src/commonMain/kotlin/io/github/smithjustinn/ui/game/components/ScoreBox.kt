@@ -1,5 +1,6 @@
 package io.github.smithjustinn.ui.game.components
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -15,6 +16,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.theme.InactiveBackground
+import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.utils.formatTime
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.final_score_label
@@ -35,7 +38,7 @@ fun ScoreBox(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(Color.White.copy(alpha = 0.05f))
             .padding(if (compact) 8.dp else 16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -53,7 +56,7 @@ fun ScoreBox(
                         letterSpacing = 2.sp
                     )
                 },
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                color = NeonCyan.copy(alpha = 0.8f),
                 textAlign = TextAlign.Center
             )
 
@@ -64,7 +67,7 @@ fun ScoreBox(
                 } else {
                     MaterialTheme.typography.displayMedium
                 }.copy(fontWeight = FontWeight.Black),
-                color = if (isWon) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.error,
+                color = if (isWon) Color.White else MaterialTheme.colorScheme.error,
                 textAlign = TextAlign.Center
             )
 
@@ -74,12 +77,12 @@ fun ScoreBox(
             ) {
                 StatItem(
                     label = stringResource(Res.string.time_label, formatTime(elapsedTimeSeconds)),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.7f),
                     compact = compact
                 )
                 StatItem(
                     label = stringResource(Res.string.moves_label, moves),
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    color = Color.White.copy(alpha = 0.7f),
                     compact = compact
                 )
             }
@@ -96,14 +99,15 @@ private fun StatItem(
 ) {
     Surface(
         modifier = modifier,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.7f),
-        shape = RoundedCornerShape(8.dp)
+        color = InactiveBackground.copy(alpha = 0.4f),
+        shape = RoundedCornerShape(8.dp),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         Text(
             text = label,
             modifier = Modifier.padding(
-                horizontal = if (compact) 4.dp else 8.dp,
-                vertical = if (compact) 2.dp else 4.dp
+                horizontal = if (compact) 6.dp else 10.dp,
+                vertical = if (compact) 3.dp else 6.dp
             ),
             style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
             color = color,

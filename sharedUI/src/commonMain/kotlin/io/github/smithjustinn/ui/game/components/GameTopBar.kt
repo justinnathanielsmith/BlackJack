@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.theme.InactiveBackground
+import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.ui.components.AppIcons
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.back_content_description
@@ -159,15 +162,15 @@ private fun BackButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-        tonalElevation = 4.dp,
+        color = InactiveBackground.copy(alpha = 0.4f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
         modifier = modifier.size(if (compact) 36.dp else 44.dp)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 AppIcons.ArrowBack,
                 contentDescription = stringResource(Res.string.back_content_description),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = Color.White,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
             )
         }
@@ -183,15 +186,15 @@ private fun RestartButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-        tonalElevation = 4.dp,
+        color = InactiveBackground.copy(alpha = 0.4f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
         modifier = modifier.size(if (compact) 36.dp else 44.dp)
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 AppIcons.Restart,
                 contentDescription = stringResource(Res.string.restart_content_description),
-                tint = MaterialTheme.colorScheme.primary,
+                tint = Color.White,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
             )
         }
@@ -208,8 +211,8 @@ private fun MuteButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
-        tonalElevation = 4.dp,
+        color = InactiveBackground.copy(alpha = 0.4f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
         modifier = modifier.size(if (compact) 36.dp else 44.dp)
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -218,7 +221,7 @@ private fun MuteButton(
                 contentDescription = stringResource(
                     if (isAudioEnabled) Res.string.mute_content_description else Res.string.unmute_content_description
                 ),
-                tint = if (isAudioEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
+                tint = if (isAudioEnabled) Color.White else MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
             )
         }
@@ -243,7 +246,7 @@ private fun TimeProgressBar(
             .fillMaxWidth()
             .height(if (compact) 4.dp else 8.dp)
             .clip(CircleShape)
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f))
+            .background(InactiveBackground.copy(alpha = 0.5f))
     ) {
         Box(
             modifier = Modifier
@@ -251,13 +254,11 @@ private fun TimeProgressBar(
                 .fillMaxHeight()
                 .clip(CircleShape)
                 .background(
-                    Brush.horizontalGradient(
-                        if (isLowTime) {
-                            listOf(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.errorContainer)
-                        } else {
-                            listOf(MaterialTheme.colorScheme.primary, MaterialTheme.colorScheme.primaryContainer)
-                        }
-                    )
+                    if (isLowTime) {
+                        Brush.horizontalGradient(listOf(MaterialTheme.colorScheme.error, MaterialTheme.colorScheme.error.copy(alpha = 0.7f)))
+                    } else {
+                        Brush.horizontalGradient(listOf(NeonCyan, NeonCyan.copy(alpha = 0.7f)))
+                    }
                 )
         )
     }

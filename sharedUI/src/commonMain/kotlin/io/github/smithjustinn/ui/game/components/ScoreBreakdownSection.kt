@@ -18,6 +18,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.ScoreBreakdown
+import io.github.smithjustinn.theme.NeonCyan
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.score_breakdown_title
 import memory_match.sharedui.generated.resources.score_match_points
@@ -36,31 +37,31 @@ fun ScoreBreakdownSection(
         modifier = modifier
             .fillMaxWidth()
             .clip(RoundedCornerShape(16.dp))
-            .background(MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f))
+            .background(Color.White.copy(alpha = 0.05f))
             .padding(16.dp),
         verticalArrangement = Arrangement.spacedBy(8.dp)
     ) {
         Text(
-            text = stringResource(Res.string.score_breakdown_title),
-            style = MaterialTheme.typography.titleSmall,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            text = stringResource(Res.string.score_breakdown_title).uppercase(),
+            style = MaterialTheme.typography.labelMedium,
+            fontWeight = FontWeight.Black,
+            color = NeonCyan
         )
 
         BreakdownRow(
             label = stringResource(Res.string.score_match_points),
             value = scoreBreakdown.matchPoints.toString(),
-            color = MaterialTheme.colorScheme.onSurface
+            color = Color.White
         )
         BreakdownRow(
             label = stringResource(Res.string.score_time_bonus),
             value = if (scoreBreakdown.timeBonus > 0) "+${scoreBreakdown.timeBonus}" else "0",
-            color = if (scoreBreakdown.timeBonus > 0) BonusColor else MaterialTheme.colorScheme.onSurface
+            color = if (scoreBreakdown.timeBonus > 0) BonusColor else Color.White
         )
         BreakdownRow(
             label = stringResource(Res.string.score_move_bonus),
             value = if (scoreBreakdown.moveBonus > 0) "+${scoreBreakdown.moveBonus}" else "0",
-            color = if (scoreBreakdown.moveBonus > 0) BonusColor else MaterialTheme.colorScheme.onSurface
+            color = if (scoreBreakdown.moveBonus > 0) BonusColor else Color.White
         )
     }
 }
@@ -80,7 +81,7 @@ private fun BreakdownRow(
         Text(
             text = label,
             style = MaterialTheme.typography.bodyMedium,
-            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            color = Color.White.copy(alpha = 0.6f),
             fontWeight = FontWeight.Medium
         )
         Text(

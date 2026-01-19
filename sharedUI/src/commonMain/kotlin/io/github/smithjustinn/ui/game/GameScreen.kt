@@ -1,9 +1,14 @@
 package io.github.smithjustinn.ui.game
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.navigationBarsPadding
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -23,7 +28,17 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.platform.CommonTransient
 import io.github.smithjustinn.platform.JavaSerializable
-import io.github.smithjustinn.ui.game.components.*
+import io.github.smithjustinn.theme.StartBackgroundBottom
+import io.github.smithjustinn.theme.StartBackgroundTop
+import io.github.smithjustinn.ui.game.components.BouncingCardsOverlay
+import io.github.smithjustinn.ui.game.components.ConfettiEffect
+import io.github.smithjustinn.ui.game.components.GameGrid
+import io.github.smithjustinn.ui.game.components.GameTopBar
+import io.github.smithjustinn.ui.game.components.MatchCommentSnackbar
+import io.github.smithjustinn.ui.game.components.NewHighScoreSnackbar
+import io.github.smithjustinn.ui.game.components.PeekCountdownOverlay
+import io.github.smithjustinn.ui.game.components.ResultsCard
+import io.github.smithjustinn.ui.game.components.WalkthroughOverlay
 import io.github.smithjustinn.utils.BackPressScreen
 
 data class GameScreen(
@@ -95,12 +110,8 @@ data class GameScreen(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(
-                        Brush.radialGradient(
-                            colors = listOf(
-                                MaterialTheme.colorScheme.surfaceVariant,
-                                MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.8f),
-                                MaterialTheme.colorScheme.surface
-                            )
+                        Brush.verticalGradient(
+                            colors = listOf(StartBackgroundTop, StartBackgroundBottom)
                         )
                     )
             ) {

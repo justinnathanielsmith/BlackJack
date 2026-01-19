@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.theme.InactiveBackground
+import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.ui.components.AppIcons
 
 @Composable
@@ -92,7 +94,7 @@ fun DynamicIsland(
                 .background(
                     Brush.verticalGradient(
                         colors = listOf(
-                            Color(0xFF1C1C1E),
+                            InactiveBackground.copy(alpha = 0.9f),
                             Color(0xFF000000)
                         )
                     )
@@ -182,7 +184,7 @@ fun DynamicIsland(
                                 Icon(
                                     imageVector = AppIcons.Visibility,
                                     contentDescription = null,
-                                    tint = Color(0xFF64B5F6),
+                                    tint = NeonCyan,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 VerticalDivider()
@@ -195,7 +197,7 @@ fun DynamicIsland(
 
                             Text(
                                 text = "x$combo",
-                                color = if (isMegaBonus) Color(0xFFFFD700) else Color.White,
+                                color = if (isMegaBonus) Color(0xFFFFD700) else NeonCyan,
                                 style = MaterialTheme.typography.labelLarge.copy(
                                     fontWeight = FontWeight.Black,
                                     fontSize = 14.sp
@@ -213,7 +215,7 @@ fun DynamicIsland(
                                 Icon(
                                     imageVector = AppIcons.Visibility,
                                     contentDescription = null,
-                                    tint = Color(0xFF64B5F6),
+                                    tint = NeonCyan,
                                     modifier = Modifier.size(16.dp)
                                 )
                                 VerticalDivider()

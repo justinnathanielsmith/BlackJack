@@ -17,6 +17,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.theme.InactiveBackground
+import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.utils.formatTime
 
 @Composable
@@ -41,7 +43,7 @@ fun TimerDisplay(
             showTimeGain -> Color(0xFF4CAF50)
             isLowTime -> MaterialTheme.colorScheme.error
             minimal -> Color.White
-            else -> MaterialTheme.colorScheme.onSurface
+            else -> NeonCyan
         },
         animationSpec = tween(durationMillis = if (showTimeGain || showTimeLoss) 100 else 500)
     )
@@ -104,9 +106,11 @@ fun TimerDisplay(
     } else {
         Surface(
             shape = RoundedCornerShape(if (compact) 16.dp else 24.dp),
-            color = MaterialTheme.colorScheme.surface,
-            tonalElevation = 2.dp,
-            border = if (isLowTime || showTimeLoss) BorderStroke(1.5.dp, MaterialTheme.colorScheme.error.copy(alpha = 0.5f)) else null,
+            color = InactiveBackground.copy(alpha = 0.4f),
+            border = BorderStroke(
+                width = 1.dp, 
+                color = if (isLowTime || showTimeLoss) MaterialTheme.colorScheme.error.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.15f)
+            ),
             modifier = modifier.height(if (compact) 36.dp else 44.dp)
         ) {
             Row(

@@ -28,6 +28,8 @@ import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
+import io.github.smithjustinn.theme.NeonCyan
+import io.github.smithjustinn.theme.StartBackgroundTop
 import kotlin.math.roundToInt
 
 @Composable
@@ -39,7 +41,7 @@ fun PlayingCard(
     isRecentlyMatched: Boolean = false,
     isError: Boolean = false,
     modifier: Modifier = Modifier,
-    backColor: Color = MaterialTheme.colorScheme.primaryContainer,
+    backColor: Color = StartBackgroundTop,
     cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
     cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
     areSuitsMultiColored: Boolean = false,
@@ -91,7 +93,7 @@ fun PlayingCard(
     }
     
     val matchedGlowColor by animateColorAsState(
-        targetValue = if (isRecentlyMatched) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent,
+        targetValue = if (isRecentlyMatched) NeonCyan.copy(alpha = 0.3f) else Color.Transparent,
         animationSpec = infiniteRepeatable(
             animation = tween(1000),
             repeatMode = RepeatMode.Reverse
@@ -112,7 +114,9 @@ fun PlayingCard(
             .shadow(
                 elevation = if (isMatched) 0.dp else 6.dp,
                 shape = RoundedCornerShape(12.dp),
-                clip = false
+                clip = false,
+                ambientColor = if (isMatched) NeonCyan else Color.Black,
+                spotColor = if (isMatched) NeonCyan else Color.Black
             )
             .drawBehind {
                 if (isRecentlyMatched) {
@@ -134,8 +138,8 @@ fun PlayingCard(
             ),
             border = if (rotation <= 90f) {
                 when {
-                    isMatched -> BorderStroke(3.dp, MaterialTheme.colorScheme.primary)
-                    isError -> BorderStroke(3.dp, Color(0xFFD32F2F))
+                    isMatched -> BorderStroke(3.dp, NeonCyan)
+                    isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
                     else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
                 }
             } else {
@@ -302,7 +306,7 @@ fun ShimmerEffect() {
     val brush = Brush.linearGradient(
         colors = listOf(
             Color.White.copy(alpha = 0.0f),
-            Color.White.copy(alpha = 0.4f),
+            NeonCyan.copy(alpha = 0.4f),
             Color.White.copy(alpha = 0.0f),
         ),
         start = Offset(translateAnim - 500f, translateAnim - 500f),
