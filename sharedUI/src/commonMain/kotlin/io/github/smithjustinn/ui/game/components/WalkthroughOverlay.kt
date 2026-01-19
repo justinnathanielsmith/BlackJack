@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.theme.InactiveBackground
 import io.github.smithjustinn.theme.NeonCyan
+import memory_match.sharedui.generated.resources.*
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun WalkthroughOverlay(
@@ -50,7 +53,7 @@ fun WalkthroughOverlay(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 Text(
-                    text = getTitle(step).uppercase(),
+                    text = stringResource(getTitleRes(step)).uppercase(),
                     style = MaterialTheme.typography.headlineSmall,
                     fontWeight = FontWeight.Black,
                     color = NeonCyan,
@@ -61,7 +64,7 @@ fun WalkthroughOverlay(
                 Spacer(modifier = Modifier.height(16.dp))
                 
                 Text(
-                    text = getDescription(step),
+                    text = stringResource(getDescriptionRes(step)),
                     style = MaterialTheme.typography.bodyLarge,
                     textAlign = TextAlign.Center,
                     color = Color.White.copy(alpha = 0.8f),
@@ -77,7 +80,7 @@ fun WalkthroughOverlay(
                 ) {
                     TextButton(onClick = onDismiss) {
                         Text(
-                            "SKIP", 
+                            stringResource(Res.string.walkthrough_skip), 
                             color = Color.White.copy(alpha = 0.5f),
                             fontWeight = FontWeight.Bold
                         )
@@ -91,7 +94,7 @@ fun WalkthroughOverlay(
                         shape = RoundedCornerShape(12.dp)
                     ) {
                         Text(
-                            if (step < 2) "NEXT" else "GOT IT!",
+                            if (step < 2) stringResource(Res.string.walkthrough_next) else stringResource(Res.string.walkthrough_got_it),
                             fontWeight = FontWeight.Black,
                             color = Color.White
                         )
@@ -102,16 +105,16 @@ fun WalkthroughOverlay(
     }
 }
 
-private fun getTitle(step: Int): String = when (step) {
-    0 -> "Welcome to Memory Match!"
-    1 -> "Find Pairs"
-    2 -> "Combos & Bonuses"
-    else -> ""
+private fun getTitleRes(step: Int): StringResource = when (step) {
+    0 -> Res.string.walkthrough_title_welcome
+    1 -> Res.string.walkthrough_title_find_pairs
+    2 -> Res.string.walkthrough_title_combos
+    else -> Res.string.app_name
 }
 
-private fun getDescription(step: Int): String = when (step) {
-    0 -> "Test your memory by finding matching pairs of cards. Flip two cards at a time to see if they match!"
-    1 -> "When you find a match, the cards stay face up. Match all pairs to win the game."
-    2 -> "Match pairs quickly to build a combo multiplier and earn more points. In Time Attack mode, matches also give you extra time!"
-    else -> ""
+private fun getDescriptionRes(step: Int): StringResource = when (step) {
+    0 -> Res.string.walkthrough_desc_welcome
+    1 -> Res.string.walkthrough_desc_find_pairs
+    2 -> Res.string.walkthrough_desc_combos
+    else -> Res.string.app_name
 }

@@ -76,4 +76,15 @@
     <string name="mode_time_attack">Time Attack</string>
     <string name="game_mode">Game Mode</string>
     <string name="pairs_label">Pairs</string>
+
+    <!-- Walkthrough -->
+    <string name="walkthrough_skip">SKIP</string>
+    <string name="walkthrough_next">NEXT</string>
+    <string name="walkthrough_got_it">GOT IT!</string>
+    <string name="walkthrough_title_welcome">Welcome to Memory Match!</string>
+    <string name="walkthrough_title_find_pairs">Find Pairs</string>
+    <string name="walkthrough_title_combos">Combos &amp; Bonuses</string>
+    <string name="walkthrough_desc_welcome">Test your memory by finding matching pairs of cards. Flip two cards at a time to see if they match!</string>
+    <string name="walkthrough_desc_find_pairs">When you find a match, the cards stay face up. Match all pairs to win the game.</string>
+    <string name="walkthrough_desc_combos">Match pairs quickly to build a combo multiplier and earn more points. In Time Attack mode, matches also give you extra time!</string>
 </resources>
