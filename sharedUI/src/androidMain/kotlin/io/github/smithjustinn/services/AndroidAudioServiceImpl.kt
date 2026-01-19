@@ -15,6 +15,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import memory_match.sharedui.generated.resources.Res
 import org.jetbrains.compose.resources.ExperimentalResourceApi
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import java.io.File
 import java.io.FileOutputStream
 import java.util.concurrent.ConcurrentHashMap
@@ -37,7 +39,8 @@ class AndroidAudioServiceImpl(
         )
         .build()
 
-    private val soundMap = ConcurrentHashMap<String, Int>()
+    private val soundMap = ConcurrentHashMap<StringResource, Int>()
+    private val resourceToName = ConcurrentHashMap<StringResource, String>()
     private val loadedSounds = ConcurrentHashMap.newKeySet<Int>()
     private var isSoundEnabled = true
     private var isMusicEnabled = true
@@ -85,46 +88,49 @@ class AndroidAudioServiceImpl(
                 AudioService.HIGH_SCORE,
                 AudioService.CLICK,
                 AudioService.DEAL
-            ).forEach { name ->
-                loadSound(name)
+            ).forEach { resource ->
+                loadSound(resource)
             }
         }
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private suspend fun loadSound(name: String): Int? {
-        val fileName = "$name.m4a"
+    private suspend fun loadSound(resource: StringResource): Int? {
         return try {
+            val name = getString(resource)
+            resourceToName[resource] = name
+            val fileName = "$name.m4a"
             val bytes = Res.readBytes("files/$fileName")
             val tempFile = File(context.cacheDir, fileName)
             withContext(Dispatchers.IO) {
                 FileOutputStream(tempFile).use { it.write(bytes) }
             }
             val id = soundPool.load(tempFile.absolutePath, 1)
-            soundMap[name] = id
+            soundMap[resource] = id
             id
         } catch (e: Exception) {
-            logger.e(e) { "Error loading sound: $name" }
+            logger.e(e) { "Error loading sound resource: $resource" }
             null
         }
     }
 
-    private fun playSound(name: String) {
+    private fun playSound(resource: StringResource) {
         if (!isSoundEnabled) return
 
-        val soundId = soundMap[name]
+        val soundId = soundMap[resource]
         if (soundId != null && loadedSounds.contains(soundId)) {
             val streamId = soundPool.play(soundId, soundVolume, soundVolume, 1, 0, 1f)
             if (streamId == 0) {
-                playFallback(name)
+                playFallback(resource)
             }
         } else {
-            playFallback(name)
+            playFallback(resource)
         }
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private fun playFallback(name: String) {
+    private fun playFallback(resource: StringResource) {
+        val name = resourceToName[resource] ?: return
         val fileName = "$name.m4a"
         scope.launch {
             try {
@@ -177,7 +183,8 @@ class AndroidAudioServiceImpl(
     private fun actuallyStartMusic() {
         scope.launch {
             try {
-                val fileName = "${AudioService.MUSIC}.m4a"
+                val name = getString(AudioService.MUSIC)
+                val fileName = "$name.m4a"
                 val tempFile = File(context.cacheDir, fileName)
                 
                 if (!tempFile.exists()) {

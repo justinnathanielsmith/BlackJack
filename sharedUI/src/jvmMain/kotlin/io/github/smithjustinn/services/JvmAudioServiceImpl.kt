@@ -9,6 +9,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import memory_match.sharedui.generated.resources.Res
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import java.io.BufferedInputStream
 import java.io.ByteArrayInputStream
 import java.util.concurrent.ConcurrentHashMap
@@ -23,7 +25,7 @@ class JvmAudioServiceImpl(
     settingsRepository: SettingsRepository
 ) : AudioService {
     private val scope = CoroutineScope(Dispatchers.IO)
-    private val clips = ConcurrentHashMap<String, Clip>()
+    private val clips = ConcurrentHashMap<StringResource, Clip>()
     private var isSoundEnabled = true
     private var isMusicEnabled = true
     private var isMusicRequested = false
@@ -68,8 +70,9 @@ class JvmAudioServiceImpl(
                 AudioService.CLICK,
                 AudioService.DEAL
             )
-            sounds.forEach { name ->
+            sounds.forEach { resource ->
                 try {
+                    val name = getString(resource)
                     val path = "$name.wav"
                     val bytes = Res.readBytes("files/$path")
                     val inputStream = ByteArrayInputStream(bytes)
@@ -77,9 +80,9 @@ class JvmAudioServiceImpl(
                     val clip = AudioSystem.getClip()
                     clip.open(audioStream)
                     clip.setVolume(soundVolume)
-                    clips[name] = clip
+                    clips[resource] = clip
                 } catch (e: Exception) {
-                    logger.e(e) { "Error pre-loading sound: $name" }
+                    logger.e(e) { "Error pre-loading sound resource: $resource" }
                 }
             }
         }
@@ -97,10 +100,10 @@ class JvmAudioServiceImpl(
         }
     }
 
-    private fun playSound(name: String) {
+    private fun playSound(resource: StringResource) {
         if (!isSoundEnabled) return
 
-        val clip = clips[name] ?: return
+        val clip = clips[resource] ?: return
         if (clip.isRunning) {
             clip.stop()
         }
@@ -141,7 +144,8 @@ class JvmAudioServiceImpl(
         scope.launch {
             try {
                 if (musicClip == null) {
-                    val path = "${AudioService.MUSIC}.wav"
+                    val name = getString(AudioService.MUSIC)
+                    val path = "$name.wav"
                     val bytes = Res.readBytes("files/$path")
                     val inputStream = ByteArrayInputStream(bytes)
                     val audioStream = AudioSystem.getAudioInputStream(BufferedInputStream(inputStream))

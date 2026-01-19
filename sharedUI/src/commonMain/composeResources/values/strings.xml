@@ -87,4 +87,15 @@
     <string name="walkthrough_desc_welcome">Test your memory by finding matching pairs of cards. Flip two cards at a time to see if they match!</string>
     <string name="walkthrough_desc_find_pairs">When you find a match, the cards stay face up. Match all pairs to win the game.</string>
     <string name="walkthrough_desc_combos">Match pairs quickly to build a combo multiplier and earn more points. In Time Attack mode, matches also give you extra time!</string>
+
+    <!-- Audio -->
+    <string name="audio_flip">flip</string>
+    <string name="audio_match">match</string>
+    <string name="audio_mismatch">mismatch</string>
+    <string name="audio_win">win</string>
+    <string name="audio_lose">lose</string>
+    <string name="audio_highscore">highscore</string>
+    <string name="audio_click">click</string>
+    <string name="audio_deal">deal</string>
+    <string name="audio_music">music</string>
 </resources>

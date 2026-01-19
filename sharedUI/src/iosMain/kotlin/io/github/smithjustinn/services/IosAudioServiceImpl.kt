@@ -14,6 +14,8 @@ import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import memory_match.sharedui.generated.resources.Res
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.getString
 import platform.AVFAudio.AVAudioPlayer
 import platform.AVFAudio.AVAudioSession
 import platform.AVFAudio.AVAudioSessionCategoryPlayback
@@ -28,7 +30,7 @@ class IosAudioServiceImpl(
     settingsRepository: SettingsRepository
 ) : AudioService {
     private val scope = CoroutineScope(Dispatchers.Main)
-    private val players = mutableMapOf<String, AVAudioPlayer>()
+    private val players = mutableMapOf<StringResource, AVAudioPlayer>()
     private var isSoundEnabled = true
     private var isMusicEnabled = true
     private var isMusicRequested = false
@@ -90,8 +92,9 @@ class IosAudioServiceImpl(
                 AudioService.CLICK,
                 AudioService.DEAL
             )
-            sounds.forEach { name ->
+            sounds.forEach { resource ->
                 try {
+                    val name = getString(resource)
                     val path = "$name.m4a"
                     val bytes = Res.readBytes("files/$path")
                     if (bytes.isEmpty()) {
@@ -104,20 +107,20 @@ class IosAudioServiceImpl(
                     val player = AVAudioPlayer(data = data, error = null)
                     player.volume = soundVolume
                     player.prepareToPlay()
-                    players[name] = player
+                    players[resource] = player
                 } catch (e: Exception) {
-                    logger.e(e) { "Error pre-loading sound: $name" }
+                    logger.e(e) { "Error pre-loading sound resource: $resource" }
                 }
             }
         }
     }
 
-    private fun playSound(name: String) {
+    private fun playSound(resource: StringResource) {
         if (!isSoundEnabled) return
 
-        val player = players[name]
+        val player = players[resource]
         if (player == null) {
-            logger.w { "Sound not loaded yet: $name" }
+            logger.w { "Sound not loaded yet: $resource" }
             return
         }
 
@@ -162,7 +165,8 @@ class IosAudioServiceImpl(
         musicLoadingJob = scope.launch {
             try {
                 if (musicPlayer == null) {
-                    val path = "${AudioService.MUSIC}.m4a"
+                    val name = getString(AudioService.MUSIC)
+                    val path = "$name.m4a"
                     val bytes = Res.readBytes("files/$path")
                     if (bytes.isNotEmpty()) {
                         val data = bytes.usePinned { pinned ->
