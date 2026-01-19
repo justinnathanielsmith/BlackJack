@@ -28,7 +28,7 @@ import org.jetbrains.compose.resources.stringResource
  * DifficultySelectionSection (2026 Design)
  * 
  * Contains the difficulty and game mode selectors, and primary action buttons.
- * Restored: Increased spacing and dimensions to restore the "airy" feel.
+ * Updated: Buttons are now rounded rectangles to match the refined aesthetic.
  */
 @Composable
 fun DifficultySelectionSection(
@@ -48,7 +48,7 @@ fun DifficultySelectionSection(
         // Step 4: Assemble Settings Selectors
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(32.dp) // Restored airy spacing
+            verticalArrangement = Arrangement.spacedBy(32.dp)
         ) {
             // Difficulty Selector
             Column(
@@ -109,7 +109,7 @@ fun DifficultySelectionSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(48.dp)) // Restored breathing room before buttons
+        Spacer(modifier = Modifier.height(48.dp))
 
         // Step 5: Implement Action Buttons
         Column(
@@ -152,7 +152,7 @@ fun DifficultySelectionSection(
                     leadingIcon = AppIcons.Settings
                 )
                 NeonStyleButton(
-                    text = stringResource(Res.string.stats),
+                    text = stringResource(Res.string.leaderboard),
                     onClick = onStatsClick,
                     modifier = Modifier.weight(1f),
                     isPrimary = false,
@@ -180,12 +180,13 @@ fun NeonStyleButton(
     )
 
     val backgroundColor = if (isPrimary) Color(0xFF2D8EFF) else Color(0xFF1E2A4F)
+    val buttonShape = RoundedCornerShape(12.dp)
     
     Surface(
         onClick = onClick,
         interactionSource = interactionSource,
         modifier = modifier
-            .height(60.dp) // Restored height for better presence
+            .height(60.dp)
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
@@ -194,13 +195,13 @@ fun NeonStyleButton(
                 if (isPrimary) {
                     Modifier.shadow(
                         elevation = 12.dp,
-                        shape = RoundedCornerShape(30.dp),
+                        shape = buttonShape,
                         ambientColor = Color(0xFF2D8EFF).copy(alpha = 0.6f),
                         spotColor = Color(0xFF2D8EFF).copy(alpha = 0.6f)
                     )
                 } else Modifier
             ),
-        shape = RoundedCornerShape(30.dp),
+        shape = buttonShape,
         color = backgroundColor,
     ) {
         Box(
@@ -223,11 +224,10 @@ fun NeonStyleButton(
                 }
                 
                 Text(
-                    text = text.uppercase(),
-                    style = MaterialTheme.typography.labelLarge,
-                    fontWeight = FontWeight.ExtraBold,
+                    text = text,
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
                     color = Color.White,
-                    letterSpacing = 1.2.sp,
                     maxLines = 1,
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis
@@ -239,7 +239,7 @@ fun NeonStyleButton(
                         imageVector = trailingIcon,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(18.dp).graphicsLayer { rotationZ = 180f }
+                        modifier = Modifier.size(18.dp).graphicsLayer { rotationZ = 145f } // Diagonal arrow up-right as in image
                     )
                 }
             }
