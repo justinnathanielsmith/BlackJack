@@ -21,6 +21,8 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.platform.JavaSerializable
+import io.github.smithjustinn.theme.StartBackgroundBottom
+import io.github.smithjustinn.theme.StartBackgroundTop
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.stats.components.LeaderboardSection
 import io.github.smithjustinn.ui.stats.components.ModeSelector
@@ -49,12 +51,8 @@ class StatsScreen : Screen, JavaSerializable {
             modifier = Modifier
                 .fillMaxSize()
                 .background(
-                    Brush.verticalGradient(
-                        colors = listOf(
-                            MaterialTheme.colorScheme.surface,
-                            MaterialTheme.colorScheme.primaryContainer.copy(alpha = 0.2f),
-                            MaterialTheme.colorScheme.surface
-                        )
+                    brush = Brush.verticalGradient(
+                        colors = listOf(StartBackgroundTop, StartBackgroundBottom)
                     )
                 )
         ) {
@@ -66,7 +64,8 @@ class StatsScreen : Screen, JavaSerializable {
                             Text(
                                 text = stringResource(Res.string.high_scores),
                                 style = MaterialTheme.typography.titleLarge,
-                                fontWeight = FontWeight.Bold
+                                fontWeight = FontWeight.Bold,
+                                color = Color.White
                             ) 
                         },
                         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
@@ -78,7 +77,7 @@ class StatsScreen : Screen, JavaSerializable {
                                 Icon(
                                     imageVector = AppIcons.ArrowBack,
                                     contentDescription = "Back",
-                                    tint = MaterialTheme.colorScheme.onSurface
+                                    tint = Color.White
                                 )
                             }
                         }
