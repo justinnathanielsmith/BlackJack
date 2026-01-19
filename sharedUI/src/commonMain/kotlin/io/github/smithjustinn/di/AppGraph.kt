@@ -2,7 +2,7 @@ package io.github.smithjustinn.di
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import co.touchlab.kermit.Logger
-import io.github.smithjustinn.ui.difficulty.StartScreenModel
+import io.github.smithjustinn.ui.start.StartScreenModel
 import io.github.smithjustinn.ui.game.GameScreenModel
 import io.github.smithjustinn.ui.stats.StatsScreenModel
 import io.github.smithjustinn.ui.settings.SettingsScreenModel

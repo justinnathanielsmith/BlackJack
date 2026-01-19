@@ -1,4 +1,4 @@
-package io.github.smithjustinn.ui.difficulty.components
+package io.github.smithjustinn.ui.start.components
 
 import androidx.compose.animation.*
 import androidx.compose.animation.core.*
@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.difficulty.DifficultyState
+import io.github.smithjustinn.ui.start.DifficultyState
 import memory_match.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.PI

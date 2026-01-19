@@ -1,4 +1,4 @@
-package io.github.smithjustinn.ui.difficulty.components
+package io.github.smithjustinn.ui.start.components
 
 import androidx.compose.animation.core.EaseInOutSine
 import androidx.compose.animation.core.LinearEasing

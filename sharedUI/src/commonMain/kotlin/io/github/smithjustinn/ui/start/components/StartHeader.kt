@@ -1,4 +1,4 @@
-package io.github.smithjustinn.ui.difficulty.components
+package io.github.smithjustinn.ui.start.components
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth

@@ -1,4 +1,4 @@
-package io.github.smithjustinn.ui.difficulty
+package io.github.smithjustinn.ui.start
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -44,9 +44,9 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.platform.JavaSerializable
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.difficulty.components.CardPreview
-import io.github.smithjustinn.ui.difficulty.components.StartHeader
-import io.github.smithjustinn.ui.difficulty.components.DifficultySelectionSection
+import io.github.smithjustinn.ui.start.components.CardPreview
+import io.github.smithjustinn.ui.start.components.StartHeader
+import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.game.GameScreen
 import io.github.smithjustinn.ui.settings.SettingsScreen
 import io.github.smithjustinn.ui.stats.StatsScreen

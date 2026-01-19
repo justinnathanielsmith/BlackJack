@@ -7,7 +7,7 @@ import cafe.adriel.voyager.transitions.SlideTransition
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.utils.BackPressScreen
-import io.github.smithjustinn.ui.difficulty.StartScreen
+import io.github.smithjustinn.ui.start.StartScreen
 import io.github.smithjustinn.theme.AppTheme
 
 @Composable

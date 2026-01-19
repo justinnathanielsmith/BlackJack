@@ -1,4 +1,4 @@
-package io.github.smithjustinn.ui.difficulty
+package io.github.smithjustinn.ui.start
 
 import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope

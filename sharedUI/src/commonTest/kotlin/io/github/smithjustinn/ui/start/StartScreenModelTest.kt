@@ -1,4 +1,4 @@
-package io.github.smithjustinn.ui.difficulty
+package io.github.smithjustinn.ui.start
 
 import app.cash.turbine.test
 import co.touchlab.kermit.Logger
