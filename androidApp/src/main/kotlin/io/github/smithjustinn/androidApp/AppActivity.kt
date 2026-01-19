@@ -32,8 +32,12 @@ private fun ThemeChanged(isDark: Boolean) {
     LaunchedEffect(isDark) {
         val window = (view.context as Activity).window
         WindowInsetsControllerCompat(window, window.decorView).apply {
-            isAppearanceLightStatusBars = isDark
-            isAppearanceLightNavigationBars = isDark
+            // The app uses a dark gradient background (StartBackgroundTop) at the top
+            // of most screens (Start, Game, Settings, Stats) regardless of the system theme.
+            // Therefore, we should always use light icons (isAppearanceLightStatusBars = false)
+            // to ensure they are visible against the dark background.
+            isAppearanceLightStatusBars = false
+            isAppearanceLightNavigationBars = false
         }
     }
 }
