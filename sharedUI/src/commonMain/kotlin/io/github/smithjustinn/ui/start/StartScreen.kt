@@ -72,14 +72,14 @@ class StartScreen : Screen, JavaSerializable {
                     .statusBarsPadding()
                     .navigationBarsPadding()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 32.dp),
+                    .padding(horizontal = 24.dp, vertical = 32.dp), // Restored padding
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Top
             ) {
                 // Step 2: Implement the Header (Contains Title and Tilted Cards)
                 StartHeader()
 
-                Spacer(modifier = Modifier.height(64.dp)) // Increased spacing for airy feel
+                Spacer(modifier = Modifier.height(48.dp)) // Restored airy spacing
 
                 // Steps 3, 4, 5: Difficulty Selector, Game Mode Selector, and Action Buttons
                 DifficultySelectionSection(
@@ -114,8 +114,6 @@ class StartScreen : Screen, JavaSerializable {
                         navigator.push(StatsScreen())
                     }
                 )
-                
-                Spacer(modifier = Modifier.height(48.dp)) // Final bottom breathing room
             }
         }
     }

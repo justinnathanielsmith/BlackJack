@@ -29,12 +29,19 @@ import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.zIndex
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.ui.game.components.PlayingCard
 
+/**
+ * CardPreview (Visual Section - 2026 Design)
+ * 
+ * Restored the "airy" layout and star animations that provided the feel the user liked,
+ * while updating the cards to the Ace of Spades and Ace of Clubs to match the reference image.
+ */
 @Composable
 fun CardPreview(
     modifier: Modifier = Modifier,
@@ -99,6 +106,7 @@ fun CardPreview(
                 cardSymbolTheme = cardSymbolTheme,
                 modifier = Modifier
                     .width(110.dp)
+                    .zIndex(1f) // Keep Spades on top as in the image
                     .graphicsLayer { 
                         rotationZ = -12f + rotation 
                         scaleX = 1f
@@ -114,6 +122,7 @@ fun CardPreview(
                 cardSymbolTheme = cardSymbolTheme,
                 modifier = Modifier
                     .width(110.dp)
+                    .zIndex(0f)
                     .graphicsLayer { 
                         rotationZ = 12f - rotation 
                         scaleX = 1f
@@ -123,8 +132,7 @@ fun CardPreview(
             )
         }
         
-        // Stars/Sparkles (Placed after Cards to be on top)
-        // Positioned relative to center using offsets
+        // Stars/Sparkles (Restored)
         AnimatedStar(Modifier.offset(x = (-70).dp, y = (-60).dp).size(20.dp), 0)
         AnimatedStar(Modifier.offset(x = 80.dp, y = (-50).dp).size(16.dp), 500)
         AnimatedStar(Modifier.offset(x = (-80).dp, y = 40.dp).size(14.dp), 1000)

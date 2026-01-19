@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.text.TextStyle
@@ -16,16 +17,15 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.theme.NeonCyan
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * GameTitleHeader (Header Section - 2026 Design)
+ * StartHeader (Header Section - 2026 Design)
  * 
- * Contains the "Memory Match" title with neon glow and the tilted cards preview.
- * Refined with increased spacing for an "airy" feel.
+ * Contains the "Memory Match" title with a vibrant gradient and the tilted cards preview.
+ * Refined to match the reference image while keeping the "airy" feel the user liked.
  */
 @Composable
 fun StartHeader(
@@ -40,22 +40,27 @@ fun StartHeader(
         Text(
             text = title,
             style = TextStyle(
-                fontSize = 48.sp, // Slightly larger for impact
+                fontSize = 48.sp, // Restored to user's preferred "airy" size
                 fontWeight = FontWeight.ExtraBold,
-                color = Color.White,
+                brush = Brush.verticalGradient(
+                    colors = listOf(
+                        Color(0xFFC084FC), // Light Purple
+                        Color(0xFF60A5FA)  // Soft Blue
+                    )
+                ),
                 textAlign = TextAlign.Center,
                 shadow = Shadow(
-                    color = NeonCyan.copy(alpha = 0.8f),
+                    color = Color(0xFFC084FC).copy(alpha = 0.4f),
                     offset = Offset(0f, 0f),
-                    blurRadius = 40f // Increased glow
+                    blurRadius = 30f
                 )
             )
         )
 
-        Spacer(modifier = Modifier.height(40.dp)) // Increased from 24.dp for Step 6 polish
+        Spacer(modifier = Modifier.height(32.dp)) // Restored original spacing
 
         CardPreview(
-            modifier = Modifier.height(200.dp) // Slightly taller
+            modifier = Modifier.height(180.dp) // Restored original size
         )
     }
 }

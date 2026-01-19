@@ -28,7 +28,7 @@ import org.jetbrains.compose.resources.stringResource
  * DifficultySelectionSection (2026 Design)
  * 
  * Contains the difficulty and game mode selectors, and primary action buttons.
- * Refined: Improved button internal spacing to prevent text wrapping on smaller screens.
+ * Restored: Increased spacing and dimensions to restore the "airy" feel.
  */
 @Composable
 fun DifficultySelectionSection(
@@ -48,7 +48,7 @@ fun DifficultySelectionSection(
         // Step 4: Assemble Settings Selectors
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(32.dp)
+            verticalArrangement = Arrangement.spacedBy(32.dp) // Restored airy spacing
         ) {
             // Difficulty Selector
             Column(
@@ -109,7 +109,7 @@ fun DifficultySelectionSection(
             }
         }
 
-        Spacer(modifier = Modifier.height(64.dp)) // Large gap to anchor buttons at bottom
+        Spacer(modifier = Modifier.height(48.dp)) // Restored breathing room before buttons
 
         // Step 5: Implement Action Buttons
         Column(
@@ -142,7 +142,7 @@ fun DifficultySelectionSection(
             // Secondary Buttons Row
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp) // Reduced from 16.dp for more room
+                horizontalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 NeonStyleButton(
                     text = stringResource(Res.string.settings),
@@ -185,7 +185,7 @@ fun NeonStyleButton(
         onClick = onClick,
         interactionSource = interactionSource,
         modifier = modifier
-            .height(64.dp)
+            .height(60.dp) // Restored height for better presence
             .graphicsLayer {
                 scaleX = scale
                 scaleY = scale
@@ -193,14 +193,14 @@ fun NeonStyleButton(
             .then(
                 if (isPrimary) {
                     Modifier.shadow(
-                        elevation = 16.dp,
-                        shape = RoundedCornerShape(32.dp),
+                        elevation = 12.dp,
+                        shape = RoundedCornerShape(30.dp),
                         ambientColor = Color(0xFF2D8EFF).copy(alpha = 0.6f),
                         spotColor = Color(0xFF2D8EFF).copy(alpha = 0.6f)
                     )
                 } else Modifier
             ),
-        shape = RoundedCornerShape(32.dp),
+        shape = RoundedCornerShape(30.dp),
         color = backgroundColor,
     ) {
         Box(
@@ -210,24 +210,24 @@ fun NeonStyleButton(
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(horizontal = 8.dp) // Reduced padding for better fit
+                modifier = Modifier.padding(horizontal = 12.dp)
             ) {
                 if (leadingIcon != null) {
                     Icon(
                         imageVector = leadingIcon,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(18.dp) // Slightly smaller icon
+                        modifier = Modifier.size(18.dp)
                     )
-                    Spacer(Modifier.width(8.dp)) // Reduced spacer
+                    Spacer(Modifier.width(8.dp))
                 }
                 
                 Text(
                     text = text.uppercase(),
-                    style = MaterialTheme.typography.labelLarge, // Smaller typography to fit
+                    style = MaterialTheme.typography.labelLarge,
                     fontWeight = FontWeight.ExtraBold,
                     color = Color.White,
-                    letterSpacing = 1.sp, // Reduced letter spacing
+                    letterSpacing = 1.2.sp,
                     maxLines = 1,
                     softWrap = false,
                     overflow = TextOverflow.Ellipsis
