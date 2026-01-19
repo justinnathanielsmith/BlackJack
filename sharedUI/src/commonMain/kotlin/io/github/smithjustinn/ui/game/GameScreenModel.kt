@@ -49,15 +49,17 @@ class GameScreenModel(
         settingsJob = screenModelScope.launch {
             combine(
                 settingsRepository.isPeekEnabled,
-                settingsRepository.isWalkthroughCompleted
-            ) { peek, walkthroughCompleted ->
-                peek to walkthroughCompleted
-            }.collect { (peek, walkthroughCompleted) ->
+                settingsRepository.isWalkthroughCompleted,
+                settingsRepository.isMusicEnabled,
+                settingsRepository.isSoundEnabled
+            ) { peek, walkthroughCompleted, musicEnabled, soundEnabled ->
                 _state.update { it.copy(
                     isPeekFeatureEnabled = peek,
-                    showWalkthrough = !walkthroughCompleted
+                    showWalkthrough = !walkthroughCompleted,
+                    isMusicEnabled = musicEnabled,
+                    isSoundEnabled = soundEnabled
                 ) }
-            }
+            }.collect()
         }
     }
 
@@ -68,6 +70,16 @@ class GameScreenModel(
             is GameIntent.SaveGame -> saveGame()
             is GameIntent.NextWalkthroughStep -> nextWalkthroughStep()
             is GameIntent.CompleteWalkthrough -> completeWalkthrough()
+            is GameIntent.ToggleAudio -> toggleAudio()
+        }
+    }
+
+    private fun toggleAudio() {
+        screenModelScope.launch {
+            // If either is enabled, we mute both. If both are disabled, we enable both.
+            val shouldEnable = !(_state.value.isMusicEnabled || _state.value.isSoundEnabled)
+            settingsRepository.setMusicEnabled(shouldEnable)
+            settingsRepository.setSoundEnabled(shouldEnable)
         }
     }
 

@@ -8,5 +8,8 @@ data class SettingsEntity(
     @PrimaryKey val id: Int = 0, // Single row for settings
     val isPeekEnabled: Boolean = true,
     val isSoundEnabled: Boolean = true,
-    val isWalkthroughCompleted: Boolean = false
+    val isMusicEnabled: Boolean = true,
+    val isWalkthroughCompleted: Boolean = false,
+    val soundVolume: Float = 1.0f,
+    val musicVolume: Float = 1.0f
 )

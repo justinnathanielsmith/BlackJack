@@ -11,7 +11,10 @@ import kotlinx.coroutines.launch
 data class SettingsUIState(
     val isPeekEnabled: Boolean = true,
     val isSoundEnabled: Boolean = true,
-    val isWalkthroughCompleted: Boolean = false
+    val isMusicEnabled: Boolean = true,
+    val isWalkthroughCompleted: Boolean = false,
+    val soundVolume: Float = 1.0f,
+    val musicVolume: Float = 1.0f
 )
 
 sealed class SettingsUiEvent {
@@ -26,20 +29,39 @@ class SettingsScreenModel(
     private val _events = Channel<SettingsUiEvent>(Channel.BUFFERED)
     val events: Flow<SettingsUiEvent> = _events.receiveAsFlow()
 
+    private val audioSettingsFlow = combine(
+        settingsRepository.isSoundEnabled,
+        settingsRepository.isMusicEnabled,
+        settingsRepository.soundVolume,
+        settingsRepository.musicVolume
+    ) { sound, music, soundVol, musicVol ->
+        AudioSettings(sound, music, soundVol, musicVol)
+    }
+
     val state: StateFlow<SettingsUIState> = combine(
         settingsRepository.isPeekEnabled,
-        settingsRepository.isSoundEnabled,
-        settingsRepository.isWalkthroughCompleted
-    ) { peek, sound, walkthrough ->
+        settingsRepository.isWalkthroughCompleted,
+        audioSettingsFlow
+    ) { peek, walkthrough, audio ->
         SettingsUIState(
             isPeekEnabled = peek,
-            isSoundEnabled = sound,
-            isWalkthroughCompleted = walkthrough
+            isWalkthroughCompleted = walkthrough,
+            isSoundEnabled = audio.isSoundEnabled,
+            isMusicEnabled = audio.isMusicEnabled,
+            soundVolume = audio.soundVolume,
+            musicVolume = audio.musicVolume
         )
     }.stateIn(
         scope = screenModelScope,
         started = SharingStarted.WhileSubscribed(5000),
         initialValue = SettingsUIState()
+    )
+
+    private data class AudioSettings(
+        val isSoundEnabled: Boolean,
+        val isMusicEnabled: Boolean,
+        val soundVolume: Float,
+        val musicVolume: Float
     )
 
     fun togglePeekEnabled(enabled: Boolean) {
@@ -51,6 +73,24 @@ class SettingsScreenModel(
     fun toggleSoundEnabled(enabled: Boolean) {
         screenModelScope.launch {
             settingsRepository.setSoundEnabled(enabled)
+        }
+    }
+
+    fun toggleMusicEnabled(enabled: Boolean) {
+        screenModelScope.launch {
+            settingsRepository.setMusicEnabled(enabled)
+        }
+    }
+
+    fun setSoundVolume(volume: Float) {
+        screenModelScope.launch {
+            settingsRepository.setSoundVolume(volume)
+        }
+    }
+
+    fun setMusicVolume(volume: Float) {
+        screenModelScope.launch {
+            settingsRepository.setMusicVolume(volume)
         }
     }
 

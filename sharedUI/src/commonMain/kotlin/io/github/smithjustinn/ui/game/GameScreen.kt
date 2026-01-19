@@ -6,6 +6,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -55,13 +56,20 @@ data class GameScreen(
         }
 
         LaunchedEffect(Unit) {
+            audioService.startMusic()
             screenModel.events.collect { event ->
                 when (event) {
                     GameUiEvent.PlayFlip -> audioService.playFlip()
                     GameUiEvent.PlayMatch -> audioService.playMatch()
                     GameUiEvent.PlayMismatch -> audioService.playMismatch()
-                    GameUiEvent.PlayWin -> audioService.playWin()
-                    GameUiEvent.PlayLose -> audioService.playLose()
+                    GameUiEvent.PlayWin -> {
+                        audioService.stopMusic()
+                        audioService.playWin()
+                    }
+                    GameUiEvent.PlayLose -> {
+                        audioService.stopMusic()
+                        audioService.playLose()
+                    }
                     GameUiEvent.PlayHighScore -> audioService.playHighScore()
                     GameUiEvent.PlayDeal -> audioService.playDeal()
                     GameUiEvent.VibrateMatch -> hapticsService.vibrateMatch()
@@ -69,6 +77,12 @@ data class GameScreen(
                     GameUiEvent.VibrateTick -> hapticsService.vibrateTick()
                     GameUiEvent.VibrateWarning -> hapticsService.vibrateWarning()
                 }
+            }
+        }
+
+        DisposableEffect(Unit) {
+            onDispose {
+                audioService.stopMusic()
             }
         }
 
@@ -107,17 +121,23 @@ data class GameScreen(
                             onRestartClick = {
                                 audioService.playClick()
                                 screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode))
+                                audioService.startMusic()
                             },
                             isPeeking = state.isPeeking,
                             mode = mode,
                             maxTime = state.maxTimeSeconds,
                             showTimeGain = state.showTimeGain,
-                            timeGainAmount = state.timeGainAmount,
+                            timeGainAmount = totalGainAmount(state),
                             showTimeLoss = state.showTimeLoss,
                             timeLossAmount = state.timeLossAmount,
                             isMegaBonus = state.isMegaBonus,
                             compact = useCompactUI,
-                            isGameOver = state.game.isGameOver
+                            isGameOver = state.game.isGameOver,
+                            isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
+                            onMuteClick = {
+                                audioService.playClick()
+                                screenModel.handleIntent(GameIntent.ToggleAudio)
+                            }
                         )
                     }
                 ) { paddingValues ->
@@ -178,6 +198,7 @@ data class GameScreen(
                                 onPlayAgain = {
                                     audioService.playClick()
                                     screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true, mode = mode))
+                                    audioService.startMusic()
                                 },
                                 onScoreTick = { hapticsService.vibrateTick() },
                                 modifier = Modifier
@@ -199,5 +220,9 @@ data class GameScreen(
                 }
             }
         }
+    }
+
+    private fun totalGainAmount(state: GameUIState): Int {
+        return state.timeGainAmount
     }
 }

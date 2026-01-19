@@ -12,6 +12,8 @@
     <string name="combo_format">Combo x%1$d</string>
     <string name="back_content_description">Back</string>
     <string name="restart_content_description">Restart Game</string>
+    <string name="mute_content_description">Mute Music</string>
+    <string name="unmute_content_description">Unmute Music</string>
     <string name="cyclone">Cyclone</string>
     <string name="open_github">Open github</string>
     <string name="start">Start New Game</string>

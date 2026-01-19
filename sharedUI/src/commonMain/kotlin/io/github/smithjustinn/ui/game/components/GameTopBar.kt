@@ -8,6 +8,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.WindowInsetsSides
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -37,6 +38,8 @@ import io.github.smithjustinn.ui.components.AppIcons
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.back_content_description
 import memory_match.sharedui.generated.resources.restart_content_description
+import memory_match.sharedui.generated.resources.mute_content_description
+import memory_match.sharedui.generated.resources.unmute_content_description
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -57,7 +60,9 @@ fun GameTopBar(
     timeLossAmount: Long = 0,
     isMegaBonus: Boolean = false,
     compact: Boolean = false,
-    isGameOver: Boolean = false
+    isGameOver: Boolean = false,
+    isAudioEnabled: Boolean = true,
+    onMuteClick: () -> Unit = {}
 ) {
     val isTimeAttack = mode == GameMode.TIME_ATTACK
     val isLowTime = isTimeAttack && time <= 10
@@ -116,11 +121,22 @@ fun GameTopBar(
                 modifier = Modifier.align(Alignment.TopCenter)
             )
 
-            RestartButton(
-                onClick = onRestartClick,
-                compact = compact,
-                modifier = Modifier.align(Alignment.CenterEnd)
-            )
+            Row(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                horizontalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                MuteButton(
+                    isAudioEnabled = isAudioEnabled,
+                    onClick = onMuteClick,
+                    compact = compact
+                )
+                
+                RestartButton(
+                    onClick = onRestartClick,
+                    compact = compact
+                )
+            }
         }
 
         if (isTimeAttack && maxTime > 0) {
@@ -176,6 +192,33 @@ private fun RestartButton(
                 AppIcons.Restart,
                 contentDescription = stringResource(Res.string.restart_content_description),
                 tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(if (compact) 20.dp else 24.dp)
+            )
+        }
+    }
+}
+
+@Composable
+private fun MuteButton(
+    isAudioEnabled: Boolean,
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false
+) {
+    Surface(
+        onClick = onClick,
+        shape = CircleShape,
+        color = MaterialTheme.colorScheme.surface.copy(alpha = 0.8f),
+        tonalElevation = 4.dp,
+        modifier = modifier.size(if (compact) 36.dp else 44.dp)
+    ) {
+        Box(contentAlignment = Alignment.Center) {
+            Icon(
+                if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
+                contentDescription = stringResource(
+                    if (isAudioEnabled) Res.string.mute_content_description else Res.string.unmute_content_description
+                ),
+                tint = if (isAudioEnabled) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.error,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp)
             )
         }

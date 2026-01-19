@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 4,
-    "identityHash": "47e0c13f21deb4951a35c297096b1685",
+    "identityHash": "08650db95e45523d27e2f78282a7585b",
     "entities": [
       {
         "tableName": "game_stats",
@@ -36,7 +36,7 @@
       },
       {
         "tableName": "leaderboard",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pairCount` INTEGER NOT NULL, `score` INTEGER NOT NULL, `timeSeconds` INTEGER NOT NULL, `moves` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL)",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, `pairCount` INTEGER NOT NULL, `score` INTEGER NOT NULL, `timeSeconds` INTEGER NOT NULL, `moves` INTEGER NOT NULL, `timestamp` INTEGER NOT NULL, `gameMode` TEXT NOT NULL)",
         "fields": [
           {
             "fieldPath": "id",
@@ -72,6 +72,12 @@
             "fieldPath": "timestamp",
             "columnName": "timestamp",
             "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "gameMode",
+            "columnName": "gameMode",
+            "affinity": "TEXT",
             "notNull": true
           }
         ],
@@ -111,11 +117,65 @@
             "id"
           ]
         }
+      },
+      {
+        "tableName": "settings",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, `isSoundEnabled` INTEGER NOT NULL, `isMusicEnabled` INTEGER NOT NULL, `isWalkthroughCompleted` INTEGER NOT NULL, `soundVolume` REAL NOT NULL, `musicVolume` REAL NOT NULL, PRIMARY KEY(`id`))",
+        "fields": [
+          {
+            "fieldPath": "id",
+            "columnName": "id",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isPeekEnabled",
+            "columnName": "isPeekEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isSoundEnabled",
+            "columnName": "isSoundEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isMusicEnabled",
+            "columnName": "isMusicEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isWalkthroughCompleted",
+            "columnName": "isWalkthroughCompleted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "soundVolume",
+            "columnName": "soundVolume",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "musicVolume",
+            "columnName": "musicVolume",
+            "affinity": "REAL",
+            "notNull": true
+          }
+        ],
+        "primaryKey": {
+          "autoGenerate": false,
+          "columnNames": [
+            "id"
+          ]
+        }
       }
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '47e0c13f21deb4951a35c297096b1685')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '08650db95e45523d27e2f78282a7585b')"
     ]
   }
 }

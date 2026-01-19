@@ -9,11 +9,15 @@ import kotlinx.cinterop.addressOf
 import kotlinx.cinterop.usePinned
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import memory_match.sharedui.generated.resources.Res
 import platform.AVFAudio.AVAudioPlayer
+import platform.AVFAudio.AVAudioSession
+import platform.AVFAudio.AVAudioSessionCategoryPlayback
+import platform.AVFAudio.setActive
 import platform.Foundation.NSData
 import platform.Foundation.create
 
@@ -26,12 +30,55 @@ class IosAudioServiceImpl(
     private val scope = CoroutineScope(Dispatchers.Main)
     private val players = mutableMapOf<String, AVAudioPlayer>()
     private var isSoundEnabled = true
+    private var isMusicEnabled = true
+    private var isMusicRequested = false
+    private var soundVolume = 1.0f
+    private var musicVolume = 1.0f
+    private var musicPlayer: AVAudioPlayer? = null
+    private var musicLoadingJob: Job? = null
 
     init {
+        setupAudioSession()
+
         settingsRepository.isSoundEnabled
             .onEach { isSoundEnabled = it }
             .launchIn(scope)
 
+        settingsRepository.soundVolume
+            .onEach { volume ->
+                soundVolume = volume
+                players.values.forEach { it.volume = volume }
+            }
+            .launchIn(scope)
+
+        settingsRepository.isMusicEnabled
+            .onEach { enabled ->
+                isMusicEnabled = enabled
+                updateMusicPlayback()
+            }
+            .launchIn(scope)
+
+        settingsRepository.musicVolume
+            .onEach { volume ->
+                musicVolume = volume
+                musicPlayer?.volume = volume
+            }
+            .launchIn(scope)
+
+        preloadSounds()
+    }
+
+    private fun setupAudioSession() {
+        try {
+            val session = AVAudioSession.sharedInstance()
+            session.setCategory(AVAudioSessionCategoryPlayback, error = null)
+            session.setActive(true, error = null)
+        } catch (e: Exception) {
+            logger.e(e) { "Error setting up AVAudioSession" }
+        }
+    }
+
+    private fun preloadSounds() {
         scope.launch {
             val sounds = listOf(
                 AudioService.FLIP,
@@ -47,10 +94,15 @@ class IosAudioServiceImpl(
                 try {
                     val path = "$name.m4a"
                     val bytes = Res.readBytes("files/$path")
+                    if (bytes.isEmpty()) {
+                        logger.w { "Sound file is empty: $name" }
+                        return@forEach
+                    }
                     val data = bytes.usePinned { pinned ->
                         NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
                     }
                     val player = AVAudioPlayer(data = data, error = null)
+                    player.volume = soundVolume
                     player.prepareToPlay()
                     players[name] = player
                 } catch (e: Exception) {
@@ -63,7 +115,12 @@ class IosAudioServiceImpl(
     private fun playSound(name: String) {
         if (!isSoundEnabled) return
 
-        val player = players[name] ?: return
+        val player = players[name]
+        if (player == null) {
+            logger.w { "Sound not loaded yet: $name" }
+            return
+        }
+
         if (player.playing) {
             player.stop()
             player.currentTime = 0.0
@@ -79,4 +136,60 @@ class IosAudioServiceImpl(
     override fun playHighScore() = playSound(AudioService.HIGH_SCORE)
     override fun playClick() = playSound(AudioService.CLICK)
     override fun playDeal() = playSound(AudioService.DEAL)
+
+    override fun startMusic() {
+        isMusicRequested = true
+        updateMusicPlayback()
+    }
+
+    override fun stopMusic() {
+        isMusicRequested = false
+        updateMusicPlayback()
+    }
+
+    private fun updateMusicPlayback() {
+        if (isMusicRequested && isMusicEnabled) {
+            actuallyStartMusic()
+        } else {
+            actuallyStopMusic()
+        }
+    }
+
+    private fun actuallyStartMusic() {
+        if (musicPlayer?.playing == true) return
+        if (musicLoadingJob?.isActive == true) return
+
+        musicLoadingJob = scope.launch {
+            try {
+                if (musicPlayer == null) {
+                    val path = "${AudioService.MUSIC}.m4a"
+                    val bytes = Res.readBytes("files/$path")
+                    if (bytes.isNotEmpty()) {
+                        val data = bytes.usePinned { pinned ->
+                            NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                        }
+                        musicPlayer = AVAudioPlayer(data = data, error = null).apply {
+                            numberOfLoops = -1
+                            volume = musicVolume
+                            prepareToPlay()
+                        }
+                    }
+                }
+
+                if (isMusicRequested && isMusicEnabled) {
+                    musicPlayer?.play()
+                }
+            } catch (e: Exception) {
+                logger.e(e) { "Error starting music" }
+            } finally {
+                musicLoadingJob = null
+            }
+        }
+    }
+
+    private fun actuallyStopMusic() {
+        musicLoadingJob?.cancel()
+        musicLoadingJob = null
+        musicPlayer?.stop()
+    }
 }

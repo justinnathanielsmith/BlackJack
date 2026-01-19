@@ -36,12 +36,36 @@ internal class SettingsRepositoryImpl(
             initialValue = true
         )
 
+    override val isMusicEnabled: StateFlow<Boolean> = dao.getSettings()
+        .map { it?.isMusicEnabled ?: true }
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            initialValue = true
+        )
+
     override val isWalkthroughCompleted: StateFlow<Boolean> = dao.getSettings()
         .map { it?.isWalkthroughCompleted ?: false }
         .stateIn(
             scope = scope,
             started = SharingStarted.Eagerly,
             initialValue = false
+        )
+
+    override val soundVolume: StateFlow<Float> = dao.getSettings()
+        .map { it?.soundVolume ?: 1.0f }
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            initialValue = 1.0f
+        )
+
+    override val musicVolume: StateFlow<Float> = dao.getSettings()
+        .map { it?.musicVolume ?: 1.0f }
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            initialValue = 1.0f
         )
 
     override suspend fun setPeekEnabled(enabled: Boolean) {
@@ -54,8 +78,23 @@ internal class SettingsRepositoryImpl(
         dao.saveSettings(current.copy(isSoundEnabled = enabled))
     }
 
+    override suspend fun setMusicEnabled(enabled: Boolean) {
+        val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
+        dao.saveSettings(current.copy(isMusicEnabled = enabled))
+    }
+
     override suspend fun setWalkthroughCompleted(completed: Boolean) {
         val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
         dao.saveSettings(current.copy(isWalkthroughCompleted = completed))
+    }
+
+    override suspend fun setSoundVolume(volume: Float) {
+        val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
+        dao.saveSettings(current.copy(soundVolume = volume))
+    }
+
+    override suspend fun setMusicVolume(volume: Float) {
+        val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
+        dao.saveSettings(current.copy(musicVolume = volume))
     }
 }

@@ -40,10 +40,33 @@ class AndroidAudioServiceImpl(
     private val soundMap = ConcurrentHashMap<String, Int>()
     private val loadedSounds = ConcurrentHashMap.newKeySet<Int>()
     private var isSoundEnabled = true
+    private var isMusicEnabled = true
+    private var isMusicRequested = false
+    private var soundVolume = 1.0f
+    private var musicVolume = 1.0f
+    private var musicPlayer: MediaPlayer? = null
 
     init {
         settingsRepository.isSoundEnabled
             .onEach { isSoundEnabled = it }
+            .launchIn(scope)
+
+        settingsRepository.soundVolume
+            .onEach { soundVolume = it }
+            .launchIn(scope)
+
+        settingsRepository.isMusicEnabled
+            .onEach { enabled ->
+                isMusicEnabled = enabled
+                updateMusicPlayback()
+            }
+            .launchIn(scope)
+
+        settingsRepository.musicVolume
+            .onEach { volume ->
+                musicVolume = volume
+                musicPlayer?.setVolume(volume, volume)
+            }
             .launchIn(scope)
 
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
@@ -91,7 +114,7 @@ class AndroidAudioServiceImpl(
 
         val soundId = soundMap[name]
         if (soundId != null && loadedSounds.contains(soundId)) {
-            val streamId = soundPool.play(soundId, 1f, 1f, 1, 0, 1f)
+            val streamId = soundPool.play(soundId, soundVolume, soundVolume, 1, 0, 1f)
             if (streamId == 0) {
                 playFallback(name)
             }
@@ -109,6 +132,7 @@ class AndroidAudioServiceImpl(
                 if (tempFile.exists()) {
                     MediaPlayer().apply {
                         setDataSource(tempFile.absolutePath)
+                        setVolume(soundVolume, soundVolume)
                         prepare()
                         setOnCompletionListener { release() }
                         start()
@@ -128,4 +152,63 @@ class AndroidAudioServiceImpl(
     override fun playHighScore() = playSound(AudioService.HIGH_SCORE)
     override fun playClick() = playSound(AudioService.CLICK)
     override fun playDeal() = playSound(AudioService.DEAL)
+
+    override fun startMusic() {
+        isMusicRequested = true
+        updateMusicPlayback()
+    }
+
+    override fun stopMusic() {
+        isMusicRequested = false
+        updateMusicPlayback()
+    }
+
+    private fun updateMusicPlayback() {
+        if (isMusicRequested && isMusicEnabled) {
+            if (musicPlayer?.isPlaying != true) {
+                actuallyStartMusic()
+            }
+        } else {
+            actuallyStopMusic()
+        }
+    }
+
+    @OptIn(ExperimentalResourceApi::class)
+    private fun actuallyStartMusic() {
+        scope.launch {
+            try {
+                val fileName = "${AudioService.MUSIC}.m4a"
+                val tempFile = File(context.cacheDir, fileName)
+                
+                if (!tempFile.exists()) {
+                    val bytes = Res.readBytes("files/$fileName")
+                    withContext(Dispatchers.IO) {
+                        FileOutputStream(tempFile).use { it.write(bytes) }
+                    }
+                }
+
+                withContext(Dispatchers.Main) {
+                    // Double check conditions after context switch
+                    if (!isMusicRequested || !isMusicEnabled || musicPlayer?.isPlaying == true) return@withContext
+                    
+                    musicPlayer?.release()
+                    musicPlayer = MediaPlayer().apply {
+                        setDataSource(tempFile.absolutePath)
+                        isLooping = true
+                        setVolume(musicVolume, musicVolume)
+                        prepare()
+                        start()
+                    }
+                }
+            } catch (e: Exception) {
+                logger.e(e) { "Error starting music" }
+            }
+        }
+    }
+
+    private fun actuallyStopMusic() {
+        musicPlayer?.stop()
+        musicPlayer?.release()
+        musicPlayer = null
+    }
 }

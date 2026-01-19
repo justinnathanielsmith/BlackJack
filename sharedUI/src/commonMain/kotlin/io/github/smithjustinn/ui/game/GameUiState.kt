@@ -23,7 +23,9 @@ data class GameUIState(
     val timeLossAmount: Long = 0,
     val isMegaBonus: Boolean = false,
     val showWalkthrough: Boolean = false,
-    val walkthroughStep: Int = 0
+    val walkthroughStep: Int = 0,
+    val isMusicEnabled: Boolean = true,
+    val isSoundEnabled: Boolean = true
 )
 
 /**
@@ -39,6 +41,7 @@ sealed class GameIntent {
     data object SaveGame : GameIntent()
     data object NextWalkthroughStep : GameIntent()
     data object CompleteWalkthrough : GameIntent()
+    data object ToggleAudio : GameIntent()
 }
 
 /**

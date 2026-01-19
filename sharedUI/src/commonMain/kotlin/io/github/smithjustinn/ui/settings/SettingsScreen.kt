@@ -4,10 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
@@ -104,7 +101,36 @@ class SettingsScreen : Screen {
                                     screenModel.toggleSoundEnabled(it) 
                                 }
                             )
+
+                            if (state.isSoundEnabled) {
+                                VolumeSlider(
+                                    value = state.soundVolume,
+                                    onValueChange = { screenModel.setSoundVolume(it) }
+                                )
+                            }
                             
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 8.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            )
+
+                            SettingsToggle(
+                                title = "Game Music",
+                                description = "Play background music during gameplay",
+                                checked = state.isMusicEnabled,
+                                onCheckedChange = { 
+                                    audioService.playClick()
+                                    screenModel.toggleMusicEnabled(it) 
+                                }
+                            )
+
+                            if (state.isMusicEnabled) {
+                                VolumeSlider(
+                                    value = state.musicVolume,
+                                    onValueChange = { screenModel.setMusicVolume(it) }
+                                )
+                            }
+
                             HorizontalDivider(
                                 modifier = Modifier.padding(vertical = 8.dp),
                                 color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
@@ -158,6 +184,44 @@ class SettingsScreen : Screen {
                     }
                 }
             }
+        }
+    }
+
+    @Composable
+    private fun VolumeSlider(
+        value: Float,
+        onValueChange: (Float) -> Unit,
+        modifier: Modifier = Modifier
+    ) {
+        Row(
+            modifier = modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp)
+        ) {
+            Icon(
+                imageVector = AppIcons.VolumeUp,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.primary,
+                modifier = Modifier.size(18.dp)
+            )
+            Slider(
+                value = value,
+                onValueChange = onValueChange,
+                modifier = Modifier.weight(1f),
+                colors = SliderDefaults.colors(
+                    thumbColor = MaterialTheme.colorScheme.primary,
+                    activeTrackColor = MaterialTheme.colorScheme.primary,
+                    inactiveTrackColor = MaterialTheme.colorScheme.surfaceVariant
+                )
+            )
+            Text(
+                text = "${(value * 100).toInt()}%",
+                style = MaterialTheme.typography.labelMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+                modifier = Modifier.width(32.dp)
+            )
         }
     }
 

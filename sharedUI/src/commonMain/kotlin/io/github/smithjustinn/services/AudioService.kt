@@ -9,6 +9,9 @@ interface AudioService {
     fun playHighScore()
     fun playClick()
     fun playDeal()
+    
+    fun startMusic()
+    fun stopMusic()
 
     companion object {
         const val FLIP = "flip"
@@ -19,5 +22,6 @@ interface AudioService {
         const val HIGH_SCORE = "highscore"
         const val CLICK = "click"
         const val DEAL = "deal"
+        const val MUSIC = "music"
     }
 }
