@@ -144,7 +144,6 @@ fun ResultsCard(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         ScoreBox(
-                            isWon = isWon,
                             score = animatedScore.value.roundToInt(),
                             elapsedTimeSeconds = elapsedTimeSeconds,
                             moves = moves,
@@ -169,7 +168,6 @@ fun ResultsCard(
                     }
                 } else {
                     ScoreBox(
-                        isWon = isWon,
                         score = animatedScore.value.roundToInt(),
                         elapsedTimeSeconds = elapsedTimeSeconds,
                         moves = moves

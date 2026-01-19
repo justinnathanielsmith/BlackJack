@@ -1,8 +1,11 @@
 package io.github.smithjustinn.ui.game.components
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -10,7 +13,6 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -27,27 +29,27 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ScoreBox(
-    isWon: Boolean,
     score: Int,
     elapsedTimeSeconds: Long,
     moves: Int,
     modifier: Modifier = Modifier,
     compact: Boolean = false
 ) {
-    Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
-            .background(Color.White.copy(alpha = 0.05f))
-            .padding(if (compact) 8.dp else 16.dp),
-        contentAlignment = Alignment.Center
+    Surface(
+        modifier = modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(20.dp),
+        color = InactiveBackground.copy(alpha = 0.4f),
+        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f))
     ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+        Column(
+            modifier = Modifier.padding(if (compact) 12.dp else 20.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
             Text(
                 text = stringResource(Res.string.final_score_label).uppercase(),
                 style = if (compact) {
                     MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Bold,
+                        fontWeight = FontWeight.ExtraBold,
                         letterSpacing = 1.2.sp
                     )
                 } else {
@@ -56,7 +58,7 @@ fun ScoreBox(
                         letterSpacing = 2.sp
                     )
                 },
-                color = NeonCyan.copy(alpha = 0.8f),
+                color = NeonCyan,
                 textAlign = TextAlign.Center
             )
 
@@ -67,22 +69,22 @@ fun ScoreBox(
                 } else {
                     MaterialTheme.typography.displayMedium
                 }.copy(fontWeight = FontWeight.Black),
-                color = if (isWon) Color.White else MaterialTheme.colorScheme.error,
+                color = Color.White,
                 textAlign = TextAlign.Center
             )
 
             Row(
                 horizontalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 16.dp),
-                modifier = Modifier.padding(top = if (compact) 2.dp else 8.dp)
+                modifier = Modifier.padding(top = if (compact) 4.dp else 12.dp)
             ) {
                 StatItem(
                     label = stringResource(Res.string.time_label, formatTime(elapsedTimeSeconds)),
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = Color.White.copy(alpha = 0.8f),
                     compact = compact
                 )
                 StatItem(
                     label = stringResource(Res.string.moves_label, moves),
-                    color = Color.White.copy(alpha = 0.7f),
+                    color = Color.White.copy(alpha = 0.8f),
                     compact = compact
                 )
             }
@@ -99,15 +101,15 @@ private fun StatItem(
 ) {
     Surface(
         modifier = modifier,
-        color = InactiveBackground.copy(alpha = 0.4f),
+        color = Color.White.copy(alpha = 0.05f),
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f))
     ) {
         Text(
             text = label,
             modifier = Modifier.padding(
-                horizontal = if (compact) 6.dp else 10.dp,
-                vertical = if (compact) 3.dp else 6.dp
+                horizontal = if (compact) 8.dp else 12.dp,
+                vertical = if (compact) 4.dp else 6.dp
             ),
             style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
             color = color,

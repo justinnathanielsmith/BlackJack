@@ -101,7 +101,7 @@ fun CardPreview(
                 suit = Suit.Hearts,
                 rank = Rank.Ace,
                 isFaceUp = true,
-                isMatched = true,
+                isMatched = false,
                 cardBackTheme = cardBackTheme,
                 cardSymbolTheme = cardSymbolTheme,
                 modifier = Modifier
@@ -117,7 +117,7 @@ fun CardPreview(
                 suit = Suit.Spades,
                 rank = Rank.Ace,
                 isFaceUp = true,
-                isMatched = true,
+                isMatched = false,
                 cardBackTheme = cardBackTheme,
                 cardSymbolTheme = cardSymbolTheme,
                 modifier = Modifier

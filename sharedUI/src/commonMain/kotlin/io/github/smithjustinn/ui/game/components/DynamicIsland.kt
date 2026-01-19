@@ -1,13 +1,9 @@
 package io.github.smithjustinn.ui.game.components
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.core.FastOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.snap
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -17,7 +13,17 @@ import androidx.compose.animation.scaleOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -27,7 +33,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -50,12 +55,13 @@ fun DynamicIsland(
     isPeeking: Boolean = false
 ) {
     val isComboActive = combo > 1
+    val infiniteTransition = rememberInfiniteTransition()
     
     val islandWidth by animateDpAsState(
         targetValue = when {
             isGameOver -> 240.dp
-            isComboActive && isPeeking -> 260.dp
-            isComboActive -> 210.dp
+            isComboActive && isPeeking -> 280.dp
+            isComboActive -> 230.dp
             isPeeking -> 200.dp
             else -> 160.dp
         },
@@ -65,18 +71,6 @@ fun DynamicIsland(
     val islandHeight by animateDpAsState(
         targetValue = if (isGameOver) 44.dp else 36.dp,
         animationSpec = spring(dampingRatio = Spring.DampingRatioLowBouncy, stiffness = Spring.StiffnessLow)
-    )
-
-    val comboPulseScale by animateFloatAsState(
-        targetValue = if (isComboActive) 1.1f else 1f,
-        animationSpec = if (isComboActive) {
-            infiniteRepeatable(
-                animation = tween(500, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse
-            )
-        } else {
-            snap()
-        }
     )
 
     Surface(
@@ -195,14 +189,11 @@ fun DynamicIsland(
                             scoreContent()
                             VerticalDivider()
 
-                            Text(
-                                text = "x$combo",
-                                color = if (isMegaBonus) Color(0xFFFFD700) else NeonCyan,
-                                style = MaterialTheme.typography.labelLarge.copy(
-                                    fontWeight = FontWeight.Black,
-                                    fontSize = 14.sp
-                                ),
-                                modifier = Modifier.scale(comboPulseScale)
+                            ComboBadge(
+                                combo = combo,
+                                isMegaBonus = isMegaBonus,
+                                infiniteTransition = infiniteTransition,
+                                compact = true
                             )
                         }
                     }

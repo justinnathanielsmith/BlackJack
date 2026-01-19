@@ -1,25 +1,50 @@
 package io.github.smithjustinn.ui.game.components
 
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.*
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
-import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.drawscope.rotate
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -30,6 +55,7 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.theme.StartBackgroundTop
+import kotlin.math.abs
 import kotlin.math.roundToInt
 
 @Composable
@@ -56,9 +82,13 @@ fun PlayingCard(
         label = "cardFlip"
     )
 
+    // Rim light intensity based on rotation (strongest when the card is edge-on, i.e., 90 degrees)
+    val rimLightAlpha = (1f - (abs(rotation - 90f) / 90f)).coerceIn(0f, 1f)
+    val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
+
     val scale by animateFloatAsState(
         targetValue = when {
-            isMatched -> 1.0f
+            isRecentlyMatched -> 1.05f
             isHovered && !isFaceUp -> 1.05f
             else -> 1f
         },
@@ -92,8 +122,8 @@ fun PlayingCard(
         if (suit.isRed) Color(0xFFD32F2F) else Color(0xFF212121)
     }
     
-    val matchedGlowColor by animateColorAsState(
-        targetValue = if (isRecentlyMatched) NeonCyan.copy(alpha = 0.3f) else Color.Transparent,
+    val matchedGlowAlpha by animateFloatAsState(
+        targetValue = if (isRecentlyMatched) 0.3f else 0f,
         animationSpec = infiniteRepeatable(
             animation = tween(1000),
             repeatMode = RepeatMode.Reverse
@@ -102,8 +132,8 @@ fun PlayingCard(
 
     Box(
         modifier = modifier
-            .widthIn(min = 60.dp) // Minimum sensible width
-            .aspectRatio(0.75f) // Standard playing card aspect ratio (3:4)
+            .widthIn(min = 60.dp)
+            .aspectRatio(0.75f)
             .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
             .graphicsLayer {
                 rotationY = rotation
@@ -112,17 +142,17 @@ fun PlayingCard(
                 cameraDistance = 15f * density
             }
             .shadow(
-                elevation = if (isMatched) 0.dp else 6.dp,
+                elevation = if (isRecentlyMatched) 10.dp else if (isMatched) 2.dp else 6.dp,
                 shape = RoundedCornerShape(12.dp),
                 clip = false,
-                ambientColor = if (isMatched) NeonCyan else Color.Black,
-                spotColor = if (isMatched) NeonCyan else Color.Black
+                ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,
+                spotColor = if (isRecentlyMatched) NeonCyan else Color.Black
             )
             .drawBehind {
                 if (isRecentlyMatched) {
                     drawCircle(
-                        color = matchedGlowColor,
-                        radius = size.maxDimension * 0.7f,
+                        color = NeonCyan.copy(alpha = matchedGlowAlpha),
+                        radius = size.maxDimension * 0.75f,
                         center = center
                     )
                 }
@@ -138,12 +168,17 @@ fun PlayingCard(
             ),
             border = if (rotation <= 90f) {
                 when {
-                    isMatched -> BorderStroke(3.dp, NeonCyan)
+                    isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
+                    isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = 0.4f))
                     isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
                     else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
                 }
             } else {
-                BorderStroke(2.dp, Color.White.copy(alpha = 0.3f))
+                // Back side border with dynamic rim light
+                BorderStroke(
+                    width = (2.dp + (rimLightAlpha * 2).dp),
+                    color = if (rimLightAlpha > 0.1f) rimLightColor else Color.White.copy(alpha = 0.3f)
+                )
             }
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -162,6 +197,23 @@ fun PlayingCard(
                             CardBackTheme.GEOMETRIC -> GeometricCardBack(backColor)
                             CardBackTheme.CLASSIC -> ClassicCardBack(backColor)
                             CardBackTheme.PATTERN -> PatternCardBack(backColor)
+                        }
+                        
+                        // Rim light overlay on the back
+                        if (rimLightAlpha > 0f) {
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxSize()
+                                    .background(
+                                        Brush.horizontalGradient(
+                                            colors = listOf(
+                                                Color.Transparent,
+                                                rimLightColor,
+                                                Color.Transparent
+                                            )
+                                        )
+                                    )
+                            )
                         }
                     }
                 }
