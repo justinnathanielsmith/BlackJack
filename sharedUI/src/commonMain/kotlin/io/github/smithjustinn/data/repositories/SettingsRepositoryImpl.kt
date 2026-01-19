@@ -14,6 +14,7 @@ import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
 @Inject
@@ -24,7 +25,14 @@ internal class SettingsRepositoryImpl(
     
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    override val isPeekEnabled: StateFlow<Boolean> = dao.getSettings()
+    private val settingsFlow = dao.getSettings()
+        .shareIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            replay = 1
+        )
+
+    override val isPeekEnabled: StateFlow<Boolean> = settingsFlow
         .map { it?.isPeekEnabled ?: true }
         .stateIn(
             scope = scope,
@@ -32,7 +40,7 @@ internal class SettingsRepositoryImpl(
             initialValue = true
         )
 
-    override val isSoundEnabled: StateFlow<Boolean> = dao.getSettings()
+    override val isSoundEnabled: StateFlow<Boolean> = settingsFlow
         .map { it?.isSoundEnabled ?: true }
         .stateIn(
             scope = scope,
@@ -40,7 +48,7 @@ internal class SettingsRepositoryImpl(
             initialValue = true
         )
 
-    override val isMusicEnabled: StateFlow<Boolean> = dao.getSettings()
+    override val isMusicEnabled: StateFlow<Boolean> = settingsFlow
         .map { it?.isMusicEnabled ?: true }
         .stateIn(
             scope = scope,
@@ -48,7 +56,7 @@ internal class SettingsRepositoryImpl(
             initialValue = true
         )
 
-    override val isWalkthroughCompleted: StateFlow<Boolean> = dao.getSettings()
+    override val isWalkthroughCompleted: StateFlow<Boolean> = settingsFlow
         .map { it?.isWalkthroughCompleted ?: false }
         .stateIn(
             scope = scope,
@@ -56,7 +64,7 @@ internal class SettingsRepositoryImpl(
             initialValue = false
         )
 
-    override val soundVolume: StateFlow<Float> = dao.getSettings()
+    override val soundVolume: StateFlow<Float> = settingsFlow
         .map { it?.soundVolume ?: 1.0f }
         .stateIn(
             scope = scope,
@@ -64,7 +72,7 @@ internal class SettingsRepositoryImpl(
             initialValue = 1.0f
         )
 
-    override val musicVolume: StateFlow<Float> = dao.getSettings()
+    override val musicVolume: StateFlow<Float> = settingsFlow
         .map { it?.musicVolume ?: 1.0f }
         .stateIn(
             scope = scope,
@@ -72,7 +80,7 @@ internal class SettingsRepositoryImpl(
             initialValue = 1.0f
         )
 
-    override val cardBackTheme: StateFlow<CardBackTheme> = dao.getSettings()
+    override val cardBackTheme: StateFlow<CardBackTheme> = settingsFlow
         .map { entity ->
             try {
                 CardBackTheme.valueOf(entity?.cardBackTheme ?: CardBackTheme.GEOMETRIC.name)
@@ -87,7 +95,7 @@ internal class SettingsRepositoryImpl(
             initialValue = CardBackTheme.GEOMETRIC
         )
 
-    override val cardSymbolTheme: StateFlow<CardSymbolTheme> = dao.getSettings()
+    override val cardSymbolTheme: StateFlow<CardSymbolTheme> = settingsFlow
         .map { entity ->
             try {
                 CardSymbolTheme.valueOf(entity?.cardSymbolTheme ?: CardSymbolTheme.CLASSIC.name)
@@ -100,6 +108,14 @@ internal class SettingsRepositoryImpl(
             scope = scope,
             started = SharingStarted.Eagerly,
             initialValue = CardSymbolTheme.CLASSIC
+        )
+
+    override val areSuitsMultiColored: StateFlow<Boolean> = settingsFlow
+        .map { it?.areSuitsMultiColored ?: false }
+        .stateIn(
+            scope = scope,
+            started = SharingStarted.Eagerly,
+            initialValue = false
         )
 
     override suspend fun setPeekEnabled(enabled: Boolean) {
@@ -140,5 +156,10 @@ internal class SettingsRepositoryImpl(
     override suspend fun setCardSymbolTheme(theme: CardSymbolTheme) {
         val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
         dao.saveSettings(current.copy(cardSymbolTheme = theme.name))
+    }
+
+    override suspend fun setSuitsMultiColored(enabled: Boolean) {
+        val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
+        dao.saveSettings(current.copy(areSuitsMultiColored = enabled))
     }
 }

@@ -28,5 +28,6 @@ data class GameUIState(
     val isMusicEnabled: Boolean = true,
     val isSoundEnabled: Boolean = true,
     val cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    val cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC
+    val cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
+    val areSuitsMultiColored: Boolean = false
 )

@@ -125,6 +125,21 @@ class SettingsScreen : Screen {
                                 },
                                 labelProvider = { it.name.lowercase().replace("text_only", "text only").replaceFirstChar { char -> char.uppercase() } }
                             )
+
+                            HorizontalDivider(
+                                modifier = Modifier.padding(vertical = 12.dp),
+                                color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.3f)
+                            )
+
+                            SettingsToggle(
+                                title = "Four Color Deck",
+                                description = "Use different colors for each suit (Hearts Red, Diamonds Blue, Clubs Green, Spades Black)",
+                                checked = state.areSuitsMultiColored,
+                                onCheckedChange = {
+                                    audioService.playClick()
+                                    screenModel.toggleSuitsMultiColored(it)
+                                }
+                            )
                         }
 
                         SettingsCard(title = "Gameplay & Audio") {

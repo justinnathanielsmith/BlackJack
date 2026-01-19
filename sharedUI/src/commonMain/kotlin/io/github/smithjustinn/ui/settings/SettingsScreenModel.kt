@@ -18,7 +18,8 @@ data class SettingsUIState(
     val soundVolume: Float = 1.0f,
     val musicVolume: Float = 1.0f,
     val cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    val cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC
+    val cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
+    val areSuitsMultiColored: Boolean = false
 )
 
 sealed class SettingsUiEvent {
@@ -44,9 +45,10 @@ class SettingsScreenModel(
 
     private val themeSettingsFlow = combine(
         settingsRepository.cardBackTheme,
-        settingsRepository.cardSymbolTheme
-    ) { back, symbol ->
-        ThemeSettings(back, symbol)
+        settingsRepository.cardSymbolTheme,
+        settingsRepository.areSuitsMultiColored
+    ) { back, symbol, multiColor ->
+        ThemeSettings(back, symbol, multiColor)
     }
 
     val state: StateFlow<SettingsUIState> = combine(
@@ -63,7 +65,8 @@ class SettingsScreenModel(
             soundVolume = audio.soundVolume,
             musicVolume = audio.musicVolume,
             cardBackTheme = theme.cardBackTheme,
-            cardSymbolTheme = theme.cardSymbolTheme
+            cardSymbolTheme = theme.cardSymbolTheme,
+            areSuitsMultiColored = theme.areSuitsMultiColored
         )
     }.stateIn(
         scope = screenModelScope,
@@ -80,7 +83,8 @@ class SettingsScreenModel(
 
     private data class ThemeSettings(
         val cardBackTheme: CardBackTheme,
-        val cardSymbolTheme: CardSymbolTheme
+        val cardSymbolTheme: CardSymbolTheme,
+        val areSuitsMultiColored: Boolean
     )
 
     fun togglePeekEnabled(enabled: Boolean) {
@@ -122,6 +126,12 @@ class SettingsScreenModel(
     fun setCardSymbolTheme(theme: CardSymbolTheme) {
         screenModelScope.launch {
             settingsRepository.setCardSymbolTheme(theme)
+        }
+    }
+
+    fun toggleSuitsMultiColored(enabled: Boolean) {
+        screenModelScope.launch {
+            settingsRepository.setSuitsMultiColored(enabled)
         }
     }
 

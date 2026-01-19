@@ -13,6 +13,7 @@ interface SettingsRepository {
     val musicVolume: StateFlow<Float>
     val cardBackTheme: StateFlow<CardBackTheme>
     val cardSymbolTheme: StateFlow<CardSymbolTheme>
+    val areSuitsMultiColored: StateFlow<Boolean>
     
     suspend fun setPeekEnabled(enabled: Boolean)
     suspend fun setSoundEnabled(enabled: Boolean)
@@ -22,4 +23,5 @@ interface SettingsRepository {
     suspend fun setMusicVolume(volume: Float)
     suspend fun setCardBackTheme(theme: CardBackTheme)
     suspend fun setCardSymbolTheme(theme: CardSymbolTheme)
+    suspend fun setSuitsMultiColored(enabled: Boolean)
 }

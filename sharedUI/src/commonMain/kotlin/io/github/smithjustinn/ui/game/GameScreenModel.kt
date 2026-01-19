@@ -66,15 +66,17 @@ class GameScreenModel(
             combine(
                 coreSettingsFlow,
                 settingsRepository.cardBackTheme,
-                settingsRepository.cardSymbolTheme
-            ) { core, cardBack, cardSymbol ->
+                settingsRepository.cardSymbolTheme,
+                settingsRepository.areSuitsMultiColored
+            ) { core, cardBack, cardSymbol, multiColor ->
                 _state.update { it.copy(
                     isPeekFeatureEnabled = core.isPeekEnabled,
                     showWalkthrough = !core.isWalkthroughCompleted,
                     isMusicEnabled = core.isMusicEnabled,
                     isSoundEnabled = core.isSoundEnabled,
                     cardBackTheme = cardBack,
-                    cardSymbolTheme = cardSymbol
+                    cardSymbolTheme = cardSymbol,
+                    areSuitsMultiColored = multiColor
                 ) }
             }.collect()
         }
@@ -106,8 +108,10 @@ class GameScreenModel(
 
     private fun completeWalkthrough() {
         screenModelScope.launch {
-            settingsRepository.setWalkthroughCompleted(true)
+            // Optimistic update: hide immediately
             _state.update { it.copy(showWalkthrough = false) }
+            
+            settingsRepository.setWalkthroughCompleted(true)
             
             // Start peek or timer after walkthrough is dismissed
             val isPeekEnabled = settingsRepository.isPeekEnabled.first()

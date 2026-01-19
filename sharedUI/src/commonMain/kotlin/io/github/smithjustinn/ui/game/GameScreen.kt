@@ -149,7 +149,8 @@ data class GameScreen(
                             lastMatchedIds = state.game.lastMatchedIds,
                             showComboExplosion = state.showComboExplosion,
                             cardBackTheme = state.cardBackTheme,
-                            cardSymbolTheme = state.cardSymbolTheme
+                            cardSymbolTheme = state.cardSymbolTheme,
+                            areSuitsMultiColored = state.areSuitsMultiColored
                         )
 
                         MatchCommentSnackbar(

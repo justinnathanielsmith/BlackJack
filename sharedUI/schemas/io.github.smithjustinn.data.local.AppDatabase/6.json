@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 6,
-    "identityHash": "87fdcd8d66b3da1faf431013ce0acdf0",
+    "identityHash": "d9be87e1c715ac2a817f1d50bb4cfc00",
     "entities": [
       {
         "tableName": "game_stats",
@@ -120,7 +120,7 @@
       },
       {
         "tableName": "settings",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, `isHiddenBoardEnabled` INTEGER NOT NULL, `movesBeforeShuffle` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, `isSoundEnabled` INTEGER NOT NULL, `isMusicEnabled` INTEGER NOT NULL, `isWalkthroughCompleted` INTEGER NOT NULL, `soundVolume` REAL NOT NULL, `musicVolume` REAL NOT NULL, `cardBackTheme` TEXT NOT NULL, `cardSymbolTheme` TEXT NOT NULL, `areSuitsMultiColored` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -135,14 +135,50 @@
             "notNull": true
           },
           {
-            "fieldPath": "isHiddenBoardEnabled",
-            "columnName": "isHiddenBoardEnabled",
+            "fieldPath": "isSoundEnabled",
+            "columnName": "isSoundEnabled",
             "affinity": "INTEGER",
             "notNull": true
           },
           {
-            "fieldPath": "movesBeforeShuffle",
-            "columnName": "movesBeforeShuffle",
+            "fieldPath": "isMusicEnabled",
+            "columnName": "isMusicEnabled",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "isWalkthroughCompleted",
+            "columnName": "isWalkthroughCompleted",
+            "affinity": "INTEGER",
+            "notNull": true
+          },
+          {
+            "fieldPath": "soundVolume",
+            "columnName": "soundVolume",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "musicVolume",
+            "columnName": "musicVolume",
+            "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardBackTheme",
+            "columnName": "cardBackTheme",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "cardSymbolTheme",
+            "columnName": "cardSymbolTheme",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areSuitsMultiColored",
+            "columnName": "areSuitsMultiColored",
             "affinity": "INTEGER",
             "notNull": true
           }
@@ -157,7 +193,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '87fdcd8d66b3da1faf431013ce0acdf0')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'd9be87e1c715ac2a817f1d50bb4cfc00')"
     ]
   }
 }

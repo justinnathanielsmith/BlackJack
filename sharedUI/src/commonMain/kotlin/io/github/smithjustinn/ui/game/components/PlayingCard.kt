@@ -42,6 +42,7 @@ fun PlayingCard(
     backColor: Color = MaterialTheme.colorScheme.primaryContainer,
     cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
     cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
+    areSuitsMultiColored: Boolean = false,
     onClick: () -> Unit = {}
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -78,7 +79,16 @@ fun PlayingCard(
     }
 
     val cardFaceColor = Color.White
-    val suitColor = if (suit.isRed) Color(0xFFD32F2F) else Color(0xFF212121)
+    val suitColor = if (areSuitsMultiColored) {
+        when (suit) {
+            Suit.Hearts -> Color(0xFFD32F2F) // Red
+            Suit.Diamonds -> Color(0xFF1976D2) // Blue
+            Suit.Clubs -> Color(0xFF388E3C) // Green
+            Suit.Spades -> Color(0xFF212121) // Black
+        }
+    } else {
+        if (suit.isRed) Color(0xFFD32F2F) else Color(0xFF212121)
+    }
     
     val matchedGlowColor by animateColorAsState(
         targetValue = if (isRecentlyMatched) MaterialTheme.colorScheme.primary.copy(alpha = 0.3f) else Color.Transparent,

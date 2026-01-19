@@ -56,6 +56,7 @@ class GameScreenModelTest {
     private val isSoundEnabledFlow = MutableStateFlow(true)
     private val cardBackThemeFlow = MutableStateFlow(CardBackTheme.GEOMETRIC)
     private val cardSymbolThemeFlow = MutableStateFlow(CardSymbolTheme.CLASSIC)
+    private val areSuitsMultiColoredFlow = MutableStateFlow(false)
     private val statsFlow = MutableStateFlow<GameStats?>(null)
 
     private lateinit var screenModel: GameScreenModel
@@ -69,6 +70,7 @@ class GameScreenModelTest {
         isSoundEnabledFlow.value = true
         cardBackThemeFlow.value = CardBackTheme.GEOMETRIC
         cardSymbolThemeFlow.value = CardSymbolTheme.CLASSIC
+        areSuitsMultiColoredFlow.value = false
         statsFlow.value = null
         
         every { settingsRepository.isPeekEnabled } returns isPeekEnabledFlow
@@ -77,6 +79,7 @@ class GameScreenModelTest {
         every { settingsRepository.isSoundEnabled } returns isSoundEnabledFlow
         every { settingsRepository.cardBackTheme } returns cardBackThemeFlow
         every { settingsRepository.cardSymbolTheme } returns cardSymbolThemeFlow
+        every { settingsRepository.areSuitsMultiColored } returns areSuitsMultiColoredFlow
         every { gameStatsRepository.getStatsForDifficulty(any()) } returns statsFlow
         
         everySuspend { gameStateRepository.getSavedGameState() } returns null
@@ -120,6 +123,7 @@ class GameScreenModelTest {
             assertFalse(state.game.isGameOver)
             assertEquals(CardBackTheme.GEOMETRIC, state.cardBackTheme)
             assertEquals(CardSymbolTheme.CLASSIC, state.cardSymbolTheme)
+            assertFalse(state.areSuitsMultiColored)
             cancelAndIgnoreRemainingEvents()
         }
         screenModel.onDispose()

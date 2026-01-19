@@ -28,7 +28,8 @@ fun GameGrid(
     lastMatchedIds: List<Int> = emptyList(),
     showComboExplosion: Boolean = false,
     cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC
+    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
+    areSuitsMultiColored: Boolean = false
 ) {
     val cardLayouts = remember { mutableStateMapOf<Int, CardLayoutInfo>() }
     var gridPosition by remember { mutableStateOf(Offset.Zero) }
@@ -137,6 +138,7 @@ fun GameGrid(
                     isError = card.isError,
                     cardBackTheme = cardBackTheme,
                     cardSymbolTheme = cardSymbolTheme,
+                    areSuitsMultiColored = areSuitsMultiColored,
                     onClick = { onCardClick(card.id) },
                     modifier = Modifier.onGloballyPositioned { layoutCoordinates ->
                         cardLayouts[card.id] = CardLayoutInfo(

@@ -15,5 +15,6 @@ data class SettingsEntity(
     val soundVolume: Float = 1.0f,
     val musicVolume: Float = 1.0f,
     val cardBackTheme: String = CardBackTheme.GEOMETRIC.name,
-    val cardSymbolTheme: String = CardSymbolTheme.CLASSIC.name
+    val cardSymbolTheme: String = CardSymbolTheme.CLASSIC.name,
+    val areSuitsMultiColored: Boolean = false
 )
