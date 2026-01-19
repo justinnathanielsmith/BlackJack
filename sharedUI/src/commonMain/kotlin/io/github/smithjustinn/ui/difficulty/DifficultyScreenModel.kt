@@ -4,9 +4,12 @@ import cafe.adriel.voyager.core.model.ScreenModel
 import cafe.adriel.voyager.core.model.screenModelScope
 import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject
+import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.repositories.GameStateRepository
+import io.github.smithjustinn.domain.repositories.SettingsRepository
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
@@ -20,7 +23,9 @@ data class DifficultyState(
     val hasSavedGame: Boolean = false,
     val savedGamePairCount: Int = 0,
     val savedGameMode: GameMode = GameMode.STANDARD,
-    val selectedMode: GameMode = GameMode.STANDARD
+    val selectedMode: GameMode = GameMode.STANDARD,
+    val cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
+    val cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC
 )
 
 /**
@@ -44,6 +49,7 @@ sealed class DifficultyUiEvent {
 @Inject
 class DifficultyScreenModel(
     private val gameStateRepository: GameStateRepository,
+    private val settingsRepository: SettingsRepository,
     private val logger: Logger
 ) : ScreenModel {
     private val _state = MutableStateFlow(DifficultyState())
@@ -51,6 +57,22 @@ class DifficultyScreenModel(
 
     private val _events = Channel<DifficultyUiEvent>(Channel.BUFFERED)
     val events: Flow<DifficultyUiEvent> = _events.receiveAsFlow()
+
+    init {
+        screenModelScope.launch {
+            combine(
+                settingsRepository.cardBackTheme,
+                settingsRepository.cardSymbolTheme
+            ) { cardBack, cardSymbol ->
+                _state.update { 
+                    it.copy(
+                        cardBackTheme = cardBack,
+                        cardSymbolTheme = cardSymbol
+                    ) 
+                }
+            }.collect()
+        }
+    }
 
     fun handleIntent(intent: DifficultyIntent) {
         when (intent) {

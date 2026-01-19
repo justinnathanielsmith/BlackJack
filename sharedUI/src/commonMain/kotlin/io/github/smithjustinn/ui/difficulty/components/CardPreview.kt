@@ -12,13 +12,17 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.ui.game.components.PlayingCard
 
 @Composable
 fun CardPreview(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
+    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "card_preview_anim")
     val swayAngle by infiniteTransition.animateFloat(
@@ -71,6 +75,8 @@ fun CardPreview(
                 rank = Rank.Ace,
                 isFaceUp = true,
                 isMatched = true,
+                cardBackTheme = cardBackTheme,
+                cardSymbolTheme = cardSymbolTheme,
                 modifier = Modifier
                     .width(cardSize)
                     .offset(x = (cardSize.value / 4).dp)
@@ -81,6 +87,8 @@ fun CardPreview(
                 rank = Rank.Ace,
                 isFaceUp = true,
                 isMatched = true,
+                cardBackTheme = cardBackTheme,
+                cardSymbolTheme = cardSymbolTheme,
                 modifier = Modifier
                     .width(cardSize)
                     .offset(x = (-cardSize.value / 4).dp)
