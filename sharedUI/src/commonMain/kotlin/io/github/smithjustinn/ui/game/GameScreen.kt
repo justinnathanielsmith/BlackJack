@@ -179,7 +179,12 @@ data class GameScreen(
                             )
 
                             if (state.game.isGameWon) {
-                                BouncingCardsOverlay(state.game.cards)
+                                BouncingCardsOverlay(
+                                    cards = state.game.cards,
+                                    cardBackTheme = state.cardBackTheme,
+                                    cardSymbolTheme = state.cardSymbolTheme,
+                                    areSuitsMultiColored = state.areSuitsMultiColored
+                                )
                                 ConfettiEffect()
 
                                 if (state.isNewHighScore) {
