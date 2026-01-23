@@ -71,6 +71,8 @@
     <string name="settings">Settings</string>
     <string name="stats">Stats</string>
     <string name="leaderboard">Leaderboard</string>
+    <string name="stats_time_header">TIME</string>
+    <string name="stats_moves_header">MOVES</string>
 
     <string name="mode_standard">Standard</string>
     <string name="mode_time_attack">Time Attack</string>
@@ -87,6 +89,23 @@
     <string name="walkthrough_desc_welcome">Test your memory by finding matching pairs of cards. Flip two cards at a time to see if they match!</string>
     <string name="walkthrough_desc_find_pairs">When you find a match, the cards stay face up. Match all pairs to win the game.</string>
     <string name="walkthrough_desc_combos">Match pairs quickly to build a combo multiplier and earn more points. In Time Attack mode, matches also give you extra time!</string>
+
+    <!-- Settings -->
+    <string name="settings_appearance">Appearance</string>
+    <string name="settings_gameplay_audio">Gameplay &amp; Audio</string>
+    <string name="settings_card_back_style">Card Back Style</string>
+    <string name="settings_symbol_style">Symbol Style</string>
+    <string name="settings_four_color_deck">Four Color Deck</string>
+    <string name="settings_four_color_deck_desc">Use different colors for each suit (Hearts Red, Diamonds Blue, Clubs Green, Spades Black)</string>
+    <string name="settings_sound_effects">Sound Effects</string>
+    <string name="settings_sound_effects_desc">Play sounds for card flips, matches, and wins</string>
+    <string name="settings_game_music">Game Music</string>
+    <string name="settings_game_music_desc">Play background music during gameplay</string>
+    <string name="settings_enable_peek">Enable Memory Peek</string>
+    <string name="settings_enable_peek_desc">Show cards briefly at the start of the game</string>
+    <string name="settings_reset_walkthrough">Reset Walkthrough</string>
+    <string name="settings_reset_walkthrough_desc">Show the tutorial again on the next game</string>
+    <string name="settings_reset">Reset</string>
 
     <!-- Audio -->
     <string name="audio_flip">flip</string>

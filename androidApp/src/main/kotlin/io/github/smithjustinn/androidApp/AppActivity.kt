@@ -10,16 +10,25 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.platform.LocalView
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
+import com.arkivanov.decompose.defaultComponentContext
 import io.github.smithjustinn.App
+import io.github.smithjustinn.ui.root.DefaultRootComponent
 
 class AppActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
+        val appGraph = (application as MemoryMatchApp).appGraph
+        val root = DefaultRootComponent(
+            componentContext = defaultComponentContext(),
+            appGraph = appGraph
+        )
+
         setContent { 
             App(
-                appGraph = (application as MemoryMatchApp).appGraph,
+                root = root,
+                appGraph = appGraph,
                 onThemeChanged = { ThemeChanged(it) }
             ) 
         }

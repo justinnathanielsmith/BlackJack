@@ -15,12 +15,12 @@ import kotlin.time.Clock
  * Handles updating the best scores and adding to the leaderboard.
  */
 @Inject
-class SaveGameResultUseCase(
+open class SaveGameResultUseCase(
     private val gameStatsRepository: GameStatsRepository,
     private val leaderboardRepository: LeaderboardRepository,
     private val logger: Logger
 ) {
-    suspend operator fun invoke(pairCount: Int, score: Int, timeSeconds: Long, moves: Int, gameMode: GameMode) {
+    suspend open operator fun invoke(pairCount: Int, score: Int, timeSeconds: Long, moves: Int, gameMode: GameMode) {
         try {
             // Stats are currently per difficulty, we might want to separate them by mode too in the future
             val currentStats = gameStatsRepository.getStatsForDifficulty(pairCount).firstOrNull()

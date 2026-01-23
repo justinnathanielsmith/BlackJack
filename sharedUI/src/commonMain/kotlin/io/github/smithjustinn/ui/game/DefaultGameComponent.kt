@@ -1,40 +1,36 @@
 package io.github.smithjustinn.ui.game
 
-import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
-import co.touchlab.kermit.Logger
-import dev.zacsweers.metro.Inject
+import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnDestroy
+import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
-import io.github.smithjustinn.domain.repositories.SettingsRepository
-import io.github.smithjustinn.domain.usecases.game.*
-import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
-import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
-import kotlinx.coroutines.*
+import io.github.smithjustinn.utils.componentScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
-@Inject
-class GameScreenModel(
-    private val startNewGameUseCase: StartNewGameUseCase,
-    private val flipCardUseCase: FlipCardUseCase,
-    private val resetErrorCardsUseCase: ResetErrorCardsUseCase,
-    private val calculateFinalScoreUseCase: CalculateFinalScoreUseCase,
-    private val getGameStatsUseCase: GetGameStatsUseCase,
-    private val saveGameResultUseCase: SaveGameResultUseCase,
-    private val getSavedGameUseCase: GetSavedGameUseCase,
-    private val saveGameStateUseCase: SaveGameStateUseCase,
-    private val clearSavedGameUseCase: ClearSavedGameUseCase,
-    private val settingsRepository: SettingsRepository,
-    private val logger: Logger
-) : ScreenModel {
+class DefaultGameComponent(
+    componentContext: ComponentContext,
+    appGraph: AppGraph,
+    private val pairCount: Int,
+    private val mode: GameMode,
+    forceNewGame: Boolean,
+    private val onBackClicked: () -> Unit
+) : GameComponent, ComponentContext by componentContext {
+    private val dispatchers = appGraph.coroutineDispatchers
+    private val scope = lifecycle.componentScope(dispatchers.mainImmediate)
+
     private val _state = MutableStateFlow(GameUIState())
-    val state: StateFlow<GameUIState> = _state.asStateFlow()
+    override val state: StateFlow<GameUIState> = _state.asStateFlow()
 
     private val _events = Channel<GameUiEvent>(Channel.BUFFERED)
-    val events: Flow<GameUiEvent> = _events.receiveAsFlow()
+    override val events: Flow<GameUiEvent> = _events.receiveAsFlow()
 
     private var timerJob: Job? = null
     private var commentJob: Job? = null
@@ -45,6 +41,18 @@ class GameScreenModel(
     private var timeLossJob: Job? = null
     private var settingsJob: Job? = null
 
+    private val startNewGameUseCase = appGraph.startNewGameUseCase
+    private val flipCardUseCase = appGraph.flipCardUseCase
+    private val resetErrorCardsUseCase = appGraph.resetErrorCardsUseCase
+    private val calculateFinalScoreUseCase = appGraph.calculateFinalScoreUseCase
+    private val getGameStatsUseCase = appGraph.getGameStatsUseCase
+    private val saveGameResultUseCase = appGraph.saveGameResultUseCase
+    private val getSavedGameUseCase = appGraph.getSavedGameUseCase
+    private val saveGameStateUseCase = appGraph.saveGameStateUseCase
+    private val clearSavedGameUseCase = appGraph.clearSavedGameUseCase
+    private val settingsRepository = appGraph.settingsRepository
+    private val logger = appGraph.logger
+
     private data class CoreSettings(
         val isPeekEnabled: Boolean,
         val isWalkthroughCompleted: Boolean,
@@ -53,7 +61,12 @@ class GameScreenModel(
     )
 
     init {
-        settingsJob = screenModelScope.launch {
+        lifecycle.doOnDestroy { 
+            stopTimer()
+            saveGame()
+        }
+
+        settingsJob = scope.launch {
             val coreSettingsFlow = combine(
                 settingsRepository.isPeekEnabled,
                 settingsRepository.isWalkthroughCompleted,
@@ -80,58 +93,19 @@ class GameScreenModel(
                 ) }
             }.collect()
         }
-    }
 
-    fun handleIntent(intent: GameIntent) {
-        when (intent) {
-            is GameIntent.StartGame -> startGame(intent.pairCount, intent.forceNewGame, intent.mode)
-            is GameIntent.FlipCard -> flipCard(intent.cardId)
-            is GameIntent.SaveGame -> saveGame()
-            is GameIntent.NextWalkthroughStep -> nextWalkthroughStep()
-            is GameIntent.CompleteWalkthrough -> completeWalkthrough()
-            is GameIntent.ToggleAudio -> toggleAudio()
-        }
-    }
-
-    private fun toggleAudio() {
-        screenModelScope.launch {
-            // If either is enabled, we mute both. If both are disabled, we enable both.
-            val shouldEnable = !(_state.value.isMusicEnabled || _state.value.isSoundEnabled)
-            settingsRepository.setMusicEnabled(shouldEnable)
-            settingsRepository.setSoundEnabled(shouldEnable)
-        }
-    }
-
-    private fun nextWalkthroughStep() {
-        _state.update { it.copy(walkthroughStep = it.walkthroughStep + 1) }
-    }
-
-    private fun completeWalkthrough() {
-        screenModelScope.launch {
-            // Optimistic update: hide immediately
-            _state.update { it.copy(showWalkthrough = false) }
-            
-            settingsRepository.setWalkthroughCompleted(true)
-            
-            // Start peek or timer after walkthrough is dismissed
-            val isPeekEnabled = settingsRepository.isPeekEnabled.first()
-            if (isPeekEnabled) {
-                peekCards(_state.value.game.mode)
-            } else {
-                startTimer(_state.value.game.mode)
-            }
-        }
+        startGame(pairCount, forceNewGame, mode)
     }
 
     private fun startGame(pairCount: Int, forceNewGame: Boolean, mode: GameMode) {
-        screenModelScope.launch {
+        scope.launch {
             try {
                 val savedGame = if (forceNewGame) null else getSavedGameUseCase()
                 if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameOver && savedGame.first.mode == mode) {
                     val initialTime = if (mode == GameMode.TIME_ATTACK) MemoryGameLogic.calculateInitialTime(pairCount) else 0L
                     _state.update {
                         it.copy(
-                            game = savedGame.first.copy(lastMatchedIds = emptyList()), // Clear last matched IDs on resume to prevent stuck animation
+                            game = savedGame.first.copy(lastMatchedIds = emptyList()),
                             elapsedTimeSeconds = savedGame.second,
                             maxTimeSeconds = initialTime,
                             showComboExplosion = false,
@@ -143,7 +117,6 @@ class GameScreenModel(
                     }
                     startTimer(mode)
 
-                    // If the game was saved with mismatched cards flipped, trigger the reset
                     if (savedGame.first.cards.any { it.isError }) {
                         handleMatchFailure(savedGame.first, isResuming = true)
                     }
@@ -166,7 +139,6 @@ class GameScreenModel(
                     
                     _events.send(GameUiEvent.PlayDeal)
 
-                    // Only start peek/timer if walkthrough is NOT showing
                     val walkthroughCompleted = settingsRepository.isWalkthroughCompleted.first()
                     if (walkthroughCompleted) {
                         val isPeekEnabled = settingsRepository.isPeekEnabled.first()
@@ -187,7 +159,7 @@ class GameScreenModel(
 
     private fun peekCards(mode: GameMode) {
         peekJob?.cancel()
-        peekJob = screenModelScope.launch {
+        peekJob = scope.launch {
             stopTimer()
             val peekDuration = 3
             _state.update { it.copy(isPeeking = true, peekCountdown = peekDuration) }
@@ -206,7 +178,7 @@ class GameScreenModel(
 
     private fun observeStats(pairCount: Int) {
         statsJob?.cancel()
-        statsJob = screenModelScope.launch {
+        statsJob = scope.launch {
             getGameStatsUseCase(pairCount).collect { stats ->
                 _state.update { it.copy(
                     bestScore = stats?.bestScore ?: 0,
@@ -218,8 +190,8 @@ class GameScreenModel(
 
     private fun startTimer(mode: GameMode) {
         timerJob?.cancel()
-        timerJob = screenModelScope.launch {
-            while (true) {
+        timerJob = scope.launch {
+            while (isActive) {
                 delay(1000)
                 if (mode == GameMode.TIME_ATTACK) {
                     var shouldStop = false
@@ -229,7 +201,6 @@ class GameScreenModel(
                             shouldStop = true
                         }
                         
-                        // Add ticks for the last 5 seconds
                         if (newTime in 1L..5L && !it.game.isGameOver) {
                             _events.trySend(GameUiEvent.VibrateTick)
                         }
@@ -253,7 +224,7 @@ class GameScreenModel(
         timerJob = null
     }
 
-    private fun flipCard(cardId: Int) {
+    override fun onFlipCard(cardId: Int) {
         if (_state.value.isPeeking || _state.value.game.isGameOver || _state.value.showWalkthrough) return
 
         try {
@@ -263,7 +234,7 @@ class GameScreenModel(
             saveGame()
 
             when (event) {
-                GameDomainEvent.CardFlipped -> screenModelScope.launch { _events.send(GameUiEvent.PlayFlip) }
+                GameDomainEvent.CardFlipped -> scope.launch { _events.send(GameUiEvent.PlayFlip) }
                 GameDomainEvent.MatchSuccess -> handleMatchSuccess(newState)
                 GameDomainEvent.MatchFailure -> handleMatchFailure(newState)
                 GameDomainEvent.GameWon -> handleGameWon(newState)
@@ -276,14 +247,13 @@ class GameScreenModel(
     }
 
     private fun handleMatchSuccess(newState: MemoryGameState) {
-        screenModelScope.launch {
+        scope.launch {
             _events.send(GameUiEvent.VibrateMatch)
             _events.send(GameUiEvent.PlayMatch)
         }
         clearCommentAfterDelay()
         
         if (newState.mode == GameMode.TIME_ATTACK) {
-            // Use the multiplier from the match just made (newState.comboMultiplier - 1)
             val totalTimeGain = MemoryGameLogic.calculateTimeGain(newState.comboMultiplier - 1)
             val isMega = newState.comboMultiplier >= 3
 
@@ -305,7 +275,7 @@ class GameScreenModel(
 
     private fun triggerTimeGainFeedback() {
         timeGainJob?.cancel()
-        timeGainJob = screenModelScope.launch {
+        timeGainJob = scope.launch {
             delay(1500)
             _state.update { it.copy(showTimeGain = false) }
         }
@@ -313,14 +283,13 @@ class GameScreenModel(
 
     private fun handleMatchFailure(newState: MemoryGameState, isResuming: Boolean = false) {
         if (!isResuming) {
-            screenModelScope.launch {
+            scope.launch {
                 _events.send(GameUiEvent.VibrateMismatch)
                 _events.send(GameUiEvent.PlayMismatch)
             }
         }
         
         var isGameOver = false
-        // Only apply penalty if NOT resuming, as it should have been applied when the mismatch occurred
         if (newState.mode == GameMode.TIME_ATTACK && !isResuming) {
             val penalty = MemoryGameLogic.TIME_PENALTY_MISMATCH
             _state.update { 
@@ -339,15 +308,13 @@ class GameScreenModel(
             _events.trySend(GameUiEvent.VibrateWarning)
             handleGameOver()
         } else {
-            screenModelScope.launch {
-                // Use a shorter delay if resuming to clear the "stuck" state faster
+            scope.launch {
                 delay(if (isResuming) 500 else 1000)
-                // Re-check game over state before resetting cards to avoid race conditions
                 if (!_state.value.game.isGameOver) {
                     _events.send(GameUiEvent.PlayFlip)
                     val resetState = resetErrorCardsUseCase(newState)
                     _state.update { it.copy(game = resetState) }
-                    saveGame() // Ensure the reset state is saved
+                    saveGame()
                 }
             }
         }
@@ -355,7 +322,7 @@ class GameScreenModel(
 
     private fun triggerTimeLossFeedback() {
         timeLossJob?.cancel()
-        timeLossJob = screenModelScope.launch {
+        timeLossJob = scope.launch {
             delay(1500)
             _state.update { it.copy(showTimeLoss = false) }
         }
@@ -367,7 +334,7 @@ class GameScreenModel(
         val gameWithBonuses = calculateFinalScoreUseCase(newState, _state.value.elapsedTimeSeconds)
         val isNewHigh = gameWithBonuses.score > _state.value.bestScore
 
-        screenModelScope.launch {
+        scope.launch {
             _events.send(GameUiEvent.VibrateMatch)
             if (isNewHigh) {
                 _events.send(GameUiEvent.PlayHighScore)
@@ -384,7 +351,7 @@ class GameScreenModel(
         saveStats(gameWithBonuses.pairCount, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves, gameWithBonuses.mode)
         clearCommentAfterDelay()
 
-        screenModelScope.launch {
+        scope.launch {
             clearSavedGameUseCase()
         }
     }
@@ -392,7 +359,7 @@ class GameScreenModel(
     private fun handleGameOver() {
         stopTimer()
         _state.update { it.copy(game = it.game.copy(isGameOver = true)) }
-        screenModelScope.launch {
+        scope.launch {
             _events.send(GameUiEvent.PlayLose)
             clearSavedGameUseCase()
         }
@@ -400,7 +367,7 @@ class GameScreenModel(
 
     private fun triggerComboExplosion() {
         explosionJob?.cancel()
-        explosionJob = screenModelScope.launch {
+        explosionJob = scope.launch {
             _state.update { it.copy(showComboExplosion = true) }
             delay(1000)
             _state.update { it.copy(showComboExplosion = false) }
@@ -409,59 +376,57 @@ class GameScreenModel(
 
     private fun clearCommentAfterDelay() {
         commentJob?.cancel()
-        commentJob = screenModelScope.launch {
+        commentJob = scope.launch {
             delay(2500)
             _state.update { it.copy(game = it.game.copy(matchComment = null)) }
         }
     }
 
     private fun saveStats(pairCount: Int, score: Int, time: Long, moves: Int, gameMode: GameMode) {
-        screenModelScope.launch {
+        scope.launch {
             saveGameResultUseCase(pairCount, score, time, moves, gameMode)
         }
     }
 
     private fun saveGame() {
         val currentState = _state.value
-        if (!currentState.game.isGameOver) {
-            screenModelScope.launch {
+        if (!currentState.game.isGameOver && currentState.game.cards.isNotEmpty()) {
+            scope.launch {
                 saveGameStateUseCase(currentState.game, currentState.elapsedTimeSeconds)
             }
         }
     }
 
-    override fun onDispose() {
-        stopTimer()
-        commentJob?.cancel()
-        statsJob?.cancel()
-        explosionJob?.cancel()
-        peekJob?.cancel()
-        timeGainJob?.cancel()
-        timeLossJob?.cancel()
-        settingsJob?.cancel()
-        saveGame()
+    override fun onRestart() {
+        startGame(pairCount, true, mode)
     }
-}
 
-sealed class GameIntent {
-    data class StartGame(val pairCount: Int, val forceNewGame: Boolean = false, val mode: GameMode = GameMode.STANDARD) : GameIntent()
-    data class FlipCard(val cardId: Int) : GameIntent()
-    data object SaveGame : GameIntent()
-    data object NextWalkthroughStep : GameIntent()
-    data object CompleteWalkthrough : GameIntent()
-    data object ToggleAudio : GameIntent()
-}
+    override fun onBack() {
+        onBackClicked()
+    }
 
-sealed class GameUiEvent {
-    data object PlayFlip : GameUiEvent()
-    data object PlayMatch : GameUiEvent()
-    data object PlayMismatch : GameUiEvent()
-    data object PlayWin : GameUiEvent()
-    data object PlayLose : GameUiEvent()
-    data object PlayHighScore : GameUiEvent()
-    data object PlayDeal : GameUiEvent()
-    data object VibrateMatch : GameUiEvent()
-    data object VibrateMismatch : GameUiEvent()
-    data object VibrateTick : GameUiEvent()
-    data object VibrateWarning : GameUiEvent()
+    override fun onToggleAudio() {
+        scope.launch {
+            val shouldEnable = !(_state.value.isMusicEnabled || _state.value.isSoundEnabled)
+            settingsRepository.setMusicEnabled(shouldEnable)
+            settingsRepository.setSoundEnabled(shouldEnable)
+        }
+    }
+
+    override fun onNextWalkthroughStep() {
+        _state.update { it.copy(walkthroughStep = it.walkthroughStep + 1) }
+    }
+
+    override fun onCompleteWalkthrough() {
+        scope.launch {
+            _state.update { it.copy(showWalkthrough = false) }
+            settingsRepository.setWalkthroughCompleted(true)
+            val isPeekEnabled = settingsRepository.isPeekEnabled.first()
+            if (isPeekEnabled) {
+                peekCards(_state.value.game.mode)
+            } else {
+                startTimer(_state.value.game.mode)
+            }
+        }
+    }
 }

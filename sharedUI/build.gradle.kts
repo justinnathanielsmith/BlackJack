@@ -14,6 +14,10 @@ plugins {
     alias(libs.plugins.mokkery)
 }
 
+ksp {
+    arg("mokkery.stubs.allowConcreteClassInstantiation", "true")
+}
+
 kotlin {
     compilerOptions {
         freeCompilerArgs.add("-Xexpect-actual-classes")
@@ -48,9 +52,8 @@ kotlin {
             implementation(libs.ktor.client.serialization)
             implementation(libs.ktor.serialization.json)
             implementation(libs.ktor.client.logging)
-            implementation(libs.voyager.navigator)
-            implementation(libs.voyager.screenmodel)
-            implementation(libs.voyager.transitions)
+            api(libs.decompose)
+            api(libs.decompose.extensions.compose)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.coil)
             implementation(libs.coil.network.ktor)

@@ -56,4 +56,8 @@ object DataModule {
     @Provides
     @SingleIn(AppScope::class)
     fun provideJson(): Json = Json { ignoreUnknownKeys = true }
+
+    @Provides
+    @SingleIn(AppScope::class)
+    fun provideDispatchers(): io.github.smithjustinn.utils.CoroutineDispatchers = io.github.smithjustinn.utils.CoroutineDispatchers()
 }

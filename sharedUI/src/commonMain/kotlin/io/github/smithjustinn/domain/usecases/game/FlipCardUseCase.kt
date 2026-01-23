@@ -9,8 +9,8 @@ import io.github.smithjustinn.domain.models.MemoryGameState
  * Use case to handle the logic of flipping a card and processing matches.
  */
 @Inject
-class FlipCardUseCase {
-    operator fun invoke(state: MemoryGameState, cardId: Int): Pair<MemoryGameState, GameDomainEvent?> {
+open class FlipCardUseCase {
+    open operator fun invoke(state: MemoryGameState, cardId: Int): Pair<MemoryGameState, GameDomainEvent?> {
         return MemoryGameLogic.flipCard(state, cardId)
     }
 }

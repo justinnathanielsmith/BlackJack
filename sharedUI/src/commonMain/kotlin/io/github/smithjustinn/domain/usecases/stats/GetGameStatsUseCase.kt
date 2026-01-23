@@ -9,10 +9,10 @@ import kotlinx.coroutines.flow.Flow
  * Use case to retrieve game statistics for a specific difficulty.
  */
 @Inject
-class GetGameStatsUseCase(
+open class GetGameStatsUseCase(
     private val gameStatsRepository: GameStatsRepository
 ) {
-    operator fun invoke(pairCount: Int): Flow<GameStats?> {
+    open operator fun invoke(pairCount: Int): Flow<GameStats?> {
         return gameStatsRepository.getStatsForDifficulty(pairCount)
     }
 }

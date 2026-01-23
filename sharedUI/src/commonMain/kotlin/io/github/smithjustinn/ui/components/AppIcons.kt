@@ -13,8 +13,8 @@ object AppIcons {
     private var _arrowBack: ImageVector? = null
     val ArrowBack: ImageVector
         get() {
-            if (_arrowBack != null) return _arrowBack!!
-            _arrowBack = ImageVector.Builder(
+            _arrowBack?.let { return it }
+            return ImageVector.Builder(
                 name = "ArrowBack",
                 defaultWidth = 24.0.dp,
                 defaultHeight = 24.0.dp,
@@ -34,15 +34,14 @@ object AppIcons {
                     verticalLineTo(11.0f)
                     close()
                 }
-            }.build()
-            return _arrowBack!!
+            }.build().also { _arrowBack = it }
         }
 
     private var _restart: ImageVector? = null
     val Restart: ImageVector
         get() {
-            if (_restart != null) return _restart!!
-            _restart = ImageVector.Builder(
+            _restart?.let { return it }
+            return ImageVector.Builder(
                 name = "Restart",
                 defaultWidth = 24.0.dp,
                 defaultHeight = 24.0.dp,
@@ -66,85 +65,14 @@ object AppIcons {
                     lineToRelative(-2.35f, 2.35f)
                     close()
                 }
-            }.build()
-            return _restart!!
-        }
-
-    private var _info: ImageVector? = null
-    val Info: ImageVector
-        get() {
-            if (_info != null) return _info!!
-            _info = ImageVector.Builder(
-                name = "Info",
-                defaultWidth = 24.0.dp,
-                defaultHeight = 24.0.dp,
-                viewportWidth = 24.0f,
-                viewportHeight = 24.0f
-            ).apply {
-                path(fill = SolidColor(Color.Black)) {
-                    moveTo(12.0f, 2.0f)
-                    curveTo(6.48f, 2.0f, 2.0f, 6.48f, 2.0f, 12.0f)
-                    reflectiveCurveToRelative(4.48f, 10.0f, 10.0f, 10.0f)
-                    reflectiveCurveToRelative(10.0f, -4.48f, 10.0f, -10.0f)
-                    reflectiveCurveTo(17.52f, 2.0f, 12.0f, 2.0f)
-                    close()
-                    moveTo(13.0f, 17.0f)
-                    horizontalLineToRelative(-2.0f)
-                    verticalLineToRelative(-6.0f)
-                    horizontalLineToRelative(2.0f)
-                    verticalLineToRelative(6.0f)
-                    close()
-                    moveTo(13.0f, 9.0f)
-                    horizontalLineToRelative(-2.0f)
-                    verticalLineTo(7.0f)
-                    horizontalLineToRelative(2.0f)
-                    verticalLineToRelative(2.0f)
-                    close()
-                }
-            }.build()
-            return _info!!
-        }
-
-    private var _visibility: ImageVector? = null
-    val Visibility: ImageVector
-        get() {
-            if (_visibility != null) return _visibility!!
-            _visibility = ImageVector.Builder(
-                name = "Visibility",
-                defaultWidth = 24.0.dp,
-                defaultHeight = 24.0.dp,
-                viewportWidth = 24.0f,
-                viewportHeight = 24.0f
-            ).apply {
-                path(fill = SolidColor(Color.Black)) {
-                    moveTo(12.0f, 4.5f)
-                    curveTo(7.0f, 4.5f, 2.73f, 7.61f, 1.0f, 12.0f)
-                    curveToRelative(1.73f, 4.39f, 6.0f, 7.5f, 11.0f, 7.5f)
-                    reflectiveCurveToRelative(9.27f, -3.11f, 11.0f, -7.5f)
-                    curveToRelative(-1.73f, -4.39f, -6.0f, -7.5f, -11.0f, -7.5f)
-                    close()
-                    moveTo(12.0f, 17.0f)
-                    curveToRelative(-2.76f, 0.0f, -5.0f, -2.24f, -5.0f, -5.0f)
-                    reflectiveCurveToRelative(2.24f, -5.0f, 5.0f, -5.0f)
-                    reflectiveCurveToRelative(5.0f, 2.24f, 5.0f, 5.0f)
-                    reflectiveCurveToRelative(-2.24f, 5.0f, -5.0f, 5.0f)
-                    close()
-                    moveTo(12.0f, 9.0f)
-                    curveToRelative(-1.66f, 0.0f, -3.0f, 1.34f, -3.0f, 3.0f)
-                    reflectiveCurveToRelative(1.34f, 3.0f, 3.0f, 3.0f)
-                    reflectiveCurveToRelative(3.0f, -1.34f, 3.0f, -3.0f)
-                    reflectiveCurveToRelative(-1.34f, -3.0f, -3.0f, -3.0f)
-                    close()
-                }
-            }.build()
-            return _visibility!!
+            }.build().also { _restart = it }
         }
 
     private var _settings: ImageVector? = null
     val Settings: ImageVector
         get() {
-            if (_settings != null) return _settings!!
-            _settings = ImageVector.Builder(
+            _settings?.let { return it }
+            return ImageVector.Builder(
                 name = "Settings",
                 defaultWidth = 24.0.dp,
                 defaultHeight = 24.0.dp,
@@ -206,15 +134,14 @@ object AppIcons {
                 reflectiveCurveToRelative(3.5f, 1.57f, 3.5f, 3.5f)
                 reflectiveCurveToRelative(-1.57f, 3.5f, -3.5f, 3.5f)
                 close()
-            }.build()
-            return _settings!!
+            }.build().also { _settings = it }
         }
 
     private var _trophy: ImageVector? = null
     val Trophy: ImageVector
         get() {
-            if (_trophy != null) return _trophy!!
-            _trophy = ImageVector.Builder(
+            _trophy?.let { return it }
+            return ImageVector.Builder(
                 name = "Trophy",
                 defaultWidth = 24.0.dp,
                 defaultHeight = 24.0.dp,
@@ -267,15 +194,14 @@ object AppIcons {
                 curveTo(1.34f, 13.0f, 0.0f, 11.66f, 0.0f, 10.0f)
                 curveTo(0.0f, 8.34f, 1.34f, 7.0f, 3.0f, 7.0f)
                 close()
-            }.build()
-            return _trophy!!
+            }.build().also { _trophy = it }
         }
 
     private var _volumeUp: ImageVector? = null
     val VolumeUp: ImageVector
         get() {
-            if (_volumeUp != null) return _volumeUp!!
-            _volumeUp = ImageVector.Builder(
+            _volumeUp?.let { return it }
+            return ImageVector.Builder(
                 name = "VolumeUp",
                 defaultWidth = 24.0.dp,
                 defaultHeight = 24.0.dp,
@@ -305,15 +231,14 @@ object AppIcons {
                     reflectiveCurveToRelative(-2.99f, -7.86f, -7.0f, -8.77f)
                     close()
                 }
-            }.build()
-            return _volumeUp!!
+            }.build().also { _volumeUp = it }
         }
 
     private var _volumeOff: ImageVector? = null
     val VolumeOff: ImageVector
         get() {
-            if (_volumeOff != null) return _volumeOff!!
-            _volumeOff = ImageVector.Builder(
+            _volumeOff?.let { return it }
+            return ImageVector.Builder(
                 name = "VolumeOff",
                 defaultWidth = 24.0.dp,
                 defaultHeight = 24.0.dp,
@@ -358,7 +283,6 @@ object AppIcons {
                     verticalLineTo(4.0f)
                     close()
                 }
-            }.build()
-            return _volumeOff!!
+            }.build().also { _volumeOff = it }
         }
 }

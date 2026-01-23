@@ -23,6 +23,8 @@ import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.no_stats_yet
 import memory_match.sharedui.generated.resources.pairs_format
 import memory_match.sharedui.generated.resources.score_label
+import memory_match.sharedui.generated.resources.stats_moves_header
+import memory_match.sharedui.generated.resources.stats_time_header
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -153,11 +155,11 @@ private fun LeaderboardRow(rank: Int, entry: LeaderboardEntry) {
 
         Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
             StatMiniItem(
-                label = "TIME",
+                label = stringResource(Res.string.stats_time_header),
                 value = formatTime(entry.timeSeconds)
             )
             StatMiniItem(
-                label = "MOVES",
+                label = stringResource(Res.string.stats_moves_header),
                 value = entry.moves.toString()
             )
         }

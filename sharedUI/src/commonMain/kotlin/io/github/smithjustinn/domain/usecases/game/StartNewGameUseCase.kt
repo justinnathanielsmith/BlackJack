@@ -10,8 +10,8 @@ import io.github.smithjustinn.domain.models.ScoringConfig
  * Use case to initialize a new memory game state.
  */
 @Inject
-class StartNewGameUseCase {
-    operator fun invoke(
+open class StartNewGameUseCase {
+    open operator fun invoke(
         pairCount: Int,
         config: ScoringConfig = ScoringConfig(),
         mode: GameMode = GameMode.STANDARD

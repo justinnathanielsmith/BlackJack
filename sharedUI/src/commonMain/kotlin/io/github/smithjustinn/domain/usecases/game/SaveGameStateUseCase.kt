@@ -9,11 +9,11 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
  * Usecase to save the current game state.
  */
 @Inject
-class SaveGameStateUseCase(
+open class SaveGameStateUseCase(
     private val gameStateRepository: GameStateRepository,
     private val logger: Logger
 ) {
-    suspend operator fun invoke(state: MemoryGameState, elapsedTimeSeconds: Long) {
+    suspend open operator fun invoke(state: MemoryGameState, elapsedTimeSeconds: Long) {
         try {
             gameStateRepository.saveGameState(state, elapsedTimeSeconds)
         } catch (e: Exception) {
