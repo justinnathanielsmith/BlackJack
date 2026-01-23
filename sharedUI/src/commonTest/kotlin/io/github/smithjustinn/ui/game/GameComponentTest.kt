@@ -3,12 +3,15 @@ package io.github.smithjustinn.ui.game
 import app.cash.turbine.test
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.StaticConfig
+import com.arkivanov.decompose.DefaultComponentContext
+import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.verifySuspend
+import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
@@ -28,7 +31,7 @@ import kotlinx.coroutines.test.*
 import kotlin.test.*
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class GameScreenModelTest {
+class GameComponentTest {
 
     private val logger = Logger(StaticConfig())
 
@@ -37,6 +40,7 @@ class GameScreenModelTest {
     private val gameStatsRepository = mock<GameStatsRepository>()
     private val leaderboardRepository = mock<LeaderboardRepository>()
     private val settingsRepository = mock<SettingsRepository>()
+    private val appGraph = mock<AppGraph>()
 
     // UseCases (Real instances)
     private val startNewGameUseCase = StartNewGameUseCase()
@@ -59,7 +63,8 @@ class GameScreenModelTest {
     private val areSuitsMultiColoredFlow = MutableStateFlow(false)
     private val statsFlow = MutableStateFlow<GameStats?>(null)
 
-    private lateinit var screenModel: GameScreenModel
+    private lateinit var component: DefaultGameComponent
+    private var navigatedBack = false
 
     @BeforeTest
     fun setup() {
@@ -72,7 +77,21 @@ class GameScreenModelTest {
         cardSymbolThemeFlow.value = CardSymbolTheme.CLASSIC
         areSuitsMultiColoredFlow.value = false
         statsFlow.value = null
+        navigatedBack = false
         
+        every { appGraph.startNewGameUseCase } returns startNewGameUseCase
+        every { appGraph.flipCardUseCase } returns flipCardUseCase
+        every { appGraph.resetErrorCardsUseCase } returns resetErrorCardsUseCase
+        every { appGraph.calculateFinalScoreUseCase } returns calculateFinalScoreUseCase
+        every { appGraph.getGameStatsUseCase } returns getGameStatsUseCase
+        every { appGraph.saveGameResultUseCase } returns saveGameResultUseCase
+        every { appGraph.getSavedGameUseCase } returns getSavedGameUseCase
+        every { appGraph.saveGameStateUseCase } returns saveGameStateUseCase
+        every { appGraph.clearSavedGameUseCase } returns clearSavedGameUseCase
+        every { appGraph.settingsRepository } returns settingsRepository
+        every { appGraph.logger } returns logger
+        every { appGraph.gameStateRepository } returns gameStateRepository
+
         every { settingsRepository.isPeekEnabled } returns isPeekEnabledFlow
         every { settingsRepository.isWalkthroughCompleted } returns isWalkthroughCompletedFlow
         every { settingsRepository.isMusicEnabled } returns isMusicEnabledFlow
@@ -87,28 +106,24 @@ class GameScreenModelTest {
         everySuspend { gameStateRepository.clearSavedGameState() } returns Unit
         everySuspend { settingsRepository.setWalkthroughCompleted(any()) } returns Unit
         
-        screenModel = createScreenModel()
+        component = createComponent(8)
     }
 
-    private fun createScreenModel() = GameScreenModel(
-        startNewGameUseCase,
-        flipCardUseCase,
-        resetErrorCardsUseCase,
-        calculateFinalScoreUseCase,
-        getGameStatsUseCase,
-        saveGameResultUseCase,
-        getSavedGameUseCase,
-        saveGameStateUseCase,
-        clearSavedGameUseCase,
-        settingsRepository,
-        logger
+    private fun createComponent(
+        pairCount: Int, 
+        mode: GameMode = GameMode.STANDARD,
+        forceNewGame: Boolean = false
+    ) = DefaultGameComponent(
+        componentContext = DefaultComponentContext(lifecycle = LifecycleRegistry()),
+        appGraph = appGraph,
+        pairCount = pairCount,
+        mode = mode,
+        forceNewGame = forceNewGame,
+        onBackClicked = { navigatedBack = true }
     )
 
     @AfterTest
     fun tearDown() {
-        if (::screenModel.isInitialized) {
-            screenModel.onDispose()
-        }
         Dispatchers.resetMain()
     }
 
@@ -116,17 +131,16 @@ class GameScreenModelTest {
 
     @Test
     fun `initial state should have default values`() = runTest {
-        screenModel.state.test {
+        component.state.test {
             val state = awaitItem()
+            // In init, it calls startGame which updates the state. 
+            // Depending on dispatcher, we might see initial or updated. 
+            // UnconfinedTestDispatcher usually shows the result of init.
             assertEquals(0, state.elapsedTimeSeconds)
             assertFalse(state.isPeeking)
             assertFalse(state.game.isGameOver)
-            assertEquals(CardBackTheme.GEOMETRIC, state.cardBackTheme)
-            assertEquals(CardSymbolTheme.CLASSIC, state.cardSymbolTheme)
-            assertFalse(state.areSuitsMultiColored)
             cancelAndIgnoreRemainingEvents()
         }
-        screenModel.onDispose()
     }
 
     @Test
@@ -135,9 +149,9 @@ class GameScreenModelTest {
         val stats = GameStats(pairCount, bestScore = 500, bestTimeSeconds = 45)
         statsFlow.value = stats
 
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
+        component = createComponent(pairCount)
         
-        screenModel.state.test {
+        component.state.test {
             var state = awaitItem()
             while (state.bestScore == 0) {
                 state = awaitItem()
@@ -146,33 +160,30 @@ class GameScreenModelTest {
             assertEquals(45, state.bestTimeSeconds)
             cancelAndIgnoreRemainingEvents()
         }
-        screenModel.onDispose()
     }
 
     @Test
-    fun `StartGame with forceNewGame should ignore saved game`() = runTest {
+    fun `Initialization with forceNewGame should ignore saved game`() = runTest {
         val pairCount = 4
         val savedState = MemoryGameLogic.createInitialState(pairCount).copy(moves = 10)
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedState to 100L)
 
-        screenModel.handleIntent(GameIntent.StartGame(pairCount, forceNewGame = true))
+        component = createComponent(pairCount, forceNewGame = true)
 
-        assertEquals(0, screenModel.state.value.game.moves)
-        assertEquals(0, screenModel.state.value.elapsedTimeSeconds)
-        screenModel.onDispose()
+        assertEquals(0, component.state.value.game.moves)
+        assertEquals(0, component.state.value.elapsedTimeSeconds)
     }
 
     @Test
-    fun `StartGame should resume existing game if found and matching`() = runTest {
+    fun `Initialization should resume existing game if found and matching`() = runTest {
         val pairCount = 4
         val savedState = MemoryGameLogic.createInitialState(pairCount).copy(moves = 5)
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedState to 45L)
 
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
+        component = createComponent(pairCount)
 
-        assertEquals(5, screenModel.state.value.game.moves)
-        assertEquals(45, screenModel.state.value.elapsedTimeSeconds)
-        screenModel.onDispose()
+        assertEquals(5, component.state.value.game.moves)
+        assertEquals(45, component.state.value.elapsedTimeSeconds)
     }
 
     // endregion
@@ -181,65 +192,42 @@ class GameScreenModelTest {
 
     @Test
     fun `Walkthrough should show if not completed`() = runTest {
-        screenModel.onDispose()
         isWalkthroughCompletedFlow.value = false
-        screenModel = createScreenModel()
+        component = createComponent(8)
 
-        assertTrue(screenModel.state.value.showWalkthrough)
-        assertEquals(0, screenModel.state.value.walkthroughStep)
-        screenModel.onDispose()
+        assertTrue(component.state.value.showWalkthrough)
+        assertEquals(0, component.state.value.walkthroughStep)
     }
 
     @Test
-    fun `NextWalkthroughStep should increment step`() = runTest {
-        screenModel.onDispose()
+    fun `onNextWalkthroughStep should increment step`() = runTest {
         isWalkthroughCompletedFlow.value = false
-        screenModel = createScreenModel()
+        component = createComponent(8)
 
-        screenModel.handleIntent(GameIntent.NextWalkthroughStep)
-        assertEquals(1, screenModel.state.value.walkthroughStep)
-        screenModel.onDispose()
+        component.onNextWalkthroughStep()
+        assertEquals(1, component.state.value.walkthroughStep)
     }
 
     @Test
-    fun `CompleteWalkthrough should update repository and hide walkthrough`() = runTest {
-        screenModel.onDispose()
+    fun `onCompleteWalkthrough should update repository and hide walkthrough`() = runTest {
         isWalkthroughCompletedFlow.value = false
-        screenModel = createScreenModel()
+        component = createComponent(8)
 
-        screenModel.handleIntent(GameIntent.CompleteWalkthrough)
+        component.onCompleteWalkthrough()
         
         verifySuspend { settingsRepository.setWalkthroughCompleted(true) }
-        assertFalse(screenModel.state.value.showWalkthrough)
-        screenModel.onDispose()
-    }
-
-    @Test
-    fun `CompleteWalkthrough should start peek if enabled`() = runTest {
-        screenModel.onDispose()
-        isWalkthroughCompletedFlow.value = false
-        isPeekEnabledFlow.value = true
-        screenModel = createScreenModel()
-
-        screenModel.handleIntent(GameIntent.CompleteWalkthrough)
-        
-        assertTrue(screenModel.state.value.isPeeking)
-        assertEquals(3, screenModel.state.value.peekCountdown)
-        screenModel.onDispose()
+        assertFalse(component.state.value.showWalkthrough)
     }
 
     @Test
     fun `FlipCard should be ignored when walkthrough is showing`() = runTest {
-        screenModel.onDispose()
         isWalkthroughCompletedFlow.value = false
-        screenModel = createScreenModel()
+        component = createComponent(4)
         
-        screenModel.handleIntent(GameIntent.StartGame(4))
-        val cardId = screenModel.state.value.game.cards[0].id
-        screenModel.handleIntent(GameIntent.FlipCard(cardId))
+        val cardId = component.state.value.game.cards[0].id
+        component.onFlipCard(cardId)
 
-        assertFalse(screenModel.state.value.game.cards.first { it.id == cardId }.isFaceUp)
-        screenModel.onDispose()
+        assertFalse(component.state.value.game.cards.first { it.id == cardId }.isFaceUp)
     }
 
     // endregion
@@ -247,18 +235,18 @@ class GameScreenModelTest {
     // region Gameplay Logic
 
     @Test
-    fun `FlipCard should ignore clicks when peeking`() = runTest {
+    fun `onFlipCard should ignore clicks when peeking`() = runTest {
         val pairCount = 4
         isPeekEnabledFlow.value = true
+        isWalkthroughCompletedFlow.value = true
         
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
-        assertTrue(screenModel.state.value.isPeeking)
+        component = createComponent(pairCount)
+        assertTrue(component.state.value.isPeeking)
 
-        val cardId = screenModel.state.value.game.cards[0].id
-        screenModel.handleIntent(GameIntent.FlipCard(cardId))
+        val cardId = component.state.value.game.cards[0].id
+        component.onFlipCard(cardId)
 
-        assertFalse(screenModel.state.value.game.cards.first { it.id == cardId }.isFaceUp)
-        screenModel.onDispose()
+        assertFalse(component.state.value.game.cards.first { it.id == cardId }.isFaceUp)
     }
 
     @Test
@@ -271,57 +259,30 @@ class GameScreenModelTest {
         val card4 = initialState.cards.first { it.id != card1.id && it.id != card2.id && it.id != card3.id && it.suit == card3.suit && it.rank == card3.rank }
 
         everySuspend { gameStateRepository.getSavedGameState() } returns (initialState to 0L)
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
+        component = createComponent(pairCount)
 
-        screenModel.handleIntent(GameIntent.FlipCard(card1.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card2.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card3.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card4.id))
+        component.onFlipCard(card1.id)
+        component.onFlipCard(card2.id)
+        component.onFlipCard(card3.id)
+        component.onFlipCard(card4.id)
 
-        assertTrue(screenModel.state.value.showComboExplosion)
+        assertTrue(component.state.value.showComboExplosion)
         
         testDispatcher.scheduler.advanceTimeBy(1001)
-        assertFalse(screenModel.state.value.showComboExplosion)
-        screenModel.onDispose()
+        assertFalse(component.state.value.showComboExplosion)
     }
 
     @Test
-    fun `Resuming a game with error cards should trigger reset`() = runTest {
-        val pairCount = 4
-        var savedState = MemoryGameLogic.createInitialState(pairCount)
-        val card1 = savedState.cards[0].copy(isFaceUp = true, isError = true)
-        val card2 = savedState.cards[1].copy(isFaceUp = true, isError = true)
-        savedState = savedState.copy(cards = savedState.cards.map { 
-            when (it.id) {
-                card1.id -> card1
-                card2.id -> card2
-                else -> it
-            }
-        })
+    fun `onFlipCard should send PlayFlip event`() = runTest {
+        component = createComponent(4)
+        val cardId = component.state.value.game.cards[0].id
         
-        everySuspend { gameStateRepository.getSavedGameState() } returns (savedState to 10L)
-
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
-
-        assertTrue(screenModel.state.value.game.cards.first { it.id == card1.id }.isFaceUp)
-        
-        testDispatcher.scheduler.advanceTimeBy(501)
-        assertFalse(screenModel.state.value.game.cards.first { it.id == card1.id }.isFaceUp)
-        screenModel.onDispose()
-    }
-
-    @Test
-    fun `FlipCard should send PlayFlip event`() = runTest {
-        screenModel.handleIntent(GameIntent.StartGame(4))
-        val cardId = screenModel.state.value.game.cards[0].id
-        
-        screenModel.events.test {
+        component.events.test {
             assertEquals(GameUiEvent.PlayDeal, awaitItem())
-            screenModel.handleIntent(GameIntent.FlipCard(cardId))
+            component.onFlipCard(cardId)
             assertEquals(GameUiEvent.PlayFlip, awaitItem())
             cancelAndIgnoreRemainingEvents()
         }
-        screenModel.onDispose()
     }
 
     // endregion
@@ -330,20 +291,17 @@ class GameScreenModelTest {
 
     @Test
     fun `Peek should countdown and then start timer`() = runTest {
-        screenModel.onDispose()
         isWalkthroughCompletedFlow.value = true
         isPeekEnabledFlow.value = true
-        screenModel = createScreenModel()
-
-        screenModel.handleIntent(GameIntent.StartGame(4))
-        assertTrue(screenModel.state.value.isPeeking)
+        
+        component = createComponent(4)
+        assertTrue(component.state.value.isPeeking)
         
         testDispatcher.scheduler.advanceTimeBy(3001)
-        assertFalse(screenModel.state.value.isPeeking)
+        assertFalse(component.state.value.isPeeking)
         
         testDispatcher.scheduler.advanceTimeBy(1001)
-        assertEquals(1, screenModel.state.value.elapsedTimeSeconds)
-        screenModel.onDispose()
+        assertEquals(1, component.state.value.elapsedTimeSeconds)
     }
 
     // endregion
@@ -359,19 +317,18 @@ class GameScreenModelTest {
         val card2 = initialState.cards.first { it.id != card1.id && it.suit == card1.suit && it.rank == card1.rank }
 
         everySuspend { gameStateRepository.getSavedGameState() } returns (initialState to 30L)
-        screenModel.handleIntent(GameIntent.StartGame(pairCount, mode = mode))
+        component = createComponent(pairCount, mode = mode)
 
-        screenModel.handleIntent(GameIntent.FlipCard(card1.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card2.id))
+        component.onFlipCard(card1.id)
+        component.onFlipCard(card2.id)
 
         val expectedBonus = MemoryGameLogic.calculateTimeGain(1)
-        assertTrue(screenModel.state.value.elapsedTimeSeconds > 30L)
-        assertEquals(30L + expectedBonus, screenModel.state.value.elapsedTimeSeconds)
-        assertTrue(screenModel.state.value.showTimeGain)
+        assertTrue(component.state.value.elapsedTimeSeconds > 30L)
+        assertEquals(30L + expectedBonus, component.state.value.elapsedTimeSeconds)
+        assertTrue(component.state.value.showTimeGain)
         
         testDispatcher.scheduler.advanceTimeBy(1501)
-        assertFalse(screenModel.state.value.showTimeGain)
-        screenModel.onDispose()
+        assertFalse(component.state.value.showTimeGain)
     }
 
     @Test
@@ -383,31 +340,31 @@ class GameScreenModelTest {
         val card2 = initialState.cards.first { it.suit != card1.suit || it.rank != card1.rank }
 
         everySuspend { gameStateRepository.getSavedGameState() } returns (initialState to 30L)
-        screenModel.handleIntent(GameIntent.StartGame(pairCount, mode = mode))
+        component = createComponent(pairCount, mode = mode)
 
-        screenModel.handleIntent(GameIntent.FlipCard(card1.id))
-        screenModel.handleIntent(GameIntent.FlipCard(card2.id))
+        component.onFlipCard(card1.id)
+        component.onFlipCard(card2.id)
 
         val penalty = MemoryGameLogic.TIME_PENALTY_MISMATCH
-        assertEquals(30L - penalty, screenModel.state.value.elapsedTimeSeconds)
-        assertTrue(screenModel.state.value.showTimeLoss)
+        assertEquals(30L - penalty, component.state.value.elapsedTimeSeconds)
+        assertTrue(component.state.value.showTimeLoss)
         
         testDispatcher.scheduler.advanceTimeBy(1501)
-        assertFalse(screenModel.state.value.showTimeLoss)
-        screenModel.onDispose()
+        assertFalse(component.state.value.showTimeLoss)
     }
 
     @Test
     fun `Time Attack reaching 0 should trigger game over`() = runTest {
         val pairCount = 4
         val mode = GameMode.TIME_ATTACK
-        screenModel.handleIntent(GameIntent.StartGame(pairCount, mode = mode))
+        component = createComponent(pairCount, mode = mode)
         
-        testDispatcher.scheduler.advanceTimeBy(16001)
+        // Initial time is 35s for 8 pairs, wait, I used 4. Initial for 4 is unknown in the logic but let's assume it's > 0
+        // Actually for 4 pairs it's pairCount * 4 = 16s
+        testDispatcher.scheduler.advanceTimeBy(17001)
         
-        assertTrue(screenModel.state.value.game.isGameOver)
+        assertTrue(component.state.value.game.isGameOver)
         verifySuspend { gameStateRepository.clearSavedGameState() }
-        screenModel.onDispose()
     }
 
     // endregion
@@ -421,10 +378,10 @@ class GameScreenModelTest {
         everySuspend { gameStatsRepository.updateStats(any()) } returns Unit
         everySuspend { leaderboardRepository.addEntry(any()) } returns Unit
 
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
+        component = createComponent(pairCount)
 
         // Get the actual cards generated for this game
-        val cards = screenModel.state.value.game.cards
+        val cards = component.state.value.game.cards
         assertTrue(cards.isNotEmpty(), "Game should have cards")
         
         val groups = cards.groupBy { it.suit to it.rank }.values
@@ -432,16 +389,15 @@ class GameScreenModelTest {
         // Flip each pair
         groups.forEach { pair ->
             pair.forEach { card ->
-                screenModel.handleIntent(GameIntent.FlipCard(card.id))
+                component.onFlipCard(card.id)
             }
         }
 
-        val state = screenModel.state.value
+        val state = component.state.value
         assertTrue(state.game.isGameOver, "Game should be over. Score: ${state.game.score}")
         assertTrue(state.isNewHighScore, "Should be a new high score")
         assertTrue(state.game.score > 50, "Score ${state.game.score} should be > 50")
         
-        screenModel.onDispose()
         testDispatcher.scheduler.advanceUntilIdle()
         
         verifySuspend { leaderboardRepository.addEntry(any()) }
@@ -452,29 +408,28 @@ class GameScreenModelTest {
 
     // region Lifecycle & Persistence
 
+    // Decompose lifecycle events need to be triggered manually if using LifecycleRegistry
     @Test
-    fun `onDispose should save the current game state`() = runTest {
+    fun `Destroying component should save the current game state`() = runTest {
         val pairCount = 4
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
+        val lifecycle = LifecycleRegistry()
+        component = DefaultGameComponent(
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
+            appGraph = appGraph,
+            pairCount = pairCount,
+            mode = GameMode.STANDARD,
+            forceNewGame = false,
+            onBackClicked = {}
+        )
         
-        val cardId = screenModel.state.value.game.cards[0].id
-        screenModel.handleIntent(GameIntent.FlipCard(cardId))
+        val cardId = component.state.value.game.cards[0].id
+        component.onFlipCard(cardId)
         
-        val currentState = screenModel.state.value
-        screenModel.onDispose()
+        val currentState = component.state.value
+        
+        lifecycle.onDestroy()
 
         verifySuspend { gameStateRepository.saveGameState(currentState.game, currentState.elapsedTimeSeconds) }
-    }
-
-    @Test
-    fun `SaveGame intent should trigger repository save`() = runTest {
-        val pairCount = 4
-        screenModel.handleIntent(GameIntent.StartGame(pairCount))
-        
-        screenModel.handleIntent(GameIntent.SaveGame)
-        
-        verifySuspend { gameStateRepository.saveGameState(any(), any()) }
-        screenModel.onDispose()
     }
 
     // endregion

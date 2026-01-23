@@ -1,38 +1,26 @@
 package io.github.smithjustinn.ui.settings
 
-import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
-import dev.zacsweers.metro.Inject
+import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnDestroy
+import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
-import io.github.smithjustinn.domain.repositories.SettingsRepository
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
-import kotlinx.coroutines.launch
 
-data class SettingsUIState(
-    val isPeekEnabled: Boolean = true,
-    val isSoundEnabled: Boolean = true,
-    val isMusicEnabled: Boolean = true,
-    val isWalkthroughCompleted: Boolean = false,
-    val soundVolume: Float = 1.0f,
-    val musicVolume: Float = 1.0f,
-    val cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    val cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
-    val areSuitsMultiColored: Boolean = false
-)
+class DefaultSettingsComponent(
+    componentContext: ComponentContext,
+    appGraph: AppGraph,
+    private val onBackClicked: () -> Unit
+) : SettingsComponent, ComponentContext by componentContext {
 
-sealed class SettingsUiEvent {
-    data object PlayClick : SettingsUiEvent()
-}
+    private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
-@Inject
-class SettingsScreenModel(
-    private val settingsRepository: SettingsRepository
-) : ScreenModel {
+    private val settingsRepository = appGraph.settingsRepository
 
     private val _events = Channel<SettingsUiEvent>(Channel.BUFFERED)
-    val events: Flow<SettingsUiEvent> = _events.receiveAsFlow()
+    override val events: Flow<SettingsUiEvent> = _events.receiveAsFlow()
 
     private val audioSettingsFlow = combine(
         settingsRepository.isSoundEnabled,
@@ -51,13 +39,13 @@ class SettingsScreenModel(
         ThemeSettings(back, symbol, multiColor)
     }
 
-    val state: StateFlow<SettingsUIState> = combine(
+    override val state: StateFlow<SettingsState> = combine(
         settingsRepository.isPeekEnabled,
         settingsRepository.isWalkthroughCompleted,
         audioSettingsFlow,
         themeSettingsFlow
     ) { peek, walkthrough, audio, theme ->
-        SettingsUIState(
+        SettingsState(
             isPeekEnabled = peek,
             isWalkthroughCompleted = walkthrough,
             isSoundEnabled = audio.isSoundEnabled,
@@ -69,9 +57,9 @@ class SettingsScreenModel(
             areSuitsMultiColored = theme.areSuitsMultiColored
         )
     }.stateIn(
-        scope = screenModelScope,
+        scope = scope,
         started = SharingStarted.WhileSubscribed(5000),
-        initialValue = SettingsUIState()
+        initialValue = SettingsState()
     )
 
     private data class AudioSettings(
@@ -87,57 +75,68 @@ class SettingsScreenModel(
         val areSuitsMultiColored: Boolean
     )
 
-    fun togglePeekEnabled(enabled: Boolean) {
-        screenModelScope.launch {
+    init {
+        lifecycle.doOnDestroy { scope.cancel() }
+    }
+
+    override fun togglePeekEnabled(enabled: Boolean) {
+        scope.launch {
             settingsRepository.setPeekEnabled(enabled)
         }
     }
 
-    fun toggleSoundEnabled(enabled: Boolean) {
-        screenModelScope.launch {
+    override fun toggleSoundEnabled(enabled: Boolean) {
+        scope.launch {
             settingsRepository.setSoundEnabled(enabled)
         }
     }
 
-    fun toggleMusicEnabled(enabled: Boolean) {
-        screenModelScope.launch {
+    override fun toggleMusicEnabled(enabled: Boolean) {
+        scope.launch {
             settingsRepository.setMusicEnabled(enabled)
         }
     }
 
-    fun setSoundVolume(volume: Float) {
-        screenModelScope.launch {
+    override fun setSoundVolume(volume: Float) {
+        scope.launch {
             settingsRepository.setSoundVolume(volume)
         }
     }
 
-    fun setMusicVolume(volume: Float) {
-        screenModelScope.launch {
+    override fun setMusicVolume(volume: Float) {
+        scope.launch {
             settingsRepository.setMusicVolume(volume)
         }
     }
 
-    fun setCardBackTheme(theme: CardBackTheme) {
-        screenModelScope.launch {
+    override fun setCardBackTheme(theme: CardBackTheme) {
+        scope.launch {
             settingsRepository.setCardBackTheme(theme)
         }
     }
 
-    fun setCardSymbolTheme(theme: CardSymbolTheme) {
-        screenModelScope.launch {
+    override fun setCardSymbolTheme(theme: CardSymbolTheme) {
+        scope.launch {
             settingsRepository.setCardSymbolTheme(theme)
         }
     }
 
-    fun toggleSuitsMultiColored(enabled: Boolean) {
-        screenModelScope.launch {
+    override fun toggleSuitsMultiColored(enabled: Boolean) {
+        scope.launch {
             settingsRepository.setSuitsMultiColored(enabled)
         }
     }
 
-    fun resetWalkthrough() {
-        screenModelScope.launch {
+    override fun resetWalkthrough() {
+        scope.launch {
             settingsRepository.setWalkthroughCompleted(false)
         }
     }
+
+    override fun onBack() {
+        onBackClicked()
+    }
 }
+
+// Rename the UI state class if it doesn't match the interface
+typealias SettingsState = SettingsUIState

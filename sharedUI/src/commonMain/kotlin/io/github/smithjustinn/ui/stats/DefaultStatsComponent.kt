@@ -1,41 +1,37 @@
 package io.github.smithjustinn.ui.stats
 
-import cafe.adriel.voyager.core.model.ScreenModel
-import cafe.adriel.voyager.core.model.screenModelScope
-import co.touchlab.kermit.Logger
-import dev.zacsweers.metro.Inject
+import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnDestroy
+import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
-import io.github.smithjustinn.domain.models.LeaderboardEntry
-import io.github.smithjustinn.domain.repositories.LeaderboardRepository
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.*
 
-data class StatsState(
-    val difficultyLeaderboards: List<Pair<DifficultyLevel, List<LeaderboardEntry>>> = emptyList(),
-    val selectedGameMode: GameMode = GameMode.STANDARD
-)
-
-sealed class StatsUiEvent {
-    data object PlayClick : StatsUiEvent()
-}
-
 @OptIn(ExperimentalCoroutinesApi::class)
-@Inject
-class StatsScreenModel(
-    private val leaderboardRepository: LeaderboardRepository,
-    private val logger: Logger
-) : ScreenModel {
+class DefaultStatsComponent(
+    componentContext: ComponentContext,
+    appGraph: AppGraph,
+    private val onBackClicked: () -> Unit
+) : StatsComponent, ComponentContext by componentContext {
+
+    private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
+
+    private val leaderboardRepository = appGraph.leaderboardRepository
+    private val logger = appGraph.logger
+
     private val _state = MutableStateFlow(StatsState())
-    val state: StateFlow<StatsState> = _state.asStateFlow()
+    override val state: StateFlow<StatsState> = _state.asStateFlow()
 
     private val _events = Channel<StatsUiEvent>(Channel.BUFFERED)
-    val events: Flow<StatsUiEvent> = _events.receiveAsFlow()
+    override val events: Flow<StatsUiEvent> = _events.receiveAsFlow()
 
     private val _selectedGameMode = MutableStateFlow(GameMode.STANDARD)
 
     init {
+        lifecycle.doOnDestroy { scope.cancel() }
+
         _selectedGameMode
             .flatMapLatest { mode ->
                 val difficulties = DifficultyLevel.defaultLevels
@@ -55,10 +51,14 @@ class StatsScreenModel(
             .catch { e ->
                 logger.e(e) { "Error loading leaderboards" }
             }
-            .launchIn(screenModelScope)
+            .launchIn(scope)
     }
 
-    fun onGameModeSelected(mode: GameMode) {
+    override fun onGameModeSelected(mode: GameMode) {
         _selectedGameMode.value = mode
+    }
+
+    override fun onBack() {
+        onBackClicked()
     }
 }

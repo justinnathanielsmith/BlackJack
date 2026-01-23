@@ -14,7 +14,7 @@ coil = "3.3.0"
 
 # Architecture & DI
 metro = "0.9.4"
-voyager = "1.1.0-beta03"
+decompose = "3.4.0"
 
 # Data & Networking
 ktor = "3.3.3"
@@ -71,10 +71,9 @@ room-compiler = { module = "androidx.room:room-compiler", version.ref = "room" }
 room-runtime = { module = "androidx.room:room-runtime", version.ref = "room" }
 sqlite-bundled = { module = "androidx.sqlite:sqlite-bundled", version.ref = "sqlite" }
 
-# Voyager
-voyager-navigator = { module = "cafe.adriel.voyager:voyager-navigator", version.ref = "voyager" }
-voyager-screenmodel = { module = "cafe.adriel.voyager:voyager-screenmodel", version.ref = "voyager" }
-voyager-transitions = { module = "cafe.adriel.voyager:voyager-transitions", version.ref = "voyager" }
+# Decompose
+decompose = { module = "com.arkivanov.decompose:decompose", version.ref = "decompose" }
+decompose-extensions-compose = { module = "com.arkivanov.decompose:extensions-compose", version.ref = "decompose" }
 
 # Utils
 kermit = { module = "co.touchlab:kermit", version.ref = "kermit" }

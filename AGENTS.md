@@ -15,10 +15,10 @@ When generating a new feature, ensure all layers are covered:
 2. [ ] `domain/repository/XRepository.kt` (Interface)
 3. [ ] `data/repository/XRepositoryImpl.kt` (Implementation)
 4. [ ] `domain/usecase/GetXUseCase.kt` (Logic)
-5. [ ] `ui/x/XScreen.kt` (Voyager Screen)
-6. [ ] `ui/x/XScreenModel.kt` (State Holder)
+5. [ ] `ui/x/XComponent.kt` & `XContent.kt` (Decompose)
+6. [ ] `ui/x/XModels.kt` (State & Events)
 7. [ ] **Metro Update**: Add `@BindingContainer` or `@Provides` entry.
-8. [ ] **Tests**: `ui/x/XScreenModelTest.kt` (Turbine + Mokkery).
+8. [ ] **Tests**: `ui/x/XComponentTest.kt` (Turbine + Mokkery).
 
 ---
 
