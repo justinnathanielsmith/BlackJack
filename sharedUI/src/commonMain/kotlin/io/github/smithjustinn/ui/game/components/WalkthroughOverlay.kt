@@ -36,7 +36,8 @@ fun WalkthroughOverlay(
         modifier = modifier
             .fillMaxSize()
             .background(Color.Black.copy(alpha = 0.7f))
-            .clickable(enabled = false) {}, // Consume clicks
+            // Consume clicks
+            .clickable(enabled = false) {},
     ) {
         Surface(
             modifier = Modifier

@@ -44,7 +44,8 @@ fun StartHeader(
         Text(
             text = title,
             style = TextStyle(
-                fontSize = 48.sp, // Restored to user's preferred "airy" size
+                // Restored to user's preferred "airy" size
+                fontSize = 48.sp,
                 fontWeight = FontWeight.ExtraBold,
                 brush = Brush.verticalGradient(
                     colors = listOf(

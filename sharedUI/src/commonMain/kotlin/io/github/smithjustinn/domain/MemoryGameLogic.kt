@@ -127,13 +127,11 @@ object MemoryGameLogic {
         return newState to GameDomainEvent.MatchFailure
     }
 
-    fun resetErrorCards(state: MemoryGameState): MemoryGameState {
-        return state.copy(
-            cards = state.cards.map { card ->
-                if (card.isError) card.copy(isFaceUp = false, isError = false) else card
-            }.toImmutableList(),
-        )
-    }
+    fun resetErrorCards(state: MemoryGameState): MemoryGameState = state.copy(
+        cards = state.cards.map { card ->
+            if (card.isError) card.copy(isFaceUp = false, isError = false) else card
+        }.toImmutableList(),
+    )
 
     /**
      * Calculates and applies bonuses to the final score when the game is won.
@@ -197,16 +195,14 @@ object MemoryGameLogic {
 
     // --- Time Attack Logic ---
 
-    fun calculateInitialTime(pairCount: Int): Long {
-        return when (pairCount) {
-            6 -> 25L // Toddler
-            8 -> 35L // Casual
-            10 -> 45L // Master
-            12 -> 55L // Shark
-            14 -> 65L // Grandmaster
-            16 -> 75L // Elephant
-            else -> (pairCount * 4).toLong()
-        }
+    fun calculateInitialTime(pairCount: Int): Long = when (pairCount) {
+        6 -> 25L // Toddler
+        8 -> 35L // Casual
+        10 -> 45L // Master
+        12 -> 55L // Shark
+        14 -> 65L // Grandmaster
+        16 -> 75L // Elephant
+        else -> (pairCount * 4).toLong()
     }
 
     fun calculateTimeGain(comboMultiplier: Int): Int {

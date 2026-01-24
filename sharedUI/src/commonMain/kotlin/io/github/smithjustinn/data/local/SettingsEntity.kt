@@ -7,7 +7,8 @@ import io.github.smithjustinn.domain.models.CardSymbolTheme
 
 @Entity(tableName = "settings")
 data class SettingsEntity(
-    @PrimaryKey val id: Int = 0, // Single row for settings
+    @PrimaryKey
+    val id: Int = 0, // Single row for settings
     val isPeekEnabled: Boolean = true,
     val isSoundEnabled: Boolean = true,
     val isMusicEnabled: Boolean = true,

@@ -13,12 +13,10 @@ open class GetSavedGameUseCase(
     private val gameStateRepository: GameStateRepository,
     private val logger: Logger,
 ) {
-    open suspend operator fun invoke(): Pair<MemoryGameState, Long>? {
-        return try {
-            gameStateRepository.getSavedGameState()
-        } catch (e: Exception) {
-            logger.e(e) { "Failed to get saved game state via use case" }
-            null
-        }
+    open suspend operator fun invoke(): Pair<MemoryGameState, Long>? = try {
+        gameStateRepository.getSavedGameState()
+    } catch (e: Exception) {
+        logger.e(e) { "Failed to get saved game state via use case" }
+        null
     }
 }

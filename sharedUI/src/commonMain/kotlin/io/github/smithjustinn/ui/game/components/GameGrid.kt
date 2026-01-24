@@ -124,8 +124,24 @@ fun GameGrid(
                 end = horizontalPadding,
                 bottom = bottomPadding,
             ),
-            verticalArrangement = Arrangement.spacedBy(if (isCompactHeight) 4.dp else if (isWide) 16.dp else 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(if (isCompactHeight) 6.dp else if (isWide) 16.dp else 12.dp),
+            verticalArrangement = Arrangement.spacedBy(
+                if (isCompactHeight) {
+                    4.dp
+                } else if (isWide) {
+                    16.dp
+                } else {
+                    12.dp
+                },
+            ),
+            horizontalArrangement = Arrangement.spacedBy(
+                if (isCompactHeight) {
+                    6.dp
+                } else if (isWide) {
+                    16.dp
+                } else {
+                    12.dp
+                },
+            ),
             modifier = Modifier
                 .fillMaxHeight()
                 .widthIn(max = maxGridWidth),

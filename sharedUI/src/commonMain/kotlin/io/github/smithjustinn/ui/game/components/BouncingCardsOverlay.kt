@@ -113,7 +113,8 @@ fun BouncingCardsOverlay(
                         CelebrationCard(
                             card = card,
                             initialX = centerX - cardWidthPx / 2f,
-                            initialY = heightPx, // Start at the bottom
+                            // Start at the bottom
+                            initialY = heightPx,
                             vx0 = cos(radians) * speed,
                             vy0 = sin(radians) * speed,
                             vRot = (Random.nextFloat() - 0.5f) * 12f,

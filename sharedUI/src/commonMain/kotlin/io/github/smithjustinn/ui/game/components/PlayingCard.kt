@@ -142,7 +142,13 @@ fun PlayingCard(
                 cameraDistance = 15f * density
             }
             .shadow(
-                elevation = if (isRecentlyMatched) 10.dp else if (isMatched) 2.dp else 6.dp,
+                elevation = if (isRecentlyMatched) {
+                    10.dp
+                } else if (isMatched) {
+                    2.dp
+                } else {
+                    6.dp
+                },
                 shape = RoundedCornerShape(12.dp),
                 clip = false,
                 ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,

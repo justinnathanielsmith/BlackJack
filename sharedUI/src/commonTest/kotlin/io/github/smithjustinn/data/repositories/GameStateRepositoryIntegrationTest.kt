@@ -24,7 +24,7 @@ class GameStateRepositoryIntegrationTest {
         repository = GameStateRepositoryImpl(
             dao = database.gameStateDao(),
             json = Json,
-            logger = Logger.withTag("Test")
+            logger = Logger.withTag("Test"),
         )
     }
 
@@ -37,7 +37,7 @@ class GameStateRepositoryIntegrationTest {
     fun saveAndGetGameState() = runTest {
         val gameState = MemoryGameState(
             pairCount = 8,
-            mode = GameMode.STANDARD
+            mode = GameMode.STANDARD,
         )
         val elapsedTime = 120L
 

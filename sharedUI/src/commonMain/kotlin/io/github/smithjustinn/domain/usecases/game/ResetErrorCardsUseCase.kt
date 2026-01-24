@@ -9,7 +9,5 @@ import io.github.smithjustinn.domain.models.MemoryGameState
  */
 @Inject
 open class ResetErrorCardsUseCase {
-    open operator fun invoke(state: MemoryGameState): MemoryGameState {
-        return MemoryGameLogic.resetErrorCards(state)
-    }
+    open operator fun invoke(state: MemoryGameState): MemoryGameState = MemoryGameLogic.resetErrorCards(state)
 }

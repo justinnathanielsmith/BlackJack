@@ -9,7 +9,5 @@ import io.github.smithjustinn.domain.models.MemoryGameState
  */
 @Inject
 open class CalculateFinalScoreUseCase {
-    open operator fun invoke(state: MemoryGameState, elapsedTimeSeconds: Long): MemoryGameState {
-        return MemoryGameLogic.applyFinalBonuses(state, elapsedTimeSeconds)
-    }
+    open operator fun invoke(state: MemoryGameState, elapsedTimeSeconds: Long): MemoryGameState = MemoryGameLogic.applyFinalBonuses(state, elapsedTimeSeconds)
 }

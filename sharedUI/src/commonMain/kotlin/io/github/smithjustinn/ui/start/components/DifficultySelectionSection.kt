@@ -232,7 +232,8 @@ fun NeonStyleButton(
                         imageVector = trailingIcon,
                         contentDescription = null,
                         tint = Color.White,
-                        modifier = Modifier.size(18.dp).graphicsLayer { rotationZ = 145f }, // Diagonal arrow up-right as in image
+                        // Diagonal arrow up-right as in image
+                        modifier = Modifier.size(18.dp).graphicsLayer { rotationZ = 145f },
                     )
                 }
             }

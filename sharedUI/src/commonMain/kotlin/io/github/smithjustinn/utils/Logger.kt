@@ -15,7 +15,5 @@ import io.github.smithjustinn.di.AppScope
 object LoggingContainer {
     @Provides
     @SingleIn(AppScope::class)
-    fun provideLogger(): Logger {
-        return Logger(loggerConfigInit(platformLogWriter(NoTagFormatter)))
-    }
+    fun provideLogger(): Logger = Logger(loggerConfigInit(platformLogWriter(NoTagFormatter)))
 }

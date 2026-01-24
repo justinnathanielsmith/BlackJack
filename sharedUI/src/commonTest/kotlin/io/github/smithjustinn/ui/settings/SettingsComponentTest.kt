@@ -80,11 +80,9 @@ class SettingsComponentTest : BaseComponentTest() {
         verifySuspend { context.settingsRepository.setCardBackTheme(CardBackTheme.GEOMETRIC) }
     }
 
-    private fun createComponent(lifecycle: Lifecycle): DefaultSettingsComponent {
-        return DefaultSettingsComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle),
-            appGraph = context.appGraph,
-            onBackClicked = {},
-        )
-    }
+    private fun createComponent(lifecycle: Lifecycle): DefaultSettingsComponent = DefaultSettingsComponent(
+        componentContext = DefaultComponentContext(lifecycle = lifecycle),
+        appGraph = context.appGraph,
+        onBackClicked = {},
+    )
 }

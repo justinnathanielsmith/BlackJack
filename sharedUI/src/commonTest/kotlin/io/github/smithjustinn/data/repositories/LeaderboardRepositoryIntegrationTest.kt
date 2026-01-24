@@ -22,7 +22,7 @@ class LeaderboardRepositoryIntegrationTest {
         database = createTestDatabase()
         repository = LeaderboardRepositoryImpl(
             dao = database.leaderboardDao(),
-            logger = Logger.withTag("Test")
+            logger = Logger.withTag("Test"),
         )
     }
 
@@ -41,7 +41,7 @@ class LeaderboardRepositoryIntegrationTest {
             timeSeconds = 60,
             moves = 20,
             timestamp = Clock.System.now(),
-            gameMode = gameMode
+            gameMode = gameMode,
         )
 
         val entry2 = LeaderboardEntry(
@@ -50,7 +50,7 @@ class LeaderboardRepositoryIntegrationTest {
             timeSeconds = 70,
             moves = 25,
             timestamp = Clock.System.now(),
-            gameMode = gameMode
+            gameMode = gameMode,
         )
 
         repository.getTopEntries(pairCount, gameMode).test {

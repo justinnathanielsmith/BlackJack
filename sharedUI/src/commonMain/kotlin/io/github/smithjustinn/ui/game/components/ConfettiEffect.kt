@@ -56,12 +56,18 @@ fun ConfettiEffect(
     modifier: Modifier = Modifier,
     particleCount: Int = 100,
     colors: List<Color> = listOf(
-        Color(0xFFE91E63), // Pink
-        Color(0xFF9C27B0), // Purple
-        Color(0xFF2196F3), // Blue
-        Color(0xFF4CAF50), // Green
-        Color(0xFFFFEB3B), // Yellow
-        Color(0xFFFF9800), // Orange
+        // Pink
+        Color(0xFFE91E63),
+        // Purple
+        Color(0xFF9C27B0),
+        // Blue
+        Color(0xFF2196F3),
+        // Green
+        Color(0xFF4CAF50),
+        // Yellow
+        Color(0xFFFFEB3B),
+        // Orange
+        Color(0xFFFF9800),
     ),
 ) {
     val particles = remember { mutableStateListOf<Particle>() }

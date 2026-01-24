@@ -151,7 +151,8 @@ class MemoryGameLogicTest {
             score = 40, // 2 matches * 20 points
         )
 
-        val finalState = MemoryGameLogic.applyFinalBonuses(state, 10) // 10 seconds elapsed
+        // 10 seconds elapsed
+        val finalState = MemoryGameLogic.applyFinalBonuses(state, 10)
 
         assertTrue(finalState.score > state.score)
         assertNotNull(finalState.scoreBreakdown)
@@ -209,7 +210,7 @@ class MemoryGameLogicTest {
         // Find a pair
         val card1 = initialState.cards[0]
         val card2 = initialState.cards.first { it.id != card1.id && it.suit == card1.suit && it.rank == card1.rank }
-        
+
         // Find a card that is NOT card1/card2 and its counterpart is NOT card3
         val card3 = initialState.cards.first { it.id != card1.id && it.id != card2.id }
         val card4 = initialState.cards.first { it.id != card3.id && (it.suit != card3.suit || it.rank != card3.rank) && !it.isMatched && it.id != card1.id && it.id != card2.id }

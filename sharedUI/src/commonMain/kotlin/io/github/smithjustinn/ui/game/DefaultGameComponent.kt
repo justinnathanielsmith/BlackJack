@@ -8,12 +8,12 @@ import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.utils.componentScope
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
-import kotlinx.collections.immutable.persistentListOf
 
 class DefaultGameComponent(
     componentContext: ComponentContext,
@@ -22,7 +22,8 @@ class DefaultGameComponent(
     private val mode: GameMode,
     forceNewGame: Boolean,
     private val onBackClicked: () -> Unit,
-) : GameComponent, ComponentContext by componentContext {
+) : GameComponent,
+    ComponentContext by componentContext {
     private val dispatchers = appGraph.coroutineDispatchers
     private val scope = lifecycle.componentScope(dispatchers.mainImmediate)
 

@@ -95,23 +95,21 @@ class AndroidAudioServiceImpl(
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private suspend fun loadSound(resource: StringResource): Int? {
-        return try {
-            val name = getString(resource)
-            resourceToName[resource] = name
-            val fileName = "$name.m4a"
-            val bytes = Res.readBytes("files/$fileName")
-            val tempFile = File(context.cacheDir, fileName)
-            withContext(Dispatchers.IO) {
-                FileOutputStream(tempFile).use { it.write(bytes) }
-            }
-            val id = soundPool.load(tempFile.absolutePath, 1)
-            soundMap[resource] = id
-            id
-        } catch (e: Exception) {
-            logger.e(e) { "Error loading sound resource: $resource" }
-            null
+    private suspend fun loadSound(resource: StringResource): Int? = try {
+        val name = getString(resource)
+        resourceToName[resource] = name
+        val fileName = "$name.m4a"
+        val bytes = Res.readBytes("files/$fileName")
+        val tempFile = File(context.cacheDir, fileName)
+        withContext(Dispatchers.IO) {
+            FileOutputStream(tempFile).use { it.write(bytes) }
         }
+        val id = soundPool.load(tempFile.absolutePath, 1)
+        soundMap[resource] = id
+        id
+    } catch (e: Exception) {
+        logger.e(e) { "Error loading sound resource: $resource" }
+        null
     }
 
     private fun playSound(resource: StringResource) {

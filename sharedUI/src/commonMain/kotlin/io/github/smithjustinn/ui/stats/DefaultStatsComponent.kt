@@ -15,7 +15,8 @@ class DefaultStatsComponent(
     componentContext: ComponentContext,
     appGraph: AppGraph,
     private val onBackClicked: () -> Unit,
-) : StatsComponent, ComponentContext by componentContext {
+) : StatsComponent,
+    ComponentContext by componentContext {
 
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 

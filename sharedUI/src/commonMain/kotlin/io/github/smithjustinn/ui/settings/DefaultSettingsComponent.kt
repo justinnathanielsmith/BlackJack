@@ -13,7 +13,8 @@ class DefaultSettingsComponent(
     componentContext: ComponentContext,
     appGraph: AppGraph,
     private val onBackClicked: () -> Unit,
-) : SettingsComponent, ComponentContext by componentContext {
+) : SettingsComponent,
+    ComponentContext by componentContext {
 
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 

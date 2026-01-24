@@ -15,7 +15,5 @@ open class StartNewGameUseCase {
         pairCount: Int,
         config: ScoringConfig = ScoringConfig(),
         mode: GameMode = GameMode.STANDARD,
-    ): MemoryGameState {
-        return MemoryGameLogic.createInitialState(pairCount, config, mode)
-    }
+    ): MemoryGameState = MemoryGameLogic.createInitialState(pairCount, config, mode)
 }

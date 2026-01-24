@@ -14,9 +14,9 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.test.BaseComponentTest
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.collections.immutable.toImmutableList
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
@@ -32,16 +32,14 @@ class GameComponentTest : BaseComponentTest() {
         pairCount: Int = 8,
         mode: GameMode = GameMode.STANDARD,
         forceNewGame: Boolean = true,
-    ): DefaultGameComponent {
-        return DefaultGameComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle),
-            appGraph = context.appGraph,
-            pairCount = pairCount,
-            mode = mode,
-            forceNewGame = forceNewGame,
-            onBackClicked = {},
-        )
-    }
+    ): DefaultGameComponent = DefaultGameComponent(
+        componentContext = DefaultComponentContext(lifecycle = lifecycle),
+        appGraph = context.appGraph,
+        pairCount = pairCount,
+        mode = mode,
+        forceNewGame = forceNewGame,
+        onBackClicked = {},
+    )
 
     @Test
     fun `starts new game when checking initialization`() = runTest { lifecycle ->
@@ -173,7 +171,8 @@ class GameComponentTest : BaseComponentTest() {
                 pairCount = 8,
                 mode = GameMode.STANDARD,
                 cards = cards.toImmutableList(),
-                comboMultiplier = 3, // High multiplier
+                // High multiplier
+                comboMultiplier = 3,
             )
 
         everySuspend { context.gameStateRepository.getSavedGameState() } returns

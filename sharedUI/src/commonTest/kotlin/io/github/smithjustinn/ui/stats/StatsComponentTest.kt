@@ -14,13 +14,11 @@ class StatsComponentTest : BaseComponentTest() {
 
     private lateinit var component: DefaultStatsComponent
 
-    private fun createComponent(lifecycle: Lifecycle): DefaultStatsComponent {
-        return DefaultStatsComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle),
-            appGraph = context.appGraph,
-            onBackClicked = {},
-        )
-    }
+    private fun createComponent(lifecycle: Lifecycle): DefaultStatsComponent = DefaultStatsComponent(
+        componentContext = DefaultComponentContext(lifecycle = lifecycle),
+        appGraph = context.appGraph,
+        onBackClicked = {},
+    )
 
     @Test
     fun `initial state is correct`() = runTest { lifecycle ->

@@ -113,15 +113,13 @@ class StartComponentTest : BaseComponentTest() {
         assertEquals(Triple(12, GameMode.TIME_ATTACK, false), navigatedToGame)
     }
 
-    private fun createDefaultComponent(lifecycle: Lifecycle): DefaultStartComponent {
-        return DefaultStartComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle),
-            appGraph = context.appGraph,
-            onNavigateToGame = { pairs, mode, isNewGame ->
-                navigatedToGame = Triple(pairs, mode, isNewGame)
-            },
-            onNavigateToSettings = { navigatedToSettings = true },
-            onNavigateToStats = { navigatedToStats = true },
-        )
-    }
+    private fun createDefaultComponent(lifecycle: Lifecycle): DefaultStartComponent = DefaultStartComponent(
+        componentContext = DefaultComponentContext(lifecycle = lifecycle),
+        appGraph = context.appGraph,
+        onNavigateToGame = { pairs, mode, isNewGame ->
+            navigatedToGame = Triple(pairs, mode, isNewGame)
+        },
+        onNavigateToSettings = { navigatedToSettings = true },
+        onNavigateToStats = { navigatedToStats = true },
+    )
 }

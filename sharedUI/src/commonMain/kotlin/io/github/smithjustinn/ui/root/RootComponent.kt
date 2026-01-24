@@ -34,7 +34,8 @@ interface RootComponent {
 }
 
 class DefaultRootComponent(componentContext: ComponentContext, private val appGraph: AppGraph) :
-    RootComponent, ComponentContext by componentContext {
+    RootComponent,
+    ComponentContext by componentContext {
 
     private val navigation = StackNavigation<Config>()
 

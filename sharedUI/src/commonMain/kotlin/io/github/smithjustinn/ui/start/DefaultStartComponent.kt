@@ -19,7 +19,8 @@ class DefaultStartComponent(
     private val onNavigateToGame: (pairs: Int, mode: GameMode, forceNewGame: Boolean) -> Unit,
     private val onNavigateToSettings: () -> Unit,
     private val onNavigateToStats: () -> Unit,
-) : StartComponent, ComponentContext by componentContext {
+) : StartComponent,
+    ComponentContext by componentContext {
     private val dispatchers = appGraph.coroutineDispatchers
     private val scope = lifecycle.componentScope(dispatchers.mainImmediate)
 

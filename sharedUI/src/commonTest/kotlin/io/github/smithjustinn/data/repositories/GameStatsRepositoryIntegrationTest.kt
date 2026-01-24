@@ -20,7 +20,7 @@ class GameStatsRepositoryIntegrationTest {
         database = createTestDatabase()
         repository = GameStatsRepositoryImpl(
             dao = database.gameStatsDao(),
-            logger = Logger.withTag("Test")
+            logger = Logger.withTag("Test"),
         )
     }
 

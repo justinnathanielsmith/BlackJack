@@ -22,7 +22,7 @@ class SettingsRepositoryIntegrationTest {
         database = createTestDatabase()
         repository = SettingsRepositoryImpl(
             dao = database.settingsDao(),
-            logger = Logger.withTag("Test")
+            logger = Logger.withTag("Test"),
         )
     }
 

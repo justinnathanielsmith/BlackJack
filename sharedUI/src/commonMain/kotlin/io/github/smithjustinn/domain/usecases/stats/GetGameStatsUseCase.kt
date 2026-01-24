@@ -12,7 +12,5 @@ import kotlinx.coroutines.flow.Flow
 open class GetGameStatsUseCase(
     private val gameStatsRepository: GameStatsRepository,
 ) {
-    open operator fun invoke(pairCount: Int): Flow<GameStats?> {
-        return gameStatsRepository.getStatsForDifficulty(pairCount)
-    }
+    open operator fun invoke(pairCount: Int): Flow<GameStats?> = gameStatsRepository.getStatsForDifficulty(pairCount)
 }
