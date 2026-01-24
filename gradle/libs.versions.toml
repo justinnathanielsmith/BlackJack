@@ -3,12 +3,13 @@
 agp = "9.0.0"
 kotlin = "2.3.0"
 ksp = "2.3.4"
+spotless = "8.2.0"
 
 # UI & Compose
 compose-multiplatform = "1.10.0"
 material3 = "1.10.0-alpha05"
-androidx-activityCompose = "1.12.2"
-androidx-coreSplashScreen = "1.2.0"
+androidx-activity-compose = "1.12.2"
+androidx-core-splashscreen = "1.2.0"
 google-material = "1.13.0"
 coil = "3.3.0"
 
@@ -33,8 +34,8 @@ mokkery = "3.1.1"
 
 [libraries]
 # AndroidX
-androidx-activityCompose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activityCompose" }
-androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-coreSplashScreen" }
+androidx-activity-compose = { module = "androidx.activity:activity-compose", version.ref = "androidx-activity-compose" }
+androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "androidx-core-splashscreen" }
 google-material = { module = "com.google.android.material:material", version.ref = "google-material" }
 
 # Compose Multiplatform
@@ -103,6 +104,10 @@ coil = [
     "coil",
     "coil-network-ktor"
 ]
+room = [
+    "room-runtime",
+    "sqlite-bundled"
+]
 testing = [
     "kotlinx-coroutines-test",
     "turbine",
@@ -121,4 +126,4 @@ ksp = { id = "com.google.devtools.ksp", version.ref = "ksp" }
 metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
 mokkery = { id = "dev.mokkery", version.ref = "mokkery" }
 room = { id = "androidx.room", version.ref = "room" }
-spotless = { id = "com.diffplug.spotless", version = "8.2.0" }
+spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }

@@ -18,10 +18,18 @@ Before generating code, you **MUST** align with:
 ## 1. Tech Stack Overview
 - **UI**: Compose Multiplatform 1.10+
 - **DI**: Metro (Compiler Plugin)
-- [ ] Nav: Decompose
+- **Nav**: Decompose
 - **DB**: Room (KMP)
 - **Network**: Ktor 3.x
 - **Testing**: Turbine + Mokkery
+
+## 2. Compose Best Practices (2026)
+- **Strong Skipping**: Defaults are good; minimize `@Stable` boilerplate.
+- **Context Parameters**: Use `-Xcontext-parameters` for DI/Theme injection.
+- **Collections**: Use `kotlinx.collections.immutable`.
+- **Modifiers**: Prefer `Modifier.Node` over `composed {}`.
+- **Slots**: Use Slot API over passing complex data models.
+- **State**: Defer state reads to Layout/Draw phases.
 
 ## 🚫 Prohibited Patterns (The "Kill List")
 - `viewModelScope` -> Use `componentScope` (Decompose lifecycle scope).

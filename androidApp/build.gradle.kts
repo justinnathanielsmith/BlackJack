@@ -30,7 +30,7 @@ kotlin {
 
 dependencies {
     implementation(project(":sharedUI"))
-    implementation(libs.androidx.activityCompose)
+    implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.google.material)
 }

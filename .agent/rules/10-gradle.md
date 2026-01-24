@@ -1,3 +1,8 @@
+---
+trigger: glob
+globs: ["**/gradle.properties"]
+---
+
 # 🐘 Gradle 2026 Best Practices
 
 Follow these rules for all `gradle.properties` files in 2026 to ensure maximum performance, stability, and compatibility with Kotlin 2.3+ and Compose Multiplatform 1.10+.

@@ -48,8 +48,7 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.bundles.coil)
             implementation(libs.kotlinx.datetime)
-            implementation(libs.room.runtime)
-            implementation(libs.sqlite.bundled)
+            implementation(libs.bundles.room)
         }
 
         commonTest.dependencies {
