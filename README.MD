@@ -115,6 +115,16 @@ We use a **Component-Based MVVM** pattern powered by **Decompose**, ensuring str
 
 ---
 
+## 🛠 Built With
+
+Memory-Match is developed using modern AI-first tooling and professional IDEs:
+- **Google Antigravity**: For advanced agentic coding and architectural orchestration.
+- **Android Studio**: The primary development environment for Kotlin Multiplatform.
+- **Gemini**: Powering AI-assisted development, brainstorming, and code generation.
+
+
+---
+
 ## 🧪 Testing Strategy
 
 Quality is baked into the foundation. We use a multi-layered testing approach to ensure stability across platforms.
