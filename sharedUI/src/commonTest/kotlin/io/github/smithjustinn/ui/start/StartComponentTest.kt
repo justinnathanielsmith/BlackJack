@@ -17,6 +17,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
+import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -47,7 +48,7 @@ class StartComponentTest {
     private var navigatedToSettings = false
     private var navigatedToStats = false
 
-    private fun runStartTest(block: suspend TestScope.() -> Unit) = runTest {
+    private fun runStartTest(block: suspend TestScope.() -> Unit) = runTest(testDispatcher) {
         val l = LifecycleRegistry()
         l.onCreate()
         lifecycle = l
@@ -71,7 +72,7 @@ class StartComponentTest {
         every { settingsRepository.cardSymbolTheme } returns MutableStateFlow(CardSymbolTheme.CLASSIC)
         everySuspend { gameStateRepository.getSavedGameState() } returns null
         
-        every { appGraph.coroutineDispatchers } returns io.github.smithjustinn.utils.CoroutineDispatchers(
+        every { appGraph.coroutineDispatchers } returns CoroutineDispatchers(
             main = testDispatcher,
             mainImmediate = testDispatcher,
             io = testDispatcher,
@@ -88,6 +89,8 @@ class StartComponentTest {
     @Test
     fun `initial state is correct`() = runStartTest {
         component = createDefaultComponent()
+        testDispatcher.scheduler.runCurrent()
+
         component.state.test {
             val state = awaitItem()
             assertEquals(DifficultyLevel.defaultLevels.size, state.difficulties.size)
@@ -100,6 +103,8 @@ class StartComponentTest {
     @Test
     fun `onDifficultySelected updates state`() = runStartTest {
         component = createDefaultComponent()
+        testDispatcher.scheduler.runCurrent()
+        
         val newDifficulty = DifficultyLevel.defaultLevels[0]
         component.state.test {
             awaitItem() // Initial state
@@ -112,6 +117,8 @@ class StartComponentTest {
     @Test
     fun `onModeSelected updates state`() = runStartTest {
         component = createDefaultComponent()
+        testDispatcher.scheduler.runCurrent()
+        
         val newMode = GameMode.TIME_ATTACK
         component.state.test {
             awaitItem() // Initial state
@@ -123,31 +130,36 @@ class StartComponentTest {
 
     @Test
     fun `Checks saved game on init and updates state when game exists`() = runStartTest {
-        // We need to re-init because check is in init
         val savedGame = MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
 
-        val newComponent = createDefaultComponent()
-
-        newComponent.state.test {
-            awaitItem() // Initial state
-            val state = awaitItem()
-            assertTrue(state.hasSavedGame)
-            assertEquals(12, state.savedGamePairCount)
-            assertEquals(GameMode.TIME_ATTACK, state.savedGameMode)
+        component = createDefaultComponent()
+        // No need to skip item if we haven't run current yet, but let's be safe
+        
+        component.state.test {
+            // The initial state before checkSavedGame finishes
+            val initial = awaitItem()
+            assertFalse(initial.hasSavedGame)
+            
+            testDispatcher.scheduler.runCurrent()
+            
+            val updated = awaitItem()
+            assertTrue(updated.hasSavedGame)
+            assertEquals(12, updated.savedGamePairCount)
+            assertEquals(GameMode.TIME_ATTACK, updated.savedGameMode)
         }
     }
 
     @Test
     fun `onStartGame triggers navigation callback`() = runStartTest {
         component = createDefaultComponent()
+        testDispatcher.scheduler.runCurrent()
+        
         component.onDifficultySelected(DifficultyLevel.defaultLevels[2]) // 10 pairs
         component.onModeSelected(GameMode.TIME_ATTACK)
-        
-        testDispatcher.scheduler.advanceUntilIdle()
+        testDispatcher.scheduler.runCurrent()
         
         component.onStartGame()
-        
         assertEquals(Triple(10, GameMode.TIME_ATTACK, true), navigatedToGame)
     }
 
@@ -156,26 +168,23 @@ class StartComponentTest {
         val savedGame = MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
 
-        val newComponent = createDefaultComponent()
-        
-        testDispatcher.scheduler.advanceUntilIdle()
+        component = createDefaultComponent()
+        testDispatcher.scheduler.runCurrent()
 
-        newComponent.onResumeGame()
-        
+        component.onResumeGame()
         assertEquals(Triple(12, GameMode.TIME_ATTACK, false), navigatedToGame)
     }
 
     private fun createDefaultComponent(): DefaultStartComponent {
-        val l = lifecycle ?: LifecycleRegistry().also { 
-            it.onCreate()
-            lifecycle = it 
-        }
         return DefaultStartComponent(
-            componentContext = DefaultComponentContext(lifecycle = l),
+            componentContext = DefaultComponentContext(lifecycle = lifecycle!!),
             appGraph = appGraph,
-            onNavigateToGame = { pairs, mode, force -> navigatedToGame = Triple(pairs, mode, force) },
+            onNavigateToGame = { pairs, mode, isNewGame ->
+                navigatedToGame = Triple(pairs, mode, isNewGame)
+            },
             onNavigateToSettings = { navigatedToSettings = true },
             onNavigateToStats = { navigatedToStats = true }
         )
     }
+
 }

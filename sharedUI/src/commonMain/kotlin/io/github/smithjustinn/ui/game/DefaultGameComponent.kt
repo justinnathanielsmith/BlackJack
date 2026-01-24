@@ -9,7 +9,6 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
@@ -29,8 +28,8 @@ class DefaultGameComponent(
     private val _state = MutableStateFlow(GameUIState())
     override val state: StateFlow<GameUIState> = _state.asStateFlow()
 
-    private val _events = Channel<GameUiEvent>(Channel.BUFFERED)
-    override val events: Flow<GameUiEvent> = _events.receiveAsFlow()
+    private val _events = MutableSharedFlow<GameUiEvent>(extraBufferCapacity = 64)
+    override val events: Flow<GameUiEvent> = _events.asSharedFlow()
 
     private var timerJob: Job? = null
     private var commentJob: Job? = null
@@ -137,7 +136,7 @@ class DefaultGameComponent(
                         )
                     }
                     
-                    _events.send(GameUiEvent.PlayDeal)
+                    _events.emit(GameUiEvent.PlayDeal)
 
                     val walkthroughCompleted = settingsRepository.isWalkthroughCompleted.first()
                     if (walkthroughCompleted) {
@@ -166,12 +165,12 @@ class DefaultGameComponent(
             
             for (i in peekDuration downTo 1) {
                 _state.update { it.copy(peekCountdown = i) }
-                _events.send(GameUiEvent.VibrateTick)
+                _events.emit(GameUiEvent.VibrateTick)
                 delay(1000)
             }
             
             _state.update { it.copy(isPeeking = false, peekCountdown = 0) }
-            _events.send(GameUiEvent.PlayFlip)
+            _events.emit(GameUiEvent.PlayFlip)
             startTimer(mode)
         }
     }
@@ -202,13 +201,13 @@ class DefaultGameComponent(
                         }
                         
                         if (newTime in 1L..5L && !it.game.isGameOver) {
-                            _events.trySend(GameUiEvent.VibrateTick)
+                            _events.tryEmit(GameUiEvent.VibrateTick)
                         }
 
                         it.copy(elapsedTimeSeconds = newTime)
                     }
                     if (shouldStop) {
-                        _events.send(GameUiEvent.VibrateWarning)
+                        _events.emit(GameUiEvent.VibrateWarning)
                         handleGameOver()
                         break
                     }
@@ -225,16 +224,20 @@ class DefaultGameComponent(
     }
 
     override fun onFlipCard(cardId: Int) {
-        if (_state.value.isPeeking || _state.value.game.isGameOver || _state.value.showWalkthrough) return
+        val currentState = _state.value
+        if (currentState.isPeeking || currentState.game.isGameOver || currentState.showWalkthrough) return
 
         try {
-            val (newState, event) = flipCardUseCase(_state.value.game, cardId)
+            val (newState, event) = flipCardUseCase(currentState.game, cardId)
+            
+            if (newState === currentState.game && event == null) return
 
             _state.update { it.copy(game = newState) }
+            
             saveGame()
 
             when (event) {
-                GameDomainEvent.CardFlipped -> scope.launch { _events.send(GameUiEvent.PlayFlip) }
+                GameDomainEvent.CardFlipped -> _events.tryEmit(GameUiEvent.PlayFlip)
                 GameDomainEvent.MatchSuccess -> handleMatchSuccess(newState)
                 GameDomainEvent.MatchFailure -> handleMatchFailure(newState)
                 GameDomainEvent.GameWon -> handleGameWon(newState)
@@ -247,10 +250,9 @@ class DefaultGameComponent(
     }
 
     private fun handleMatchSuccess(newState: MemoryGameState) {
-        scope.launch {
-            _events.send(GameUiEvent.VibrateMatch)
-            _events.send(GameUiEvent.PlayMatch)
-        }
+        _events.tryEmit(GameUiEvent.VibrateMatch)
+        _events.tryEmit(GameUiEvent.PlayMatch)
+        
         clearCommentAfterDelay()
         
         if (newState.mode == GameMode.TIME_ATTACK) {
@@ -283,10 +285,8 @@ class DefaultGameComponent(
 
     private fun handleMatchFailure(newState: MemoryGameState, isResuming: Boolean = false) {
         if (!isResuming) {
-            scope.launch {
-                _events.send(GameUiEvent.VibrateMismatch)
-                _events.send(GameUiEvent.PlayMismatch)
-            }
+            _events.tryEmit(GameUiEvent.VibrateMismatch)
+            _events.tryEmit(GameUiEvent.PlayMismatch)
         }
         
         var isGameOver = false
@@ -305,13 +305,13 @@ class DefaultGameComponent(
         }
 
         if (isGameOver) {
-            _events.trySend(GameUiEvent.VibrateWarning)
+            _events.tryEmit(GameUiEvent.VibrateWarning)
             handleGameOver()
         } else {
             scope.launch {
                 delay(if (isResuming) 500 else 1000)
                 if (!_state.value.game.isGameOver) {
-                    _events.send(GameUiEvent.PlayFlip)
+                    _events.tryEmit(GameUiEvent.PlayFlip)
                     val resetState = resetErrorCardsUseCase(newState)
                     _state.update { it.copy(game = resetState) }
                     saveGame()
@@ -334,13 +334,11 @@ class DefaultGameComponent(
         val gameWithBonuses = calculateFinalScoreUseCase(newState, _state.value.elapsedTimeSeconds)
         val isNewHigh = gameWithBonuses.score > _state.value.bestScore
 
-        scope.launch {
-            _events.send(GameUiEvent.VibrateMatch)
-            if (isNewHigh) {
-                _events.send(GameUiEvent.PlayHighScore)
-            } else {
-                _events.send(GameUiEvent.PlayWin)
-            }
+        _events.tryEmit(GameUiEvent.VibrateMatch)
+        if (isNewHigh) {
+            _events.tryEmit(GameUiEvent.PlayHighScore)
+        } else {
+            _events.tryEmit(GameUiEvent.PlayWin)
         }
 
         _state.update { it.copy(
@@ -359,8 +357,8 @@ class DefaultGameComponent(
     private fun handleGameOver() {
         stopTimer()
         _state.update { it.copy(game = it.game.copy(isGameOver = true)) }
+        _events.tryEmit(GameUiEvent.PlayLose)
         scope.launch {
-            _events.send(GameUiEvent.PlayLose)
             clearSavedGameUseCase()
         }
     }
@@ -388,10 +386,13 @@ class DefaultGameComponent(
         }
     }
 
+    /**
+     * Launch saveGameSuspend in a background scope.
+     */
     private fun saveGame() {
-        val currentState = _state.value
-        if (!currentState.game.isGameOver && currentState.game.cards.isNotEmpty()) {
-            scope.launch {
+        scope.launch(dispatchers.io) {
+            val currentState = _state.value
+            if (!currentState.game.isGameOver && currentState.game.cards.isNotEmpty()) {
                 saveGameStateUseCase(currentState.game, currentState.elapsedTimeSeconds)
             }
         }
