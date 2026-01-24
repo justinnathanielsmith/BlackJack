@@ -74,6 +74,7 @@ graph TD
 
 ### 🧠 Modern 2026 Idioms
 - **Context Parameters**: Leveraging `-Xcontext-parameters` for clean, boilerplate-free dependency injection in functions.
+- **Strong Skipping**: Optimized for Compose Multiplatform performance using `kotlinx.collections.immutable`.
 - **K2 Compiler Flow**: Fully optimized for the K2 compiler, ensuring sub-second incremental build times.
 - **AI-Native**: Designed to be navigated and extended by both humans and AI agents (see `AGENTS.md`).
 
@@ -104,6 +105,7 @@ We use a **Component-Based MVVM** pattern powered by **Decompose**, ensuring str
 | :---------------- | :------------------------ | :------------ | :-------------------------------------------------- |
 | **Language**      | **Kotlin**                | 2.3.0         | K2 Mode, Context Parameters, Multi-dollar strings   |
 | **UI**            | **Compose Multiplatform** | 1.10.0        | Adaptive layouts, Shared Resources, Skiko Rendering |
+| **Collections**   | **Immutable Collections** | 0.4.0         | Strong Skipping support for Compose performance     |
 | **DI**            | **Metro**                 | 0.9.4         | Compile-time safe, Zero-reflection, KMP-native      |
 | **Navigation**    | **Decompose**             | 3.4.0         | Lifecycle-aware, platform-agnostic navigation       |
 | **Persistence**   | **Room (KMP)**            | 2.8.4         | Type-safe SQLite, Bundled Drivers                   |
