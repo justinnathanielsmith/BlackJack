@@ -3,7 +3,6 @@ package io.github.smithjustinn.ui.root
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.StaticConfig
 import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
@@ -25,6 +24,7 @@ import io.github.smithjustinn.domain.usecases.game.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.game.StartNewGameUseCase
 import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
 import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
+import io.github.smithjustinn.test.runComponentTest
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -48,7 +48,6 @@ class RootComponentTest {
 
     private val appGraph: AppGraph = mock()
     private val testDispatcher = StandardTestDispatcher()
-    private lateinit var lifecycle: LifecycleRegistry
 
     @BeforeTest
     fun setUp() {
@@ -91,19 +90,15 @@ class RootComponentTest {
         everySuspend { gameStateRepository.getSavedGameState() } returns null
         everySuspend { gameStatsRepository.getStatsForDifficulty(any()) } returns MutableStateFlow(null)
         every { leaderboardRepository.getTopEntries(any(), any()) } returns MutableStateFlow(emptyList())
-
-        lifecycle = LifecycleRegistry()
-        lifecycle.onCreate()
     }
 
     @AfterTest
     fun tearDown() {
-        lifecycle.onDestroy()
         Dispatchers.resetMain()
     }
 
     @Test
-    fun `initial child is Start`() {
+    fun `initial child is Start`() = runComponentTest(testDispatcher) { lifecycle ->
         val root = DefaultRootComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = appGraph
@@ -113,7 +108,7 @@ class RootComponentTest {
     }
 
     @Test
-    fun `navigating to Game updates stack`() {
+    fun `navigating to Game updates stack`() = runComponentTest(testDispatcher) { lifecycle ->
         val root = DefaultRootComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = appGraph
@@ -126,7 +121,7 @@ class RootComponentTest {
     }
 
     @Test
-    fun `navigating to Settings updates stack`() {
+    fun `navigating to Settings updates stack`() = runComponentTest(testDispatcher) { lifecycle ->
         val root = DefaultRootComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = appGraph
@@ -139,7 +134,7 @@ class RootComponentTest {
     }
 
     @Test
-    fun `navigating to Stats updates stack`() {
+    fun `navigating to Stats updates stack`() = runComponentTest(testDispatcher) { lifecycle ->
         val root = DefaultRootComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = appGraph

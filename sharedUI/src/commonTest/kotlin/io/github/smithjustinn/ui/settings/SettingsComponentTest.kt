@@ -2,7 +2,7 @@ package io.github.smithjustinn.ui.settings
 
 import app.cash.turbine.test
 import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
@@ -13,14 +13,13 @@ import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.repositories.SettingsRepository
+import io.github.smithjustinn.test.runComponentTest
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -36,19 +35,7 @@ class SettingsComponentTest {
     
     private lateinit var component: DefaultSettingsComponent
     private val testDispatcher = StandardTestDispatcher()
-    private var lifecycle: LifecycleRegistry? = null
 
-    private fun runSettingsTest(block: suspend TestScope.() -> Unit) = runTest(testDispatcher) {
-        val l = LifecycleRegistry()
-        l.onCreate()
-        lifecycle = l
-        try {
-            block()
-        } finally {
-            l.onDestroy()
-            lifecycle = null
-        }
-    }
 
     @BeforeTest
     fun setUp() {
@@ -82,33 +69,32 @@ class SettingsComponentTest {
 
     @AfterTest
     fun tearDown() {
-        lifecycle?.onDestroy()
         Dispatchers.resetMain()
     }
 
     @Test
-    fun `initial state is correct`() = runSettingsTest {
-        component = createComponent()
+    fun `initial state is correct`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
 
         component.state.test {
-            // Skip initial default state
-            val initial = awaitItem()
-            if (initial.soundVolume == 1.0f) {
-                val actual = awaitItem()
-                assertTrue(actual.isPeekEnabled)
-                assertEquals(0.8f, actual.soundVolume)
-                assertEquals(CardBackTheme.GEOMETRIC, actual.cardBackTheme)
-            } else {
-                assertTrue(initial.isPeekEnabled)
-                assertEquals(0.8f, initial.soundVolume)
+            // The state might emit several times as flows are being collected
+            // We want to find the first emission that matches our mocked configuration
+            var foundDesiredState = false
+            while (!foundDesiredState) {
+                val state = awaitItem()
+                if (state.soundVolume == 0.8f) {
+                    assertTrue(state.isPeekEnabled)
+                    assertEquals(CardBackTheme.GEOMETRIC, state.cardBackTheme)
+                    foundDesiredState = true
+                }
             }
         }
     }
 
     @Test
-    fun `togglePeekEnabled updates repository`() = runSettingsTest {
-        component = createComponent()
+    fun `togglePeekEnabled updates repository`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
 
         component.togglePeekEnabled(false)
@@ -118,8 +104,8 @@ class SettingsComponentTest {
     }
 
     @Test
-    fun `setCardBackTheme updates repository`() = runSettingsTest {
-        component = createComponent()
+    fun `setCardBackTheme updates repository`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
 
         component.setCardBackTheme(CardBackTheme.GEOMETRIC)
@@ -128,9 +114,9 @@ class SettingsComponentTest {
         verifySuspend { settingsRepository.setCardBackTheme(CardBackTheme.GEOMETRIC) }
     }
 
-    private fun createComponent(): DefaultSettingsComponent {
+    private fun createComponent(lifecycle: Lifecycle): DefaultSettingsComponent {
         return DefaultSettingsComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle!!),
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = appGraph,
             onBackClicked = {}
         )

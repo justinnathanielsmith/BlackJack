@@ -4,7 +4,7 @@ import app.cash.turbine.test
 import co.touchlab.kermit.Logger
 import co.touchlab.kermit.StaticConfig
 import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
@@ -32,14 +32,13 @@ import io.github.smithjustinn.domain.usecases.game.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.game.StartNewGameUseCase
 import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
 import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
+import io.github.smithjustinn.test.runComponentTest
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -47,7 +46,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import kotlin.time.Duration.Companion.seconds
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class GameComponentTest {
@@ -72,7 +70,6 @@ class GameComponentTest {
 
     private lateinit var component: DefaultGameComponent
     private val testDispatcher = StandardTestDispatcher()
-    private var lifecycle: LifecycleRegistry? = null
 
     @BeforeTest
     fun setUp() {
@@ -116,29 +113,18 @@ class GameComponentTest {
 
     @AfterTest
     fun tearDown() {
-        lifecycle?.onDestroy()
         Dispatchers.resetMain()
     }
 
-    private fun runGameTest(block: suspend TestScope.() -> Unit) = runTest(testDispatcher, timeout = 10.seconds) {
-        val l = LifecycleRegistry()
-        l.onCreate()
-        lifecycle = l
-        try {
-            block()
-        } finally {
-            l.onDestroy()
-            lifecycle = null
-        }
-    }
 
     private fun createComponent(
+        lifecycle: Lifecycle,
         pairCount: Int = 8,
         mode: GameMode = GameMode.STANDARD,
         forceNewGame: Boolean = true
     ): DefaultGameComponent {
         return DefaultGameComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle!!),
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = appGraph,
             pairCount = pairCount,
             mode = mode,
@@ -148,8 +134,8 @@ class GameComponentTest {
     }
 
     @Test
-    fun `starts new game when checking initialization`() = runGameTest {
-        component = createComponent()
+    fun `starts new game when checking initialization`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle)
         
         component.events.test {
             testDispatcher.scheduler.runCurrent()
@@ -163,18 +149,18 @@ class GameComponentTest {
     }
 
     @Test
-    fun `resumes saved game if available and valid`() = runGameTest {
+    fun `resumes saved game if available and valid`() = runComponentTest(testDispatcher) { lifecycle ->
         val savedGame = MemoryGameState(pairCount = 8, mode = GameMode.STANDARD)
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
         
-        component = createComponent(forceNewGame = false)
+        component = createComponent(lifecycle, forceNewGame = false)
         testDispatcher.scheduler.runCurrent()
 
         assertEquals(100L, component.state.value.elapsedTimeSeconds)
     }
 
     @Test
-    fun `onFlipCard updates state and saves game`() = runGameTest {
+    fun `onFlipCard updates state and saves game`() = runComponentTest(testDispatcher) { lifecycle ->
         val card1 = CardState(id = 1, suit = Suit.Hearts, rank = Rank.Ace)
         val card2 = CardState(id = 2, suit = Suit.Hearts, rank = Rank.Ace)
         val otherCards = (3..16).map { 
@@ -188,7 +174,7 @@ class GameComponentTest {
         
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 0L)
         
-        component = createComponent(forceNewGame = false)
+        component = createComponent(lifecycle, forceNewGame = false)
         testDispatcher.scheduler.runCurrent()
 
         component.onFlipCard(1)
@@ -199,8 +185,8 @@ class GameComponentTest {
     }
 
     @Test
-    fun `timer ticks in Standard mode after initializing`() = runGameTest {
-        component = createComponent(mode = GameMode.STANDARD)
+    fun `timer ticks in Standard mode after initializing`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle, mode = GameMode.STANDARD)
         testDispatcher.scheduler.runCurrent()
         
         assertEquals(0L, component.state.value.elapsedTimeSeconds)
@@ -215,8 +201,8 @@ class GameComponentTest {
     }
 
     @Test
-    fun `timer counts down in Time Attack mode`() = runGameTest {
-        component = createComponent(pairCount = 8, mode = GameMode.TIME_ATTACK)
+    fun `timer counts down in Time Attack mode`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle, pairCount = 8, mode = GameMode.TIME_ATTACK)
         testDispatcher.scheduler.runCurrent()
         
         val startSeconds = component.state.value.elapsedTimeSeconds
@@ -228,10 +214,10 @@ class GameComponentTest {
     }
 
     @Test
-    fun `peek feature delays timer and shows cards`() = runGameTest {
+    fun `peek feature delays timer and shows cards`() = runComponentTest(testDispatcher) { lifecycle ->
         every { settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
         
-        component = createComponent(mode = GameMode.STANDARD)
+        component = createComponent(lifecycle, mode = GameMode.STANDARD)
         testDispatcher.scheduler.runCurrent()
 
         // Should be in peeking state initially
@@ -260,7 +246,7 @@ class GameComponentTest {
     }
 
     @Test
-    fun `matching cards shows combo explosion for high multiplier`() = runGameTest {
+    fun `matching cards shows combo explosion for high multiplier`() = runComponentTest(testDispatcher) { lifecycle ->
         // Mock a state with high multiplier
         val card1 = CardState(id = 1, suit = Suit.Hearts, rank = Rank.Ace)
         val card2 = CardState(id = 2, suit = Suit.Hearts, rank = Rank.Ace)
@@ -275,7 +261,7 @@ class GameComponentTest {
         
         everySuspend { gameStateRepository.getSavedGameState() } returns (gameWithCombo to 0L)
         
-        component = createComponent(forceNewGame = false)
+        component = createComponent(lifecycle, forceNewGame = false)
         testDispatcher.scheduler.runCurrent()
 
         // Flip card 1, then card 2 to trigger match
@@ -294,7 +280,7 @@ class GameComponentTest {
     }
 
     @Test
-    fun `time attack match gains time`() = runGameTest {
+    fun `time attack match gains time`() = runComponentTest(testDispatcher) { lifecycle ->
         val card1 = CardState(id = 1, suit = Suit.Hearts, rank = Rank.Ace)
         val card2 = CardState(id = 2, suit = Suit.Hearts, rank = Rank.Ace)
         val cards = listOf(card1, card2) + (3..16).map { CardState(id = it, suit = Suit.Diamonds, rank = Rank.Two) }
@@ -307,7 +293,7 @@ class GameComponentTest {
         
         everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 30L)
         
-        component = createComponent(forceNewGame = false, mode = GameMode.TIME_ATTACK)
+        component = createComponent(lifecycle, forceNewGame = false, mode = GameMode.TIME_ATTACK)
         testDispatcher.scheduler.runCurrent()
 
         component.onFlipCard(1)

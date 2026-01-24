@@ -202,6 +202,53 @@ class MemoryGameLogicTest {
     }
 
     @Test
+    fun `comboMultiplier should reset after mismatch`() {
+        val pairCount = 4
+        val initialState = MemoryGameLogic.createInitialState(pairCount)
+        
+        // Find a pair and a non-matching card
+        val card1 = initialState.cards[0]
+        val card2 = initialState.cards.first { it.id != card1.id && it.suit == card1.suit && it.rank == card1.rank }
+        val card3 = initialState.cards.first { it.suit != card1.suit || it.rank != card1.rank }
+        
+        // First match: combo becomes 2
+        val (s1, _) = MemoryGameLogic.flipCard(initialState, card1.id)
+        val (s2, _) = MemoryGameLogic.flipCard(s1, card2.id)
+        assertEquals(2, s2.comboMultiplier)
+        
+        // Mis-match: combo resets to 1
+        val (s3, _) = MemoryGameLogic.flipCard(s2, card3.id)
+        // Need to flip another card to trigger match check
+        val card4 = s3.cards.first { it.id != card3.id && !it.isMatched }
+        val (s4, _) = MemoryGameLogic.flipCard(s3, card4.id)
+        
+        assertEquals(1, s4.comboMultiplier)
+    }
+
+    @Test
+    fun `comboMultiplier should increment after successive matches`() {
+        val pairCount = 4
+        val initialState = MemoryGameLogic.createInitialState(pairCount)
+        
+        // Find two pairs
+        val pair1Card1 = initialState.cards[0]
+        val pair1Card2 = initialState.cards.first { it.id != pair1Card1.id && it.suit == pair1Card1.suit && it.rank == pair1Card1.rank }
+        
+        val pair2Card1 = initialState.cards.first { !it.isMatched && it.id != pair1Card1.id && it.id != pair1Card2.id }
+        val pair2Card2 = initialState.cards.first { it.id != pair2Card1.id && it.suit == pair2Card1.suit && it.rank == pair2Card1.rank }
+        
+        // Match 1
+        val (s1, _) = MemoryGameLogic.flipCard(initialState, pair1Card1.id)
+        val (s2, _) = MemoryGameLogic.flipCard(s1, pair1Card2.id)
+        assertEquals(2, s2.comboMultiplier)
+        
+        // Match 2
+        val (s3, _) = MemoryGameLogic.flipCard(s2, pair2Card1.id)
+        val (s4, _) = MemoryGameLogic.flipCard(s3, pair2Card2.id)
+        assertEquals(3, s4.comboMultiplier)
+    }
+
+    @Test
     fun `TIME_PENALTY_MISMATCH should be 2 seconds`() {
         assertEquals(2L, MemoryGameLogic.TIME_PENALTY_MISMATCH)
     }

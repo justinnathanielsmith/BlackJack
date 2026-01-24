@@ -2,21 +2,20 @@ package io.github.smithjustinn.ui.stats
 
 import app.cash.turbine.test
 import com.arkivanov.decompose.DefaultComponentContext
-import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.mock
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import io.github.smithjustinn.test.runComponentTest
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
@@ -31,19 +30,7 @@ class StatsComponentTest {
     
     private lateinit var component: DefaultStatsComponent
     private val testDispatcher = StandardTestDispatcher()
-    private var lifecycle: LifecycleRegistry? = null
 
-    private fun runStatsTest(block: suspend TestScope.() -> Unit) = runTest(testDispatcher) {
-        val l = LifecycleRegistry()
-        l.onCreate()
-        lifecycle = l
-        try {
-            block()
-        } finally {
-            l.onDestroy()
-            lifecycle = null
-        }
-    }
 
     @BeforeTest
     fun setUp() {
@@ -70,13 +57,12 @@ class StatsComponentTest {
 
     @AfterTest
     fun tearDown() {
-        lifecycle?.onDestroy()
         Dispatchers.resetMain()
     }
 
     @Test
-    fun `initial state is correct`() = runStatsTest {
-        component = createComponent()
+    fun `initial state is correct`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
 
         component.state.test {
@@ -87,8 +73,8 @@ class StatsComponentTest {
     }
 
     @Test
-    fun `onGameModeSelected updates state`() = runStatsTest {
-        component = createComponent()
+    fun `onGameModeSelected updates state`() = runComponentTest(testDispatcher) { lifecycle ->
+        component = createComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
 
         component.state.test {
@@ -99,9 +85,9 @@ class StatsComponentTest {
         }
     }
 
-    private fun createComponent(): DefaultStatsComponent {
+    private fun createComponent(lifecycle: Lifecycle): DefaultStatsComponent {
         return DefaultStatsComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle!!),
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = appGraph,
             onBackClicked = {}
         )
