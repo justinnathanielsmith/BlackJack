@@ -25,10 +25,7 @@ import memory_match.sharedui.generated.resources.app_name
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * StartHeader (Header Section - 2026 Design)
- *
- * Contains the "Memory Match" title with a vibrant gradient and the tilted cards preview.
- * Refined to match the reference image while keeping the "airy" feel the user liked.
+ * StartHeader
  */
 @Composable
 fun StartHeader(
@@ -45,13 +42,12 @@ fun StartHeader(
         Text(
             text = title,
             style = TextStyle(
-                // Restored to user's preferred "airy" size
                 fontSize = 48.sp,
                 fontWeight = FontWeight.ExtraBold,
                 brush = Brush.verticalGradient(
                     colors = listOf(
-                        LightPurple, // Light Purple
-                        SoftBlue, // Soft Blue
+                        LightPurple,
+                        SoftBlue,
                     ),
                 ),
                 textAlign = TextAlign.Center,
@@ -63,10 +59,10 @@ fun StartHeader(
             ),
         )
 
-        Spacer(modifier = Modifier.height(32.dp)) // Restored original spacing
+        Spacer(modifier = Modifier.height(32.dp))
 
         CardPreview(
-            modifier = Modifier.height(180.dp), // Restored original size
+            modifier = Modifier.height(180.dp),
             cardBackTheme = cardBackTheme,
             cardSymbolTheme = cardSymbolTheme,
         )

@@ -193,7 +193,6 @@ class AndroidAudioServiceImpl(
                 }
 
                 withContext(Dispatchers.Main) {
-                    // Double check conditions after context switch
                     if (!isMusicRequested || !isMusicEnabled || musicPlayer?.isPlaying == true) return@withContext
 
                     musicPlayer?.release()

@@ -26,10 +26,7 @@ import memory_match.sharedui.generated.resources.*
 import org.jetbrains.compose.resources.stringResource
 
 /**
- * DifficultySelectionSection (2026 Design)
- *
- * Contains the difficulty and game mode selectors, and primary action buttons.
- * Updated: Buttons are now rounded rectangles to match the refined aesthetic.
+ * DifficultySelectionSection
  */
 @Composable
 fun DifficultySelectionSection(
@@ -46,7 +43,6 @@ fun DifficultySelectionSection(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Step 4: Assemble Settings Selectors
         Column(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(32.dp),
@@ -233,7 +229,6 @@ fun NeonStyleButton(
                         imageVector = trailingIcon,
                         contentDescription = null,
                         tint = Color.White,
-                        // Diagonal arrow up-right as in image
                         modifier = Modifier.size(18.dp).graphicsLayer { rotationZ = 145f },
                     )
                 }

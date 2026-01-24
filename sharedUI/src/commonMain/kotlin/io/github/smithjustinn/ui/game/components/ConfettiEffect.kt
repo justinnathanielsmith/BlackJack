@@ -57,17 +57,11 @@ fun ConfettiEffect(
     modifier: Modifier = Modifier,
     particleCount: Int = 100,
     colors: List<Color> = listOf(
-        // Pink
         ConfettiPink,
-        // Purple
         ConfettiPurple,
-        // Blue
         ConfettiBlue,
-        // Green
         BonusGreen,
-        // Yellow
         ConfettiYellow,
-        // Orange
         ConfettiOrange,
     ),
 ) {
