@@ -86,6 +86,10 @@ fun StartContent(
                     audioService.playClick()
                     component.onStatsClick()
                 },
+                onDailyChallengeClick = {
+                    audioService.playClick()
+                    component.onDailyChallengeClick()
+                },
             )
         }
     }

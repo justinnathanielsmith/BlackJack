@@ -79,6 +79,10 @@
     <string name="game_mode">Game Mode</string>
     <string name="pairs_label">Pairs</string>
 
+    <string name="daily_challenge">Daily Challenge</string>
+    <string name="daily_challenge_completed">Daily Challenge (Completed)</string>
+    <string name="daily_challenge_won">You beat the Daily Challenge! See you tomorrow! 🎉</string>
+
     <!-- Walkthrough -->
     <string name="walkthrough_skip">SKIP</string>
     <string name="walkthrough_next">NEXT</string>

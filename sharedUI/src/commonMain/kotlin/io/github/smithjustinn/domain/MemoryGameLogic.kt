@@ -5,6 +5,8 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import memory_match.sharedui.generated.resources.*
 
+import kotlin.random.Random
+
 /**
  * Pure logic for the Memory Match game.
  */
@@ -14,10 +16,11 @@ object MemoryGameLogic {
         pairCount: Int,
         config: ScoringConfig = ScoringConfig(),
         mode: GameMode = GameMode.STANDARD,
+        random: Random = Random,
     ): MemoryGameState {
         val allPossibleCards = Suit.entries.flatMap { suit ->
             Rank.entries.map { rank -> suit to rank }
-        }.shuffled()
+        }.shuffled(random)
 
         val selectedPairs = allPossibleCards.take(pairCount)
 
@@ -26,7 +29,7 @@ object MemoryGameLogic {
                 CardState(id = 0, suit = suit, rank = rank),
                 CardState(id = 0, suit = suit, rank = rank),
             )
-        }.shuffled().mapIndexed { index, card ->
+        }.shuffled(random).mapIndexed { index, card ->
             card.copy(id = index)
         }.toImmutableList()
 

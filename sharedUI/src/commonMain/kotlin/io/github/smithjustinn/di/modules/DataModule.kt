@@ -39,6 +39,10 @@ object DataModule {
 
     @Provides
     @SingleIn(AppScope::class)
+    fun provideDailyChallengeDao(database: AppDatabase): io.github.smithjustinn.data.local.DailyChallengeDao = database.dailyChallengeDao()
+
+    @Provides
+    @SingleIn(AppScope::class)
     fun provideGameStatsRepository(impl: GameStatsRepositoryImpl): GameStatsRepository = impl
 
     @Provides

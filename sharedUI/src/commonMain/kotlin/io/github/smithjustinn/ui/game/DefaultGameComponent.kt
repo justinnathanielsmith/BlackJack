@@ -14,6 +14,7 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 class DefaultGameComponent(
     componentContext: ComponentContext,
@@ -52,6 +53,7 @@ class DefaultGameComponent(
     private val saveGameStateUseCase = appGraph.saveGameStateUseCase
     private val clearSavedGameUseCase = appGraph.clearSavedGameUseCase
     private val settingsRepository = appGraph.settingsRepository
+    private val dailyChallengeRepository = appGraph.dailyChallengeRepository
     private val logger = appGraph.logger
 
     private data class CoreSettings(
@@ -124,7 +126,13 @@ class DefaultGameComponent(
                         handleMatchFailure(savedGame.first, isResuming = true)
                     }
                 } else {
-                    val initialGameState = startNewGameUseCase(pairCount, mode = mode)
+                    val seed = if (mode == GameMode.DAILY_CHALLENGE) {
+                        Clock.System.now().toEpochMilliseconds() / 86400000
+                    } else {
+                        null
+                    }
+
+                    val initialGameState = startNewGameUseCase(pairCount, mode = mode, seed = seed)
                     val initialTime = if (mode == GameMode.TIME_ATTACK) MemoryGameLogic.calculateInitialTime(pairCount) else 0L
 
                     _state.update {
@@ -355,6 +363,14 @@ class DefaultGameComponent(
         }
 
         saveStats(gameWithBonuses.pairCount, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves, gameWithBonuses.mode)
+        
+        if (gameWithBonuses.mode == GameMode.DAILY_CHALLENGE) {
+            val today = Clock.System.now().toEpochMilliseconds() / 86400000
+            scope.launch {
+                dailyChallengeRepository.saveChallengeResult(today, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves)
+            }
+        }
+
         clearCommentAfterDelay()
 
         scope.launch {

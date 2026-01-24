@@ -6,6 +6,8 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoringConfig
 
+import kotlin.random.Random
+
 /**
  * Use case to initialize a new memory game state.
  */
@@ -15,5 +17,9 @@ open class StartNewGameUseCase {
         pairCount: Int,
         config: ScoringConfig = ScoringConfig(),
         mode: GameMode = GameMode.STANDARD,
-    ): MemoryGameState = MemoryGameLogic.createInitialState(pairCount, config, mode)
+        seed: Long? = null,
+    ): MemoryGameState {
+        val random = if (seed != null) Random(seed) else Random
+        return MemoryGameLogic.createInitialState(pairCount, config, mode, random)
+    }
 }

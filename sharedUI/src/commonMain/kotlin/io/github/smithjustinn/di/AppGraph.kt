@@ -25,6 +25,7 @@ interface AppGraph {
     val settingsRepository: SettingsRepository
     val leaderboardRepository: LeaderboardRepository
     val gameStatsRepository: GameStatsRepository
+    val dailyChallengeRepository: io.github.smithjustinn.data.repository.DailyChallengeRepository
 
     // Use Cases
     val startNewGameUseCase: StartNewGameUseCase

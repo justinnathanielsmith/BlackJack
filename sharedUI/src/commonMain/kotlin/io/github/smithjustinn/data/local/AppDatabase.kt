@@ -11,8 +11,9 @@ import androidx.sqlite.execSQL
         LeaderboardEntity::class,
         GameStateEntity::class,
         SettingsEntity::class,
+        DailyChallengeEntity::class,
     ],
-    version = 6,
+    version = 7,
 )
 @TypeConverters(Converters::class)
 @ConstructedBy(AppDatabaseConstructor::class)
@@ -21,6 +22,7 @@ abstract class AppDatabase : RoomDatabase() {
     abstract fun leaderboardDao(): LeaderboardDao
     abstract fun gameStateDao(): GameStateDao
     abstract fun settingsDao(): SettingsDao
+    abstract fun dailyChallengeDao(): DailyChallengeDao
 
     companion object {
         val MIGRATION_1_2 = object : Migration(1, 2) {
@@ -52,6 +54,12 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_5_6 = object : Migration(5, 6) {
             override fun migrate(connection: SQLiteConnection) {
                 connection.execSQL("ALTER TABLE settings ADD COLUMN areSuitsMultiColored INTEGER NOT NULL DEFAULT 0")
+            }
+        }
+
+        val MIGRATION_6_7 = object : Migration(6, 7) {
+            override fun migrate(connection: SQLiteConnection) {
+                connection.execSQL("CREATE TABLE IF NOT EXISTS daily_challenges (date INTEGER NOT NULL, isCompleted INTEGER NOT NULL, score INTEGER NOT NULL, timeSeconds INTEGER NOT NULL, moves INTEGER NOT NULL, PRIMARY KEY(date))")
             }
         }
     }

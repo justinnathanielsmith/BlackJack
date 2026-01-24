@@ -13,6 +13,7 @@ import org.jetbrains.compose.resources.StringResource
 enum class GameMode {
     STANDARD,
     TIME_ATTACK,
+    DAILY_CHALLENGE,
 }
 
 /**

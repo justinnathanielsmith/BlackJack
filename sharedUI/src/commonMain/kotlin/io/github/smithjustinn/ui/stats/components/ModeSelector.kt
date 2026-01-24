@@ -41,6 +41,7 @@ fun ModeSelector(
                 when (mode) {
                     GameMode.STANDARD -> stringResource(Res.string.mode_standard)
                     GameMode.TIME_ATTACK -> stringResource(Res.string.mode_time_attack)
+                    GameMode.DAILY_CHALLENGE -> stringResource(Res.string.daily_challenge)
                 }
             },
         )

@@ -286,4 +286,62 @@ object AppIcons {
                 }
             }.build().also { _volumeOff = it }
         }
+
+    private var _dateRange: ImageVector? = null
+    val DateRange: ImageVector
+        get() {
+            _dateRange?.let { return it }
+            return ImageVector.Builder(
+                name = "DateRange",
+                defaultWidth = 24.0.dp,
+                defaultHeight = 24.0.dp,
+                viewportWidth = 24.0f,
+                viewportHeight = 24.0f,
+            ).apply {
+                path(fill = SolidColor(Color.Black)) {
+                    moveTo(9.0f, 11.0f)
+                    horizontalLineTo(7.0f)
+                    verticalLineToRelative(2.0f)
+                    horizontalLineToRelative(2.0f)
+                    verticalLineTo(11.0f)
+                    close()
+                    moveTo(13.0f, 11.0f)
+                    horizontalLineToRelative(-2.0f)
+                    verticalLineToRelative(2.0f)
+                    horizontalLineToRelative(2.0f)
+                    verticalLineTo(11.0f)
+                    close()
+                    moveTo(17.0f, 11.0f)
+                    horizontalLineToRelative(-2.0f)
+                    verticalLineToRelative(2.0f)
+                    horizontalLineToRelative(2.0f)
+                    verticalLineTo(11.0f)
+                    close()
+                    moveTo(19.0f, 4.0f)
+                    horizontalLineToRelative(-1.0f)
+                    verticalLineTo(2.0f)
+                    horizontalLineToRelative(-2.0f)
+                    verticalLineToRelative(2.0f)
+                    horizontalLineTo(8.0f)
+                    verticalLineTo(2.0f)
+                    horizontalLineTo(6.0f)
+                    verticalLineToRelative(2.0f)
+                    horizontalLineTo(5.0f)
+                    curveTo(3.89f, 4.0f, 3.01f, 4.9f, 3.01f, 6.0f)
+                    lineTo(3.0f, 20.0f)
+                    curveToRelative(0.0f, 1.1f, 0.89f, 2.0f, 2.0f, 2.0f)
+                    horizontalLineToRelative(14.0f)
+                    curveToRelative(1.1f, 0.0f, 2.0f, -0.9f, 2.0f, -2.0f)
+                    verticalLineTo(6.0f)
+                    curveTo(21.0f, 4.9f, 20.1f, 4.0f, 19.0f, 4.0f)
+                    close()
+                    moveTo(19.0f, 20.0f)
+                    horizontalLineTo(5.0f)
+                    verticalLineTo(9.0f)
+                    horizontalLineToRelative(14.0f)
+                    verticalLineTo(20.0f)
+                    close()
+                }
+            }.build().also { _dateRange = it }
+        }
 }

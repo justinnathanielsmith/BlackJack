@@ -11,6 +11,7 @@ interface StartComponent {
     fun onModeSelected(mode: GameMode)
     fun onStartGame()
     fun onResumeGame()
+    fun onDailyChallengeClick()
     fun onSettingsClick()
     fun onStatsClick()
 }

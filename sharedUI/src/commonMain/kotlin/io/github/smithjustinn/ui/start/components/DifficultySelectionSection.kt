@@ -37,6 +37,7 @@ fun DifficultySelectionSection(
     onResumeGame: () -> Unit,
     onSettingsClick: () -> Unit,
     onStatsClick: () -> Unit,
+    onDailyChallengeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     Column(
@@ -91,6 +92,7 @@ fun DifficultySelectionSection(
                         when (mode) {
                             GameMode.STANDARD -> stringResource(Res.string.mode_standard)
                             GameMode.TIME_ATTACK -> stringResource(Res.string.mode_time_attack)
+                            GameMode.DAILY_CHALLENGE -> stringResource(Res.string.daily_challenge)
                         }
                     },
                 )
@@ -104,6 +106,20 @@ fun DifficultySelectionSection(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
+            // Daily Challenge Button
+            val dailyText = if (state.isDailyChallengeCompleted) 
+                stringResource(Res.string.daily_challenge_completed) 
+            else 
+                stringResource(Res.string.daily_challenge)
+
+            NeonStyleButton(
+                text = dailyText,
+                onClick = onDailyChallengeClick,
+                modifier = Modifier.fillMaxWidth(),
+                isPrimary = !state.isDailyChallengeCompleted,
+                leadingIcon = AppIcons.DateRange, // Need to ensure AppIcons has DateRange or use a fallback
+            )
+
             // Main Button(s)
             if (state.hasSavedGame) {
                 NeonStyleButton(

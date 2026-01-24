@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.Clock
 
 class DefaultStartComponent(
     componentContext: ComponentContext,
@@ -29,6 +30,7 @@ class DefaultStartComponent(
 
     private val gameStateRepository = appGraph.gameStateRepository
     private val settingsRepository = appGraph.settingsRepository
+    private val dailyChallengeRepository = appGraph.dailyChallengeRepository
     private val logger = appGraph.logger
 
     init {
@@ -48,6 +50,7 @@ class DefaultStartComponent(
         }
 
         checkSavedGame()
+        observeDailyChallengeStatus()
     }
 
     private fun checkSavedGame() {
@@ -63,6 +66,20 @@ class DefaultStartComponent(
                 }
             } catch (e: Exception) {
                 logger.e(e) { "Error checking for saved game" }
+            }
+        }
+    }
+
+    private fun observeDailyChallengeStatus() {
+        scope.launch {
+            try {
+                val today = Clock.System.now().toEpochMilliseconds() / 86400000
+                
+                dailyChallengeRepository.isChallengeCompleted(today).collect { isCompleted ->
+                    _state.update { it.copy(isDailyChallengeCompleted = isCompleted) }
+                }
+            } catch (e: Exception) {
+                logger.e(e) { "Error checking daily challenge status" }
             }
         }
     }
@@ -88,6 +105,13 @@ class DefaultStartComponent(
                 state.value.savedGameMode,
                 false,
             )
+        }
+    }
+    
+    override fun onDailyChallengeClick() {
+        if (!state.value.isDailyChallengeCompleted) {
+             // Use 8 pairs for Daily Challenge (standard difficulty)
+             onNavigateToGame(8, GameMode.DAILY_CHALLENGE, true)
         }
     }
 
