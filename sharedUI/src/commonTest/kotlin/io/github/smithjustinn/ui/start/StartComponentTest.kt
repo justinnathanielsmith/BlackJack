@@ -1,79 +1,30 @@
 package io.github.smithjustinn.ui.start
 
 import app.cash.turbine.test
-import co.touchlab.kermit.Logger
-import co.touchlab.kermit.StaticConfig
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
-import dev.mokkery.every
 import dev.mokkery.everySuspend
-import dev.mokkery.mock
-import io.github.smithjustinn.di.AppGraph
-import io.github.smithjustinn.domain.models.CardBackTheme
-import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
-import io.github.smithjustinn.domain.repositories.GameStateRepository
-import io.github.smithjustinn.domain.repositories.SettingsRepository
-import io.github.smithjustinn.test.runComponentTest
-import io.github.smithjustinn.utils.CoroutineDispatchers
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.setMain
-import kotlin.test.AfterTest
-import kotlin.test.BeforeTest
+import io.github.smithjustinn.test.BaseComponentTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class StartComponentTest {
+class StartComponentTest : BaseComponentTest() {
 
-    private val gameStateRepository: GameStateRepository = mock()
-    private val settingsRepository: SettingsRepository = mock()
-    private val logger: Logger = Logger(StaticConfig())
-    private val appGraph: AppGraph = mock()
-    
     private lateinit var component: DefaultStartComponent
-    private val testDispatcher = StandardTestDispatcher()
     private var navigatedToGame: Triple<Int, GameMode, Boolean>? = null
     private var navigatedToSettings = false
     private var navigatedToStats = false
 
-
-    @BeforeTest
-    fun setUp() {
-        Dispatchers.setMain(testDispatcher)
-        
-        every { appGraph.gameStateRepository } returns gameStateRepository
-        every { appGraph.settingsRepository } returns settingsRepository
-        every { appGraph.logger } returns logger
-        
-        every { settingsRepository.cardBackTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
-        every { settingsRepository.cardSymbolTheme } returns MutableStateFlow(CardSymbolTheme.CLASSIC)
-        everySuspend { gameStateRepository.getSavedGameState() } returns null
-        
-        every { appGraph.coroutineDispatchers } returns CoroutineDispatchers(
-            main = testDispatcher,
-            mainImmediate = testDispatcher,
-            io = testDispatcher,
-            default = testDispatcher
-        )
-    }
-
-    @AfterTest
-    fun tearDown() {
-        Dispatchers.resetMain()
-    }
-
     @Test
-    fun `initial state is correct`() = runComponentTest(testDispatcher) { lifecycle ->
+    fun `initial state is correct`() = runTest { lifecycle ->
         component = createDefaultComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
 
@@ -87,10 +38,10 @@ class StartComponentTest {
     }
 
     @Test
-    fun `onDifficultySelected updates state`() = runComponentTest(testDispatcher) { lifecycle ->
+    fun `onDifficultySelected updates state`() = runTest { lifecycle ->
         component = createDefaultComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
-        
+
         val newDifficulty = DifficultyLevel.defaultLevels[0]
         component.state.test {
             awaitItem() // Initial state
@@ -101,10 +52,10 @@ class StartComponentTest {
     }
 
     @Test
-    fun `onModeSelected updates state`() = runComponentTest(testDispatcher) { lifecycle ->
+    fun `onModeSelected updates state`() = runTest { lifecycle ->
         component = createDefaultComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
-        
+
         val newMode = GameMode.TIME_ATTACK
         component.state.test {
             awaitItem() // Initial state
@@ -115,20 +66,20 @@ class StartComponentTest {
     }
 
     @Test
-    fun `Checks saved game on init and updates state when game exists`() = runComponentTest(testDispatcher) { lifecycle ->
-        val savedGame = MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
-        everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
+    fun `Checks saved game on init and updates state when game exists`() = runTest { lifecycle ->
+        val savedGame =
+                MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
+        everySuspend { context.gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
 
         component = createDefaultComponent(lifecycle)
-        // No need to skip item if we haven't run current yet, but let's be safe
-        
+
         component.state.test {
             // The initial state before checkSavedGame finishes
             val initial = awaitItem()
             assertFalse(initial.hasSavedGame)
-            
+
             testDispatcher.scheduler.runCurrent()
-            
+
             val updated = awaitItem()
             assertTrue(updated.hasSavedGame)
             assertEquals(12, updated.savedGamePairCount)
@@ -137,22 +88,23 @@ class StartComponentTest {
     }
 
     @Test
-    fun `onStartGame triggers navigation callback`() = runComponentTest(testDispatcher) { lifecycle ->
+    fun `onStartGame triggers navigation callback`() = runTest { lifecycle ->
         component = createDefaultComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
-        
+
         component.onDifficultySelected(DifficultyLevel.defaultLevels[2]) // 10 pairs
         component.onModeSelected(GameMode.TIME_ATTACK)
         testDispatcher.scheduler.runCurrent()
-        
+
         component.onStartGame()
         assertEquals(Triple(10, GameMode.TIME_ATTACK, true), navigatedToGame)
     }
 
     @Test
-    fun `onResumeGame triggers navigation callback if saved game exists`() = runComponentTest(testDispatcher) { lifecycle ->
-        val savedGame = MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
-        everySuspend { gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
+    fun `onResumeGame triggers navigation callback if saved game exists`() = runTest { lifecycle ->
+        val savedGame =
+                MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
+        everySuspend { context.gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
 
         component = createDefaultComponent(lifecycle)
         testDispatcher.scheduler.runCurrent()
@@ -163,14 +115,13 @@ class StartComponentTest {
 
     private fun createDefaultComponent(lifecycle: Lifecycle): DefaultStartComponent {
         return DefaultStartComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle),
-            appGraph = appGraph,
-            onNavigateToGame = { pairs, mode, isNewGame ->
-                navigatedToGame = Triple(pairs, mode, isNewGame)
-            },
-            onNavigateToSettings = { navigatedToSettings = true },
-            onNavigateToStats = { navigatedToStats = true }
+                componentContext = DefaultComponentContext(lifecycle = lifecycle),
+                appGraph = context.appGraph,
+                onNavigateToGame = { pairs, mode, isNewGame ->
+                    navigatedToGame = Triple(pairs, mode, isNewGame)
+                },
+                onNavigateToSettings = { navigatedToSettings = true },
+                onNavigateToStats = { navigatedToStats = true }
         )
     }
-
 }
