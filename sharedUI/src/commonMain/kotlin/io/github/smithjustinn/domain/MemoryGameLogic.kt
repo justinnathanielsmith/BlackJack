@@ -68,8 +68,11 @@ object MemoryGameLogic {
 
         return when {
             state.isGameOver -> state to null
+
             cardToFlip == null || cardToFlip.isFaceUp || cardToFlip.isMatched -> state to null
+
             faceUpCards.size >= 2 -> state to null
+
             else -> {
                 val newState = state.copy(
                     cards = state.cards.map { card ->

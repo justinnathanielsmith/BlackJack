@@ -1,13 +1,11 @@
 package io.github.smithjustinn.ui.start.components
 
 import androidx.compose.animation.core.EaseInOutSine
-import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -19,14 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.StrokeCap
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
@@ -34,21 +27,62 @@ import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.DarkBlue
-import io.github.smithjustinn.theme.GoldenYellow
 import io.github.smithjustinn.theme.SoftBlue
 import io.github.smithjustinn.ui.game.components.PlayingCard
 
+// Card Preview Layout & Animation Durations
 private const val CARD_ROTATION_DURATION = 3000
 private const val CARD_FLOAT_DURATION = 2500
 private const val CARD_SPACING = -55
 private const val CARD_WIDTH = 110
 private const val BASE_ROTATION = 12f
 private const val CARD_TRANSLATION_Y = 10f
-private const val STAR_ROTATION_DURATION_BASE = 8000
-private const val STAR_FLOAT_X_DURATION_BASE = 2000
-private const val STAR_FLOAT_Y_DURATION_BASE = 2500
-private const val STAR_PULSE_DURATION = 1500
 private const val GLOW_SIZE = 220
+
+private const val CARD_MAX_ROTATION_Z = 3f
+private const val CARD_MAX_FLOAT_OFFSET = 5f
+private const val CARD_FRONT_Z_INDEX = 1f
+private const val CARD_BACK_Z_INDEX = 0f
+
+// Background Glow
+private const val GLOW_SOFT_BLUE_ALPHA = 0.2f
+private const val GLOW_DARK_BLUE_ALPHA = 0.1f
+
+// Star Positions (x, y, size, delay)
+private const val STAR_1_OFFSET_X = -70
+private const val STAR_1_OFFSET_Y = -60
+private const val STAR_1_SIZE = 20
+private const val STAR_1_DELAY = 0
+
+private const val STAR_2_OFFSET_X = 80
+private const val STAR_2_OFFSET_Y = -50
+private const val STAR_2_SIZE = 16
+private const val STAR_2_DELAY = 500
+
+private const val STAR_3_OFFSET_X = -80
+private const val STAR_3_OFFSET_Y = 40
+private const val STAR_3_SIZE = 14
+private const val STAR_3_DELAY = 1000
+
+private const val STAR_4_OFFSET_X = 70
+private const val STAR_4_OFFSET_Y = 60
+private const val STAR_4_SIZE = 18
+private const val STAR_4_DELAY = 200
+
+private const val STAR_5_OFFSET_X = 10
+private const val STAR_5_OFFSET_Y = -85
+private const val STAR_5_SIZE = 10
+private const val STAR_5_DELAY = 1500
+
+private const val STAR_6_OFFSET_X = -30
+private const val STAR_6_OFFSET_Y = -40
+private const val STAR_6_SIZE = 6
+private const val STAR_6_DELAY = 800
+
+private const val STAR_7_OFFSET_X = 40
+private const val STAR_7_OFFSET_Y = 30
+private const val STAR_7_SIZE = 8
+private const val STAR_7_DELAY = 1200
 
 /**
  * CardPreview (Visual Section - 2026 Design)
@@ -64,22 +98,24 @@ fun CardPreview(
     val infiniteTransition = rememberInfiniteTransition(label = "card_preview_anim")
 
     val rotation by infiniteTransition.animateFloat(
-        initialValue = -3f,
-        targetValue = 3f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(CARD_ROTATION_DURATION, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
+        initialValue = -CARD_MAX_ROTATION_Z,
+        targetValue = CARD_MAX_ROTATION_Z,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(CARD_ROTATION_DURATION, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse,
+            ),
         label = "rotation",
     )
 
     val floatOffset by infiniteTransition.animateFloat(
-        initialValue = -5f,
-        targetValue = 5f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(CARD_FLOAT_DURATION, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
+        initialValue = -CARD_MAX_FLOAT_OFFSET,
+        targetValue = CARD_MAX_FLOAT_OFFSET,
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(CARD_FLOAT_DURATION, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse,
+            ),
         label = "float",
     )
 
@@ -96,31 +132,38 @@ fun CardPreview(
 @Composable
 private fun BackgroundGlow() {
     Box(
-        modifier = Modifier
-            .size(GLOW_SIZE.dp)
-            .drawBehind {
-                drawCircle(
-                    brush = Brush.radialGradient(
-                        colors = listOf(
-                            SoftBlue.copy(alpha = 0.2f),
-                            DarkBlue.copy(alpha = 0.1f),
-                            Color.Transparent,
-                        ),
-                    ),
-                )
-            },
+        modifier =
+            Modifier
+                .size(GLOW_SIZE.dp)
+                .drawBehind {
+                    drawCircle(
+                        brush =
+                            Brush.radialGradient(
+                                colors =
+                                    listOf(
+                                        SoftBlue.copy(alpha = GLOW_SOFT_BLUE_ALPHA),
+                                        DarkBlue.copy(alpha = GLOW_DARK_BLUE_ALPHA),
+                                        Color.Transparent,
+                                    ),
+                            ),
+                    )
+                },
     )
 }
 
 @Composable
-private fun CardStack(floatOffset: Float, rotation: Float, settings: CardDisplaySettings) {
+private fun CardStack(
+    floatOffset: Float,
+    rotation: Float,
+    settings: CardDisplaySettings,
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(CARD_SPACING.dp),
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.offset(y = floatOffset.dp),
     ) {
-        PreviewCard(Suit.Hearts, -BASE_ROTATION + rotation, 1f, settings)
-        PreviewCard(Suit.Spades, BASE_ROTATION - rotation, 0f, settings, CARD_TRANSLATION_Y)
+        PreviewCard(Suit.Hearts, -BASE_ROTATION + rotation, CARD_FRONT_Z_INDEX, settings)
+        PreviewCard(Suit.Spades, BASE_ROTATION - rotation, CARD_BACK_Z_INDEX, settings, CARD_TRANSLATION_Y)
     }
 }
 
@@ -138,108 +181,59 @@ private fun PreviewCard(
         isFaceUp = true,
         isMatched = false,
         settings = settings,
-        modifier = Modifier
-            .width(CARD_WIDTH.dp)
-            .zIndex(zIndex)
-            .graphicsLayer {
-                this.rotationZ = rotationZ
-                this.translationY = translationY
-            },
+        modifier =
+            Modifier
+                .width(CARD_WIDTH.dp)
+                .zIndex(zIndex)
+                .graphicsLayer {
+                    this.rotationZ = rotationZ
+                    this.translationY = translationY
+                },
     )
 }
 
 @Composable
 private fun StarsLayer() {
-    AnimatedStar(Modifier.offset(x = (-70).dp, y = (-60).dp).size(20.dp), 0)
-    AnimatedStar(Modifier.offset(x = 80.dp, y = (-50).dp).size(16.dp), 500)
-    AnimatedStar(Modifier.offset(x = (-80).dp, y = 40.dp).size(14.dp), 1000)
-    AnimatedStar(Modifier.offset(x = 70.dp, y = 60.dp).size(18.dp), 200)
-    AnimatedStar(Modifier.offset(x = 10.dp, y = (-85).dp).size(10.dp), 1500)
-    AnimatedStar(Modifier.offset(x = (-30).dp, y = (-40).dp).size(6.dp), 800)
-    AnimatedStar(Modifier.offset(x = 40.dp, y = 30.dp).size(8.dp), 1200)
-}
-
-@Composable
-fun AnimatedStar(modifier: Modifier = Modifier, delayMillis: Int = 0) {
-    val infiniteTransition = rememberInfiniteTransition(label = "star_anim")
-
-    // Floating movement for the star itself
-    val floatX by infiniteTransition.animateFloat(
-        initialValue = -4f,
-        targetValue = 4f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(STAR_FLOAT_X_DURATION_BASE + delayMillis % 1000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "floatX",
+    AnimatedStar(
+        Modifier
+            .offset(x = STAR_1_OFFSET_X.dp, y = STAR_1_OFFSET_Y.dp)
+            .size(STAR_1_SIZE.dp),
+        STAR_1_DELAY,
     )
-    val floatY by infiniteTransition.animateFloat(
-        initialValue = -4f,
-        targetValue = 4f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(STAR_FLOAT_Y_DURATION_BASE + delayMillis % 1000, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "floatY",
+    AnimatedStar(
+        Modifier
+            .offset(x = STAR_2_OFFSET_X.dp, y = STAR_2_OFFSET_Y.dp)
+            .size(STAR_2_SIZE.dp),
+        STAR_2_DELAY,
     )
-
-    val scale by infiniteTransition.animateFloat(
-        initialValue = 0.6f,
-        targetValue = 1.2f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(STAR_PULSE_DURATION, delayMillis = delayMillis, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "scale",
+    AnimatedStar(
+        Modifier
+            .offset(x = STAR_3_OFFSET_X.dp, y = STAR_3_OFFSET_Y.dp)
+            .size(STAR_3_SIZE.dp),
+        STAR_3_DELAY,
     )
-    val alpha by infiniteTransition.animateFloat(
-        initialValue = 0.4f,
-        targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(STAR_PULSE_DURATION, delayMillis = delayMillis, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
-        label = "alpha",
+    AnimatedStar(
+        Modifier
+            .offset(x = STAR_4_OFFSET_X.dp, y = STAR_4_OFFSET_Y.dp)
+            .size(STAR_4_SIZE.dp),
+        STAR_4_DELAY,
     )
-
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 360f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(STAR_ROTATION_DURATION_BASE + delayMillis, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
-        label = "rotation",
+    AnimatedStar(
+        Modifier
+            .offset(x = STAR_5_OFFSET_X.dp, y = STAR_5_OFFSET_Y.dp)
+            .size(STAR_5_SIZE.dp),
+        STAR_5_DELAY,
     )
-
-    Canvas(
-        modifier = modifier
-            .offset(x = floatX.dp, y = floatY.dp)
-            .scale(scale)
-            .alpha(alpha)
-            .graphicsLayer { rotationZ = rotation },
-    ) {
-        val center = center
-        val radius = size.minDimension / 2
-
-        // Drawing a 4-pointed star (sparkle)
-        val path = Path().apply {
-            moveTo(center.x, center.y - radius)
-            quadraticTo(center.x, center.y, center.x + radius, center.y)
-            quadraticTo(center.x, center.y, center.x, center.y + radius)
-            quadraticTo(center.x, center.y, center.x - radius, center.y)
-            quadraticTo(center.x, center.y, center.x, center.y - radius)
-            close()
-        }
-
-        // Outer glow
-        drawPath(
-            path = path,
-            color = GoldenYellow.copy(alpha = 0.3f),
-            style = Stroke(width = 2.dp.toPx(), cap = StrokeCap.Round),
-        )
-
-        // Core
-        drawPath(path, GoldenYellow)
-    }
+    AnimatedStar(
+        Modifier
+            .offset(x = STAR_6_OFFSET_X.dp, y = STAR_6_OFFSET_Y.dp)
+            .size(STAR_6_SIZE.dp),
+        STAR_6_DELAY,
+    )
+    AnimatedStar(
+        Modifier
+            .offset(x = STAR_7_OFFSET_X.dp, y = STAR_7_OFFSET_Y.dp)
+            .size(STAR_7_SIZE.dp),
+        STAR_7_DELAY,
+    )
 }

@@ -27,10 +27,7 @@ import org.jetbrains.compose.resources.stringResource
  * StartHeader
  */
 @Composable
-fun StartHeader(
-    modifier: Modifier = Modifier,
-    settings: CardDisplaySettings = CardDisplaySettings(),
-) {
+fun StartHeader(modifier: Modifier = Modifier, settings: CardDisplaySettings = CardDisplaySettings()) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,

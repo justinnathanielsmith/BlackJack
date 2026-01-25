@@ -154,7 +154,13 @@ private fun CardContainer(
                 cameraDistance = 15f * density
             }
             .shadow(
-                elevation = if (isRecentlyMatched) 10.dp else if (isMatched) 2.dp else 6.dp,
+                elevation = if (isRecentlyMatched) {
+                    10.dp
+                } else if (isMatched) {
+                    2.dp
+                } else {
+                    6.dp
+                },
                 shape = RoundedCornerShape(12.dp),
                 clip = false,
                 ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,
@@ -193,43 +199,35 @@ private fun getCardBorder(
     isRecentlyMatched: Boolean,
     isMatched: Boolean,
     isError: Boolean,
-): BorderStroke {
-    return if (rotation <= 90f) {
-        when {
-            isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
-            isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = 0.4f))
-            isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
-            else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
-        }
-    } else {
-        val rimLightAlpha = (1f - (abs(rotation - 90f) / 90f)).coerceIn(0f, 1f)
-        val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
-        BorderStroke(
-            width = (2.dp + (rimLightAlpha * 2).dp),
-            color = if (rimLightAlpha > 0.1f) rimLightColor else Color.White.copy(alpha = 0.3f),
-        )
+): BorderStroke = if (rotation <= 90f) {
+    when {
+        isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
+        isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = 0.4f))
+        isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
+        else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
     }
+} else {
+    val rimLightAlpha = (1f - (abs(rotation - 90f) / 90f)).coerceIn(0f, 1f)
+    val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
+    BorderStroke(
+        width = (2.dp + (rimLightAlpha * 2).dp),
+        color = if (rimLightAlpha > 0.1f) rimLightColor else Color.White.copy(alpha = 0.3f),
+    )
 }
 
-private fun calculateSuitColor(suit: Suit, areSuitsMultiColored: Boolean): Color {
-    return if (areSuitsMultiColored) {
-        when (suit) {
-            Suit.Hearts -> HeartRed
-            Suit.Diamonds -> DiamondBlue
-            Suit.Clubs -> ClubGreen
-            Suit.Spades -> SpadeBlack
-        }
-    } else {
-        if (suit.isRed) HeartRed else SpadeBlack
+private fun calculateSuitColor(suit: Suit, areSuitsMultiColored: Boolean): Color = if (areSuitsMultiColored) {
+    when (suit) {
+        Suit.Hearts -> HeartRed
+        Suit.Diamonds -> DiamondBlue
+        Suit.Clubs -> ClubGreen
+        Suit.Spades -> SpadeBlack
     }
+} else {
+    if (suit.isRed) HeartRed else SpadeBlack
 }
 
 @Composable
-private fun CardBack(
-    theme: CardBackTheme,
-    backColor: Color,
-    rotation: Float,
-) {
+private fun CardBack(theme: CardBackTheme, backColor: Color, rotation: Float) {
     val rimLightAlpha = (1f - (abs(rotation - 90f) / 90f)).coerceIn(0f, 1f)
     val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
 

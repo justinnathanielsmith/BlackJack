@@ -36,10 +36,7 @@ import kotlin.math.ceil
 
 private data class CardLayoutInfo(val position: Offset, val size: Size)
 
-private data class GridMetrics(
-    val cells: GridCells,
-    val maxWidth: androidx.compose.ui.unit.Dp,
-)
+private data class GridMetrics(val cells: GridCells, val maxWidth: androidx.compose.ui.unit.Dp)
 
 private data class GridSpacing(
     val horizontalPadding: androidx.compose.ui.unit.Dp,
@@ -188,12 +185,10 @@ private fun calculateGridMetrics(
     isWide: Boolean,
     isLandscape: Boolean,
     isCompactHeight: Boolean,
-): GridMetrics {
-    return when {
-        isLandscape && isCompactHeight -> calculateCompactLandscapeMetrics(cardCount, screenWidth)
-        isWide -> calculateWideMetrics(cardCount, screenWidth, screenHeight)
-        else -> calculatePortraitMetrics(cardCount, screenWidth, screenHeight, isCompactHeight, isWide)
-    }
+): GridMetrics = when {
+    isLandscape && isCompactHeight -> calculateCompactLandscapeMetrics(cardCount, screenWidth)
+    isWide -> calculateWideMetrics(cardCount, screenWidth, screenHeight)
+    else -> calculatePortraitMetrics(cardCount, screenWidth, screenHeight, isCompactHeight, isWide)
 }
 
 private fun calculateCompactLandscapeMetrics(cardCount: Int, screenWidth: androidx.compose.ui.unit.Dp): GridMetrics {
