@@ -152,13 +152,9 @@ class DefaultRootComponent(componentContext: ComponentContext, private val appGr
 private fun String.getQueryParameter(key: String): String? {
     val queryStart = indexOf('?')
     if (queryStart == -1) return null
-    val query = substring(queryStart + 1)
-    val pairs = query.split('&')
-    for (pair in pairs) {
-        val parts = pair.split('=')
-        if (parts.size == 2 && parts[0] == key) {
-            return parts[1]
-        }
-    }
-    return null
+
+    return substring(queryStart + 1)
+        .split('&')
+        .firstOrNull { it.startsWith("$key=") }
+        ?.substringAfter('=')
 }

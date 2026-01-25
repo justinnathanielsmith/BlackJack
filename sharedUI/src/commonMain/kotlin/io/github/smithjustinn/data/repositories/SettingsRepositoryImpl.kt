@@ -18,110 +18,121 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
 @Inject
-internal class SettingsRepositoryImpl(private val dao: SettingsDao, private val logger: Logger) : SettingsRepository {
-
+class SettingsRepositoryImpl(
+    private val dao: SettingsDao,
+    private val logger: Logger,
+) : SettingsRepository {
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    private val settingsFlow = dao.getSettings()
-        .shareIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            replay = 1,
-        )
+    private val settingsFlow =
+        dao
+            .getSettings()
+            .shareIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                replay = 1,
+            )
 
-    override val isPeekEnabled: StateFlow<Boolean> = settingsFlow
-        .map { it?.isPeekEnabled ?: true }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = true,
-        )
+    override val isPeekEnabled: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.isPeekEnabled ?: true }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = true,
+            )
 
-    override val isSoundEnabled: StateFlow<Boolean> = settingsFlow
-        .map { it?.isSoundEnabled ?: true }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = true,
-        )
+    override val isSoundEnabled: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.isSoundEnabled ?: true }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = true,
+            )
 
-    override val isMusicEnabled: StateFlow<Boolean> = settingsFlow
-        .map { it?.isMusicEnabled ?: true }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = true,
-        )
+    override val isMusicEnabled: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.isMusicEnabled ?: true }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = true,
+            )
 
-    override val isWalkthroughCompleted: StateFlow<Boolean> = settingsFlow
-        .map { it?.isWalkthroughCompleted ?: false }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = false,
-        )
+    override val isWalkthroughCompleted: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.isWalkthroughCompleted ?: false }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = false,
+            )
 
-    override val soundVolume: StateFlow<Float> = settingsFlow
-        .map { it?.soundVolume ?: 1.0f }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = 1.0f,
-        )
+    override val soundVolume: StateFlow<Float> =
+        settingsFlow
+            .map { it?.soundVolume ?: 1.0f }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = 1.0f,
+            )
 
-    override val musicVolume: StateFlow<Float> = settingsFlow
-        .map { it?.musicVolume ?: 1.0f }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = 1.0f,
-        )
-
-    @Suppress("TooGenericExceptionCaught")
-    override val cardBackTheme: StateFlow<CardBackTheme> = settingsFlow
-        .map { entity ->
-            try {
-                CardBackTheme.valueOf(entity?.cardBackTheme ?: CardBackTheme.GEOMETRIC.name)
-            } catch (e: IllegalArgumentException) {
-                logger.e(e) { "Invalid CardBackTheme values stored: ${entity?.cardBackTheme}" }
-                CardBackTheme.GEOMETRIC
-            } catch (e: Exception) {
-                logger.e(e) { "Failed to parse CardBackTheme: ${entity?.cardBackTheme}" }
-                CardBackTheme.GEOMETRIC
-            }
-        }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = CardBackTheme.GEOMETRIC,
-        )
+    override val musicVolume: StateFlow<Float> =
+        settingsFlow
+            .map { it?.musicVolume ?: 1.0f }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = 1.0f,
+            )
 
     @Suppress("TooGenericExceptionCaught")
-    override val cardSymbolTheme: StateFlow<CardSymbolTheme> = settingsFlow
-        .map { entity ->
-            try {
-                CardSymbolTheme.valueOf(entity?.cardSymbolTheme ?: CardSymbolTheme.CLASSIC.name)
-            } catch (e: IllegalArgumentException) {
-                logger.e(e) { "Invalid CardSymbolTheme values stored: ${entity?.cardSymbolTheme}" }
-                CardSymbolTheme.CLASSIC
-            } catch (e: Exception) {
-                logger.e(e) { "Failed to parse CardSymbolTheme: ${entity?.cardSymbolTheme}" }
-                CardSymbolTheme.CLASSIC
-            }
-        }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = CardSymbolTheme.CLASSIC,
-        )
+    override val cardBackTheme: StateFlow<CardBackTheme> =
+        settingsFlow
+            .map { entity ->
+                try {
+                    CardBackTheme.valueOf(entity?.cardBackTheme ?: CardBackTheme.GEOMETRIC.name)
+                } catch (e: IllegalArgumentException) {
+                    logger.e(e) { "Invalid CardBackTheme values stored: ${entity?.cardBackTheme}" }
+                    CardBackTheme.GEOMETRIC
+                } catch (e: Exception) {
+                    logger.e(e) { "Failed to parse CardBackTheme: ${entity?.cardBackTheme}" }
+                    CardBackTheme.GEOMETRIC
+                }
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = CardBackTheme.GEOMETRIC,
+            )
 
-    override val areSuitsMultiColored: StateFlow<Boolean> = settingsFlow
-        .map { it?.areSuitsMultiColored ?: false }
-        .stateIn(
-            scope = scope,
-            started = SharingStarted.Eagerly,
-            initialValue = false,
-        )
+    @Suppress("TooGenericExceptionCaught")
+    override val cardSymbolTheme: StateFlow<CardSymbolTheme> =
+        settingsFlow
+            .map { entity ->
+                try {
+                    CardSymbolTheme.valueOf(entity?.cardSymbolTheme ?: CardSymbolTheme.CLASSIC.name)
+                } catch (e: IllegalArgumentException) {
+                    logger.e(e) { "Invalid CardSymbolTheme values stored: ${entity?.cardSymbolTheme}" }
+                    CardSymbolTheme.CLASSIC
+                } catch (e: Exception) {
+                    logger.e(e) { "Failed to parse CardSymbolTheme: ${entity?.cardSymbolTheme}" }
+                    CardSymbolTheme.CLASSIC
+                }
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = CardSymbolTheme.CLASSIC,
+            )
+
+    override val areSuitsMultiColored: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.areSuitsMultiColored ?: false }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = false,
+            )
 
     override suspend fun setPeekEnabled(enabled: Boolean) {
         val current = dao.getSettings().firstOrNull() ?: SettingsEntity()

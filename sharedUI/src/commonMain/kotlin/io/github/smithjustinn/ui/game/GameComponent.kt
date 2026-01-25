@@ -11,6 +11,5 @@ interface GameComponent {
     fun onRestart()
     fun onBack()
     fun onToggleAudio()
-    fun onNextWalkthroughStep()
-    fun onCompleteWalkthrough()
+    fun onWalkthroughAction(isComplete: Boolean)
 }

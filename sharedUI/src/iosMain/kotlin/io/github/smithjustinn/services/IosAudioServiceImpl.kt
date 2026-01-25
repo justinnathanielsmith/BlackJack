@@ -3,6 +3,7 @@ package io.github.smithjustinn.services
 import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.repositories.SettingsRepository
+import io.github.smithjustinn.services.AudioService.Companion.toResource
 import kotlinx.cinterop.BetaInteropApi
 import kotlinx.cinterop.ExperimentalForeignApi
 import kotlinx.cinterop.addressOf
@@ -25,7 +26,10 @@ import platform.Foundation.create
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @Inject
-class IosAudioServiceImpl(private val logger: Logger, settingsRepository: SettingsRepository) : AudioService {
+class IosAudioServiceImpl(
+    private val logger: Logger,
+    settingsRepository: SettingsRepository,
+) : AudioService {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val players = mutableMapOf<StringResource, AVAudioPlayer>()
     private var isSoundEnabled = true
@@ -47,22 +51,19 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
             .onEach { volume ->
                 soundVolume = volume
                 players.values.forEach { it.volume = volume }
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         settingsRepository.isMusicEnabled
             .onEach { enabled ->
                 isMusicEnabled = enabled
                 updateMusicPlayback()
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         settingsRepository.musicVolume
             .onEach { volume ->
                 musicVolume = volume
                 musicPlayer?.volume = volume
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         preloadSounds()
     }
@@ -72,25 +73,18 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
             val session = AVAudioSession.sharedInstance()
             session.setCategory(AVAudioSessionCategoryPlayback, error = null)
             session.setActive(true, error = null)
-        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             logger.e(e) { "Error setting up AVAudioSession" }
         }
     }
 
     private fun preloadSounds() {
         scope.launch {
-            val sounds = listOf(
-                AudioService.FLIP,
-                AudioService.MATCH,
-                AudioService.MISMATCH,
-                AudioService.WIN,
-                AudioService.LOSE,
-                AudioService.HIGH_SCORE,
-                AudioService.CLICK,
-                AudioService.DEAL,
-            )
-            sounds.forEach { resource ->
+            AudioService.SoundEffect.entries.forEach { effect ->
                 try {
+                    val resource = effect.toResource()
                     val name = getString(resource)
                     val path = "$name.m4a"
                     val bytes = Res.readBytes("files/$path")
@@ -98,15 +92,18 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
                         logger.w { "Sound file is empty: $name" }
                         return@forEach
                     }
-                    val data = bytes.usePinned { pinned ->
-                        NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
-                    }
+                    val data =
+                        bytes.usePinned { pinned ->
+                            NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                        }
                     val player = AVAudioPlayer(data = data, error = null)
                     player.volume = soundVolume
                     player.prepareToPlay()
                     players[resource] = player
-                } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                    logger.e(e) { "Error pre-loading sound resource: $resource" }
+                } catch (
+                    @Suppress("TooGenericExceptionCaught") e: Exception,
+                ) {
+                    logger.e(e) { "Error pre-loading sound effect: $effect" }
                 }
             }
         }
@@ -128,14 +125,9 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
         player.play()
     }
 
-    override fun playFlip() = playSound(AudioService.FLIP)
-    override fun playMatch() = playSound(AudioService.MATCH)
-    override fun playMismatch() = playSound(AudioService.MISMATCH)
-    override fun playWin() = playSound(AudioService.WIN)
-    override fun playLose() = playSound(AudioService.LOSE)
-    override fun playHighScore() = playSound(AudioService.HIGH_SCORE)
-    override fun playClick() = playSound(AudioService.CLICK)
-    override fun playDeal() = playSound(AudioService.DEAL)
+    override fun playEffect(effect: AudioService.SoundEffect) {
+        playSound(effect.toResource())
+    }
 
     override fun startMusic() {
         isMusicRequested = true
@@ -159,33 +151,38 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
         if (musicPlayer?.playing == true) return
         if (musicLoadingJob?.isActive == true) return
 
-        musicLoadingJob = scope.launch {
-            try {
-                if (musicPlayer == null) {
-                    val name = getString(AudioService.MUSIC)
-                    val path = "$name.m4a"
-                    val bytes = Res.readBytes("files/$path")
-                    if (bytes.isNotEmpty()) {
-                        val data = bytes.usePinned { pinned ->
-                            NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
-                        }
-                        musicPlayer = AVAudioPlayer(data = data, error = null).apply {
-                            numberOfLoops = -1
-                            volume = musicVolume
-                            prepareToPlay()
+        musicLoadingJob =
+            scope.launch {
+                try {
+                    if (musicPlayer == null) {
+                        val name = getString(AudioService.MUSIC)
+                        val path = "$name.m4a"
+                        val bytes = Res.readBytes("files/$path")
+                        if (bytes.isNotEmpty()) {
+                            val data =
+                                bytes.usePinned { pinned ->
+                                    NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                                }
+                            musicPlayer =
+                                AVAudioPlayer(data = data, error = null).apply {
+                                    numberOfLoops = -1
+                                    volume = musicVolume
+                                    prepareToPlay()
+                                }
                         }
                     }
-                }
 
-                if (isMusicRequested && isMusicEnabled) {
-                    musicPlayer?.play()
+                    if (isMusicRequested && isMusicEnabled) {
+                        musicPlayer?.play()
+                    }
+                } catch (
+                    @Suppress("TooGenericExceptionCaught") e: Exception,
+                ) {
+                    logger.e(e) { "Error starting music" }
+                } finally {
+                    musicLoadingJob = null
                 }
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-                logger.e(e) { "Error starting music" }
-            } finally {
-                musicLoadingJob = null
             }
-        }
     }
 
     private fun actuallyStopMusic() {

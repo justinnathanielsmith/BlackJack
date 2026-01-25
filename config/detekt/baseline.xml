@@ -14,13 +14,5 @@
     <ID>LongMethod:StatsContent.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier)</ID>
     <ID>LongMethod:TimerDisplay.kt:@Composable fun TimerDisplay( time: Long, isLowTime: Boolean, isCriticalTime: Boolean, showTimeGain: Boolean, timeGainAmount: Int, showTimeLoss: Boolean, timeLossAmount: Long, isMegaBonus: Boolean, infiniteTransition: InfiniteTransition, modifier: Modifier = Modifier, compact: Boolean = false, minimal: Boolean = false, )</ID>
     <ID>LongMethod:WalkthroughOverlay.kt:@Composable fun WalkthroughOverlay(step: Int, onNext: () -&gt; Unit, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier)</ID>
-    <ID>MagicNumber:BouncingCardsOverlay.kt:180f</ID>
-    <ID>MaxLineLength:AppDatabase.kt:AppDatabase.Companion.&lt;no name provided&gt;$"CREATE TABLE IF NOT EXISTS daily_challenges (date INTEGER NOT NULL, isCompleted INTEGER NOT NULL, score INTEGER NOT NULL, timeSeconds INTEGER NOT NULL, moves INTEGER NOT NULL, PRIMARY KEY(date))"</ID>
-    <ID>MaxLineLength:LeaderboardDao.kt:LeaderboardDao$"SELECT * FROM leaderboard WHERE pairCount = :pairCount AND gameMode = :gameMode ORDER BY score DESC, timeSeconds ASC LIMIT 10"</ID>
-    <ID>ReturnCount:RootComponent.kt:private fun String.getQueryParameter(key: String): String?</ID>
-    <ID>TooManyFunctions:AndroidAudioServiceImpl.kt:AndroidAudioServiceImpl : AudioService</ID>
-    <ID>TooManyFunctions:DataModule.kt:DataModule</ID>
-    <ID>TooManyFunctions:DefaultGameComponent.kt:DefaultGameComponent : GameComponentComponentContext</ID>
-    <ID>TooManyFunctions:IosAudioServiceImpl.kt:IosAudioServiceImpl : AudioService</ID>
   </CurrentIssues>
 </SmellBaseline>

@@ -7,6 +7,7 @@ import android.media.SoundPool
 import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.repositories.SettingsRepository
+import io.github.smithjustinn.services.AudioService.Companion.toResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
@@ -29,15 +30,17 @@ class AndroidAudioServiceImpl(
 ) : AudioService {
     private val scope = CoroutineScope(Dispatchers.IO)
 
-    private val soundPool = SoundPool.Builder()
-        .setMaxStreams(MAX_STREAMS)
-        .setAudioAttributes(
-            AudioAttributes.Builder()
-                .setUsage(AudioAttributes.USAGE_GAME)
-                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
-                .build(),
-        )
-        .build()
+    private val soundPool =
+        SoundPool
+            .Builder()
+            .setMaxStreams(MAX_STREAMS)
+            .setAudioAttributes(
+                AudioAttributes
+                    .Builder()
+                    .setUsage(AudioAttributes.USAGE_GAME)
+                    .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                    .build(),
+            ).build()
 
     private val soundMap = ConcurrentHashMap<StringResource, Int>()
     private val resourceToName = ConcurrentHashMap<StringResource, String>()
@@ -62,15 +65,13 @@ class AndroidAudioServiceImpl(
             .onEach { enabled ->
                 isMusicEnabled = enabled
                 updateMusicPlayback()
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         settingsRepository.musicVolume
             .onEach { volume ->
                 musicVolume = volume
                 musicPlayer?.setVolume(volume, volume)
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         soundPool.setOnLoadCompleteListener { _, sampleId, status ->
             if (status == 0) {
@@ -79,38 +80,32 @@ class AndroidAudioServiceImpl(
         }
 
         scope.launch {
-            listOf(
-                AudioService.FLIP,
-                AudioService.MATCH,
-                AudioService.MISMATCH,
-                AudioService.WIN,
-                AudioService.LOSE,
-                AudioService.HIGH_SCORE,
-                AudioService.CLICK,
-                AudioService.DEAL,
-            ).forEach { resource ->
-                loadSound(resource)
+            AudioService.SoundEffect.entries.forEach { effect ->
+                loadSound(effect.toResource())
             }
         }
     }
 
     @OptIn(ExperimentalResourceApi::class)
-    private suspend fun loadSound(resource: StringResource): Int? = try {
-        val name = getString(resource)
-        resourceToName[resource] = name
-        val fileName = "$name.m4a"
-        val bytes = Res.readBytes("files/$fileName")
-        val tempFile = File(context.cacheDir, fileName)
-        withContext(Dispatchers.IO) {
-            FileOutputStream(tempFile).use { it.write(bytes) }
+    private suspend fun loadSound(resource: StringResource): Int? =
+        try {
+            val name = getString(resource)
+            resourceToName[resource] = name
+            val fileName = "$name.m4a"
+            val bytes = Res.readBytes("files/$fileName")
+            val tempFile = File(context.cacheDir, fileName)
+            withContext(Dispatchers.IO) {
+                FileOutputStream(tempFile).use { it.write(bytes) }
+            }
+            val id = soundPool.load(tempFile.absolutePath, 1)
+            soundMap[resource] = id
+            id
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
+            logger.e(e) { "Error loading sound resource: $resource" }
+            null
         }
-        val id = soundPool.load(tempFile.absolutePath, 1)
-        soundMap[resource] = id
-        id
-    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
-        logger.e(e) { "Error loading sound resource: $resource" }
-        null
-    }
 
     private fun playSound(resource: StringResource) {
         if (!isSoundEnabled) return
@@ -142,20 +137,17 @@ class AndroidAudioServiceImpl(
                         start()
                     }
                 }
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception,
+            ) {
                 logger.e(e) { "Error playing fallback sound: $name" }
             }
         }
     }
 
-    override fun playFlip() = playSound(AudioService.FLIP)
-    override fun playMatch() = playSound(AudioService.MATCH)
-    override fun playMismatch() = playSound(AudioService.MISMATCH)
-    override fun playWin() = playSound(AudioService.WIN)
-    override fun playLose() = playSound(AudioService.LOSE)
-    override fun playHighScore() = playSound(AudioService.HIGH_SCORE)
-    override fun playClick() = playSound(AudioService.CLICK)
-    override fun playDeal() = playSound(AudioService.DEAL)
+    override fun playEffect(effect: AudioService.SoundEffect) {
+        playSound(effect.toResource())
+    }
 
     override fun startMusic() {
         isMusicRequested = true
@@ -196,15 +188,18 @@ class AndroidAudioServiceImpl(
                     if (!isMusicRequested || !isMusicEnabled || musicPlayer?.isPlaying == true) return@withContext
 
                     musicPlayer?.release()
-                    musicPlayer = MediaPlayer().apply {
-                        setDataSource(tempFile.absolutePath)
-                        isLooping = true
-                        setVolume(musicVolume, musicVolume)
-                        prepare()
-                        start()
-                    }
+                    musicPlayer =
+                        MediaPlayer().apply {
+                            setDataSource(tempFile.absolutePath)
+                            isLooping = true
+                            setVolume(musicVolume, musicVolume)
+                            prepare()
+                            start()
+                        }
                 }
-            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception,
+            ) {
                 logger.e(e) { "Error starting music" }
             }
         }

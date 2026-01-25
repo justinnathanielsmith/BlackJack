@@ -13,27 +13,34 @@ import memory_match.sharedui.generated.resources.audio_win
 import org.jetbrains.compose.resources.StringResource
 
 interface AudioService {
-    fun playFlip()
-    fun playMatch()
-    fun playMismatch()
-    fun playWin()
-    fun playLose()
-    fun playHighScore()
-    fun playClick()
-    fun playDeal()
-
+    fun playEffect(effect: SoundEffect)
     fun startMusic()
     fun stopMusic()
 
+    enum class SoundEffect {
+        FLIP,
+        MATCH,
+        MISMATCH,
+        WIN,
+        LOSE,
+        HIGH_SCORE,
+        CLICK,
+        DEAL,
+    }
+
     companion object {
-        val FLIP: StringResource = Res.string.audio_flip
-        val MATCH: StringResource = Res.string.audio_match
-        val MISMATCH: StringResource = Res.string.audio_mismatch
-        val WIN: StringResource = Res.string.audio_win
-        val LOSE: StringResource = Res.string.audio_lose
-        val HIGH_SCORE: StringResource = Res.string.audio_highscore
-        val CLICK: StringResource = Res.string.audio_click
-        val DEAL: StringResource = Res.string.audio_deal
+        fun SoundEffect.toResource(): StringResource =
+            when (this) {
+                SoundEffect.FLIP -> Res.string.audio_flip
+                SoundEffect.MATCH -> Res.string.audio_match
+                SoundEffect.MISMATCH -> Res.string.audio_mismatch
+                SoundEffect.WIN -> Res.string.audio_win
+                SoundEffect.LOSE -> Res.string.audio_lose
+                SoundEffect.HIGH_SCORE -> Res.string.audio_highscore
+                SoundEffect.CLICK -> Res.string.audio_click
+                SoundEffect.DEAL -> Res.string.audio_deal
+            }
+
         val MUSIC: StringResource = Res.string.audio_music
     }
 }

@@ -43,6 +43,7 @@ private const val SPEED_VARIATION = 20f
 private const val NANOS_PER_SECOND = 1_000_000_000f
 private const val GRAVITY = 0.7f
 private const val FRICTION = 0.992f
+private const val DEGREES_TO_RADIANS = PI.toFloat() / 180f
 
 /**
  * Internal state for a celebration card animation.
@@ -127,7 +128,7 @@ fun BouncingCardsOverlay(
                 cards.shuffled().take(MAX_CELEBRATION_CARDS).forEachIndexed { index, card ->
                     // Aim upwards with a slight spread
                     val angleDeg = Random.nextFloat() * ANGLE_SPREAD - ANGLE_OFFSET // Range approx -130 to -50 degrees
-                    val radians = angleDeg * (PI.toFloat() / 180f)
+                    val radians = angleDeg * DEGREES_TO_RADIANS
                     val speed = MIN_SPEED + Random.nextFloat() * SPEED_VARIATION
 
                     celebrationCards.add(

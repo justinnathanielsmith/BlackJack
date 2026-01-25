@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
+import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.InactiveBackground
 import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.theme.StartBackgroundBottom
@@ -75,7 +76,10 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier) {
+fun SettingsContent(
+    component: SettingsComponent,
+    modifier: Modifier = Modifier,
+) {
     val graph = LocalAppGraph.current
     val state by component.state.collectAsState()
     val audioService = graph.audioService
@@ -83,197 +87,233 @@ fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier)
     LaunchedEffect(Unit) {
         component.events.collect { event ->
             when (event) {
-                SettingsUiEvent.PlayClick -> audioService.playClick()
+                SettingsUiEvent.PlayClick -> audioService.playEffect(AudioService.SoundEffect.CLICK)
             }
         }
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(
+                    brush =
+                        Brush.verticalGradient(
+                            colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+                        ),
                 ),
-            ),
     ) {
         Scaffold(
             containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(Res.string.settings),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            audioService.playClick()
-                            component.onBack()
-                        }) {
-                            Icon(
-                                imageVector = AppIcons.ArrowBack,
-                                contentDescription = stringResource(Res.string.back_content_description),
-                                tint = Color.White,
-                            )
-                        }
-                    },
-                )
-            },
+            topBar = { SettingsTopBar(audioService, component) },
         ) { padding ->
             Box(modifier = Modifier.fillMaxSize().padding(padding)) {
                 Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                        .widthIn(max = 600.dp)
-                        .align(Alignment.TopCenter),
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .verticalScroll(rememberScrollState())
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                            .widthIn(max = 600.dp)
+                            .align(Alignment.TopCenter),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
-                    SettingsCard(title = stringResource(Res.string.settings_appearance)) {
-                        ThemeSelector(
-                            title = stringResource(Res.string.settings_card_back_style),
-                            options = CardBackTheme.entries,
-                            selected = state.cardBackTheme,
-                            onSelect = {
-                                audioService.playClick()
-                                component.setCardBackTheme(it)
-                            },
-                            labelProvider = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } },
-                        )
-
-                        Spacer(modifier = Modifier.height(16.dp))
-
-                        ThemeSelector(
-                            title = stringResource(Res.string.settings_symbol_style),
-                            options = CardSymbolTheme.entries,
-                            selected = state.cardSymbolTheme,
-                            onSelect = {
-                                audioService.playClick()
-                                component.setCardSymbolTheme(it)
-                            },
-                            labelProvider = {
-                                it.name.lowercase().replace("text_only", "text only").replaceFirstChar { char ->
-                                    char.uppercase()
-                                }
-                            },
-                        )
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 12.dp),
-                            color = Color.White.copy(alpha = 0.1f),
-                        )
-
-                        SettingsToggle(
-                            title = stringResource(Res.string.settings_four_color_deck),
-                            description = stringResource(Res.string.settings_four_color_deck_desc),
-                            checked = state.areSuitsMultiColored,
-                            onCheckedChange = {
-                                audioService.playClick()
-                                component.toggleSuitsMultiColored(it)
-                            },
-                        )
-                    }
-
-                    SettingsCard(title = stringResource(Res.string.settings_gameplay_audio)) {
-                        SettingsToggle(
-                            title = stringResource(Res.string.settings_sound_effects),
-                            description = stringResource(Res.string.settings_sound_effects_desc),
-                            checked = state.isSoundEnabled,
-                            onCheckedChange = {
-                                audioService.playClick()
-                                component.toggleSoundEnabled(it)
-                            },
-                        )
-
-                        if (state.isSoundEnabled) {
-                            VolumeSlider(
-                                value = state.soundVolume,
-                                onValueChange = { component.setSoundVolume(it) },
-                            )
-                        }
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            color = Color.White.copy(alpha = 0.1f),
-                        )
-
-                        SettingsToggle(
-                            title = stringResource(Res.string.settings_game_music),
-                            description = stringResource(Res.string.settings_game_music_desc),
-                            checked = state.isMusicEnabled,
-                            onCheckedChange = {
-                                audioService.playClick()
-                                component.toggleMusicEnabled(it)
-                            },
-                        )
-
-                        if (state.isMusicEnabled) {
-                            VolumeSlider(
-                                value = state.musicVolume,
-                                onValueChange = { component.setMusicVolume(it) },
-                            )
-                        }
-
-                        HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
-                            color = Color.White.copy(alpha = 0.1f),
-                        )
-
-                        SettingsToggle(
-                            title = stringResource(Res.string.settings_enable_peek),
-                            description = stringResource(Res.string.settings_enable_peek_desc),
-                            checked = state.isPeekEnabled,
-                            onCheckedChange = {
-                                audioService.playClick()
-                                component.togglePeekEnabled(it)
-                            },
-                        )
-                    }
-
-                    SettingsCard {
-                        Row(
-                            modifier = Modifier.fillMaxWidth(),
-                            verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        ) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                Text(
-                                    text = stringResource(Res.string.settings_reset_walkthrough),
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.White,
-                                )
-                                Text(
-                                    text = stringResource(Res.string.settings_reset_walkthrough_desc),
-                                    style = MaterialTheme.typography.bodySmall,
-                                    color = Color.White.copy(alpha = 0.6f),
-                                    lineHeight = 16.sp,
-                                )
-                            }
-                            Button(
-                                onClick = {
-                                    audioService.playClick()
-                                    component.resetWalkthrough()
-                                },
-                                enabled = state.isWalkthroughCompleted,
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = NeonCyan.copy(alpha = 0.2f),
-                                    contentColor = NeonCyan,
-                                    disabledContainerColor = InactiveBackground.copy(alpha = 0.5f),
-                                    disabledContentColor = Color.White.copy(alpha = 0.3f),
-                                ),
-                            ) {
-                                Text(stringResource(Res.string.settings_reset))
-                            }
-                        }
-                    }
+                    SettingsAppearanceSection(state, audioService, component)
+                    SettingsAudioSection(state, audioService, component)
+                    SettingsResetSection(state, audioService, component)
                 }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SettingsTopBar(
+    audioService: AudioService,
+    component: SettingsComponent,
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(Res.string.settings),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+        navigationIcon = {
+            IconButton(onClick = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onBack()
+            }) {
+                Icon(
+                    imageVector = AppIcons.ArrowBack,
+                    contentDescription = stringResource(Res.string.back_content_description),
+                    tint = Color.White,
+                )
+            }
+        },
+    )
+}
+
+@Composable
+private fun SettingsAppearanceSection(
+    state: SettingsState,
+    audioService: AudioService,
+    component: SettingsComponent,
+) {
+    SettingsCard(title = stringResource(Res.string.settings_appearance)) {
+        ThemeSelector(
+            title = stringResource(Res.string.settings_card_back_style),
+            options = CardBackTheme.entries,
+            selected = state.cardBackTheme,
+            onSelect = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.setCardBackTheme(it)
+            },
+            labelProvider = { it.name.lowercase().replaceFirstChar { char -> char.uppercase() } },
+        )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        ThemeSelector(
+            title = stringResource(Res.string.settings_symbol_style),
+            options = CardSymbolTheme.entries,
+            selected = state.cardSymbolTheme,
+            onSelect = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.setCardSymbolTheme(it)
+            },
+            labelProvider = {
+                it.name.lowercase().replace("text_only", "text only").replaceFirstChar { char ->
+                    char.uppercase()
+                }
+            },
+        )
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 12.dp),
+            color = Color.White.copy(alpha = 0.1f),
+        )
+
+        SettingsToggle(
+            title = stringResource(Res.string.settings_four_color_deck),
+            description = stringResource(Res.string.settings_four_color_deck_desc),
+            checked = state.areSuitsMultiColored,
+            onCheckedChange = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.toggleSuitsMultiColored(it)
+            },
+        )
+    }
+}
+
+@Composable
+private fun SettingsAudioSection(
+    state: SettingsState,
+    audioService: AudioService,
+    component: SettingsComponent,
+) {
+    SettingsCard(title = stringResource(Res.string.settings_gameplay_audio)) {
+        SettingsToggle(
+            title = stringResource(Res.string.settings_sound_effects),
+            description = stringResource(Res.string.settings_sound_effects_desc),
+            checked = state.isSoundEnabled,
+            onCheckedChange = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.toggleSoundEnabled(it)
+            },
+        )
+
+        if (state.isSoundEnabled) {
+            VolumeSlider(
+                value = state.soundVolume,
+                onValueChange = { component.setSoundVolume(it) },
+            )
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = Color.White.copy(alpha = 0.1f),
+        )
+
+        SettingsToggle(
+            title = stringResource(Res.string.settings_game_music),
+            description = stringResource(Res.string.settings_game_music_desc),
+            checked = state.isMusicEnabled,
+            onCheckedChange = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.toggleMusicEnabled(it)
+            },
+        )
+
+        if (state.isMusicEnabled) {
+            VolumeSlider(
+                value = state.musicVolume,
+                onValueChange = { component.setMusicVolume(it) },
+            )
+        }
+
+        HorizontalDivider(
+            modifier = Modifier.padding(vertical = 8.dp),
+            color = Color.White.copy(alpha = 0.1f),
+        )
+
+        SettingsToggle(
+            title = stringResource(Res.string.settings_enable_peek),
+            description = stringResource(Res.string.settings_enable_peek_desc),
+            checked = state.isPeekEnabled,
+            onCheckedChange = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.togglePeekEnabled(it)
+            },
+        )
+    }
+}
+
+@Composable
+private fun SettingsResetSection(
+    state: SettingsState,
+    audioService: AudioService,
+    component: SettingsComponent,
+) {
+    SettingsCard {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = stringResource(Res.string.settings_reset_walkthrough),
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold,
+                    color = Color.White,
+                )
+                Text(
+                    text = stringResource(Res.string.settings_reset_walkthrough_desc),
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.White.copy(alpha = 0.6f),
+                    lineHeight = 16.sp,
+                )
+            }
+            Button(
+                onClick = {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.resetWalkthrough()
+                },
+                enabled = state.isWalkthroughCompleted,
+                colors =
+                    ButtonDefaults.buttonColors(
+                        containerColor = NeonCyan.copy(alpha = 0.2f),
+                        contentColor = NeonCyan,
+                        disabledContainerColor = InactiveBackground.copy(alpha = 0.5f),
+                        disabledContentColor = Color.White.copy(alpha = 0.3f),
+                    ),
+            ) {
+                Text(stringResource(Res.string.settings_reset))
             }
         }
     }
@@ -305,11 +345,16 @@ private fun <T> ThemeSelector(
 }
 
 @Composable
-private fun VolumeSlider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = Modifier) {
+private fun VolumeSlider(
+    value: Float,
+    onValueChange: (Float) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 8.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(top = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -323,11 +368,12 @@ private fun VolumeSlider(value: Float, onValueChange: (Float) -> Unit, modifier:
             value = value,
             onValueChange = onValueChange,
             modifier = Modifier.weight(1f),
-            colors = SliderDefaults.colors(
-                thumbColor = Color.White,
-                activeTrackColor = NeonCyan,
-                inactiveTrackColor = InactiveBackground,
-            ),
+            colors =
+                SliderDefaults.colors(
+                    thumbColor = Color.White,
+                    activeTrackColor = NeonCyan,
+                    inactiveTrackColor = InactiveBackground,
+                ),
         )
         Text(
             text = "${(value * 100).toInt()}%",
@@ -339,15 +385,19 @@ private fun VolumeSlider(value: Float, onValueChange: (Float) -> Unit, modifier:
 }
 
 @Composable
-private fun SettingsCard(title: String? = null, content: @Composable ColumnScope.() -> Unit) {
+private fun SettingsCard(
+    title: String? = null,
+    content: @Composable ColumnScope.() -> Unit,
+) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),
         color = InactiveBackground.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(
-            width = 1.dp,
-            color = Color.White.copy(alpha = 0.1f),
-        ),
+        border =
+            androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.1f),
+            ),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             if (title != null) {
@@ -394,13 +444,14 @@ private fun SettingsToggle(
         Switch(
             checked = checked,
             onCheckedChange = onCheckedChange,
-            colors = SwitchDefaults.colors(
-                checkedThumbColor = Color.White,
-                checkedTrackColor = NeonCyan,
-                uncheckedTrackColor = InactiveBackground,
-                uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
-                uncheckedBorderColor = Color.Transparent,
-            ),
+            colors =
+                SwitchDefaults.colors(
+                    checkedThumbColor = Color.White,
+                    checkedTrackColor = NeonCyan,
+                    uncheckedTrackColor = InactiveBackground,
+                    uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
+                    uncheckedBorderColor = Color.Transparent,
+                ),
         )
     }
 }

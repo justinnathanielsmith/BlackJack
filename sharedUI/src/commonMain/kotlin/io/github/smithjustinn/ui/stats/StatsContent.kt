@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.StartBackgroundBottom
 import io.github.smithjustinn.theme.StartBackgroundTop
 import io.github.smithjustinn.ui.components.AppIcons
@@ -42,7 +43,10 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier) {
+fun StatsContent(
+    component: StatsComponent,
+    modifier: Modifier = Modifier,
+) {
     val graph = LocalAppGraph.current
     val state by component.state.collectAsState()
     val audioService = graph.audioService
@@ -50,77 +54,100 @@ fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier) {
     LaunchedEffect(Unit) {
         component.events.collect { event ->
             when (event) {
-                StatsUiEvent.PlayClick -> audioService.playClick()
+                StatsUiEvent.PlayClick -> audioService.playEffect(AudioService.SoundEffect.CLICK)
             }
         }
     }
 
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(
-                brush = Brush.verticalGradient(
-                    colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(
+                    brush =
+                        Brush.verticalGradient(
+                            colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+                        ),
                 ),
-            ),
     ) {
-        Scaffold(
-            containerColor = Color.Transparent,
-            topBar = {
-                TopAppBar(
-                    title = {
-                        Text(
-                            text = stringResource(Res.string.high_scores),
-                            style = MaterialTheme.typography.titleLarge,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.White,
-                        )
-                    },
-                    colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            audioService.playClick()
-                            component.onBack()
-                        }) {
-                            Icon(
-                                imageVector = AppIcons.ArrowBack,
-                                contentDescription = stringResource(Res.string.back_content_description),
-                                tint = Color.White,
-                            )
-                        }
-                    },
-                )
-            },
-        ) { paddingValues ->
-            Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
-                Column(
-                    modifier = Modifier
+        StatsMainContent(state, component, audioService)
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StatsMainContent(
+    state: StatsState,
+    component: StatsComponent,
+    audioService: AudioService,
+) {
+    Scaffold(
+        containerColor = Color.Transparent,
+        topBar = {
+            StatsTopBar(audioService, component)
+        },
+    ) { paddingValues ->
+        Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
+            Column(
+                modifier =
+                    Modifier
                         .fillMaxSize()
                         .widthIn(max = 800.dp)
                         .align(Alignment.TopCenter),
-                ) {
-                    ModeSelector(
-                        selectedMode = state.selectedGameMode,
-                        onModeSelected = {
-                            audioService.playClick()
-                            component.onGameModeSelected(it)
-                        },
-                        modifier = Modifier
+            ) {
+                ModeSelector(
+                    selectedMode = state.selectedGameMode,
+                    onModeSelected = {
+                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.onGameModeSelected(it)
+                    },
+                    modifier =
+                        Modifier
                             .fillMaxWidth()
                             .padding(horizontal = 24.dp, vertical = 12.dp),
-                    )
+                )
 
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                        verticalArrangement = Arrangement.spacedBy(24.dp),
-                    ) {
-                        items(state.difficultyLeaderboards) { (level, entries) ->
-                            LeaderboardSection(level, entries)
-                        }
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(24.dp),
+                ) {
+                    items(state.difficultyLeaderboards) { (level, entries) ->
+                        LeaderboardSection(level, entries)
                     }
                 }
             }
         }
     }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun StatsTopBar(
+    audioService: AudioService,
+    component: StatsComponent,
+) {
+    TopAppBar(
+        title = {
+            Text(
+                text = stringResource(Res.string.high_scores),
+                style = MaterialTheme.typography.titleLarge,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+            )
+        },
+        colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+        navigationIcon = {
+            IconButton(onClick = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onBack()
+            }) {
+                Icon(
+                    imageVector = AppIcons.ArrowBack,
+                    contentDescription = stringResource(Res.string.back_content_description),
+                    tint = Color.White,
+                )
+            }
+        },
+    )
 }

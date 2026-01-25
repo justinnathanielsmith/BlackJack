@@ -12,14 +12,19 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 @Inject
-internal class LeaderboardRepositoryImpl(private val dao: LeaderboardDao, private val logger: Logger) :
-    LeaderboardRepository {
-    override fun getTopEntries(pairCount: Int, gameMode: GameMode): Flow<List<LeaderboardEntry>> =
-        dao.getTopEntries(pairCount, gameMode)
+class LeaderboardRepositoryImpl(
+    private val dao: LeaderboardDao,
+    private val logger: Logger,
+) : LeaderboardRepository {
+    override fun getTopEntries(
+        pairCount: Int,
+        gameMode: GameMode,
+    ): Flow<List<LeaderboardEntry>> =
+        dao
+            .getTopEntries(pairCount, gameMode)
             .map { entities ->
                 entities.map { it.toDomain() }
-            }
-            .catch { e ->
+            }.catch { e ->
                 logger.e(e) { "Error fetching leaderboard for difficulty: $pairCount, mode: $gameMode" }
                 emit(emptyList())
             }
@@ -33,23 +38,25 @@ internal class LeaderboardRepositoryImpl(private val dao: LeaderboardDao, privat
         }
     }
 
-    private fun LeaderboardEntity.toDomain(): LeaderboardEntry = LeaderboardEntry(
-        id = id,
-        pairCount = pairCount,
-        score = score,
-        timeSeconds = timeSeconds,
-        moves = moves,
-        timestamp = timestamp,
-        gameMode = gameMode,
-    )
+    private fun LeaderboardEntity.toDomain(): LeaderboardEntry =
+        LeaderboardEntry(
+            id = id,
+            pairCount = pairCount,
+            score = score,
+            timeSeconds = timeSeconds,
+            moves = moves,
+            timestamp = timestamp,
+            gameMode = gameMode,
+        )
 
-    private fun LeaderboardEntry.toEntity(): LeaderboardEntity = LeaderboardEntity(
-        id = id,
-        pairCount = pairCount,
-        score = score,
-        timeSeconds = timeSeconds,
-        moves = moves,
-        timestamp = timestamp,
-        gameMode = gameMode,
-    )
+    private fun LeaderboardEntry.toEntity(): LeaderboardEntity =
+        LeaderboardEntity(
+            id = id,
+            pairCount = pairCount,
+            score = score,
+            timeSeconds = timeSeconds,
+            moves = moves,
+            timestamp = timestamp,
+            gameMode = gameMode,
+        )
 }

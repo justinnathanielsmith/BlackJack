@@ -9,7 +9,8 @@ import dev.zacsweers.metro.Provides
 import dev.zacsweers.metro.SingleIn
 import dev.zacsweers.metro.createGraphFactory
 import io.github.smithjustinn.data.local.AppDatabase
-import io.github.smithjustinn.di.modules.DataModule
+import io.github.smithjustinn.di.modules.DaoModule
+import io.github.smithjustinn.di.modules.RepositoryModule
 import io.github.smithjustinn.services.AndroidAudioServiceImpl
 import io.github.smithjustinn.services.AndroidHapticsServiceImpl
 import io.github.smithjustinn.services.AudioService
@@ -19,20 +20,23 @@ import kotlinx.coroutines.Dispatchers
 @DependencyGraph(
     scope = AppScope::class,
     bindingContainers = [
-        DataModule::class,
+        DaoModule::class,
+        RepositoryModule::class,
     ],
 )
 interface AndroidAppGraph : AppGraph {
     @Provides
     @SingleIn(AppScope::class)
     fun provideApplicationScope(): kotlinx.coroutines.CoroutineScope =
-        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + kotlinx.coroutines.Dispatchers.Main)
+        kotlinx.coroutines.CoroutineScope(kotlinx.coroutines.SupervisorJob() + Dispatchers.Main)
 
     @Provides fun provideApplicationContext(application: Application): Context = application
 
     @DependencyGraph.Factory
     fun interface Factory {
-        fun create(@Provides application: Application): AndroidAppGraph
+        fun create(
+            @Provides application: Application,
+        ): AndroidAppGraph
     }
 
     @Provides
@@ -47,11 +51,11 @@ interface AndroidAppGraph : AppGraph {
     @SingleIn(AppScope::class)
     fun provideDatabase(context: Context): AppDatabase {
         val dbFile = context.getDatabasePath("memory_match.db")
-        return Room.databaseBuilder<AppDatabase>(
-            context = context,
-            name = dbFile.absolutePath,
-        )
-            .setDriver(BundledSQLiteDriver())
+        return Room
+            .databaseBuilder<AppDatabase>(
+                context = context,
+                name = dbFile.absolutePath,
+            ).setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
             .addMigrations(
                 AppDatabase.MIGRATION_1_2,
@@ -60,8 +64,7 @@ interface AndroidAppGraph : AppGraph {
                 AppDatabase.MIGRATION_4_5,
                 AppDatabase.MIGRATION_5_6,
                 AppDatabase.MIGRATION_6_7,
-            )
-            .build()
+            ).build()
     }
 }
 

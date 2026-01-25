@@ -28,6 +28,7 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.MemoryMatchTheme
 import io.github.smithjustinn.ui.components.AdaptiveDensity
 import io.github.smithjustinn.ui.game.components.BouncingCardsOverlay
@@ -81,33 +82,33 @@ private fun GameEventHandler(component: GameComponent) {
         component.events.collect { event ->
             when (event) {
                 GameUiEvent.PlayFlip -> {
-                    audioService.playFlip()
+                    audioService.playEffect(AudioService.SoundEffect.FLIP)
                 }
 
                 GameUiEvent.PlayMatch -> {
-                    audioService.playMatch()
+                    audioService.playEffect(AudioService.SoundEffect.MATCH)
                 }
 
                 GameUiEvent.PlayMismatch -> {
-                    audioService.playMismatch()
+                    audioService.playEffect(AudioService.SoundEffect.MISMATCH)
                 }
 
                 GameUiEvent.PlayWin -> {
                     audioService.stopMusic()
-                    audioService.playWin()
+                    audioService.playEffect(AudioService.SoundEffect.WIN)
                 }
 
                 GameUiEvent.PlayLose -> {
                     audioService.stopMusic()
-                    audioService.playLose()
+                    audioService.playEffect(AudioService.SoundEffect.LOSE)
                 }
 
                 GameUiEvent.PlayHighScore -> {
-                    audioService.playHighScore()
+                    audioService.playEffect(AudioService.SoundEffect.HIGH_SCORE)
                 }
 
                 GameUiEvent.PlayDeal -> {
-                    audioService.playDeal()
+                    audioService.playEffect(AudioService.SoundEffect.DEAL)
                 }
 
                 GameUiEvent.VibrateMatch -> {
@@ -202,12 +203,12 @@ private fun BoxScope.GameResultsOverlay(
         elapsedTimeSeconds = state.elapsedTimeSeconds,
         scoreBreakdown = state.game.scoreBreakdown,
         onPlayAgain = {
-            audioService.playClick()
+            audioService.playEffect(AudioService.SoundEffect.CLICK)
             component.onRestart()
             audioService.startMusic()
         },
         onShareReplay = {
-            audioService.playClick()
+            audioService.playEffect(AudioService.SoundEffect.CLICK)
             val seed = state.game.seed ?: 0L
             val link =
                 "memorymatch://game?mode=${state.game.mode}" +
@@ -232,19 +233,21 @@ private fun BoxScope.GameResultsOverlay(
 @Composable
 private fun GameBackground(isHeatMode: Boolean) {
     val backgroundTopColor by animateColorAsState(
-        targetValue = if (isHeatMode) {
-            MemoryMatchTheme.colors.heatBackgroundTop
-        } else {
-            MemoryMatchTheme.colors.startBackgroundTop
-        },
+        targetValue =
+            if (isHeatMode) {
+                MemoryMatchTheme.colors.heatBackgroundTop
+            } else {
+                MemoryMatchTheme.colors.startBackgroundTop
+            },
         animationSpec = tween(durationMillis = 800),
     )
     val backgroundBottomColor by animateColorAsState(
-        targetValue = if (isHeatMode) {
-            MemoryMatchTheme.colors.heatBackgroundBottom
-        } else {
-            MemoryMatchTheme.colors.startBackgroundBottom
-        },
+        targetValue =
+            if (isHeatMode) {
+                MemoryMatchTheme.colors.heatBackgroundBottom
+            } else {
+                MemoryMatchTheme.colors.startBackgroundBottom
+            },
         animationSpec = tween(durationMillis = 800),
     )
 
@@ -277,11 +280,11 @@ private fun GameMainScreen(
             GameTopBar(
                 time = state.elapsedTimeSeconds,
                 onBackClick = {
-                    audioService.playClick()
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onBack()
                 },
                 onRestartClick = {
-                    audioService.playClick()
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onRestart()
                     audioService.startMusic()
                 },
@@ -295,7 +298,7 @@ private fun GameMainScreen(
                 compact = useCompactUI,
                 isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
                 onMuteClick = {
-                    audioService.playClick()
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onToggleAudio()
                 },
             )
@@ -370,8 +373,8 @@ private fun GameMainContent(
         if (state.showWalkthrough) {
             WalkthroughOverlay(
                 step = state.walkthroughStep,
-                onNext = { component.onNextWalkthroughStep() },
-                onDismiss = { component.onCompleteWalkthrough() },
+                onNext = { component.onWalkthroughAction(isComplete = false) },
+                onDismiss = { component.onWalkthroughAction(isComplete = true) },
             )
         }
     }
