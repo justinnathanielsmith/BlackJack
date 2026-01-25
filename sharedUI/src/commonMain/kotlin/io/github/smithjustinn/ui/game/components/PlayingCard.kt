@@ -117,6 +117,13 @@ data class CardContainerVisuals(
 
 data class CardInteractions(val interactionSource: MutableInteractionSource, val onClick: () -> Unit)
 
+data class CardAnimations(
+    val rotation: Float,
+    val scale: Float,
+    val shakeOffset: Float,
+    val matchedGlowAlpha: Float,
+)
+
 @Composable
 fun PlayingCard(
     content: CardContent,
@@ -127,7 +134,55 @@ fun PlayingCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
+    val animations = rememberCardAnimations(content, isHovered)
+    val suitColor = calculateSuitColor(content.suit, settings.areSuitsMultiColored)
 
+    CardContainer(
+        modifier = modifier.offset { IntOffset(animations.shakeOffset.roundToInt(), 0) },
+        visuals = CardContainerVisuals(
+            visualState = content.visualState,
+            rotation = animations.rotation,
+            scale = animations.scale,
+            matchedGlowAlpha = animations.matchedGlowAlpha,
+        ),
+        backColor = backColor,
+        interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
+    ) {
+        CardContentSelectors(
+            content = content,
+            rotation = animations.rotation,
+            suitColor = suitColor,
+            settings = settings,
+            backColor = backColor,
+        )
+    }
+}
+
+@Composable
+private fun CardContentSelectors(
+    content: CardContent,
+    rotation: Float,
+    suitColor: Color,
+    settings: CardDisplaySettings,
+    backColor: Color,
+) {
+    if (rotation <= HALF_ROTATION) {
+        CardFace(rank = content.rank, suit = content.suit, suitColor = suitColor, theme = settings.symbolTheme)
+        if (content.visualState.isRecentlyMatched) ShimmerEffect()
+    } else {
+        CardBack(
+            theme = settings.backTheme,
+            backColor = backColor,
+            rotation = rotation,
+        )
+    }
+}
+
+@Composable
+private fun rememberCardAnimations(
+    content: CardContent,
+    isHovered: Boolean,
+): CardAnimations {
     val rotation by animateFloatAsState(
         targetValue = if (content.visualState.isFaceUp) 0f else FULL_ROTATION,
         animationSpec = tween(durationMillis = FLIP_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
@@ -156,7 +211,6 @@ fun PlayingCard(
         }
     }
 
-    val suitColor = calculateSuitColor(content.suit, settings.areSuitsMultiColored)
     val matchedGlowAlpha by animateFloatAsState(
         targetValue = if (content.visualState.isRecentlyMatched) SUBTLE_ALPHA else 0f,
         animationSpec =
@@ -167,28 +221,12 @@ fun PlayingCard(
         label = "matchedGlow",
     )
 
-    CardContainer(
-        modifier = modifier.offset { IntOffset(shakeOffset.value.roundToInt(), 0) },
-        visuals = CardContainerVisuals(
-            visualState = content.visualState,
-            rotation = rotation,
-            scale = scale,
-            matchedGlowAlpha = matchedGlowAlpha,
-        ),
-        backColor = backColor,
-        interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
-    ) {
-        if (rotation <= HALF_ROTATION) {
-            CardFace(rank = content.rank, suit = content.suit, suitColor = suitColor, theme = settings.symbolTheme)
-            if (content.visualState.isRecentlyMatched) ShimmerEffect()
-        } else {
-            CardBack(
-                theme = settings.backTheme,
-                backColor = backColor,
-                rotation = rotation, // Pass rotation to CardBack for rim light calculation
-            )
-        }
-    }
+    return CardAnimations(
+        rotation = rotation,
+        scale = scale,
+        shakeOffset = shakeOffset.value,
+        matchedGlowAlpha = matchedGlowAlpha,
+    )
 }
 
 @Composable

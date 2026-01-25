@@ -35,9 +35,7 @@ class GameComponentTest : BaseComponentTest() {
     ): DefaultGameComponent = DefaultGameComponent(
         componentContext = DefaultComponentContext(lifecycle = lifecycle),
         appGraph = context.appGraph,
-        pairCount = pairCount,
-        mode = mode,
-        forceNewGame = forceNewGame,
+        args = GameArgs(pairCount, mode, forceNewGame),
         onBackClicked = {},
     )
 

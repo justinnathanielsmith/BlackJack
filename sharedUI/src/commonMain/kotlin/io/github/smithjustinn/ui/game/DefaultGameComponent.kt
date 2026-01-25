@@ -22,7 +22,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
-data class GameArgs(val pairCount: Int, val mode: GameMode, val forceNewGame: Boolean, val seed: Long? = null)
+
 
 class DefaultGameComponent(
     componentContext: ComponentContext,
