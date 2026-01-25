@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>ComplexCondition:DefaultGameComponent.kt:DefaultGameComponent$savedGame != null &amp;&amp; savedGame.first.pairCount == pairCount &amp;&amp; !savedGame.first.isGameOver &amp;&amp; savedGame.first.mode == mode</ID>
     <ID>CyclomaticComplexMethod:GameContent.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun GameContent(component: GameComponent, modifier: Modifier = Modifier)</ID>
     <ID>CyclomaticComplexMethod:GameGrid.kt:@Composable fun GameGrid( cards: ImmutableList&lt;CardState&gt;, onCardClick: (Int) -&gt; Unit, isPeeking: Boolean = false, lastMatchedIds: ImmutableList&lt;Int&gt; = persistentListOf(), showComboExplosion: Boolean = false, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, areSuitsMultiColored: Boolean = false, )</ID>
     <ID>CyclomaticComplexMethod:PlayingCard.kt:@Composable fun PlayingCard( suit: Suit, rank: Rank, isFaceUp: Boolean, isMatched: Boolean = false, isRecentlyMatched: Boolean = false, isError: Boolean = false, modifier: Modifier = Modifier, backColor: Color = StartBackgroundTop, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, areSuitsMultiColored: Boolean = false, onClick: () -&gt; Unit = {}, )</ID>
@@ -33,31 +32,11 @@
     <ID>FunctionNaming:LeaderboardSection.kt:@Composable private fun LeaderboardRow(rank: Int, entry: LeaderboardEntry)</ID>
     <ID>FunctionNaming:LeaderboardSection.kt:@Composable private fun StatMiniItem(label: String, value: String)</ID>
     <ID>FunctionNaming:ModeSelector.kt:@Composable fun ModeSelector(selectedMode: GameMode, onModeSelected: (GameMode) -&gt; Unit, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:NeonSegmentedControl.kt:@Composable fun &lt;T&gt; NeonSegmentedControl( items: List&lt;T&gt;, selectedItem: T, onItemSelected: (T) -&gt; Unit, labelProvider: @Composable (T) -&gt; String, modifier: Modifier = Modifier, )</ID>
-    <ID>FunctionNaming:PeekCountdownOverlay.kt:@Composable fun PeekCountdownOverlay(countdown: Int, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:PlayingCard.kt:@Composable fun PlayingCard( suit: Suit, rank: Rank, isFaceUp: Boolean, isMatched: Boolean = false, isRecentlyMatched: Boolean = false, isError: Boolean = false, modifier: Modifier = Modifier, backColor: Color = StartBackgroundTop, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, areSuitsMultiColored: Boolean = false, onClick: () -&gt; Unit = {}, )</ID>
-    <ID>FunctionNaming:PlayingCard.kt:@Composable fun ShimmerEffect()</ID>
-    <ID>FunctionNaming:PlayingCard.kt:@Composable private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbolTheme)</ID>
-    <ID>FunctionNaming:PlayingCard.kt:@Composable private fun ClassicCardBack(baseColor: Color)</ID>
-    <ID>FunctionNaming:PlayingCard.kt:@Composable private fun GeometricCardBack(baseColor: Color)</ID>
-    <ID>FunctionNaming:PlayingCard.kt:@Composable private fun PatternCardBack(baseColor: Color)</ID>
-    <ID>FunctionNaming:ResultsCard.kt:@Composable fun ResultsCard( isWon: Boolean, score: Int, moves: Int, elapsedTimeSeconds: Long, scoreBreakdown: ScoreBreakdown, onPlayAgain: () -&gt; Unit, onShareReplay: () -&gt; Unit = {}, modifier: Modifier = Modifier, mode: GameMode = GameMode.STANDARD, onScoreTick: () -&gt; Unit = {}, )</ID>
     <ID>FunctionNaming:ScoreBox.kt:@Composable fun ScoreBox( score: Int, elapsedTimeSeconds: Long, moves: Int, modifier: Modifier = Modifier, compact: Boolean = false, )</ID>
     <ID>FunctionNaming:ScoreBox.kt:@Composable private fun StatItem(label: String, color: Color, modifier: Modifier = Modifier, compact: Boolean = false)</ID>
-    <ID>FunctionNaming:ScoreBreakdownSection.kt:@Composable fun ScoreBreakdownSection(scoreBreakdown: ScoreBreakdown, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:ScoreBreakdownSection.kt:@Composable private fun BreakdownRow(label: String, value: String, color: Color, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:SettingsContent.kt:@Composable private fun &lt;T&gt; ThemeSelector( title: String, options: List&lt;T&gt;, selected: T, onSelect: (T) -&gt; Unit, labelProvider: @Composable (T) -&gt; String, )</ID>
-    <ID>FunctionNaming:SettingsContent.kt:@Composable private fun SettingsCard(title: String? = null, content: @Composable ColumnScope.() -&gt; Unit)</ID>
-    <ID>FunctionNaming:SettingsContent.kt:@Composable private fun SettingsToggle( title: String, description: String, checked: Boolean, onCheckedChange: (Boolean) -&gt; Unit, modifier: Modifier = Modifier, )</ID>
     <ID>FunctionNaming:SettingsContent.kt:@Composable private fun VolumeSlider(value: Float, onValueChange: (Float) -&gt; Unit, modifier: Modifier = Modifier)</ID>
     <ID>FunctionNaming:SettingsContent.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:StartContent.kt:@Composable fun StartContent(component: StartComponent, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:StartHeader.kt:@Composable fun StartHeader( modifier: Modifier = Modifier, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, )</ID>
     <ID>FunctionNaming:StatsContent.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:Theme.kt:@Composable fun AppTheme(onThemeChanged: @Composable (isDark: Boolean) -&gt; Unit = {}, content: @Composable () -&gt; Unit)</ID>
-    <ID>FunctionNaming:TimerDisplay.kt:@Composable fun TimerDisplay( time: Long, isLowTime: Boolean, isCriticalTime: Boolean, showTimeGain: Boolean, timeGainAmount: Int, showTimeLoss: Boolean, timeLossAmount: Long, isMegaBonus: Boolean, infiniteTransition: InfiniteTransition, modifier: Modifier = Modifier, compact: Boolean = false, minimal: Boolean = false, )</ID>
-    <ID>FunctionNaming:WalkthroughOverlay.kt:@Composable fun WalkthroughOverlay(step: Int, onNext: () -&gt; Unit, onDismiss: () -&gt; Unit, modifier: Modifier = Modifier)</ID>
-    <ID>FunctionNaming:main.kt:@Composable private fun ApplySystemBarTheme(isDark: Boolean)</ID>
     <ID>FunctionNaming:main.kt:fun MainViewController(): UIViewController</ID>
     <ID>LongMethod:BouncingCardsOverlay.kt:@Composable fun BouncingCardsOverlay( cards: List&lt;CardState&gt;, modifier: Modifier = Modifier, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, areSuitsMultiColored: Boolean = false, )</ID>
     <ID>LongMethod:CardPreview.kt:@Composable fun AnimatedStar(modifier: Modifier = Modifier, delayMillis: Int = 0)</ID>

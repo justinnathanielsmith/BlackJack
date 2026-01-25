@@ -123,9 +123,7 @@ class DefaultGameComponent(
         scope.launch {
             try {
                 val savedGame = if (forceNewGame) null else getSavedGameUseCase()
-                if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameOver &&
-                    savedGame.first.mode == mode
-                ) {
+                if (savedGame != null && isSavedGameValid(savedGame, pairCount, mode)) {
                     val initialTime =
                         if (mode ==
                             GameMode.TIME_ATTACK
@@ -538,6 +536,17 @@ class DefaultGameComponent(
                 startTimer(_state.value.game.mode)
             }
         }
+    }
+
+    private fun isSavedGameValid(
+        savedGame: Pair<MemoryGameState, Long>,
+        pairCount: Int,
+        mode: GameMode,
+    ): Boolean {
+        val (gameState, _) = savedGame
+        return gameState.pairCount == pairCount &&
+            !gameState.isGameOver &&
+            gameState.mode == mode
     }
 
     companion object {
