@@ -16,8 +16,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.domain.models.CardBackTheme
-import io.github.smithjustinn.domain.models.CardSymbolTheme
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.theme.LightPurple
 import io.github.smithjustinn.theme.SoftBlue
 import memory_match.sharedui.generated.resources.Res
@@ -30,8 +29,7 @@ import org.jetbrains.compose.resources.stringResource
 @Composable
 fun StartHeader(
     modifier: Modifier = Modifier,
-    cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
+    settings: CardDisplaySettings = CardDisplaySettings(),
 ) {
     Column(
         modifier = modifier.fillMaxWidth(),
@@ -63,8 +61,7 @@ fun StartHeader(
 
         CardPreview(
             modifier = Modifier.height(180.dp),
-            cardBackTheme = cardBackTheme,
-            cardSymbolTheme = cardSymbolTheme,
+            settings = settings,
         )
     }
 }

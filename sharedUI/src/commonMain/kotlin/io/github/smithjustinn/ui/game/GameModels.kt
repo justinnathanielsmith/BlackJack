@@ -1,7 +1,6 @@
 package io.github.smithjustinn.ui.game
 
-import io.github.smithjustinn.domain.models.CardBackTheme
-import io.github.smithjustinn.domain.models.CardSymbolTheme
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.MemoryGameState
 
 data class GameUIState(
@@ -16,9 +15,7 @@ data class GameUIState(
     val isPeekFeatureEnabled: Boolean = true,
     val isSoundEnabled: Boolean = true,
     val isMusicEnabled: Boolean = true,
-    val cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    val cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
-    val areSuitsMultiColored: Boolean = false,
+    val cardSettings: CardDisplaySettings = CardDisplaySettings(),
     val showComboExplosion: Boolean = false,
     val showTimeGain: Boolean = false,
     val showTimeLoss: Boolean = false,
@@ -32,15 +29,26 @@ data class GameUIState(
 
 sealed class GameUiEvent {
     data object PlayFlip : GameUiEvent()
+
     data object PlayMatch : GameUiEvent()
+
     data object PlayMismatch : GameUiEvent()
+
     data object PlayWin : GameUiEvent()
+
     data object PlayLose : GameUiEvent()
+
     data object PlayHighScore : GameUiEvent()
+
     data object PlayDeal : GameUiEvent()
+
     data object VibrateMatch : GameUiEvent()
+
     data object VibrateMismatch : GameUiEvent()
+
     data object VibrateTick : GameUiEvent()
+
     data object VibrateWarning : GameUiEvent()
+
     data object VibrateHeat : GameUiEvent()
 }

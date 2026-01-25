@@ -11,3 +11,9 @@ enum class CardSymbolTheme {
     MINIMAL,
     TEXT_ONLY,
 }
+
+data class CardDisplaySettings(
+    val backTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
+    val symbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
+    val areSuitsMultiColored: Boolean = false,
+)

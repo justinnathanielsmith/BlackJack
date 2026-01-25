@@ -4,6 +4,7 @@ import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.MemoryGameLogic
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
@@ -105,9 +106,11 @@ class DefaultGameComponent(
                             showWalkthrough = !core.isWalkthroughCompleted,
                             isMusicEnabled = core.isMusicEnabled,
                             isSoundEnabled = core.isSoundEnabled,
-                            cardBackTheme = cardBack,
-                            cardSymbolTheme = cardSymbol,
-                            areSuitsMultiColored = multiColor,
+                            cardSettings = CardDisplaySettings(
+                                backTheme = cardBack,
+                                symbolTheme = cardSymbol,
+                                areSuitsMultiColored = multiColor,
+                            ),
                         )
                     }
                 }.collect()

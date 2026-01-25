@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
@@ -68,9 +69,7 @@ fun PlayingCard(
     isError: Boolean = false,
     modifier: Modifier = Modifier,
     backColor: Color = StartBackgroundTop,
-    cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
-    areSuitsMultiColored: Boolean = false,
+    settings: CardDisplaySettings = CardDisplaySettings(),
     onClick: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -82,22 +81,9 @@ fun PlayingCard(
         label = "cardFlip",
     )
 
-    // Rim light intensity based on rotation (strongest when the card is edge-on, i.e., 90 degrees)
-    val rimLightAlpha = (1f - (abs(rotation - 90f) / 90f)).coerceIn(0f, 1f)
-    val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
-
     val scale by animateFloatAsState(
-        targetValue =
-        when {
-            isRecentlyMatched -> 1.05f
-            isHovered && !isFaceUp -> 1.05f
-            else -> 1f
-        },
-        animationSpec =
-        spring(
-            dampingRatio = Spring.DampingRatioMediumBouncy,
-            stiffness = Spring.StiffnessLow,
-        ),
+        targetValue = if (isRecentlyMatched || (isHovered && !isFaceUp)) 1.05f else 1f,
+        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "pulse",
     )
 
@@ -112,59 +98,69 @@ fun PlayingCard(
         }
     }
 
-    val cardFaceColor = Color.White
-    val suitColor =
-        if (areSuitsMultiColored) {
-            when (suit) {
-                Suit.Hearts -> HeartRed
-
-                // Red
-                Suit.Diamonds -> DiamondBlue
-
-                // Blue
-                Suit.Clubs -> ClubGreen
-
-                // Green
-                Suit.Spades -> SpadeBlack // Black
-            }
-        } else {
-            if (suit.isRed) HeartRed else SpadeBlack
-        }
-
+    val suitColor = calculateSuitColor(suit, settings.areSuitsMultiColored)
     val matchedGlowAlpha by animateFloatAsState(
         targetValue = if (isRecentlyMatched) 0.3f else 0f,
-        animationSpec =
-        infiniteRepeatable(
-            animation = tween(1000),
-            repeatMode = RepeatMode.Reverse,
-        ),
+        animationSpec = infiniteRepeatable(animation = tween(1000), repeatMode = RepeatMode.Reverse),
     )
 
+    CardContainer(
+        modifier = modifier.offset { IntOffset(shakeOffset.value.roundToInt(), 0) },
+        rotation = rotation,
+        scale = scale,
+        isMatched = isMatched,
+        isRecentlyMatched = isRecentlyMatched,
+        isError = isError,
+        matchedGlowAlpha = matchedGlowAlpha,
+        backColor = backColor,
+        onClick = onClick,
+        interactionSource = interactionSource,
+    ) {
+        if (rotation <= 90f) {
+            CardFace(rank = rank, suit = suit, suitColor = suitColor, theme = settings.symbolTheme)
+            if (isRecentlyMatched) ShimmerEffect()
+        } else {
+            CardBack(
+                theme = settings.backTheme,
+                backColor = backColor,
+                rotation = rotation, // Pass rotation to CardBack for rim light calculation
+            )
+        }
+    }
+}
+
+@Composable
+private fun CardContainer(
+    modifier: Modifier,
+    rotation: Float,
+    scale: Float,
+    isMatched: Boolean,
+    isRecentlyMatched: Boolean,
+    isError: Boolean,
+    matchedGlowAlpha: Float,
+    backColor: Color,
+    onClick: () -> Unit,
+    interactionSource: MutableInteractionSource,
+    content: @Composable () -> Unit,
+) {
     Box(
-        modifier =
-        modifier
+        modifier = modifier
             .widthIn(min = 60.dp)
             .aspectRatio(0.75f)
-            .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
             .graphicsLayer {
                 rotationY = rotation
                 scaleX = scale
                 scaleY = scale
                 cameraDistance = 15f * density
-            }.shadow(
-                elevation =
-                if (isRecentlyMatched) {
-                    10.dp
-                } else if (isMatched) {
-                    2.dp
-                } else {
-                    6.dp
-                },
+            }
+            .shadow(
+                elevation = if (isRecentlyMatched) 10.dp else if (isMatched) 2.dp else 6.dp,
                 shape = RoundedCornerShape(12.dp),
                 clip = false,
                 ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,
                 spotColor = if (isRecentlyMatched) NeonCyan else Color.Black,
-            ).drawBehind {
+            )
+            .drawBehind {
                 if (isRecentlyMatched) {
                     drawCircle(
                         color = NeonCyan.copy(alpha = matchedGlowAlpha),
@@ -179,66 +175,93 @@ fun PlayingCard(
             interactionSource = interactionSource,
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(12.dp),
-            colors =
-            CardDefaults.cardColors(
-                containerColor = if (rotation <= 90f) cardFaceColor else backColor,
+            colors = CardDefaults.cardColors(
+                containerColor = if (rotation <= 90f) Color.White else backColor,
             ),
-            border =
-            if (rotation <= 90f) {
-                when {
-                    isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
-                    isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = 0.4f))
-                    isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
-                    else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
-                }
-            } else {
-                // Back side border with dynamic rim light
-                BorderStroke(
-                    width = (2.dp + (rimLightAlpha * 2).dp),
-                    color = if (rimLightAlpha > 0.1f) rimLightColor else Color.White.copy(alpha = 0.3f),
-                )
-            },
+            border = getCardBorder(rotation, isRecentlyMatched, isMatched, isError),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                if (rotation <= 90f) {
-                    CardFace(rank = rank, suit = suit, suitColor = suitColor, theme = cardSymbolTheme)
-                    if (isRecentlyMatched) {
-                        ShimmerEffect()
-                    }
-                } else {
-                    Box(
-                        modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .graphicsLayer { rotationY = 180f },
-                    ) {
-                        when (cardBackTheme) {
-                            CardBackTheme.GEOMETRIC -> GeometricCardBack(backColor)
-                            CardBackTheme.CLASSIC -> ClassicCardBack(backColor)
-                            CardBackTheme.PATTERN -> PatternCardBack(backColor)
-                        }
-
-                        // Rim light overlay on the back
-                        if (rimLightAlpha > 0f) {
-                            Box(
-                                modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(
-                                        Brush.horizontalGradient(
-                                            colors =
-                                            listOf(
-                                                Color.Transparent,
-                                                rimLightColor,
-                                                Color.Transparent,
-                                            ),
-                                        ),
-                                    ),
-                            )
-                        }
-                    }
-                }
+                content()
             }
+        }
+    }
+}
+
+@Composable
+private fun getCardBorder(
+    rotation: Float,
+    isRecentlyMatched: Boolean,
+    isMatched: Boolean,
+    isError: Boolean,
+): BorderStroke {
+    return if (rotation <= 90f) {
+        when {
+            isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
+            isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = 0.4f))
+            isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
+            else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = 0.5f))
+        }
+    } else {
+        val rimLightAlpha = (1f - (abs(rotation - 90f) / 90f)).coerceIn(0f, 1f)
+        val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
+        BorderStroke(
+            width = (2.dp + (rimLightAlpha * 2).dp),
+            color = if (rimLightAlpha > 0.1f) rimLightColor else Color.White.copy(alpha = 0.3f),
+        )
+    }
+}
+
+private fun calculateSuitColor(suit: Suit, areSuitsMultiColored: Boolean): Color {
+    return if (areSuitsMultiColored) {
+        when (suit) {
+            Suit.Hearts -> HeartRed
+            Suit.Diamonds -> DiamondBlue
+            Suit.Clubs -> ClubGreen
+            Suit.Spades -> SpadeBlack
+        }
+    } else {
+        if (suit.isRed) HeartRed else SpadeBlack
+    }
+}
+
+@Composable
+private fun CardBack(
+    theme: CardBackTheme,
+    backColor: Color,
+    rotation: Float,
+) {
+    val rimLightAlpha = (1f - (abs(rotation - 90f) / 90f)).coerceIn(0f, 1f)
+    val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
+
+    Box(
+        modifier =
+        Modifier
+            .fillMaxSize()
+            .graphicsLayer { rotationY = 180f },
+    ) {
+        when (theme) {
+            CardBackTheme.GEOMETRIC -> GeometricCardBack(backColor)
+            CardBackTheme.CLASSIC -> ClassicCardBack(backColor)
+            CardBackTheme.PATTERN -> PatternCardBack(backColor)
+        }
+
+        // Rim light overlay on the back
+        if (rimLightAlpha > 0f) {
+            Box(
+                modifier =
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors =
+                            listOf(
+                                Color.Transparent,
+                                rimLightColor,
+                                Color.Transparent,
+                            ),
+                        ),
+                    ),
+            )
         }
     }
 }

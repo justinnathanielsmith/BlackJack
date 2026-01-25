@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.start
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnResume
 import io.github.smithjustinn.di.AppGraph
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.utils.componentScope
@@ -40,11 +41,15 @@ class DefaultStartComponent(
             combine(
                 settingsRepository.cardBackTheme,
                 settingsRepository.cardSymbolTheme,
-            ) { cardBack, cardSymbol ->
+                settingsRepository.areSuitsMultiColored,
+            ) { cardBack, cardSymbol, multiColor ->
                 _state.update {
                     it.copy(
-                        cardBackTheme = cardBack,
-                        cardSymbolTheme = cardSymbol,
+                        cardSettings = CardDisplaySettings(
+                            backTheme = cardBack,
+                            symbolTheme = cardSymbol,
+                            areSuitsMultiColored = multiColor,
+                        ),
                     )
                 }
             }.collect()

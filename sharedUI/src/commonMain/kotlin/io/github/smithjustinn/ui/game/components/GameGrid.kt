@@ -28,14 +28,26 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
-import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.CardState
-import io.github.smithjustinn.domain.models.CardSymbolTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.ceil
 
 private data class CardLayoutInfo(val position: Offset, val size: Size)
+
+private data class GridMetrics(
+    val cells: GridCells,
+    val maxWidth: androidx.compose.ui.unit.Dp,
+)
+
+private data class GridSpacing(
+    val horizontalPadding: androidx.compose.ui.unit.Dp,
+    val topPadding: androidx.compose.ui.unit.Dp,
+    val bottomPadding: androidx.compose.ui.unit.Dp,
+    val verticalSpacing: androidx.compose.ui.unit.Dp,
+    val horizontalSpacing: androidx.compose.ui.unit.Dp,
+)
 
 @Composable
 fun GameGrid(
@@ -44,9 +56,7 @@ fun GameGrid(
     isPeeking: Boolean = false,
     lastMatchedIds: ImmutableList<Int> = persistentListOf(),
     showComboExplosion: Boolean = false,
-    cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
-    areSuitsMultiColored: Boolean = false,
+    settings: CardDisplaySettings = CardDisplaySettings(),
 ) {
     val cardLayouts = remember { mutableStateMapOf<Int, CardLayoutInfo>() }
     var gridPosition by remember { mutableStateOf(Offset.Zero) }
@@ -68,169 +78,224 @@ fun GameGrid(
         val isCompactHeight = screenHeight < 500.dp
         val isWide = screenWidth > 800.dp
 
-        val (gridCells, maxGridWidth) =
-            remember(cards.size, screenWidth, screenHeight, isWide, isLandscape) {
-                when {
-                    isLandscape && isCompactHeight -> {
-                        // Landscape phone: optimize for horizontal space
-                        val cols =
-                            when {
-                                cards.size <= 12 -> 6
-                                cards.size <= 20 -> 7
-                                cards.size <= 24 -> 8
-                                else -> 10
-                            }
-                        GridCells.Fixed(cols) to screenWidth
-                    }
-
-                    isWide -> {
-                        // Large screen: At least 4 columns, maximize card height while fitting screen
-                        val hPadding = 64.dp
-                        val vPadding = 32.dp // Margin to prevent edge-to-edge
-                        val spacing = 16.dp
-                        val availableWidth = screenWidth - hPadding
-                        val availableHeight = screenHeight - vPadding
-
-                        var bestCols = 4
-                        var maxCardHeight = 0.dp
-
-                        // Iterate from 4 columns up to half the cards or max 12
-                        val maxCols = minOf(cards.size, 12)
-                        for (cols in 4..maxCols) {
-                            val rows = ceil(cards.size.toFloat() / cols).toInt()
-
-                            // Card width if limited by available width
-                            val wBasedCardWidth = (availableWidth - (spacing * (cols - 1))) / cols
-                            // Equivalent height (3:4 ratio)
-                            val hFromW = wBasedCardWidth / 0.75f
-
-                            // Card height if limited by available height
-                            val hFromH = (availableHeight - (spacing * (rows - 1))) / rows
-
-                            // The maximum height a card can have with this many columns
-                            val possibleHeight = if (hFromW < hFromH) hFromW else hFromH
-
-                            if (possibleHeight > maxCardHeight) {
-                                maxCardHeight = possibleHeight
-                                bestCols = cols
-                            }
-                        }
-
-                        val finalCardWidth = maxCardHeight * 0.75f
-                        val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
-                        GridCells.Fixed(bestCols) to calculatedWidth.coerceAtMost(screenWidth)
-                    }
-
-                    else -> {
-                        // Mobile Portrait: Adaptive based on available height and width
-                        val spacing = if (isCompactHeight) 6.dp else 12.dp
-                        val hPadding = if (isWide) 32.dp else 16.dp
-                        val vPadding = if (isCompactHeight) 16.dp else 32.dp // Total vertical padding/margin
-
-                        val availableWidth = screenWidth - (hPadding * 2)
-                        val availableHeight = screenHeight - vPadding
-
-                        val cols =
-                            when {
-                                cards.size <= 12 -> 3
-                                cards.size <= 20 -> 4
-                                else -> 4
-                            }
-                        val rows = ceil(cards.size.toFloat() / cols).toInt()
-
-                        // Calculate max possible size that fits both dimensions
-                        val maxW = (availableWidth - (spacing * (cols - 1))) / cols
-                        val maxH = (availableHeight - (spacing * (rows - 1))) / rows
-
-                        // Convert height to width equivalent (3:4 ratio)
-                        val wFromH = maxH * 0.75f
-                        val finalCardWidth = minOf(maxW, wFromH).coerceAtLeast(60.dp)
-                        val calculatedWidth = (finalCardWidth * cols) + (spacing * (cols - 1)) + (hPadding * 2)
-
-                        GridCells.Fixed(cols) to calculatedWidth.coerceAtMost(screenWidth)
-                    }
-                }
+        val metrics =
+            remember(cards.size, screenWidth, screenHeight, isWide, isLandscape, isCompactHeight) {
+                calculateGridMetrics(cards.size, screenWidth, screenHeight, isWide, isLandscape, isCompactHeight)
             }
 
-        val horizontalPadding = if (isWide) 32.dp else 16.dp
-        val topPadding = if (isCompactHeight) 8.dp else 16.dp
-        val bottomPadding = if (isCompactHeight) 8.dp else 16.dp
+        val spacing = remember(isWide, isCompactHeight) { calculateGridSpacing(isWide, isCompactHeight) }
 
-        LazyVerticalGrid(
-            columns = gridCells,
-            contentPadding =
-            PaddingValues(
-                start = horizontalPadding,
-                top = topPadding,
-                end = horizontalPadding,
-                bottom = bottomPadding,
-            ),
-            verticalArrangement =
-            Arrangement.spacedBy(
-                if (isCompactHeight) {
-                    4.dp
-                } else if (isWide) {
-                    16.dp
-                } else {
-                    12.dp
+        GridContent(
+            cards = cards,
+            metrics = metrics,
+            spacing = spacing,
+            isPeeking = isPeeking,
+            lastMatchedIds = lastMatchedIds,
+            settings = settings,
+            onCardClick = onCardClick,
+            cardLayouts = cardLayouts,
+        )
+
+        GridExplosionEffect(
+            show = showComboExplosion,
+            lastMatchedIds = lastMatchedIds,
+            cardLayouts = cardLayouts,
+            gridPosition = gridPosition,
+        )
+    }
+}
+
+@Composable
+private fun GridContent(
+    cards: ImmutableList<CardState>,
+    metrics: GridMetrics,
+    spacing: GridSpacing,
+    isPeeking: Boolean,
+    lastMatchedIds: ImmutableList<Int>,
+    settings: CardDisplaySettings,
+    onCardClick: (Int) -> Unit,
+    cardLayouts: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, CardLayoutInfo>,
+) {
+    LazyVerticalGrid(
+        columns = metrics.cells,
+        contentPadding =
+        PaddingValues(
+            start = spacing.horizontalPadding,
+            top = spacing.topPadding,
+            end = spacing.horizontalPadding,
+            bottom = spacing.bottomPadding,
+        ),
+        verticalArrangement = Arrangement.spacedBy(spacing.verticalSpacing),
+        horizontalArrangement = Arrangement.spacedBy(spacing.horizontalSpacing),
+        modifier =
+        Modifier
+            .fillMaxHeight()
+            .widthIn(max = metrics.maxWidth),
+    ) {
+        items(cards, key = { it.id }) { card ->
+            PlayingCard(
+                suit = card.suit,
+                rank = card.rank,
+                isFaceUp = card.isFaceUp || isPeeking,
+                isRecentlyMatched = lastMatchedIds.contains(card.id),
+                isError = card.isError,
+                settings = settings,
+                onClick = { onCardClick(card.id) },
+                modifier =
+                Modifier.onGloballyPositioned { layoutCoordinates ->
+                    cardLayouts[card.id] =
+                        CardLayoutInfo(
+                            position = layoutCoordinates.positionInRoot(),
+                            size = layoutCoordinates.size.toSize(),
+                        )
                 },
-            ),
-            horizontalArrangement =
-            Arrangement.spacedBy(
-                if (isCompactHeight) {
-                    6.dp
-                } else if (isWide) {
-                    16.dp
-                } else {
-                    12.dp
-                },
-            ),
-            modifier =
-            Modifier
-                .fillMaxHeight()
-                .widthIn(max = maxGridWidth),
-        ) {
-            items(cards, key = { it.id }) { card ->
-                PlayingCard(
-                    suit = card.suit,
-                    rank = card.rank,
-                    isFaceUp = card.isFaceUp || isPeeking,
-                    isMatched = card.isMatched,
-                    isRecentlyMatched = lastMatchedIds.contains(card.id),
-                    isError = card.isError,
-                    cardBackTheme = cardBackTheme,
-                    cardSymbolTheme = cardSymbolTheme,
-                    areSuitsMultiColored = areSuitsMultiColored,
-                    onClick = { onCardClick(card.id) },
-                    modifier =
-                    Modifier.onGloballyPositioned { layoutCoordinates ->
-                        cardLayouts[card.id] =
-                            CardLayoutInfo(
-                                position = layoutCoordinates.positionInRoot(),
-                                size = layoutCoordinates.size.toSize(),
-                            )
-                    },
-                )
-            }
-        }
-
-        if (showComboExplosion && lastMatchedIds.isNotEmpty()) {
-            val matchInfos = lastMatchedIds.mapNotNull { cardLayouts[it] }
-            if (matchInfos.isNotEmpty()) {
-                val averageRootPosition =
-                    matchInfos
-                        .fold(Offset.Zero) { acc, info ->
-                            acc + info.position + Offset(info.size.width / 2, info.size.height / 2)
-                        }.let { it / matchInfos.size.toFloat() }
-
-                val relativeCenter = averageRootPosition - gridPosition
-
-                ExplosionEffect(
-                    modifier = Modifier.fillMaxSize(),
-                    particleCount = 60,
-                    centerOverride = relativeCenter,
-                )
-            }
+            )
         }
     }
+}
+
+@Composable
+private fun GridExplosionEffect(
+    show: Boolean,
+    lastMatchedIds: ImmutableList<Int>,
+    cardLayouts: Map<Int, CardLayoutInfo>,
+    gridPosition: Offset,
+) {
+    if (show && lastMatchedIds.isNotEmpty()) {
+        val matchInfos = lastMatchedIds.mapNotNull { cardLayouts[it] }
+        if (matchInfos.isNotEmpty()) {
+            val averageRootPosition =
+                matchInfos
+                    .fold(Offset.Zero) { acc, info ->
+                        acc + info.position + Offset(info.size.width / 2, info.size.height / 2)
+                    }.let { it / matchInfos.size.toFloat() }
+
+            val relativeCenter = averageRootPosition - gridPosition
+
+            ExplosionEffect(
+                modifier = Modifier.fillMaxSize(),
+                particleCount = 60,
+                centerOverride = relativeCenter,
+            )
+        }
+    }
+}
+
+private fun calculateGridMetrics(
+    cardCount: Int,
+    screenWidth: androidx.compose.ui.unit.Dp,
+    screenHeight: androidx.compose.ui.unit.Dp,
+    isWide: Boolean,
+    isLandscape: Boolean,
+    isCompactHeight: Boolean,
+): GridMetrics {
+    return when {
+        isLandscape && isCompactHeight -> calculateCompactLandscapeMetrics(cardCount, screenWidth)
+        isWide -> calculateWideMetrics(cardCount, screenWidth, screenHeight)
+        else -> calculatePortraitMetrics(cardCount, screenWidth, screenHeight, isCompactHeight, isWide)
+    }
+}
+
+private fun calculateCompactLandscapeMetrics(cardCount: Int, screenWidth: androidx.compose.ui.unit.Dp): GridMetrics {
+    val cols =
+        when {
+            cardCount <= 12 -> 6
+            cardCount <= 20 -> 7
+            cardCount <= 24 -> 8
+            else -> 10
+        }
+    return GridMetrics(GridCells.Fixed(cols), screenWidth)
+}
+
+private fun calculateWideMetrics(
+    cardCount: Int,
+    screenWidth: androidx.compose.ui.unit.Dp,
+    screenHeight: androidx.compose.ui.unit.Dp,
+): GridMetrics {
+    val hPadding = 64.dp
+    val vPadding = 32.dp
+    val spacing = 16.dp
+    val availableWidth = screenWidth - hPadding
+    val availableHeight = screenHeight - vPadding
+
+    var bestCols = 4
+    var maxCardHeight = 0.dp
+
+    val maxCols = minOf(cardCount, 12)
+    for (cols in 4..maxCols) {
+        val rows = ceil(cardCount.toFloat() / cols).toInt()
+        val wBasedCardWidth = (availableWidth - (spacing * (cols - 1))) / cols
+        val hFromW = wBasedCardWidth / 0.75f
+        val hFromH = (availableHeight - (spacing * (rows - 1))) / rows
+        val possibleHeight = if (hFromW < hFromH) hFromW else hFromH
+
+        if (possibleHeight > maxCardHeight) {
+            maxCardHeight = possibleHeight
+            bestCols = cols
+        }
+    }
+
+    val finalCardWidth = maxCardHeight * 0.75f
+    val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
+    return GridMetrics(GridCells.Fixed(bestCols), calculatedWidth.coerceAtMost(screenWidth))
+}
+
+private fun calculatePortraitMetrics(
+    cardCount: Int,
+    screenWidth: androidx.compose.ui.unit.Dp,
+    screenHeight: androidx.compose.ui.unit.Dp,
+    isCompactHeight: Boolean,
+    isWide: Boolean,
+): GridMetrics {
+    val spacing = if (isCompactHeight) 6.dp else 12.dp
+    val hPadding = if (isWide) 32.dp else 16.dp
+    val vPadding = if (isCompactHeight) 16.dp else 32.dp
+
+    val availableWidth = screenWidth - (hPadding * 2)
+    val availableHeight = screenHeight - vPadding
+
+    val cols =
+        when {
+            cardCount <= 12 -> 3
+            cardCount <= 20 -> 4
+            else -> 4
+        }
+    val rows = ceil(cardCount.toFloat() / cols).toInt()
+
+    val maxW = (availableWidth - (spacing * (cols - 1))) / cols
+    val maxH = (availableHeight - (spacing * (rows - 1))) / rows
+
+    val wFromH = maxH * 0.75f
+    val finalCardWidth = minOf(maxW, wFromH).coerceAtLeast(60.dp)
+    val calculatedWidth = (finalCardWidth * cols) + (spacing * (cols - 1)) + (hPadding * 2)
+
+    return GridMetrics(GridCells.Fixed(cols), calculatedWidth.coerceAtMost(screenWidth))
+}
+
+private fun calculateGridSpacing(isWide: Boolean, isCompactHeight: Boolean): GridSpacing {
+    val hPadding = if (isWide) 32.dp else 16.dp
+    val topPadding = if (isCompactHeight) 8.dp else 16.dp
+    val bottomPadding = if (isCompactHeight) 8.dp else 16.dp
+
+    val vSpacing =
+        when {
+            isCompactHeight -> 4.dp
+            isWide -> 16.dp
+            else -> 12.dp
+        }
+
+    val hSpacing =
+        when {
+            isCompactHeight -> 6.dp
+            isWide -> 16.dp
+            else -> 12.dp
+        }
+
+    return GridSpacing(
+        horizontalPadding = hPadding,
+        topPadding = topPadding,
+        bottomPadding = bottomPadding,
+        verticalSpacing = vSpacing,
+        horizontalSpacing = hSpacing,
+    )
 }

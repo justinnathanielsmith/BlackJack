@@ -51,8 +51,7 @@ fun StartContent(component: StartComponent, modifier: Modifier = Modifier) {
             verticalArrangement = Arrangement.Top,
         ) {
             StartHeader(
-                cardBackTheme = state.cardBackTheme,
-                cardSymbolTheme = state.cardSymbolTheme,
+                settings = state.cardSettings,
             )
 
             Spacer(modifier = Modifier.height(48.dp))

@@ -182,9 +182,7 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
                             isPeeking = state.isPeeking,
                             lastMatchedIds = state.game.lastMatchedIds,
                             showComboExplosion = state.showComboExplosion,
-                            cardBackTheme = state.cardBackTheme,
-                            cardSymbolTheme = state.cardSymbolTheme,
-                            areSuitsMultiColored = state.areSuitsMultiColored,
+                            settings = state.cardSettings,
                         )
 
                         if (state.game.comboMultiplier > 1) {
@@ -230,9 +228,7 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
                             if (state.game.isGameWon) {
                                 BouncingCardsOverlay(
                                     cards = state.game.cards,
-                                    cardBackTheme = state.cardBackTheme,
-                                    cardSymbolTheme = state.cardSymbolTheme,
-                                    areSuitsMultiColored = state.areSuitsMultiColored,
+                                    settings = state.cardSettings,
                                 )
                                 ConfettiEffect()
 

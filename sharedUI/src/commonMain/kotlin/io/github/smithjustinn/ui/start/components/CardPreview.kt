@@ -30,8 +30,7 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import io.github.smithjustinn.domain.models.CardBackTheme
-import io.github.smithjustinn.domain.models.CardSymbolTheme
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.DarkBlue
@@ -60,8 +59,7 @@ private const val GLOW_SIZE = 220
 @Composable
 fun CardPreview(
     modifier: Modifier = Modifier,
-    cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
+    settings: CardDisplaySettings = CardDisplaySettings(),
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "card_preview_anim")
 
@@ -89,75 +87,76 @@ fun CardPreview(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        // Background Glow Effect
-        Box(
-            modifier = Modifier
-                .size(GLOW_SIZE.dp)
-                .drawBehind {
-                    drawCircle(
-                        brush = Brush.radialGradient(
-                            colors = listOf(
-                                SoftBlue.copy(alpha = 0.2f),
-                                DarkBlue.copy(alpha = 0.1f),
-                                Color.Transparent,
-                            ),
-                        ),
-                    )
-                },
-        )
-
-        // Cards
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(CARD_SPACING.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.offset(y = floatOffset.dp),
-        ) {
-            PlayingCard(
-                suit = Suit.Hearts,
-                rank = Rank.Ace,
-                isFaceUp = true,
-                isMatched = false,
-                cardBackTheme = cardBackTheme,
-                cardSymbolTheme = cardSymbolTheme,
-                modifier = Modifier
-                    .width(CARD_WIDTH.dp)
-                    .zIndex(1f) // Keep Spades on top as in the image
-                    .graphicsLayer {
-                        rotationZ = -BASE_ROTATION + rotation
-                        scaleX = 1f
-                        scaleY = 1f
-                    },
-            )
-            PlayingCard(
-                suit = Suit.Spades,
-                rank = Rank.Ace,
-                isFaceUp = true,
-                isMatched = false,
-                cardBackTheme = cardBackTheme,
-                cardSymbolTheme = cardSymbolTheme,
-                modifier = Modifier
-                    .width(CARD_WIDTH.dp)
-                    .zIndex(0f)
-                    .graphicsLayer {
-                        rotationZ = BASE_ROTATION - rotation
-                        scaleX = 1f
-                        scaleY = 1f
-                        translationY = CARD_TRANSLATION_Y
-                    },
-            )
-        }
-
-        // Stars/Sparkles (Restored)
-        AnimatedStar(Modifier.offset(x = (-70).dp, y = (-60).dp).size(20.dp), 0)
-        AnimatedStar(Modifier.offset(x = 80.dp, y = (-50).dp).size(16.dp), 500)
-        AnimatedStar(Modifier.offset(x = (-80).dp, y = 40.dp).size(14.dp), 1000)
-        AnimatedStar(Modifier.offset(x = 70.dp, y = 60.dp).size(18.dp), 200)
-        AnimatedStar(Modifier.offset(x = 10.dp, y = (-85).dp).size(10.dp), 1500)
-
-        // Some tiny ones
-        AnimatedStar(Modifier.offset(x = (-30).dp, y = (-40).dp).size(6.dp), 800)
-        AnimatedStar(Modifier.offset(x = 40.dp, y = 30.dp).size(8.dp), 1200)
+        BackgroundGlow()
+        CardStack(floatOffset, rotation, settings)
+        StarsLayer()
     }
+}
+
+@Composable
+private fun BackgroundGlow() {
+    Box(
+        modifier = Modifier
+            .size(GLOW_SIZE.dp)
+            .drawBehind {
+                drawCircle(
+                    brush = Brush.radialGradient(
+                        colors = listOf(
+                            SoftBlue.copy(alpha = 0.2f),
+                            DarkBlue.copy(alpha = 0.1f),
+                            Color.Transparent,
+                        ),
+                    ),
+                )
+            },
+    )
+}
+
+@Composable
+private fun CardStack(floatOffset: Float, rotation: Float, settings: CardDisplaySettings) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(CARD_SPACING.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier.offset(y = floatOffset.dp),
+    ) {
+        PreviewCard(Suit.Hearts, -BASE_ROTATION + rotation, 1f, settings)
+        PreviewCard(Suit.Spades, BASE_ROTATION - rotation, 0f, settings, CARD_TRANSLATION_Y)
+    }
+}
+
+@Composable
+private fun PreviewCard(
+    suit: Suit,
+    rotationZ: Float,
+    zIndex: Float,
+    settings: CardDisplaySettings,
+    translationY: Float = 0f,
+) {
+    PlayingCard(
+        suit = suit,
+        rank = Rank.Ace,
+        isFaceUp = true,
+        isMatched = false,
+        settings = settings,
+        modifier = Modifier
+            .width(CARD_WIDTH.dp)
+            .zIndex(zIndex)
+            .graphicsLayer {
+                this.rotationZ = rotationZ
+                this.translationY = translationY
+            },
+    )
+}
+
+@Composable
+private fun StarsLayer() {
+    AnimatedStar(Modifier.offset(x = (-70).dp, y = (-60).dp).size(20.dp), 0)
+    AnimatedStar(Modifier.offset(x = 80.dp, y = (-50).dp).size(16.dp), 500)
+    AnimatedStar(Modifier.offset(x = (-80).dp, y = 40.dp).size(14.dp), 1000)
+    AnimatedStar(Modifier.offset(x = 70.dp, y = 60.dp).size(18.dp), 200)
+    AnimatedStar(Modifier.offset(x = 10.dp, y = (-85).dp).size(10.dp), 1500)
+    AnimatedStar(Modifier.offset(x = (-30).dp, y = (-40).dp).size(6.dp), 800)
+    AnimatedStar(Modifier.offset(x = 40.dp, y = 30.dp).size(8.dp), 1200)
 }
 
 @Composable

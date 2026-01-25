@@ -20,9 +20,8 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.CardState
-import io.github.smithjustinn.domain.models.CardSymbolTheme
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.roundToInt
@@ -42,6 +41,8 @@ private const val ANGLE_OFFSET = 130f
 private const val MIN_SPEED = 20f
 private const val SPEED_VARIATION = 20f
 private const val NANOS_PER_SECOND = 1_000_000_000f
+private const val GRAVITY = 0.7f
+private const val FRICTION = 0.992f
 
 /**
  * Internal state for a celebration card animation.
@@ -107,21 +108,17 @@ private class CelebrationCard(
 fun BouncingCardsOverlay(
     cards: List<CardState>,
     modifier: Modifier = Modifier,
-    cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
-    cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC,
-    areSuitsMultiColored: Boolean = false,
+    settings: CardDisplaySettings = CardDisplaySettings(),
 ) {
     BoxWithConstraints(modifier = modifier.fillMaxSize()) {
         val density = LocalDensity.current
         val widthPx = with(density) { maxWidth.toPx() }
         val heightPx = with(density) { maxHeight.toPx() }
 
-        val centerX = widthPx / 2f
         val cardWidthPx = with(density) { BASE_CARD_WIDTH.toPx() }
 
         // We use a list to track cards that are currently "in flight"
         val celebrationCards = remember { mutableStateListOf<CelebrationCard>() }
-        var startTimeNanos by remember { mutableLongStateOf(0L) }
 
         // Initialize the celebration when cards are provided
         LaunchedEffect(cards) {
@@ -136,7 +133,7 @@ fun BouncingCardsOverlay(
                     celebrationCards.add(
                         CelebrationCard(
                             card = card,
-                            initialX = centerX - cardWidthPx / 2f,
+                            initialX = (widthPx / 2f) - cardWidthPx / 2f,
                             // Start at the bottom
                             initialY = heightPx,
                             vx0 = cos(radians) * speed,
@@ -150,52 +147,50 @@ fun BouncingCardsOverlay(
             }
         }
 
-        // Animation loop
-        LaunchedEffect(celebrationCards.size) {
-            if (celebrationCards.isNotEmpty()) {
-                while (true) {
-                    withFrameNanos { frameTime ->
-                        if (startTimeNanos == 0L) startTimeNanos = frameTime
-                        val elapsedSeconds = (frameTime - startTimeNanos) / NANOS_PER_SECOND
+        PhysicsEngine(celebrationCards, heightPx)
 
-                        celebrationCards.forEach { card ->
-                            card.update(
-                                gravity = 0.7f,
-                                friction = 0.992f,
-                                elapsedSeconds = elapsedSeconds,
-                                screenHeight = heightPx,
-                            )
-                        }
-                    }
+        CelebrationCardsLayer(celebrationCards, settings)
+    }
+}
+
+@Composable
+private fun PhysicsEngine(celebrationCards: List<CelebrationCard>, heightPx: Float) {
+    var startTimeNanos by remember { mutableLongStateOf(0L) }
+    LaunchedEffect(celebrationCards.size) {
+        if (celebrationCards.isNotEmpty()) {
+            while (true) {
+                withFrameNanos { frameTime ->
+                    if (startTimeNanos == 0L) startTimeNanos = frameTime
+                    val elapsedSeconds = (frameTime - startTimeNanos) / NANOS_PER_SECOND
+                    celebrationCards.forEach { it.update(GRAVITY, FRICTION, elapsedSeconds, heightPx) }
                 }
             }
         }
+    }
+}
 
-        // Render the cards
-        celebrationCards.forEach { cCard ->
-            if (cCard.alpha > 0f && cCard.scale > 0f) {
-                key(cCard.card.id) {
-                    PlayingCard(
-                        suit = cCard.card.suit,
-                        rank = cCard.card.rank,
-                        isFaceUp = true,
-                        isMatched = true,
-                        cardBackTheme = cardBackTheme,
-                        cardSymbolTheme = cardSymbolTheme,
-                        areSuitsMultiColored = areSuitsMultiColored,
-                        modifier = Modifier
-                            .size(BASE_CARD_WIDTH, BASE_CARD_HEIGHT)
-                            .offset { IntOffset(cCard.x.roundToInt(), cCard.y.roundToInt()) }
-                            .graphicsLayer {
-                                rotationZ = cCard.rotation
-                                scaleX = cCard.scale
-                                scaleY = cCard.scale
-                                alpha = cCard.alpha
-                                // Add a slight shadow for depth as they fly
-                                shadowElevation = 8.dp.toPx()
-                            },
-                    )
-                }
+@Composable
+private fun CelebrationCardsLayer(celebrationCards: List<CelebrationCard>, settings: CardDisplaySettings) {
+    celebrationCards.forEach { cCard ->
+        if (cCard.alpha > 0f && cCard.scale > 0f) {
+            key(cCard.card.id) {
+                PlayingCard(
+                    suit = cCard.card.suit,
+                    rank = cCard.card.rank,
+                    isFaceUp = true,
+                    isMatched = true,
+                    settings = settings,
+                    modifier = Modifier
+                        .size(BASE_CARD_WIDTH, BASE_CARD_HEIGHT)
+                        .offset { IntOffset(cCard.x.roundToInt(), cCard.y.roundToInt()) }
+                        .graphicsLayer {
+                            rotationZ = cCard.rotation
+                            scaleX = cCard.scale
+                            scaleY = cCard.scale
+                            alpha = cCard.alpha
+                            shadowElevation = 8.dp.toPx()
+                        },
+                )
             }
         }
     }
