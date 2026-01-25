@@ -8,9 +8,9 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.theme.*
+import io.github.smithjustinn.theme.PureBlack
 
-@Suppress("ktlint:standard:backing-property-naming")
+@Suppress("ktlint:standard:backing-property-naming", "MagicNumber")
 object AppIcons {
     private var _arrowBack: ImageVector? = null
     val ArrowBack: ImageVector

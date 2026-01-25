@@ -1,9 +1,31 @@
 package io.github.smithjustinn.domain
 
-import io.github.smithjustinn.domain.models.*
+import io.github.smithjustinn.domain.models.CardState
+import io.github.smithjustinn.domain.models.GameDomainEvent
+import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.domain.models.MatchComment
+import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.models.Rank
+import io.github.smithjustinn.domain.models.ScoreBreakdown
+import io.github.smithjustinn.domain.models.ScoringConfig
+import io.github.smithjustinn.domain.models.Suit
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
-import memory_match.sharedui.generated.resources.*
+import memory_match.sharedui.generated.resources.Res
+import memory_match.sharedui.generated.resources.comment_boom
+import memory_match.sharedui.generated.resources.comment_eagle_eyes
+import memory_match.sharedui.generated.resources.comment_first_match
+import memory_match.sharedui.generated.resources.comment_great_find
+import memory_match.sharedui.generated.resources.comment_halfway
+import memory_match.sharedui.generated.resources.comment_incredible
+import memory_match.sharedui.generated.resources.comment_keep_it_up
+import memory_match.sharedui.generated.resources.comment_nice
+import memory_match.sharedui.generated.resources.comment_on_a_roll
+import memory_match.sharedui.generated.resources.comment_one_more
+import memory_match.sharedui.generated.resources.comment_perfect
+import memory_match.sharedui.generated.resources.comment_photographic
+import memory_match.sharedui.generated.resources.comment_sharp
+import memory_match.sharedui.generated.resources.comment_you_got_it
 import kotlin.random.Random
 
 /**
@@ -41,29 +63,30 @@ object MemoryGameLogic {
     }
 
     fun flipCard(state: MemoryGameState, cardId: Int): Pair<MemoryGameState, GameDomainEvent?> {
-        if (state.isGameOver) return state to null
-
-        val cardToFlip = state.cards.find { it.id == cardId } ?: return state to null
-
-        if (cardToFlip.isFaceUp || cardToFlip.isMatched) return state to null
-
+        val cardToFlip = state.cards.find { it.id == cardId }
         val faceUpCards = state.cards.filter { it.isFaceUp && !it.isMatched }
-        if (faceUpCards.size >= 2) return state to null
 
-        val newState = state.copy(
-            cards = state.cards.map { card ->
-                if (card.id == cardId) card.copy(isFaceUp = true) else card
-            }.toImmutableList(),
-            // Clear last matched IDs when starting a new turn
-            lastMatchedIds = if (faceUpCards.isEmpty()) persistentListOf() else state.lastMatchedIds,
-        )
+        return when {
+            state.isGameOver -> state to null
+            cardToFlip == null || cardToFlip.isFaceUp || cardToFlip.isMatched -> state to null
+            faceUpCards.size >= 2 -> state to null
+            else -> {
+                val newState = state.copy(
+                    cards = state.cards.map { card ->
+                        if (card.id == cardId) card.copy(isFaceUp = true) else card
+                    }.toImmutableList(),
+                    // Clear last matched IDs when starting a new turn
+                    lastMatchedIds = if (faceUpCards.isEmpty()) persistentListOf() else state.lastMatchedIds,
+                )
 
-        val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
-        if (activeCards.size == 1) {
-            return newState to GameDomainEvent.CardFlipped
+                val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
+                if (activeCards.size == 1) {
+                    newState to GameDomainEvent.CardFlipped
+                } else {
+                    checkForMatch(newState)
+                }
+            }
         }
-
-        return checkForMatch(newState)
     }
 
     private fun checkForMatch(state: MemoryGameState): Pair<MemoryGameState, GameDomainEvent?> {

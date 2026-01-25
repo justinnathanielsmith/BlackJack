@@ -34,7 +34,9 @@ import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
-import io.github.smithjustinn.theme.*
+import io.github.smithjustinn.theme.DarkBlue
+import io.github.smithjustinn.theme.GoldenYellow
+import io.github.smithjustinn.theme.SoftBlue
 import io.github.smithjustinn.ui.game.components.PlayingCard
 
 private const val CARD_ROTATION_DURATION = 3000
