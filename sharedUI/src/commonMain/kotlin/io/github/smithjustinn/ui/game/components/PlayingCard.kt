@@ -87,12 +87,14 @@ fun PlayingCard(
     val rimLightColor = Color.White.copy(alpha = rimLightAlpha * 0.8f)
 
     val scale by animateFloatAsState(
-        targetValue = when {
+        targetValue =
+        when {
             isRecentlyMatched -> 1.05f
             isHovered && !isFaceUp -> 1.05f
             else -> 1f
         },
-        animationSpec = spring(
+        animationSpec =
+        spring(
             dampingRatio = Spring.DampingRatioMediumBouncy,
             stiffness = Spring.StiffnessLow,
         ),
@@ -111,33 +113,36 @@ fun PlayingCard(
     }
 
     val cardFaceColor = Color.White
-    val suitColor = if (areSuitsMultiColored) {
-        when (suit) {
-            Suit.Hearts -> HeartRed
+    val suitColor =
+        if (areSuitsMultiColored) {
+            when (suit) {
+                Suit.Hearts -> HeartRed
 
-            // Red
-            Suit.Diamonds -> DiamondBlue
+                // Red
+                Suit.Diamonds -> DiamondBlue
 
-            // Blue
-            Suit.Clubs -> ClubGreen
+                // Blue
+                Suit.Clubs -> ClubGreen
 
-            // Green
-            Suit.Spades -> SpadeBlack // Black
+                // Green
+                Suit.Spades -> SpadeBlack // Black
+            }
+        } else {
+            if (suit.isRed) HeartRed else SpadeBlack
         }
-    } else {
-        if (suit.isRed) HeartRed else SpadeBlack
-    }
 
     val matchedGlowAlpha by animateFloatAsState(
         targetValue = if (isRecentlyMatched) 0.3f else 0f,
-        animationSpec = infiniteRepeatable(
+        animationSpec =
+        infiniteRepeatable(
             animation = tween(1000),
             repeatMode = RepeatMode.Reverse,
         ),
     )
 
     Box(
-        modifier = modifier
+        modifier =
+        modifier
             .widthIn(min = 60.dp)
             .aspectRatio(0.75f)
             .offset { IntOffset(shakeOffset.value.roundToInt(), 0) }
@@ -146,9 +151,9 @@ fun PlayingCard(
                 scaleX = scale
                 scaleY = scale
                 cameraDistance = 15f * density
-            }
-            .shadow(
-                elevation = if (isRecentlyMatched) {
+            }.shadow(
+                elevation =
+                if (isRecentlyMatched) {
                     10.dp
                 } else if (isMatched) {
                     2.dp
@@ -159,8 +164,7 @@ fun PlayingCard(
                 clip = false,
                 ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,
                 spotColor = if (isRecentlyMatched) NeonCyan else Color.Black,
-            )
-            .drawBehind {
+            ).drawBehind {
                 if (isRecentlyMatched) {
                     drawCircle(
                         color = NeonCyan.copy(alpha = matchedGlowAlpha),
@@ -175,10 +179,12 @@ fun PlayingCard(
             interactionSource = interactionSource,
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(12.dp),
-            colors = CardDefaults.cardColors(
+            colors =
+            CardDefaults.cardColors(
                 containerColor = if (rotation <= 90f) cardFaceColor else backColor,
             ),
-            border = if (rotation <= 90f) {
+            border =
+            if (rotation <= 90f) {
                 when {
                     isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
                     isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = 0.4f))
@@ -201,7 +207,8 @@ fun PlayingCard(
                     }
                 } else {
                     Box(
-                        modifier = Modifier
+                        modifier =
+                        Modifier
                             .fillMaxSize()
                             .graphicsLayer { rotationY = 180f },
                     ) {
@@ -214,11 +221,13 @@ fun PlayingCard(
                         // Rim light overlay on the back
                         if (rimLightAlpha > 0f) {
                             Box(
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .fillMaxSize()
                                     .background(
                                         Brush.horizontalGradient(
-                                            colors = listOf(
+                                            colors =
+                                            listOf(
                                                 Color.Transparent,
                                                 rimLightColor,
                                                 Color.Transparent,
@@ -252,7 +261,8 @@ private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbol
                     Text(
                         text = rank.symbol,
                         color = suitColor,
-                        style = MaterialTheme.typography.labelLarge.copy(
+                        style =
+                        MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = getFontSize(14f),
                         ),
@@ -275,7 +285,8 @@ private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbol
                 Text(
                     text = rank.symbol,
                     color = suitColor,
-                    style = MaterialTheme.typography.headlineMedium.copy(
+                    style =
+                    MaterialTheme.typography.headlineMedium.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = getFontSize(24f),
                     ),
@@ -290,7 +301,8 @@ private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbol
                     Text(
                         text = rank.symbol,
                         color = suitColor,
-                        style = MaterialTheme.typography.labelLarge.copy(
+                        style =
+                        MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Bold,
                             fontSize = getFontSize(14f),
                         ),
@@ -308,7 +320,8 @@ private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbol
                 Text(
                     text = rank.symbol,
                     color = suitColor,
-                    style = MaterialTheme.typography.displayLarge.copy(
+                    style =
+                    MaterialTheme.typography.displayLarge.copy(
                         fontWeight = FontWeight.ExtraBold,
                         fontSize = getFontSize(48f),
                     ),
@@ -336,7 +349,8 @@ private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbol
                 Text(
                     text = rank.symbol,
                     color = suitColor,
-                    style = MaterialTheme.typography.displayLarge.copy(
+                    style =
+                    MaterialTheme.typography.displayLarge.copy(
                         fontWeight = FontWeight.Black,
                         fontSize = getFontSize(56f),
                     ),
@@ -347,7 +361,8 @@ private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbol
                 Text(
                     text = suit.name.lowercase().replaceFirstChar { it.uppercase() },
                     color = suitColor.copy(alpha = 0.5f),
-                    style = MaterialTheme.typography.labelSmall.copy(
+                    style =
+                    MaterialTheme.typography.labelSmall.copy(
                         fontSize = getFontSize(10f),
                         fontWeight = FontWeight.Medium,
                     ),
@@ -364,24 +379,28 @@ fun ShimmerEffect() {
     val translateAnim by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 2000f,
-        animationSpec = infiniteRepeatable(
+        animationSpec =
+        infiniteRepeatable(
             animation = tween(1500, easing = LinearEasing),
             repeatMode = RepeatMode.Restart,
         ),
     )
 
-    val brush = Brush.linearGradient(
-        colors = listOf(
-            Color.White.copy(alpha = 0.0f),
-            NeonCyan.copy(alpha = 0.4f),
-            Color.White.copy(alpha = 0.0f),
-        ),
-        start = Offset(translateAnim - 500f, translateAnim - 500f),
-        end = Offset(translateAnim, translateAnim),
-    )
+    val brush =
+        Brush.linearGradient(
+            colors =
+            listOf(
+                Color.White.copy(alpha = 0.0f),
+                NeonCyan.copy(alpha = 0.4f),
+                Color.White.copy(alpha = 0.0f),
+            ),
+            start = Offset(translateAnim - 500f, translateAnim - 500f),
+            end = Offset(translateAnim, translateAnim),
+        )
 
     Box(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxSize()
             .background(brush),
     )
@@ -400,7 +419,9 @@ private fun GeometricCardBack(baseColor: Color) {
                     drawRect(
                         color = patternColor,
                         topLeft = Offset(x.toFloat(), y.toFloat()),
-                        size = androidx.compose.ui.geometry.Size(step / 2, step / 2),
+                        size =
+                        androidx.compose.ui.geometry
+                            .Size(step / 2, step / 2),
                         style = Stroke(width = 1.dp.toPx()),
                     )
                 }
@@ -411,8 +432,12 @@ private fun GeometricCardBack(baseColor: Color) {
         drawRoundRect(
             color = Color.White.copy(alpha = 0.3f),
             topLeft = Offset(8.dp.toPx(), 8.dp.toPx()),
-            size = androidx.compose.ui.geometry.Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx()),
+            size =
+            androidx.compose.ui.geometry
+                .Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
+            cornerRadius =
+            androidx.compose.ui.geometry
+                .CornerRadius(8.dp.toPx()),
             style = Stroke(width = 1.dp.toPx()),
         )
     }
@@ -442,8 +467,12 @@ private fun ClassicCardBack(baseColor: Color) {
         drawRoundRect(
             color = Color.White,
             topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
-            size = androidx.compose.ui.geometry.Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx()),
+            size =
+            androidx.compose.ui.geometry
+                .Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
+            cornerRadius =
+            androidx.compose.ui.geometry
+                .CornerRadius(6.dp.toPx()),
             style = Stroke(width = 3.dp.toPx()),
         )
     }
@@ -481,8 +510,12 @@ private fun PatternCardBack(baseColor: Color) {
         drawRoundRect(
             color = Color.White.copy(alpha = 0.4f),
             topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
-            size = androidx.compose.ui.geometry.Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(6.dp.toPx()),
+            size =
+            androidx.compose.ui.geometry
+                .Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
+            cornerRadius =
+            androidx.compose.ui.geometry
+                .CornerRadius(6.dp.toPx()),
             style = Stroke(width = 1.5.dp.toPx()),
         )
     }

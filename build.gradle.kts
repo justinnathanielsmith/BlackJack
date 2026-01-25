@@ -15,7 +15,7 @@ plugins {
 
 detekt {
     toolVersion = libs.versions.detekt.get()
-    
+
     // Configure source directories for KMP
     source.setFrom(
         files(
@@ -23,10 +23,10 @@ detekt {
             "sharedUI/src/androidMain/kotlin",
             "sharedUI/src/iosMain/kotlin",
             "androidApp/src/main/kotlin",
-            "desktopApp/src/main/kotlin"
-        )
+            "desktopApp/src/main/kotlin",
+        ),
     )
-    
+
     config.setFrom("config/detekt/detekt.yml")
     baseline.set(file("config/detekt/baseline.xml"))
     buildUponDefaultConfig = true
@@ -43,8 +43,8 @@ subprojects {
                 .editorConfigOverride(
                     mapOf(
                         "ktlint_standard_filename" to "disabled",
-                        "ktlint_standard_no-wildcard-imports" to "disabled"
-                    )
+                        "ktlint_standard_no-wildcard-imports" to "disabled",
+                    ),
                 )
         }
         kotlinGradle {
@@ -54,8 +54,8 @@ subprojects {
                 .editorConfigOverride(
                     mapOf(
                         "ktlint_standard_filename" to "disabled",
-                        "ktlint_standard_no-wildcard-imports" to "disabled"
-                    )
+                        "ktlint_standard_no-wildcard-imports" to "disabled",
+                    ),
                 )
         }
     }

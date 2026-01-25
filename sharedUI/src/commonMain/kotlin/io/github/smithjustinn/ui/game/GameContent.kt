@@ -58,11 +58,17 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
         audioService.startMusic()
         component.events.collect { event ->
             when (event) {
-                GameUiEvent.PlayFlip -> audioService.playFlip()
+                GameUiEvent.PlayFlip -> {
+                    audioService.playFlip()
+                }
 
-                GameUiEvent.PlayMatch -> audioService.playMatch()
+                GameUiEvent.PlayMatch -> {
+                    audioService.playMatch()
+                }
 
-                GameUiEvent.PlayMismatch -> audioService.playMismatch()
+                GameUiEvent.PlayMismatch -> {
+                    audioService.playMismatch()
+                }
 
                 GameUiEvent.PlayWin -> {
                     audioService.stopMusic()
@@ -74,19 +80,33 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
                     audioService.playLose()
                 }
 
-                GameUiEvent.PlayHighScore -> audioService.playHighScore()
+                GameUiEvent.PlayHighScore -> {
+                    audioService.playHighScore()
+                }
 
-                GameUiEvent.PlayDeal -> audioService.playDeal()
+                GameUiEvent.PlayDeal -> {
+                    audioService.playDeal()
+                }
 
-                GameUiEvent.VibrateMatch -> hapticsService.vibrateMatch()
+                GameUiEvent.VibrateMatch -> {
+                    hapticsService.vibrateMatch()
+                }
 
-                GameUiEvent.VibrateMismatch -> hapticsService.vibrateMismatch()
+                GameUiEvent.VibrateMismatch -> {
+                    hapticsService.vibrateMismatch()
+                }
 
-                GameUiEvent.VibrateTick -> hapticsService.vibrateTick()
+                GameUiEvent.VibrateTick -> {
+                    hapticsService.vibrateTick()
+                }
 
-                GameUiEvent.VibrateWarning -> hapticsService.vibrateWarning()
+                GameUiEvent.VibrateWarning -> {
+                    hapticsService.vibrateWarning()
+                }
 
-                GameUiEvent.VibrateHeat -> hapticsService.vibrateHeat()
+                GameUiEvent.VibrateHeat -> {
+                    hapticsService.vibrateHeat()
+                }
             }
         }
     }
@@ -114,7 +134,8 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
             )
 
             Box(
-                modifier = Modifier
+                modifier =
+                Modifier
                     .fillMaxSize()
                     .background(
                         Brush.verticalGradient(
@@ -172,7 +193,8 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
                                 isMegaBonus = state.isMegaBonus,
                                 isHeatMode = state.isHeatMode,
                                 infiniteTransition = rememberInfiniteTransition(),
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .align(Alignment.TopEnd)
                                     .padding(top = 16.dp, end = 24.dp),
                                 compact = useCompactUI,
@@ -181,7 +203,8 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
 
                         MatchCommentSnackbar(
                             matchComment = state.game.matchComment,
-                            modifier = Modifier
+                            modifier =
+                            Modifier
                                 .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
                                 .navigationBarsPadding()
                                 .padding(
@@ -189,8 +212,7 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
                                     top = if (useCompactUI) 8.dp else 0.dp,
                                     start = 16.dp,
                                     end = 16.dp,
-                                )
-                                .widthIn(max = 600.dp),
+                                ).widthIn(max = 600.dp),
                         )
 
                         if (state.isPeeking) {
@@ -199,7 +221,8 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
 
                         if (state.game.isGameOver) {
                             Box(
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .fillMaxSize()
                                     .background(Color.Black.copy(alpha = 0.4f)),
                             )
@@ -215,7 +238,8 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
 
                                 if (state.isNewHighScore) {
                                     NewHighScoreSnackbar(
-                                        modifier = Modifier
+                                        modifier =
+                                        Modifier
                                             .align(Alignment.TopCenter)
                                             .padding(top = 16.dp, start = 16.dp, end = 16.dp)
                                             .widthIn(max = 500.dp),
@@ -246,7 +270,8 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
                                     hapticsService.vibrateMatch()
                                 },
                                 onScoreTick = { hapticsService.vibrateTick() },
-                                modifier = Modifier
+                                modifier =
+                                Modifier
                                     .align(Alignment.Center)
                                     .widthIn(max = 550.dp)
                                     .padding(

@@ -37,10 +37,12 @@ fun GameGrid(
     var gridPosition by remember { mutableStateOf(Offset.Zero) }
 
     BoxWithConstraints(
-        modifier = Modifier
+        modifier =
+        Modifier
             .fillMaxSize()
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom))
-            .onGloballyPositioned { layoutCoordinates ->
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+            ).onGloballyPositioned { layoutCoordinates ->
                 gridPosition = layoutCoordinates.positionInRoot()
             },
         contentAlignment = Alignment.Center,
@@ -51,86 +53,89 @@ fun GameGrid(
         val isCompactHeight = screenHeight < 500.dp
         val isWide = screenWidth > 800.dp
 
-        val (gridCells, maxGridWidth) = remember(cards.size, screenWidth, screenHeight, isWide, isLandscape) {
-            when {
-                isLandscape && isCompactHeight -> {
-                    // Landscape phone: optimize for horizontal space
-                    val cols = when {
-                        cards.size <= 12 -> 6
-                        cards.size <= 20 -> 7
-                        cards.size <= 24 -> 8
-                        else -> 10
+        val (gridCells, maxGridWidth) =
+            remember(cards.size, screenWidth, screenHeight, isWide, isLandscape) {
+                when {
+                    isLandscape && isCompactHeight -> {
+                        // Landscape phone: optimize for horizontal space
+                        val cols =
+                            when {
+                                cards.size <= 12 -> 6
+                                cards.size <= 20 -> 7
+                                cards.size <= 24 -> 8
+                                else -> 10
+                            }
+                        GridCells.Fixed(cols) to screenWidth
                     }
-                    GridCells.Fixed(cols) to screenWidth
-                }
 
-                isWide -> {
-                    // Large screen: At least 4 columns, maximize card height while fitting screen
-                    val hPadding = 64.dp
-                    val vPadding = 32.dp // Margin to prevent edge-to-edge
-                    val spacing = 16.dp
-                    val availableWidth = screenWidth - hPadding
-                    val availableHeight = screenHeight - vPadding
+                    isWide -> {
+                        // Large screen: At least 4 columns, maximize card height while fitting screen
+                        val hPadding = 64.dp
+                        val vPadding = 32.dp // Margin to prevent edge-to-edge
+                        val spacing = 16.dp
+                        val availableWidth = screenWidth - hPadding
+                        val availableHeight = screenHeight - vPadding
 
-                    var bestCols = 4
-                    var maxCardHeight = 0.dp
+                        var bestCols = 4
+                        var maxCardHeight = 0.dp
 
-                    // Iterate from 4 columns up to half the cards or max 12
-                    val maxCols = minOf(cards.size, 12)
-                    for (cols in 4..maxCols) {
+                        // Iterate from 4 columns up to half the cards or max 12
+                        val maxCols = minOf(cards.size, 12)
+                        for (cols in 4..maxCols) {
+                            val rows = ceil(cards.size.toFloat() / cols).toInt()
+
+                            // Card width if limited by available width
+                            val wBasedCardWidth = (availableWidth - (spacing * (cols - 1))) / cols
+                            // Equivalent height (3:4 ratio)
+                            val hFromW = wBasedCardWidth / 0.75f
+
+                            // Card height if limited by available height
+                            val hFromH = (availableHeight - (spacing * (rows - 1))) / rows
+
+                            // The maximum height a card can have with this many columns
+                            val possibleHeight = if (hFromW < hFromH) hFromW else hFromH
+
+                            if (possibleHeight > maxCardHeight) {
+                                maxCardHeight = possibleHeight
+                                bestCols = cols
+                            }
+                        }
+
+                        val finalCardWidth = maxCardHeight * 0.75f
+                        val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
+                        GridCells.Fixed(bestCols) to calculatedWidth.coerceAtMost(screenWidth)
+                    }
+
+                    else -> {
+                        // Mobile Portrait: Adaptive based on available height and width
+                        val spacing = if (isCompactHeight) 6.dp else 12.dp
+                        val hPadding = if (isWide) 32.dp else 16.dp
+                        val vPadding = if (isCompactHeight) 16.dp else 32.dp // Total vertical padding/margin
+
+                        val availableWidth = screenWidth - (hPadding * 2)
+                        val availableHeight = screenHeight - vPadding
+
+                        val cols =
+                            when {
+                                cards.size <= 12 -> 3
+                                cards.size <= 20 -> 4
+                                else -> 4
+                            }
                         val rows = ceil(cards.size.toFloat() / cols).toInt()
 
-                        // Card width if limited by available width
-                        val wBasedCardWidth = (availableWidth - (spacing * (cols - 1))) / cols
-                        // Equivalent height (3:4 ratio)
-                        val hFromW = wBasedCardWidth / 0.75f
+                        // Calculate max possible size that fits both dimensions
+                        val maxW = (availableWidth - (spacing * (cols - 1))) / cols
+                        val maxH = (availableHeight - (spacing * (rows - 1))) / rows
 
-                        // Card height if limited by available height
-                        val hFromH = (availableHeight - (spacing * (rows - 1))) / rows
+                        // Convert height to width equivalent (3:4 ratio)
+                        val wFromH = maxH * 0.75f
+                        val finalCardWidth = minOf(maxW, wFromH).coerceAtLeast(60.dp)
+                        val calculatedWidth = (finalCardWidth * cols) + (spacing * (cols - 1)) + (hPadding * 2)
 
-                        // The maximum height a card can have with this many columns
-                        val possibleHeight = if (hFromW < hFromH) hFromW else hFromH
-
-                        if (possibleHeight > maxCardHeight) {
-                            maxCardHeight = possibleHeight
-                            bestCols = cols
-                        }
+                        GridCells.Fixed(cols) to calculatedWidth.coerceAtMost(screenWidth)
                     }
-
-                    val finalCardWidth = maxCardHeight * 0.75f
-                    val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
-                    GridCells.Fixed(bestCols) to calculatedWidth.coerceAtMost(screenWidth)
-                }
-
-                else -> {
-                    // Mobile Portrait: Adaptive based on available height and width
-                    val spacing = if (isCompactHeight) 6.dp else 12.dp
-                    val hPadding = if (isWide) 32.dp else 16.dp
-                    val vPadding = if (isCompactHeight) 16.dp else 32.dp // Total vertical padding/margin
-
-                    val availableWidth = screenWidth - (hPadding * 2)
-                    val availableHeight = screenHeight - vPadding
-
-                    val cols = when {
-                        cards.size <= 12 -> 3
-                        cards.size <= 20 -> 4
-                        else -> 4
-                    }
-                    val rows = ceil(cards.size.toFloat() / cols).toInt()
-
-                    // Calculate max possible size that fits both dimensions
-                    val maxW = (availableWidth - (spacing * (cols - 1))) / cols
-                    val maxH = (availableHeight - (spacing * (rows - 1))) / rows
-
-                    // Convert height to width equivalent (3:4 ratio)
-                    val wFromH = maxH * 0.75f
-                    val finalCardWidth = minOf(maxW, wFromH).coerceAtLeast(60.dp)
-                    val calculatedWidth = (finalCardWidth * cols) + (spacing * (cols - 1)) + (hPadding * 2)
-
-                    GridCells.Fixed(cols) to calculatedWidth.coerceAtMost(screenWidth)
                 }
             }
-        }
 
         val horizontalPadding = if (isWide) 32.dp else 16.dp
         val topPadding = if (isCompactHeight) 8.dp else 16.dp
@@ -138,13 +143,15 @@ fun GameGrid(
 
         LazyVerticalGrid(
             columns = gridCells,
-            contentPadding = PaddingValues(
+            contentPadding =
+            PaddingValues(
                 start = horizontalPadding,
                 top = topPadding,
                 end = horizontalPadding,
                 bottom = bottomPadding,
             ),
-            verticalArrangement = Arrangement.spacedBy(
+            verticalArrangement =
+            Arrangement.spacedBy(
                 if (isCompactHeight) {
                     4.dp
                 } else if (isWide) {
@@ -153,7 +160,8 @@ fun GameGrid(
                     12.dp
                 },
             ),
-            horizontalArrangement = Arrangement.spacedBy(
+            horizontalArrangement =
+            Arrangement.spacedBy(
                 if (isCompactHeight) {
                     6.dp
                 } else if (isWide) {
@@ -162,7 +170,8 @@ fun GameGrid(
                     12.dp
                 },
             ),
-            modifier = Modifier
+            modifier =
+            Modifier
                 .fillMaxHeight()
                 .widthIn(max = maxGridWidth),
         ) {
@@ -178,11 +187,13 @@ fun GameGrid(
                     cardSymbolTheme = cardSymbolTheme,
                     areSuitsMultiColored = areSuitsMultiColored,
                     onClick = { onCardClick(card.id) },
-                    modifier = Modifier.onGloballyPositioned { layoutCoordinates ->
-                        cardLayouts[card.id] = CardLayoutInfo(
-                            position = layoutCoordinates.positionInRoot(),
-                            size = layoutCoordinates.size.toSize(),
-                        )
+                    modifier =
+                    Modifier.onGloballyPositioned { layoutCoordinates ->
+                        cardLayouts[card.id] =
+                            CardLayoutInfo(
+                                position = layoutCoordinates.positionInRoot(),
+                                size = layoutCoordinates.size.toSize(),
+                            )
                     },
                 )
             }
@@ -191,11 +202,11 @@ fun GameGrid(
         if (showComboExplosion && lastMatchedIds.isNotEmpty()) {
             val matchInfos = lastMatchedIds.mapNotNull { cardLayouts[it] }
             if (matchInfos.isNotEmpty()) {
-                val averageRootPosition = matchInfos
-                    .fold(Offset.Zero) { acc, info ->
-                        acc + info.position + Offset(info.size.width / 2, info.size.height / 2)
-                    }
-                    .let { it / matchInfos.size.toFloat() }
+                val averageRootPosition =
+                    matchInfos
+                        .fold(Offset.Zero) { acc, info ->
+                            acc + info.position + Offset(info.size.width / 2, info.size.height / 2)
+                        }.let { it / matchInfos.size.toFloat() }
 
                 val relativeCenter = averageRootPosition - gridPosition
 

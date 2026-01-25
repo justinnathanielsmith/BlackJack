@@ -10,6 +10,7 @@ import org.jetbrains.compose.resources.StringResource
 
 // Type-specific serializers for ImmutableList
 internal object CardStateListSerializer : ImmutableListSerializer<CardState>(CardState.serializer())
+
 internal object IntListSerializer : ImmutableListSerializer<Int>(Int.serializer())
 
 /**
@@ -78,8 +79,12 @@ data class MemoryGameState(
  */
 sealed class GameDomainEvent {
     data object CardFlipped : GameDomainEvent()
+
     data object MatchSuccess : GameDomainEvent()
+
     data object MatchFailure : GameDomainEvent()
+
     data object GameWon : GameDomainEvent()
+
     data object GameOver : GameDomainEvent()
 }

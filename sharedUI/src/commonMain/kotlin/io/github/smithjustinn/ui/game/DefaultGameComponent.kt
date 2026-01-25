@@ -72,35 +72,37 @@ class DefaultGameComponent(
             saveGame()
         }
 
-        settingsJob = scope.launch {
-            val coreSettingsFlow = combine(
-                settingsRepository.isPeekEnabled,
-                settingsRepository.isWalkthroughCompleted,
-                settingsRepository.isMusicEnabled,
-                settingsRepository.isSoundEnabled,
-            ) { peek, walkthrough, music, sound ->
-                CoreSettings(peek, walkthrough, music, sound)
-            }
+        settingsJob =
+            scope.launch {
+                val coreSettingsFlow =
+                    combine(
+                        settingsRepository.isPeekEnabled,
+                        settingsRepository.isWalkthroughCompleted,
+                        settingsRepository.isMusicEnabled,
+                        settingsRepository.isSoundEnabled,
+                    ) { peek, walkthrough, music, sound ->
+                        CoreSettings(peek, walkthrough, music, sound)
+                    }
 
-            combine(
-                coreSettingsFlow,
-                settingsRepository.cardBackTheme,
-                settingsRepository.cardSymbolTheme,
-                settingsRepository.areSuitsMultiColored,
-            ) { core, cardBack, cardSymbol, multiColor ->
-                _state.update {
-                    it.copy(
-                        isPeekFeatureEnabled = core.isPeekEnabled,
-                        showWalkthrough = !core.isWalkthroughCompleted,
-                        isMusicEnabled = core.isMusicEnabled,
-                        isSoundEnabled = core.isSoundEnabled,
-                        cardBackTheme = cardBack,
-                        cardSymbolTheme = cardSymbol,
-                        areSuitsMultiColored = multiColor,
-                    )
-                }
-            }.collect()
-        }
+                combine(
+                    coreSettingsFlow,
+                    settingsRepository.cardBackTheme,
+                    settingsRepository.cardSymbolTheme,
+                    settingsRepository.areSuitsMultiColored,
+                ) { core, cardBack, cardSymbol, multiColor ->
+                    _state.update {
+                        it.copy(
+                            isPeekFeatureEnabled = core.isPeekEnabled,
+                            showWalkthrough = !core.isWalkthroughCompleted,
+                            isMusicEnabled = core.isMusicEnabled,
+                            isSoundEnabled = core.isSoundEnabled,
+                            cardBackTheme = cardBack,
+                            cardSymbolTheme = cardSymbol,
+                            areSuitsMultiColored = multiColor,
+                        )
+                    }
+                }.collect()
+            }
 
         startGame(pairCount, forceNewGame, mode, seed)
     }
@@ -112,13 +114,14 @@ class DefaultGameComponent(
                 if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameOver &&
                     savedGame.first.mode == mode
                 ) {
-                    val initialTime = if (mode ==
-                        GameMode.TIME_ATTACK
-                    ) {
-                        MemoryGameLogic.calculateInitialTime(pairCount)
-                    } else {
-                        0L
-                    }
+                    val initialTime =
+                        if (mode ==
+                            GameMode.TIME_ATTACK
+                        ) {
+                            MemoryGameLogic.calculateInitialTime(pairCount)
+                        } else {
+                            0L
+                        }
                     _state.update {
                         it.copy(
                             game = savedGame.first.copy(lastMatchedIds = persistentListOf()),
@@ -137,20 +140,22 @@ class DefaultGameComponent(
                         handleMatchFailure(savedGame.first, isResuming = true)
                     }
                 } else {
-                    val finalSeed = seed ?: if (mode == GameMode.DAILY_CHALLENGE) {
-                        Clock.System.now().toEpochMilliseconds() / 86400000
-                    } else {
-                        null
-                    }
+                    val finalSeed =
+                        seed ?: if (mode == GameMode.DAILY_CHALLENGE) {
+                            Clock.System.now().toEpochMilliseconds() / 86400000
+                        } else {
+                            null
+                        }
 
                     val initialGameState = startNewGameUseCase(pairCount, mode = mode, seed = finalSeed)
-                    val initialTime = if (mode ==
-                        GameMode.TIME_ATTACK
-                    ) {
-                        MemoryGameLogic.calculateInitialTime(pairCount)
-                    } else {
-                        0L
-                    }
+                    val initialTime =
+                        if (mode ==
+                            GameMode.TIME_ATTACK
+                        ) {
+                            MemoryGameLogic.calculateInitialTime(pairCount)
+                        } else {
+                            0L
+                        }
 
                     _state.update {
                         it.copy(
@@ -189,66 +194,69 @@ class DefaultGameComponent(
 
     private fun peekCards(mode: GameMode) {
         peekJob?.cancel()
-        peekJob = scope.launch {
-            stopTimer()
-            val peekDuration = 3
-            _state.update { it.copy(isPeeking = true, peekCountdown = peekDuration) }
+        peekJob =
+            scope.launch {
+                stopTimer()
+                val peekDuration = 3
+                _state.update { it.copy(isPeeking = true, peekCountdown = peekDuration) }
 
-            for (i in peekDuration downTo 1) {
-                _state.update { it.copy(peekCountdown = i) }
-                _events.emit(GameUiEvent.VibrateTick)
-                delay(1000)
+                for (i in peekDuration downTo 1) {
+                    _state.update { it.copy(peekCountdown = i) }
+                    _events.emit(GameUiEvent.VibrateTick)
+                    delay(1000)
+                }
+
+                _state.update { it.copy(isPeeking = false, peekCountdown = 0) }
+                _events.emit(GameUiEvent.PlayFlip)
+                startTimer(mode)
             }
-
-            _state.update { it.copy(isPeeking = false, peekCountdown = 0) }
-            _events.emit(GameUiEvent.PlayFlip)
-            startTimer(mode)
-        }
     }
 
     private fun observeStats(pairCount: Int) {
         statsJob?.cancel()
-        statsJob = scope.launch {
-            getGameStatsUseCase(pairCount).collect { stats ->
-                _state.update {
-                    it.copy(
-                        bestScore = stats?.bestScore ?: 0,
-                        bestTimeSeconds = stats?.bestTimeSeconds ?: 0,
-                    )
+        statsJob =
+            scope.launch {
+                getGameStatsUseCase(pairCount).collect { stats ->
+                    _state.update {
+                        it.copy(
+                            bestScore = stats?.bestScore ?: 0,
+                            bestTimeSeconds = stats?.bestTimeSeconds ?: 0,
+                        )
+                    }
                 }
             }
-        }
     }
 
     private fun startTimer(mode: GameMode) {
         timerJob?.cancel()
-        timerJob = scope.launch {
-            while (isActive) {
-                delay(1000)
-                if (mode == GameMode.TIME_ATTACK) {
-                    var shouldStop = false
-                    _state.update {
-                        val newTime = (it.elapsedTimeSeconds - 1).coerceAtLeast(0)
-                        if (newTime == 0L && !it.game.isGameOver) {
-                            shouldStop = true
-                        }
+        timerJob =
+            scope.launch {
+                while (isActive) {
+                    delay(1000)
+                    if (mode == GameMode.TIME_ATTACK) {
+                        var shouldStop = false
+                        _state.update {
+                            val newTime = (it.elapsedTimeSeconds - 1).coerceAtLeast(0)
+                            if (newTime == 0L && !it.game.isGameOver) {
+                                shouldStop = true
+                            }
 
-                        if (newTime in 1L..5L && !it.game.isGameOver) {
-                            _events.tryEmit(GameUiEvent.VibrateTick)
-                        }
+                            if (newTime in 1L..5L && !it.game.isGameOver) {
+                                _events.tryEmit(GameUiEvent.VibrateTick)
+                            }
 
-                        it.copy(elapsedTimeSeconds = newTime)
+                            it.copy(elapsedTimeSeconds = newTime)
+                        }
+                        if (shouldStop) {
+                            _events.emit(GameUiEvent.VibrateWarning)
+                            handleGameOver()
+                            break
+                        }
+                    } else {
+                        _state.update { it.copy(elapsedTimeSeconds = it.elapsedTimeSeconds + 1) }
                     }
-                    if (shouldStop) {
-                        _events.emit(GameUiEvent.VibrateWarning)
-                        handleGameOver()
-                        break
-                    }
-                } else {
-                    _state.update { it.copy(elapsedTimeSeconds = it.elapsedTimeSeconds + 1) }
                 }
             }
-        }
     }
 
     private fun stopTimer() {
@@ -270,11 +278,26 @@ class DefaultGameComponent(
             saveGame()
 
             when (event) {
-                GameDomainEvent.CardFlipped -> _events.tryEmit(GameUiEvent.PlayFlip)
-                GameDomainEvent.MatchSuccess -> handleMatchSuccess(newState)
-                GameDomainEvent.MatchFailure -> handleMatchFailure(newState)
-                GameDomainEvent.GameWon -> handleGameWon(newState)
-                GameDomainEvent.GameOver -> handleGameOver()
+                GameDomainEvent.CardFlipped -> {
+                    _events.tryEmit(GameUiEvent.PlayFlip)
+                }
+
+                GameDomainEvent.MatchSuccess -> {
+                    handleMatchSuccess(newState)
+                }
+
+                GameDomainEvent.MatchFailure -> {
+                    handleMatchFailure(newState)
+                }
+
+                GameDomainEvent.GameWon -> {
+                    handleGameWon(newState)
+                }
+
+                GameDomainEvent.GameOver -> {
+                    handleGameOver()
+                }
+
                 else -> {}
             }
         } catch (e: Exception) {
@@ -323,10 +346,11 @@ class DefaultGameComponent(
 
     private fun triggerTimeGainFeedback() {
         timeGainJob?.cancel()
-        timeGainJob = scope.launch {
-            delay(1500)
-            _state.update { it.copy(showTimeGain = false) }
-        }
+        timeGainJob =
+            scope.launch {
+                delay(1500)
+                _state.update { it.copy(showTimeGain = false) }
+            }
     }
 
     private fun handleMatchFailure(newState: MemoryGameState, isResuming: Boolean = false) {
@@ -371,10 +395,11 @@ class DefaultGameComponent(
 
     private fun triggerTimeLossFeedback() {
         timeLossJob?.cancel()
-        timeLossJob = scope.launch {
-            delay(1500)
-            _state.update { it.copy(showTimeLoss = false) }
-        }
+        timeLossJob =
+            scope.launch {
+                delay(1500)
+                _state.update { it.copy(showTimeLoss = false) }
+            }
     }
 
     private fun handleGameWon(newState: MemoryGameState) {
@@ -435,19 +460,21 @@ class DefaultGameComponent(
 
     private fun triggerComboExplosion() {
         explosionJob?.cancel()
-        explosionJob = scope.launch {
-            _state.update { it.copy(showComboExplosion = true) }
-            delay(1000)
-            _state.update { it.copy(showComboExplosion = false) }
-        }
+        explosionJob =
+            scope.launch {
+                _state.update { it.copy(showComboExplosion = true) }
+                delay(1000)
+                _state.update { it.copy(showComboExplosion = false) }
+            }
     }
 
     private fun clearCommentAfterDelay() {
         commentJob?.cancel()
-        commentJob = scope.launch {
-            delay(2500)
-            _state.update { it.copy(game = it.game.copy(matchComment = null)) }
-        }
+        commentJob =
+            scope.launch {
+                delay(2500)
+                _state.update { it.copy(game = it.game.copy(matchComment = null)) }
+            }
     }
 
     private fun saveStats(pairCount: Int, score: Int, time: Long, moves: Int, gameMode: GameMode) {

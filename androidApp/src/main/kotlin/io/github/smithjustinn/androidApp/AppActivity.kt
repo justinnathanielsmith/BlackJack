@@ -22,10 +22,11 @@ class AppActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         val appGraph = (application as MemoryMatchApp).appGraph
-        val root = DefaultRootComponent(
-            componentContext = defaultComponentContext(),
-            appGraph = appGraph,
-        )
+        val root =
+            DefaultRootComponent(
+                componentContext = defaultComponentContext(),
+                appGraph = appGraph,
+            )
 
         handleIntent(intent)
 
