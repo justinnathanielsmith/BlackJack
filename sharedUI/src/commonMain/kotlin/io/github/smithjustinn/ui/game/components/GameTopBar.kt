@@ -84,40 +84,35 @@ fun GameTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
-            // Left Controls
             BackButton(
                 onClick = onBackClick,
                 compact = compact,
             )
 
-            // Center Area - Timer
             TimerDisplay(
-                time = time,
-                isLowTime = isLowTime,
-                isCriticalTime = isCriticalTime,
-                showTimeGain = showTimeGain,
-                timeGainAmount = timeGainAmount,
-                showTimeLoss = showTimeLoss,
-                timeLossAmount = timeLossAmount,
-                isMegaBonus = isMegaBonus,
+                state = TimerState(
+                    time = time,
+                    isLowTime = isLowTime,
+                    isCriticalTime = isCriticalTime,
+                ),
+                feedback = TimerFeedback(
+                    showTimeGain = showTimeGain,
+                    timeGainAmount = timeGainAmount,
+                    showTimeLoss = showTimeLoss,
+                    timeLossAmount = timeLossAmount,
+                    isMegaBonus = isMegaBonus,
+                ),
                 infiniteTransition = infiniteTransition,
                 compact = compact,
                 minimal = false,
             )
 
-            // Right Controls
-            Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                MuteButton(
-                    isAudioEnabled = isAudioEnabled,
-                    onClick = onMuteClick,
-                    compact = compact,
-                )
-
-                RestartButton(
-                    onClick = onRestartClick,
-                    compact = compact,
-                )
-            }
+            ControlButtons(
+                isAudioEnabled = isAudioEnabled,
+                onMuteClick = onMuteClick,
+                onRestartClick = onRestartClick,
+                compact = compact,
+            )
         }
 
         if (isTimeAttack && maxTime > 0) {
@@ -128,6 +123,27 @@ fun GameTopBar(
                 compact = compact,
             )
         }
+    }
+}
+
+@Composable
+private fun ControlButtons(
+    isAudioEnabled: Boolean,
+    onMuteClick: () -> Unit,
+    onRestartClick: () -> Unit,
+    compact: Boolean,
+) {
+    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+        MuteButton(
+            isAudioEnabled = isAudioEnabled,
+            onClick = onMuteClick,
+            compact = compact,
+        )
+
+        RestartButton(
+            onClick = onRestartClick,
+            compact = compact,
+        )
     }
 }
 
