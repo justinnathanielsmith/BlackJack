@@ -93,12 +93,7 @@ fun ScoreBox(
 }
 
 @Composable
-private fun StatItem(
-    label: String,
-    color: Color,
-    modifier: Modifier = Modifier,
-    compact: Boolean = false,
-) {
+private fun StatItem(label: String, color: Color, modifier: Modifier = Modifier, compact: Boolean = false) {
     Surface(
         modifier = modifier,
         color = Color.White.copy(alpha = 0.05f),

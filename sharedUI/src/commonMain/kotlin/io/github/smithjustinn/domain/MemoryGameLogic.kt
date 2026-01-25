@@ -4,7 +4,6 @@ import io.github.smithjustinn.domain.models.*
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import memory_match.sharedui.generated.resources.*
-
 import kotlin.random.Random
 
 /**
@@ -82,7 +81,11 @@ object MemoryGameLogic {
         }
     }
 
-    private fun handleMatchSuccess(state: MemoryGameState, first: CardState, second: CardState): Pair<MemoryGameState, GameDomainEvent?> {
+    private fun handleMatchSuccess(
+        state: MemoryGameState,
+        first: CardState,
+        second: CardState,
+    ): Pair<MemoryGameState, GameDomainEvent?> {
         val newCards = state.cards.map { card ->
             if (card.id == first.id || card.id == second.id) {
                 card.copy(isMatched = true)
@@ -114,7 +117,11 @@ object MemoryGameLogic {
         return newState to if (isWon) GameDomainEvent.GameWon else GameDomainEvent.MatchSuccess
     }
 
-    private fun handleMatchFailure(state: MemoryGameState, first: CardState, second: CardState): Pair<MemoryGameState, GameDomainEvent?> {
+    private fun handleMatchFailure(
+        state: MemoryGameState,
+        first: CardState,
+        second: CardState,
+    ): Pair<MemoryGameState, GameDomainEvent?> {
         val newState = state.copy(
             moves = state.moves + 1,
             comboMultiplier = 1,
@@ -176,11 +183,17 @@ object MemoryGameLogic {
 
         return when {
             combo > 3 -> MatchComment(Res.string.comment_incredible, persistentListOf(combo))
+
             combo > 1 -> MatchComment(Res.string.comment_nice, persistentListOf(combo))
+
             matchesFound == 1 -> MatchComment(Res.string.comment_first_match)
+
             matchesFound == totalPairs / 2 -> MatchComment(Res.string.comment_halfway)
+
             moves <= matchesFound * 2 -> MatchComment(Res.string.comment_photographic)
+
             matchesFound == totalPairs - 1 -> MatchComment(Res.string.comment_one_more)
+
             else -> {
                 val randomRes = listOf(
                     Res.string.comment_great_find,
@@ -199,12 +212,24 @@ object MemoryGameLogic {
     // --- Time Attack Logic ---
 
     fun calculateInitialTime(pairCount: Int): Long = when (pairCount) {
-        6 -> 25L // Toddler
-        8 -> 35L // Casual
-        10 -> 45L // Master
-        12 -> 55L // Shark
-        14 -> 65L // Grandmaster
-        16 -> 75L // Elephant
+        6 -> 25L
+
+        // Toddler
+        8 -> 35L
+
+        // Casual
+        10 -> 45L
+
+        // Master
+        12 -> 55L
+
+        // Shark
+        14 -> 65L
+
+        // Grandmaster
+        16 -> 75L
+
+        // Elephant
         else -> (pairCount * 4).toLong()
     }
 

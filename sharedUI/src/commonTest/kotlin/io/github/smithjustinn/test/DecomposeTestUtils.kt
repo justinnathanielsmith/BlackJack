@@ -20,20 +20,19 @@ fun runComponentTest(
     testDispatcher: TestDispatcher,
     timeout: Duration = 10.seconds,
     block: suspend TestScope.(lifecycle: LifecycleRegistry) -> Unit,
-) =
-    runTest(testDispatcher, timeout = timeout) {
-        val lifecycle = LifecycleRegistry()
-        lifecycle.onCreate()
-        lifecycle.onStart()
-        lifecycle.onResume()
-        try {
-            block(lifecycle)
-        } finally {
-            lifecycle.onPause()
-            lifecycle.onStop()
-            lifecycle.onDestroy()
-        }
+) = runTest(testDispatcher, timeout = timeout) {
+    val lifecycle = LifecycleRegistry()
+    lifecycle.onCreate()
+    lifecycle.onStart()
+    lifecycle.onResume()
+    try {
+        block(lifecycle)
+    } finally {
+        lifecycle.onPause()
+        lifecycle.onStop()
+        lifecycle.onDestroy()
     }
+}
 
 /** A helper to handle coroutine dispatcher setup and cleanup in tests. */
 @OptIn(ExperimentalCoroutinesApi::class)

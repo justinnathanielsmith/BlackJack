@@ -1,0 +1,14 @@
+[*.{kt,kts}]
+indent_size = 4
+max_line_length = 120
+insert_final_newline = true
+
+# ktlint configuration
+ktlint_standard_no-wildcard-imports = disabled
+ktlint_standard_filename = disabled
+
+# Compose specific rules
+# Allow PascalCase for Composable functions
+ktlint_standard_function-naming = disabled
+# Allow backing property naming (e.g. _foo for Foo)
+ktlint_standard_backing-property-naming = disabled

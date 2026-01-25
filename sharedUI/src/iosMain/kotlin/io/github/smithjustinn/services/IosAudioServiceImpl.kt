@@ -25,10 +25,7 @@ import platform.Foundation.create
 
 @OptIn(ExperimentalForeignApi::class, BetaInteropApi::class)
 @Inject
-class IosAudioServiceImpl(
-    private val logger: Logger,
-    settingsRepository: SettingsRepository,
-) : AudioService {
+class IosAudioServiceImpl(private val logger: Logger, settingsRepository: SettingsRepository) : AudioService {
     private val scope = CoroutineScope(Dispatchers.Main)
     private val players = mutableMapOf<StringResource, AVAudioPlayer>()
     private var isSoundEnabled = true

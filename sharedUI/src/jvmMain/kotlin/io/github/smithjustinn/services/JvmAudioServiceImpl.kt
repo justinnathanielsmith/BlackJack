@@ -20,10 +20,7 @@ import javax.sound.sampled.FloatControl
 import kotlin.math.log10
 
 @Inject
-class JvmAudioServiceImpl(
-    private val logger: Logger,
-    settingsRepository: SettingsRepository,
-) : AudioService {
+class JvmAudioServiceImpl(private val logger: Logger, settingsRepository: SettingsRepository) : AudioService {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val clips = ConcurrentHashMap<StringResource, Clip>()
     private var isSoundEnabled = true

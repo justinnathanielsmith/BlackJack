@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 interface DailyChallengeDao {
     @Query("SELECT * FROM daily_challenges WHERE date = :date")
     fun getDailyChallenge(date: Long): Flow<DailyChallengeEntity?>
-    
+
     @Query("SELECT * FROM daily_challenges WHERE date = :date")
     suspend fun getDailyChallengeSync(date: Long): DailyChallengeEntity?
 

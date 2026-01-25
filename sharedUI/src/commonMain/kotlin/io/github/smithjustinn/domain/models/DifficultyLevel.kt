@@ -12,10 +12,7 @@ import org.jetbrains.compose.resources.StringResource
 /**
  * Represents a difficulty level with a name resource and pair count.
  */
-data class DifficultyLevel(
-    val nameRes: StringResource,
-    val pairs: Int,
-) {
+data class DifficultyLevel(val nameRes: StringResource, val pairs: Int) {
     companion object {
         val defaultLevels = listOf(
             DifficultyLevel(Res.string.difficulty_toddler, 6),

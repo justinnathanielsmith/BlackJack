@@ -58,10 +58,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SettingsContent(
-    component: SettingsComponent,
-    modifier: Modifier = Modifier,
-) {
+fun SettingsContent(component: SettingsComponent, modifier: Modifier = Modifier) {
     val graph = LocalAppGraph.current
     val state by component.state.collectAsState()
     val audioService = graph.audioService
@@ -143,7 +140,11 @@ fun SettingsContent(
                                 audioService.playClick()
                                 component.setCardSymbolTheme(it)
                             },
-                            labelProvider = { it.name.lowercase().replace("text_only", "text only").replaceFirstChar { char -> char.uppercase() } },
+                            labelProvider = {
+                                it.name.lowercase().replace("text_only", "text only").replaceFirstChar { char ->
+                                    char.uppercase()
+                                }
+                            },
                         )
 
                         HorizontalDivider(
@@ -287,11 +288,7 @@ private fun <T> ThemeSelector(
 }
 
 @Composable
-private fun VolumeSlider(
-    value: Float,
-    onValueChange: (Float) -> Unit,
-    modifier: Modifier = Modifier,
-) {
+private fun VolumeSlider(value: Float, onValueChange: (Float) -> Unit, modifier: Modifier = Modifier) {
     Row(
         modifier = modifier
             .fillMaxWidth()
@@ -325,10 +322,7 @@ private fun VolumeSlider(
 }
 
 @Composable
-private fun SettingsCard(
-    title: String? = null,
-    content: @Composable ColumnScope.() -> Unit,
-) {
+private fun SettingsCard(title: String? = null, content: @Composable ColumnScope.() -> Unit) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(24.dp),

@@ -19,10 +19,7 @@ import io.github.smithjustinn.theme.InactiveBackground
 import io.github.smithjustinn.theme.NeonCyan
 
 @Composable
-fun PeekCountdownOverlay(
-    countdown: Int,
-    modifier: Modifier = Modifier,
-) {
+fun PeekCountdownOverlay(countdown: Int, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()

@@ -41,10 +41,7 @@ import io.github.smithjustinn.ui.game.components.WalkthroughOverlay
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameContent(
-    component: GameComponent,
-    modifier: Modifier = Modifier,
-) {
+fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
     val graph = LocalAppGraph.current
     val state by component.state.collectAsState()
     val audioService = graph.audioService
@@ -55,22 +52,33 @@ fun GameContent(
         component.events.collect { event ->
             when (event) {
                 GameUiEvent.PlayFlip -> audioService.playFlip()
+
                 GameUiEvent.PlayMatch -> audioService.playMatch()
+
                 GameUiEvent.PlayMismatch -> audioService.playMismatch()
+
                 GameUiEvent.PlayWin -> {
                     audioService.stopMusic()
                     audioService.playWin()
                 }
+
                 GameUiEvent.PlayLose -> {
                     audioService.stopMusic()
                     audioService.playLose()
                 }
+
                 GameUiEvent.PlayHighScore -> audioService.playHighScore()
+
                 GameUiEvent.PlayDeal -> audioService.playDeal()
+
                 GameUiEvent.VibrateMatch -> hapticsService.vibrateMatch()
+
                 GameUiEvent.VibrateMismatch -> hapticsService.vibrateMismatch()
+
                 GameUiEvent.VibrateTick -> hapticsService.vibrateTick()
+
                 GameUiEvent.VibrateWarning -> hapticsService.vibrateWarning()
+
                 GameUiEvent.VibrateHeat -> hapticsService.vibrateHeat()
             }
         }

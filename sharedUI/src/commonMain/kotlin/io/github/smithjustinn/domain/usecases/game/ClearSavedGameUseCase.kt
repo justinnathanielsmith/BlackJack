@@ -8,10 +8,7 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
  * Usecase to clear the saved game state.
  */
 @Inject
-open class ClearSavedGameUseCase(
-    private val gameStateRepository: GameStateRepository,
-    private val logger: Logger,
-) {
+open class ClearSavedGameUseCase(private val gameStateRepository: GameStateRepository, private val logger: Logger) {
     open suspend operator fun invoke() {
         try {
             gameStateRepository.clearSavedGameState()

@@ -9,11 +9,11 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
-import io.github.smithjustinn.theme.*
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
+import io.github.smithjustinn.theme.*
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -22,12 +22,7 @@ import kotlin.random.Random
 /**
  * A particle representing a single piece of confetti.
  */
-private class Particle(
-    val color: Color,
-    val size: Float,
-    angle: Double,
-    speed: Float,
-) {
+private class Particle(val color: Color, val size: Float, angle: Double, speed: Float) {
     var x = 0f
     var y = 0f
     private var vx = cos(angle).toFloat() * speed

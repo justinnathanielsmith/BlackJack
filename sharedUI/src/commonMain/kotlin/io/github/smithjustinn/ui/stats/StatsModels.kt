@@ -7,7 +7,8 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 
 data class StatsState(
-    val difficultyLeaderboards: ImmutableList<Pair<DifficultyLevel, ImmutableList<LeaderboardEntry>>> = persistentListOf(),
+    val difficultyLeaderboards: ImmutableList<Pair<DifficultyLevel, ImmutableList<LeaderboardEntry>>> =
+        persistentListOf(),
     val selectedGameMode: GameMode = GameMode.STANDARD,
 )
 

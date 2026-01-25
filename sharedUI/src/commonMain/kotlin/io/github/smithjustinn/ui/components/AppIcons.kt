@@ -10,6 +10,7 @@ import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.theme.*
 
+@Suppress("ktlint:standard:backing-property-naming")
 object AppIcons {
     private var _arrowBack: ImageVector? = null
     val ArrowBack: ImageVector

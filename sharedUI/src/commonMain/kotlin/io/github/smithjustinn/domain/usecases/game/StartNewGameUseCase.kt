@@ -5,7 +5,6 @@ import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoringConfig
-
 import kotlin.random.Random
 
 /**

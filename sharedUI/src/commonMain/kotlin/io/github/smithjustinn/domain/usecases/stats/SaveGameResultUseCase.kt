@@ -25,8 +25,16 @@ open class SaveGameResultUseCase(
             // Stats are currently per difficulty, we might want to separate them by mode too in the future
             val currentStats = gameStatsRepository.getStatsForDifficulty(pairCount).firstOrNull()
 
-            val newBestScore = if (currentStats == null || score > currentStats.bestScore) score else currentStats.bestScore
-            val newBestTime = if (currentStats == null || currentStats.bestTimeSeconds == 0L || timeSeconds < currentStats.bestTimeSeconds) {
+            val newBestScore = if (currentStats == null ||
+                score > currentStats.bestScore
+            ) {
+                score
+            } else {
+                currentStats.bestScore
+            }
+            val newBestTime = if (currentStats == null || currentStats.bestTimeSeconds == 0L ||
+                timeSeconds < currentStats.bestTimeSeconds
+            ) {
                 timeSeconds
             } else {
                 currentStats.bestTimeSeconds

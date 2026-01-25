@@ -75,7 +75,7 @@ class DefaultStartComponent(
         scope.launch {
             try {
                 val today = Clock.System.now().toEpochMilliseconds() / 86400000
-                
+
                 dailyChallengeRepository.isChallengeCompleted(today).collect { isCompleted ->
                     _state.update { it.copy(isDailyChallengeCompleted = isCompleted) }
                 }
@@ -108,11 +108,11 @@ class DefaultStartComponent(
             )
         }
     }
-    
+
     override fun onDailyChallengeClick() {
         if (!state.value.isDailyChallengeCompleted) {
-             // Use 8 pairs for Daily Challenge (standard difficulty)
-             onNavigateToGame(8, GameMode.DAILY_CHALLENGE, true)
+            // Use 8 pairs for Daily Challenge (standard difficulty)
+            onNavigateToGame(8, GameMode.DAILY_CHALLENGE, true)
         }
     }
 

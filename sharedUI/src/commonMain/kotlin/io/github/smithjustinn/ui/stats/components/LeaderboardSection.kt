@@ -114,9 +114,15 @@ private fun LeaderboardRow(rank: Int, entry: LeaderboardEntry) {
             modifier = Modifier.size(32.dp),
             shape = CircleShape,
             color = when (rank) {
-                1 -> GoldenYellow.copy(alpha = 0.2f) // Gold
-                2 -> Silver.copy(alpha = 0.2f) // Silver
-                3 -> Bronze.copy(alpha = 0.2f) // Bronze
+                1 -> GoldenYellow.copy(alpha = 0.2f)
+
+                // Gold
+                2 -> Silver.copy(alpha = 0.2f)
+
+                // Silver
+                3 -> Bronze.copy(alpha = 0.2f)
+
+                // Bronze
                 else -> Color.White.copy(alpha = 0.05f)
             },
             border = androidx.compose.foundation.BorderStroke(

@@ -20,11 +20,7 @@ import io.github.smithjustinn.ui.stats.StatsContent
 
 @OptIn(ExperimentalDecomposeApi::class)
 @Composable
-fun App(
-    root: RootComponent,
-    appGraph: AppGraph,
-    onThemeChanged: @Composable (isDark: Boolean) -> Unit = {},
-) =
+fun App(root: RootComponent, appGraph: AppGraph, onThemeChanged: @Composable (isDark: Boolean) -> Unit = {}) =
     AppTheme(onThemeChanged) {
         CompositionLocalProvider(LocalAppGraph provides appGraph) {
             Children(

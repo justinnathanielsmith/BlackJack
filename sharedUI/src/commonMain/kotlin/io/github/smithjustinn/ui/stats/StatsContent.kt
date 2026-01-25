@@ -26,10 +26,7 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsContent(
-    component: StatsComponent,
-    modifier: Modifier = Modifier,
-) {
+fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier) {
     val graph = LocalAppGraph.current
     val state by component.state.collectAsState()
     val audioService = graph.audioService

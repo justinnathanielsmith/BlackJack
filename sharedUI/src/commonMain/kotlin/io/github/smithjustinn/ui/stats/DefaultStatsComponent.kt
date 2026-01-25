@@ -29,16 +29,19 @@ class DefaultStatsComponent(
     private val _events = Channel<StatsUiEvent>(Channel.BUFFERED)
     override val events: Flow<StatsUiEvent> = _events.receiveAsFlow()
 
-    private val _selectedGameMode = MutableStateFlow(GameMode.STANDARD)
+    private val selectedGameMode = MutableStateFlow(GameMode.STANDARD)
 
     init {
         lifecycle.doOnDestroy { scope.cancel() }
 
-        _selectedGameMode
+        selectedGameMode
             .flatMapLatest { mode ->
                 val difficulties = DifficultyLevel.defaultLevels
                 val flows = difficulties.map { level ->
-                    leaderboardRepository.getTopEntries(level.pairs, mode).map { entries -> level to entries.toImmutableList() }
+                    leaderboardRepository.getTopEntries(level.pairs, mode).map { entries ->
+                        level to
+                            entries.toImmutableList()
+                    }
                 }
                 combine(flows) { pairs ->
                     StatsState(
@@ -57,7 +60,7 @@ class DefaultStatsComponent(
     }
 
     override fun onGameModeSelected(mode: GameMode) {
-        _selectedGameMode.value = mode
+        selectedGameMode.value = mode
     }
 
     override fun onBack() {

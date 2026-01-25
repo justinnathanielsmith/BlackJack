@@ -108,8 +108,16 @@ class DefaultGameComponent(
         scope.launch {
             try {
                 val savedGame = if (forceNewGame) null else getSavedGameUseCase()
-                if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameOver && savedGame.first.mode == mode) {
-                    val initialTime = if (mode == GameMode.TIME_ATTACK) MemoryGameLogic.calculateInitialTime(pairCount) else 0L
+                if (savedGame != null && savedGame.first.pairCount == pairCount && !savedGame.first.isGameOver &&
+                    savedGame.first.mode == mode
+                ) {
+                    val initialTime = if (mode ==
+                        GameMode.TIME_ATTACK
+                    ) {
+                        MemoryGameLogic.calculateInitialTime(pairCount)
+                    } else {
+                        0L
+                    }
                     _state.update {
                         it.copy(
                             game = savedGame.first.copy(lastMatchedIds = persistentListOf()),
@@ -135,7 +143,13 @@ class DefaultGameComponent(
                     }
 
                     val initialGameState = startNewGameUseCase(pairCount, mode = mode, seed = seed)
-                    val initialTime = if (mode == GameMode.TIME_ATTACK) MemoryGameLogic.calculateInitialTime(pairCount) else 0L
+                    val initialTime = if (mode ==
+                        GameMode.TIME_ATTACK
+                    ) {
+                        MemoryGameLogic.calculateInitialTime(pairCount)
+                    } else {
+                        0L
+                    }
 
                     _state.update {
                         it.copy(
@@ -274,7 +288,7 @@ class DefaultGameComponent(
         // Check for heat mode activation
         val wasInHeatMode = _state.value.isHeatMode
         val isNowInHeatMode = newState.comboMultiplier >= newState.config.heatModeThreshold
-        
+
         if (isNowInHeatMode && !wasInHeatMode) {
             _events.tryEmit(GameUiEvent.VibrateHeat)
         }
@@ -380,12 +394,23 @@ class DefaultGameComponent(
             )
         }
 
-        saveStats(gameWithBonuses.pairCount, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves, gameWithBonuses.mode)
-        
+        saveStats(
+            gameWithBonuses.pairCount,
+            gameWithBonuses.score,
+            _state.value.elapsedTimeSeconds,
+            gameWithBonuses.moves,
+            gameWithBonuses.mode,
+        )
+
         if (gameWithBonuses.mode == GameMode.DAILY_CHALLENGE) {
             val today = Clock.System.now().toEpochMilliseconds() / 86400000
             scope.launch {
-                dailyChallengeRepository.saveChallengeResult(today, gameWithBonuses.score, _state.value.elapsedTimeSeconds, gameWithBonuses.moves)
+                dailyChallengeRepository.saveChallengeResult(
+                    today,
+                    gameWithBonuses.score,
+                    _state.value.elapsedTimeSeconds,
+                    gameWithBonuses.moves,
+                )
             }
         }
 

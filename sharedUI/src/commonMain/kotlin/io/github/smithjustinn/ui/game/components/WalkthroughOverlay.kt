@@ -26,12 +26,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun WalkthroughOverlay(
-    step: Int,
-    onNext: () -> Unit,
-    onDismiss: () -> Unit,
-    modifier: Modifier = Modifier,
-) {
+fun WalkthroughOverlay(step: Int, onNext: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .fillMaxSize()
@@ -95,7 +90,13 @@ fun WalkthroughOverlay(
                         shape = RoundedCornerShape(12.dp),
                     ) {
                         Text(
-                            if (step < 2) stringResource(Res.string.walkthrough_next) else stringResource(Res.string.walkthrough_got_it),
+                            if (step <
+                                2
+                            ) {
+                                stringResource(Res.string.walkthrough_next)
+                            } else {
+                                stringResource(Res.string.walkthrough_got_it)
+                            },
                             fontWeight = FontWeight.Black,
                             color = Color.White,
                         )

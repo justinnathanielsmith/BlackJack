@@ -63,6 +63,7 @@ fun GameGrid(
                     }
                     GridCells.Fixed(cols) to screenWidth
                 }
+
                 isWide -> {
                     // Large screen: At least 4 columns, maximize card height while fitting screen
                     val hPadding = 64.dp
@@ -100,6 +101,7 @@ fun GameGrid(
                     val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
                     GridCells.Fixed(bestCols) to calculatedWidth.coerceAtMost(screenWidth)
                 }
+
                 else -> {
                     // Mobile Portrait: Adaptive
                     val minSize = when {

@@ -26,9 +26,7 @@ import memory_match.sharedui.generated.resources.new_high_score
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun NewHighScoreSnackbar(
-    modifier: Modifier = Modifier,
-) {
+fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "HighScorePulse")
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
@@ -85,10 +83,7 @@ fun NewHighScoreSnackbar(
 }
 
 @Composable
-fun MatchCommentSnackbar(
-    matchComment: MatchComment?,
-    modifier: Modifier = Modifier,
-) {
+fun MatchCommentSnackbar(matchComment: MatchComment?, modifier: Modifier = Modifier) {
     AnimatedVisibility(
         visible = matchComment != null,
         enter = fadeIn(animationSpec = spring()) + slideInVertically(

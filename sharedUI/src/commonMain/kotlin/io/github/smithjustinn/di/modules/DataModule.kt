@@ -41,7 +41,8 @@ object DataModule {
 
     @Provides
     @SingleIn(AppScope::class)
-    fun provideDailyChallengeDao(database: AppDatabase): io.github.smithjustinn.data.local.DailyChallengeDao = database.dailyChallengeDao()
+    fun provideDailyChallengeDao(database: AppDatabase): io.github.smithjustinn.data.local.DailyChallengeDao =
+        database.dailyChallengeDao()
 
     @Provides
     @SingleIn(AppScope::class)
@@ -69,5 +70,6 @@ object DataModule {
 
     @Provides
     @SingleIn(AppScope::class)
-    fun provideDispatchers(): io.github.smithjustinn.utils.CoroutineDispatchers = io.github.smithjustinn.utils.CoroutineDispatchers()
+    fun provideDispatchers(): io.github.smithjustinn.utils.CoroutineDispatchers =
+        io.github.smithjustinn.utils.CoroutineDispatchers()
 }

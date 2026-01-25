@@ -87,7 +87,10 @@ fun ComboBadge(
         ) {
             Text(
                 text = stringResource(Res.string.combo_format, combo).uppercase(),
-                modifier = Modifier.padding(horizontal = if (compact) 8.dp else 12.dp, vertical = if (compact) 2.dp else 4.dp),
+                modifier = Modifier.padding(
+                    horizontal = if (compact) 8.dp else 12.dp,
+                    vertical = if (compact) 2.dp else 4.dp,
+                ),
                 style = MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Black,
                     fontSize = if (compact) 12.sp else 16.sp,

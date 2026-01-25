@@ -103,7 +103,6 @@ internal val ConfettiOrange = Color(0xFFFF9800)
 internal val PureBlack = Color(0xFF000000)
 
 // Heat Mode Colors (Neon/Cyan Theme)
-internal val HeatGlowPrimary = Color(0xFF00F0FF)    // Intense cyan
-internal val HeatBackgroundTop = Color(0xFF001A33)   // Deep blue
+internal val HeatGlowPrimary = Color(0xFF00F0FF) // Intense cyan
+internal val HeatBackgroundTop = Color(0xFF001A33) // Deep blue
 internal val HeatBackgroundBottom = Color(0xFF003D5C) // Darker cyan-blue
-

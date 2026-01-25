@@ -112,9 +112,15 @@ fun PlayingCard(
     val cardFaceColor = Color.White
     val suitColor = if (areSuitsMultiColored) {
         when (suit) {
-            Suit.Hearts -> HeartRed // Red
-            Suit.Diamonds -> DiamondBlue // Blue
-            Suit.Clubs -> ClubGreen // Green
+            Suit.Hearts -> HeartRed
+
+            // Red
+            Suit.Diamonds -> DiamondBlue
+
+            // Blue
+            Suit.Clubs -> ClubGreen
+
+            // Green
             Suit.Spades -> SpadeBlack // Black
         }
     } else {
@@ -228,12 +234,7 @@ fun PlayingCard(
 }
 
 @Composable
-private fun CardFace(
-    rank: Rank,
-    suit: Suit,
-    suitColor: Color,
-    theme: CardSymbolTheme,
-) {
+private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbolTheme) {
     BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(6.dp)) {
         val fontSizeMultiplier = maxWidth.value / 80f
 
@@ -294,6 +295,7 @@ private fun CardFace(
                     )
                 }
             }
+
             CardSymbolTheme.MINIMAL -> {
                 // Large Rank in Center
                 Text(
@@ -321,6 +323,7 @@ private fun CardFace(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp).graphicsLayer { rotationZ = 180f },
                 )
             }
+
             CardSymbolTheme.TEXT_ONLY -> {
                 // Just the rank, no suit symbols
                 Text(

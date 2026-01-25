@@ -65,7 +65,10 @@ class MemoryGameLogicTest {
 
         // Find a pair
         val firstCard = initialState.cards[0]
-        val secondCard = initialState.cards.first { it.id != firstCard.id && it.suit == firstCard.suit && it.rank == firstCard.rank }
+        val secondCard = initialState.cards.first {
+            it.id != firstCard.id && it.suit == firstCard.suit &&
+                it.rank == firstCard.rank
+        }
 
         val (state1, _) = MemoryGameLogic.flipCard(initialState, firstCard.id)
         val (state2, event) = MemoryGameLogic.flipCard(state1, secondCard.id)
@@ -213,7 +216,12 @@ class MemoryGameLogicTest {
 
         // Find a card that is NOT card1/card2 and its counterpart is NOT card3
         val card3 = initialState.cards.first { it.id != card1.id && it.id != card2.id }
-        val card4 = initialState.cards.first { it.id != card3.id && (it.suit != card3.suit || it.rank != card3.rank) && !it.isMatched && it.id != card1.id && it.id != card2.id }
+        val card4 = initialState.cards.first {
+            it.id != card3.id && (it.suit != card3.suit || it.rank != card3.rank) &&
+                !it.isMatched &&
+                it.id != card1.id &&
+                it.id != card2.id
+        }
 
         // First match: combo becomes 2
         val (s1, _) = MemoryGameLogic.flipCard(initialState, card1.id)
@@ -234,10 +242,16 @@ class MemoryGameLogicTest {
 
         // Find two pairs
         val pair1Card1 = initialState.cards[0]
-        val pair1Card2 = initialState.cards.first { it.id != pair1Card1.id && it.suit == pair1Card1.suit && it.rank == pair1Card1.rank }
+        val pair1Card2 = initialState.cards.first {
+            it.id != pair1Card1.id && it.suit == pair1Card1.suit &&
+                it.rank == pair1Card1.rank
+        }
 
         val pair2Card1 = initialState.cards.first { !it.isMatched && it.id != pair1Card1.id && it.id != pair1Card2.id }
-        val pair2Card2 = initialState.cards.first { it.id != pair2Card1.id && it.suit == pair2Card1.suit && it.rank == pair2Card1.rank }
+        val pair2Card2 = initialState.cards.first {
+            it.id != pair2Card1.id && it.suit == pair2Card1.suit &&
+                it.rank == pair2Card1.rank
+        }
 
         // Match 1
         val (s1, _) = MemoryGameLogic.flipCard(initialState, pair1Card1.id)

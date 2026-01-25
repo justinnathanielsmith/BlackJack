@@ -16,9 +16,9 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.theme.*
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.theme.*
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.components.NeonSegmentedControl
 import io.github.smithjustinn.ui.start.DifficultyState
@@ -106,7 +106,6 @@ fun DifficultySelectionSection(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-
             // Main Button(s)
             if (state.hasSavedGame) {
                 NeonStyleButton(
@@ -151,10 +150,11 @@ fun DifficultySelectionSection(
                 )
             }
             // Daily Challenge Button
-            val dailyText = if (state.isDailyChallengeCompleted)
+            val dailyText = if (state.isDailyChallengeCompleted) {
                 stringResource(Res.string.daily_challenge_completed)
-            else
+            } else {
                 stringResource(Res.string.daily_challenge)
+            }
 
             NeonStyleButton(
                 text = dailyText,

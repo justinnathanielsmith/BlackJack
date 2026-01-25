@@ -21,7 +21,6 @@ open class ImmutableListSerializer<T>(elementSerializer: KSerializer<T>) : KSeri
         delegateSerializer.serialize(encoder, value.toList())
     }
 
-    override fun deserialize(decoder: Decoder): ImmutableList<T> {
-        return delegateSerializer.deserialize(decoder).toImmutableList()
-    }
+    override fun deserialize(decoder: Decoder): ImmutableList<T> =
+        delegateSerializer.deserialize(decoder).toImmutableList()
 }

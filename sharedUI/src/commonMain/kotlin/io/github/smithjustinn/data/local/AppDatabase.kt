@@ -59,7 +59,9 @@ abstract class AppDatabase : RoomDatabase() {
 
         val MIGRATION_6_7 = object : Migration(6, 7) {
             override fun migrate(connection: SQLiteConnection) {
-                connection.execSQL("CREATE TABLE IF NOT EXISTS daily_challenges (date INTEGER NOT NULL, isCompleted INTEGER NOT NULL, score INTEGER NOT NULL, timeSeconds INTEGER NOT NULL, moves INTEGER NOT NULL, PRIMARY KEY(date))")
+                connection.execSQL(
+                    "CREATE TABLE IF NOT EXISTS daily_challenges (date INTEGER NOT NULL, isCompleted INTEGER NOT NULL, score INTEGER NOT NULL, timeSeconds INTEGER NOT NULL, moves INTEGER NOT NULL, PRIMARY KEY(date))",
+                )
             }
         }
     }

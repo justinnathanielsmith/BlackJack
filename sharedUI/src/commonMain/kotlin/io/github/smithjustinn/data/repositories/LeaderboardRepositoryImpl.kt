@@ -12,10 +12,8 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 
 @Inject
-internal class LeaderboardRepositoryImpl(
-    private val dao: LeaderboardDao,
-    private val logger: Logger,
-) : LeaderboardRepository {
+internal class LeaderboardRepositoryImpl(private val dao: LeaderboardDao, private val logger: Logger) :
+    LeaderboardRepository {
     override fun getTopEntries(pairCount: Int, gameMode: GameMode): Flow<List<LeaderboardEntry>> =
         dao.getTopEntries(pairCount, gameMode)
             .map { entities ->

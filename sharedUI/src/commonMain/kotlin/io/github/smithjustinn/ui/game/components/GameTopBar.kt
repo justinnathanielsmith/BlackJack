@@ -132,11 +132,7 @@ fun GameTopBar(
 }
 
 @Composable
-private fun BackButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    compact: Boolean = false,
-) {
+private fun BackButton(onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -156,11 +152,7 @@ private fun BackButton(
 }
 
 @Composable
-private fun RestartButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    compact: Boolean = false,
-) {
+private fun RestartButton(onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),

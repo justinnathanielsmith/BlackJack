@@ -8,7 +8,9 @@ import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface LeaderboardDao {
-    @Query("SELECT * FROM leaderboard WHERE pairCount = :pairCount AND gameMode = :gameMode ORDER BY score DESC, timeSeconds ASC LIMIT 10")
+    @Query(
+        "SELECT * FROM leaderboard WHERE pairCount = :pairCount AND gameMode = :gameMode ORDER BY score DESC, timeSeconds ASC LIMIT 10",
+    )
     fun getTopEntries(pairCount: Int, gameMode: GameMode): Flow<List<LeaderboardEntity>>
 
     @Insert

@@ -29,14 +29,14 @@ class AppActivity : ComponentActivity() {
             App(
                 root = root,
                 appGraph = appGraph,
-                onThemeChanged = { ThemeChanged(it) },
+                onThemeChanged = { ApplySystemBarTheme(it) },
             )
         }
     }
 }
 
 @Composable
-private fun ThemeChanged(isDark: Boolean) {
+private fun ApplySystemBarTheme(isDark: Boolean) {
     val view = LocalView.current
     LaunchedEffect(isDark) {
         val window = (view.context as Activity).window

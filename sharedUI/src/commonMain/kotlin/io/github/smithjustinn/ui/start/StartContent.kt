@@ -26,10 +26,7 @@ import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.start.components.StartHeader
 
 @Composable
-fun StartContent(
-    component: StartComponent,
-    modifier: Modifier = Modifier,
-) {
+fun StartContent(component: StartComponent, modifier: Modifier = Modifier) {
     val state by component.state.collectAsState()
     val graph = LocalAppGraph.current
     val audioService = graph.audioService

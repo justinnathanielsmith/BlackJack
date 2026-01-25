@@ -28,12 +28,12 @@ fun MainViewController(): UIViewController = ComposeUIViewController {
     App(
         root = root,
         appGraph = appGraph,
-        onThemeChanged = { ThemeChanged(it) },
+        onThemeChanged = { ApplySystemBarTheme(it) },
     )
 }
 
 @Composable
-private fun ThemeChanged(isDark: Boolean) {
+private fun ApplySystemBarTheme(isDark: Boolean) {
     LaunchedEffect(isDark) {
         UIApplication.sharedApplication.setStatusBarStyle(
             if (isDark) UIStatusBarStyleDarkContent else UIStatusBarStyleLightContent,

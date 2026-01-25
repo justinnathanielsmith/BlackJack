@@ -108,7 +108,13 @@ fun TimerDisplay(
             color = InactiveBackground.copy(alpha = 0.4f),
             border = BorderStroke(
                 width = 1.dp,
-                color = if (isLowTime || showTimeLoss) TacticalRed.copy(alpha = 0.5f) else Color.White.copy(alpha = 0.15f),
+                color = if (isLowTime ||
+                    showTimeLoss
+                ) {
+                    TacticalRed.copy(alpha = 0.5f)
+                } else {
+                    Color.White.copy(alpha = 0.15f)
+                },
             ),
             modifier = modifier.height(if (compact) 36.dp else 44.dp),
         ) {
@@ -135,7 +141,11 @@ fun TimerDisplay(
                 ) {
                     Text(
                         text = "+${timeGainAmount}s",
-                        style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
+                        style = if (compact) {
+                            MaterialTheme.typography.labelSmall
+                        } else {
+                            MaterialTheme.typography.labelLarge
+                        },
                         color = if (isMegaBonus) GoldenYellow else BonusGreen,
                         fontWeight = FontWeight.Black,
                         modifier = Modifier.padding(start = 6.dp),
@@ -149,7 +159,11 @@ fun TimerDisplay(
                 ) {
                     Text(
                         text = "-${timeLossAmount}s",
-                        style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
+                        style = if (compact) {
+                            MaterialTheme.typography.labelSmall
+                        } else {
+                            MaterialTheme.typography.labelLarge
+                        },
                         color = TacticalRed,
                         fontWeight = FontWeight.Black,
                         modifier = Modifier.padding(start = 6.dp),

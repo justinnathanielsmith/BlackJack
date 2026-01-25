@@ -32,9 +32,7 @@ interface AndroidAppGraph : AppGraph {
 
     @DependencyGraph.Factory
     fun interface Factory {
-        fun create(
-            @Provides application: Application,
-        ): AndroidAppGraph
+        fun create(@Provides application: Application): AndroidAppGraph
     }
 
     @Provides
@@ -55,9 +53,17 @@ interface AndroidAppGraph : AppGraph {
         )
             .setDriver(BundledSQLiteDriver())
             .setQueryCoroutineContext(Dispatchers.IO)
-            .addMigrations(AppDatabase.MIGRATION_1_2, AppDatabase.MIGRATION_2_3, AppDatabase.MIGRATION_3_4, AppDatabase.MIGRATION_4_5, AppDatabase.MIGRATION_5_6, AppDatabase.MIGRATION_6_7)
+            .addMigrations(
+                AppDatabase.MIGRATION_1_2,
+                AppDatabase.MIGRATION_2_3,
+                AppDatabase.MIGRATION_3_4,
+                AppDatabase.MIGRATION_4_5,
+                AppDatabase.MIGRATION_5_6,
+                AppDatabase.MIGRATION_6_7,
+            )
             .build()
     }
 }
 
-fun createAndroidGraph(application: Application): AppGraph = createGraphFactory<AndroidAppGraph.Factory>().create(application)
+fun createAndroidGraph(application: Application): AppGraph =
+    createGraphFactory<AndroidAppGraph.Factory>().create(application)

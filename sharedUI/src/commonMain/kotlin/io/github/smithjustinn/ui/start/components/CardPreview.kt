@@ -16,7 +16,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
-import io.github.smithjustinn.theme.*
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -35,6 +34,7 @@ import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
+import io.github.smithjustinn.theme.*
 import io.github.smithjustinn.ui.game.components.PlayingCard
 
 /**
@@ -147,10 +147,7 @@ fun CardPreview(
 }
 
 @Composable
-fun AnimatedStar(
-    modifier: Modifier = Modifier,
-    delayMillis: Int = 0,
-) {
+fun AnimatedStar(modifier: Modifier = Modifier, delayMillis: Int = 0) {
     val infiniteTransition = rememberInfiniteTransition(label = "star_anim")
 
     // Floating movement for the star itself
