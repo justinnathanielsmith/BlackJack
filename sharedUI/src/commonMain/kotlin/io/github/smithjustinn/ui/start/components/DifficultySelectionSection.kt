@@ -106,19 +106,6 @@ fun DifficultySelectionSection(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // Daily Challenge Button
-            val dailyText = if (state.isDailyChallengeCompleted) 
-                stringResource(Res.string.daily_challenge_completed) 
-            else 
-                stringResource(Res.string.daily_challenge)
-
-            NeonStyleButton(
-                text = dailyText,
-                onClick = onDailyChallengeClick,
-                modifier = Modifier.fillMaxWidth(),
-                isPrimary = !state.isDailyChallengeCompleted,
-                leadingIcon = AppIcons.DateRange, // Need to ensure AppIcons has DateRange or use a fallback
-            )
 
             // Main Button(s)
             if (state.hasSavedGame) {
@@ -163,6 +150,19 @@ fun DifficultySelectionSection(
                     leadingIcon = AppIcons.Trophy,
                 )
             }
+            // Daily Challenge Button
+            val dailyText = if (state.isDailyChallengeCompleted)
+                stringResource(Res.string.daily_challenge_completed)
+            else
+                stringResource(Res.string.daily_challenge)
+
+            NeonStyleButton(
+                text = dailyText,
+                onClick = onDailyChallengeClick,
+                modifier = Modifier.fillMaxWidth(),
+                isPrimary = !state.isDailyChallengeCompleted,
+                leadingIcon = AppIcons.DateRange, // Need to ensure AppIcons has DateRange or use a fallback
+            )
         }
     }
 }

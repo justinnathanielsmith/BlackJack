@@ -18,23 +18,18 @@ subprojects {
         kotlin {
             target("**/*.kt")
             targetExclude("**/build/**")
-            ktlint("1.3.1")
+            ktlint()
                 .editorConfigOverride(
                     mapOf(
                         "ktlint_standard_filename" to "disabled",
-                        "ktlint_standard_function-naming" to "disabled",
-                        "ktlint_standard_no-wildcard-imports" to "disabled",
-                        "ktlint_standard_property-naming" to "disabled",
-                        "ktlint_standard_backing-property-naming" to "disabled",
-                        "ktlint_standard_value-parameter-comment" to "disabled",
-                        "ktlint_standard_value-argument-comment" to "disabled"
+                        "ktlint_standard_no-wildcard-imports" to "disabled"
                     )
                 )
         }
         kotlinGradle {
             target("**/*.kts")
             targetExclude("**/build/**")
-            ktlint("1.3.1")
+            ktlint()
                 .editorConfigOverride(
                     mapOf(
                         "ktlint_standard_filename" to "disabled",
