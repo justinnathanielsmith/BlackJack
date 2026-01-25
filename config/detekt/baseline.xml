@@ -2,7 +2,6 @@
 <SmellBaseline>
   <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>CyclomaticComplexMethod:GameContent.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun GameContent(component: GameComponent, modifier: Modifier = Modifier)</ID>
     <ID>CyclomaticComplexMethod:GameGrid.kt:@Composable fun GameGrid( cards: ImmutableList&lt;CardState&gt;, onCardClick: (Int) -&gt; Unit, isPeeking: Boolean = false, lastMatchedIds: ImmutableList&lt;Int&gt; = persistentListOf(), showComboExplosion: Boolean = false, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, areSuitsMultiColored: Boolean = false, )</ID>
     <ID>CyclomaticComplexMethod:PlayingCard.kt:@Composable fun PlayingCard( suit: Suit, rank: Rank, isFaceUp: Boolean, isMatched: Boolean = false, isRecentlyMatched: Boolean = false, isError: Boolean = false, modifier: Modifier = Modifier, backColor: Color = StartBackgroundTop, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, areSuitsMultiColored: Boolean = false, onClick: () -&gt; Unit = {}, )</ID>
     <ID>CyclomaticComplexMethod:TimerDisplay.kt:@Composable fun TimerDisplay( time: Long, isLowTime: Boolean, isCriticalTime: Boolean, showTimeGain: Boolean, timeGainAmount: Int, showTimeLoss: Boolean, timeLossAmount: Long, isMegaBonus: Boolean, infiniteTransition: InfiniteTransition, modifier: Modifier = Modifier, compact: Boolean = false, minimal: Boolean = false, )</ID>

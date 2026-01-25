@@ -5,6 +5,7 @@ import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -46,13 +47,37 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
-    val graph = LocalAppGraph.current
+fun GameContent(
+    component: GameComponent,
+    modifier: Modifier = Modifier,
+) {
     val state by component.state.collectAsState()
+
+    GameEventHandler(component)
+
+    AdaptiveDensity {
+        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
+            val isLandscape = maxWidth > maxHeight
+            val isCompactHeight = maxHeight < 500.dp
+            val useCompactUI = isLandscape && isCompactHeight
+
+            Box(modifier = Modifier.fillMaxSize()) {
+                GameBackground(isHeatMode = state.isHeatMode)
+                GameMainScreen(
+                    state = state,
+                    component = component,
+                    useCompactUI = useCompactUI,
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun GameEventHandler(component: GameComponent) {
+    val graph = LocalAppGraph.current
     val audioService = graph.audioService
     val hapticsService = graph.hapticsService
-    val clipboardManager = LocalClipboardManager.current
-    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         audioService.startMusic()
@@ -116,177 +141,233 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
             audioService.stopMusic()
         }
     }
+}
 
-    AdaptiveDensity {
-        BoxWithConstraints(modifier = modifier.fillMaxSize()) {
-            val isLandscape = maxWidth > maxHeight
-            val isCompactHeight = maxHeight < 500.dp
-            val useCompactUI = isLandscape && isCompactHeight
+@Composable
+private fun GameGameOverOverlay(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f)),
+    ) {
+        if (state.game.isGameWon) {
+            GameWonOverlay(state)
+        }
 
-            // Heat mode responsive background
-            val backgroundTopColor by animateColorAsState(
-                targetValue = if (state.isHeatMode) HeatBackgroundTop else StartBackgroundTop,
-                animationSpec = tween(durationMillis = 800),
-            )
-            val backgroundBottomColor by animateColorAsState(
-                targetValue = if (state.isHeatMode) HeatBackgroundBottom else StartBackgroundBottom,
-                animationSpec = tween(durationMillis = 800),
-            )
+        GameResultsOverlay(
+            state = state,
+            component = component,
+            useCompactUI = useCompactUI,
+        )
+    }
+}
 
-            Box(
-                modifier =
+@Composable
+private fun BoxScope.GameWonOverlay(state: GameUIState) {
+    BouncingCardsOverlay(
+        cards = state.game.cards,
+        settings = state.cardSettings,
+    )
+    ConfettiEffect()
+
+    if (state.isNewHighScore) {
+        NewHighScoreSnackbar(
+            modifier =
                 Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.verticalGradient(
-                            colors = listOf(backgroundTopColor, backgroundBottomColor),
-                        ),
-                    ),
-            ) {
-                Scaffold(
-                    containerColor = Color.Transparent,
-                    modifier = Modifier.fillMaxSize(),
-                    contentWindowInsets = WindowInsets(0, 0, 0, 0),
-                    topBar = {
-                        GameTopBar(
-                            time = state.elapsedTimeSeconds,
-                            onBackClick = {
-                                audioService.playClick()
-                                component.onBack()
-                            },
-                            onRestartClick = {
-                                audioService.playClick()
-                                component.onRestart()
-                                audioService.startMusic()
-                            },
-                            mode = state.game.mode,
-                            maxTime = state.maxTimeSeconds,
-                            showTimeGain = state.showTimeGain,
-                            timeGainAmount = state.timeGainAmount,
-                            showTimeLoss = state.showTimeLoss,
-                            timeLossAmount = state.timeLossAmount,
-                            isMegaBonus = state.isMegaBonus,
-                            compact = useCompactUI,
-                            isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
-                            onMuteClick = {
-                                audioService.playClick()
-                                component.onToggleAudio()
-                            },
-                        )
-                    },
-                ) { paddingValues ->
-                    Box(modifier = Modifier.fillMaxSize().padding(top = paddingValues.calculateTopPadding())) {
-                        GameGrid(
-                            cards = state.game.cards,
-                            onCardClick = { cardId -> component.onFlipCard(cardId) },
-                            isPeeking = state.isPeeking,
-                            lastMatchedIds = state.game.lastMatchedIds,
-                            showComboExplosion = state.showComboExplosion,
-                            settings = state.cardSettings,
-                        )
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                    .widthIn(max = 500.dp),
+        )
+    }
+}
 
-                        if (state.game.comboMultiplier > 1) {
-                            ComboBadge(
-                                combo = state.game.comboMultiplier,
-                                isMegaBonus = state.isMegaBonus,
-                                isHeatMode = state.isHeatMode,
-                                infiniteTransition = rememberInfiniteTransition(),
-                                modifier =
-                                Modifier
-                                    .align(Alignment.TopEnd)
-                                    .padding(top = 16.dp, end = 24.dp),
-                                compact = useCompactUI,
-                            )
-                        }
+@Composable
+private fun BoxScope.GameResultsOverlay(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
+    val graph = LocalAppGraph.current
+    val audioService = graph.audioService
+    val hapticsService = graph.hapticsService
+    val clipboardManager = LocalClipboardManager.current
+    val scope = rememberCoroutineScope()
 
-                        MatchCommentSnackbar(
-                            matchComment = state.game.matchComment,
-                            modifier =
-                            Modifier
-                                .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
-                                .navigationBarsPadding()
-                                .padding(
-                                    bottom = if (useCompactUI) 0.dp else 32.dp,
-                                    top = if (useCompactUI) 8.dp else 0.dp,
-                                    start = 16.dp,
-                                    end = 16.dp,
-                                ).widthIn(max = 600.dp),
-                        )
-
-                        if (state.isPeeking) {
-                            PeekCountdownOverlay(countdown = state.peekCountdown)
-                        }
-
-                        if (state.game.isGameOver) {
-                            Box(
-                                modifier =
-                                Modifier
-                                    .fillMaxSize()
-                                    .background(Color.Black.copy(alpha = 0.4f)),
-                            )
-
-                            if (state.game.isGameWon) {
-                                BouncingCardsOverlay(
-                                    cards = state.game.cards,
-                                    settings = state.cardSettings,
-                                )
-                                ConfettiEffect()
-
-                                if (state.isNewHighScore) {
-                                    NewHighScoreSnackbar(
-                                        modifier =
-                                        Modifier
-                                            .align(Alignment.TopCenter)
-                                            .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                                            .widthIn(max = 500.dp),
-                                    )
-                                }
-                            }
-
-                            ResultsCard(
-                                isWon = state.game.isGameWon,
-                                score = state.game.score,
-                                moves = state.game.moves,
-                                elapsedTimeSeconds = state.elapsedTimeSeconds,
-                                scoreBreakdown = state.game.scoreBreakdown,
-                                onPlayAgain = {
-                                    audioService.playClick()
-                                    component.onRestart()
-                                    audioService.startMusic()
-                                },
-                                onShareReplay = {
-                                    audioService.playClick()
-                                    val seed = state.game.seed ?: 0L
-                                    val link =
-                                        "memorymatch://game?mode=${state.game.mode}" +
-                                            "&pairs=${state.game.pairCount}&seed=$seed"
-                                    scope.launch {
-                                        clipboardManager.setText(AnnotatedString(link))
-                                    }
-                                    hapticsService.vibrateMatch()
-                                },
-                                onScoreTick = { hapticsService.vibrateTick() },
-                                modifier =
-                                Modifier
-                                    .align(Alignment.Center)
-                                    .widthIn(max = 550.dp)
-                                    .padding(
-                                        vertical = if (useCompactUI) 8.dp else 24.dp,
-                                    ),
-                                mode = state.game.mode,
-                            )
-                        }
-
-                        if (state.showWalkthrough) {
-                            WalkthroughOverlay(
-                                step = state.walkthroughStep,
-                                onNext = { component.onNextWalkthroughStep() },
-                                onDismiss = { component.onCompleteWalkthrough() },
-                            )
-                        }
-                    }
-                }
+    ResultsCard(
+        isWon = state.game.isGameWon,
+        score = state.game.score,
+        moves = state.game.moves,
+        elapsedTimeSeconds = state.elapsedTimeSeconds,
+        scoreBreakdown = state.game.scoreBreakdown,
+        onPlayAgain = {
+            audioService.playClick()
+            component.onRestart()
+            audioService.startMusic()
+        },
+        onShareReplay = {
+            audioService.playClick()
+            val seed = state.game.seed ?: 0L
+            val link =
+                "memorymatch://game?mode=${state.game.mode}" +
+                    "&pairs=${state.game.pairCount}&seed=$seed"
+            scope.launch {
+                clipboardManager.setText(AnnotatedString(link))
             }
+            hapticsService.vibrateMatch()
+        },
+        onScoreTick = { hapticsService.vibrateTick() },
+        modifier =
+            Modifier
+                .align(Alignment.Center)
+                .widthIn(max = 550.dp)
+                .padding(
+                    vertical = if (useCompactUI) 8.dp else 24.dp,
+                ),
+        mode = state.game.mode,
+    )
+}
+
+@Composable
+private fun GameBackground(isHeatMode: Boolean) {
+    val backgroundTopColor by animateColorAsState(
+        targetValue = if (isHeatMode) HeatBackgroundTop else StartBackgroundTop,
+        animationSpec = tween(durationMillis = 800),
+    )
+    val backgroundBottomColor by animateColorAsState(
+        targetValue = if (isHeatMode) HeatBackgroundBottom else StartBackgroundBottom,
+        animationSpec = tween(durationMillis = 800),
+    )
+
+    Box(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(backgroundTopColor, backgroundBottomColor),
+                    ),
+                ),
+    )
+}
+
+@Composable
+private fun GameMainScreen(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
+    val graph = LocalAppGraph.current
+    val audioService = graph.audioService
+
+    Scaffold(
+        containerColor = Color.Transparent,
+        modifier = Modifier.fillMaxSize(),
+        contentWindowInsets = WindowInsets(0, 0, 0, 0),
+        topBar = {
+            GameTopBar(
+                time = state.elapsedTimeSeconds,
+                onBackClick = {
+                    audioService.playClick()
+                    component.onBack()
+                },
+                onRestartClick = {
+                    audioService.playClick()
+                    component.onRestart()
+                    audioService.startMusic()
+                },
+                mode = state.game.mode,
+                maxTime = state.maxTimeSeconds,
+                showTimeGain = state.showTimeGain,
+                timeGainAmount = state.timeGainAmount,
+                showTimeLoss = state.showTimeLoss,
+                timeLossAmount = state.timeLossAmount,
+                isMegaBonus = state.isMegaBonus,
+                compact = useCompactUI,
+                isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
+                onMuteClick = {
+                    audioService.playClick()
+                    component.onToggleAudio()
+                },
+            )
+        },
+    ) { paddingValues ->
+        GameMainContent(
+            state = state,
+            component = component,
+            useCompactUI = useCompactUI,
+            modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
+        )
+    }
+}
+
+@Composable
+private fun GameMainContent(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        GameGrid(
+            cards = state.game.cards,
+            onCardClick = { cardId -> component.onFlipCard(cardId) },
+            isPeeking = state.isPeeking,
+            lastMatchedIds = state.game.lastMatchedIds,
+            showComboExplosion = state.showComboExplosion,
+            settings = state.cardSettings,
+        )
+
+        if (state.game.comboMultiplier > 1) {
+            ComboBadge(
+                combo = state.game.comboMultiplier,
+                isMegaBonus = state.isMegaBonus,
+                isHeatMode = state.isHeatMode,
+                infiniteTransition = rememberInfiniteTransition(),
+                modifier =
+                    Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(top = 16.dp, end = 24.dp),
+                compact = useCompactUI,
+            )
+        }
+
+        MatchCommentSnackbar(
+            matchComment = state.game.matchComment,
+            modifier =
+                Modifier
+                    .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
+                    .navigationBarsPadding()
+                    .padding(
+                        bottom = if (useCompactUI) 0.dp else 32.dp,
+                        top = if (useCompactUI) 8.dp else 0.dp,
+                        start = 16.dp,
+                        end = 16.dp,
+                    ).widthIn(max = 600.dp),
+        )
+
+        if (state.isPeeking) {
+            PeekCountdownOverlay(countdown = state.peekCountdown)
+        }
+
+        if (state.game.isGameOver) {
+            GameGameOverOverlay(
+                state = state,
+                component = component,
+                useCompactUI = useCompactUI,
+            )
+        }
+
+        if (state.showWalkthrough) {
+            WalkthroughOverlay(
+                step = state.walkthroughStep,
+                onNext = { component.onNextWalkthroughStep() },
+                onDismiss = { component.onCompleteWalkthrough() },
+            )
         }
     }
 }
