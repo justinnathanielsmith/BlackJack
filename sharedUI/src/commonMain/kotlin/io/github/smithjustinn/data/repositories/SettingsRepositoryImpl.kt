@@ -77,10 +77,14 @@ internal class SettingsRepositoryImpl(private val dao: SettingsDao, private val 
             initialValue = 1.0f,
         )
 
+    @Suppress("TooGenericExceptionCaught")
     override val cardBackTheme: StateFlow<CardBackTheme> = settingsFlow
         .map { entity ->
             try {
                 CardBackTheme.valueOf(entity?.cardBackTheme ?: CardBackTheme.GEOMETRIC.name)
+            } catch (e: IllegalArgumentException) {
+                logger.e(e) { "Invalid CardBackTheme values stored: ${entity?.cardBackTheme}" }
+                CardBackTheme.GEOMETRIC
             } catch (e: Exception) {
                 logger.e(e) { "Failed to parse CardBackTheme: ${entity?.cardBackTheme}" }
                 CardBackTheme.GEOMETRIC
@@ -92,10 +96,14 @@ internal class SettingsRepositoryImpl(private val dao: SettingsDao, private val 
             initialValue = CardBackTheme.GEOMETRIC,
         )
 
+    @Suppress("TooGenericExceptionCaught")
     override val cardSymbolTheme: StateFlow<CardSymbolTheme> = settingsFlow
         .map { entity ->
             try {
                 CardSymbolTheme.valueOf(entity?.cardSymbolTheme ?: CardSymbolTheme.CLASSIC.name)
+            } catch (e: IllegalArgumentException) {
+                logger.e(e) { "Invalid CardSymbolTheme values stored: ${entity?.cardSymbolTheme}" }
+                CardSymbolTheme.CLASSIC
             } catch (e: Exception) {
                 logger.e(e) { "Failed to parse CardSymbolTheme: ${entity?.cardSymbolTheme}" }
                 CardSymbolTheme.CLASSIC

@@ -20,6 +20,7 @@ internal class GameStatsRepositoryImpl(private val dao: GameStatsDao, private va
             emit(null)
         }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun updateStats(stats: GameStats) {
         try {
             dao.insertStats(stats.toEntity())

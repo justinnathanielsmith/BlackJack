@@ -9,6 +9,7 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
  */
 @Inject
 open class ClearSavedGameUseCase(private val gameStateRepository: GameStateRepository, private val logger: Logger) {
+    @Suppress("TooGenericExceptionCaught")
     open suspend operator fun invoke() {
         try {
             gameStateRepository.clearSavedGameState()

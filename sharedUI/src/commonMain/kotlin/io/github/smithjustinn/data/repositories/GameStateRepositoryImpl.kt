@@ -14,6 +14,7 @@ internal class GameStateRepositoryImpl(
     private val json: Json,
     private val logger: Logger,
 ) : GameStateRepository {
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun saveGameState(gameState: MemoryGameState, elapsedTimeSeconds: Long) {
         try {
             val jsonString = json.encodeToString(gameState)
@@ -23,17 +24,22 @@ internal class GameStateRepositoryImpl(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun getSavedGameState(): Pair<MemoryGameState, Long>? {
         val entity = dao.getSavedGameState() ?: return null
         return try {
             val gameState = json.decodeFromString<MemoryGameState>(entity.gameStateJson)
             gameState to entity.elapsedTimeSeconds
+        } catch (e: kotlinx.serialization.SerializationException) {
+            logger.e(e) { "Failed to decode saved game state: JSON corruption" }
+            null
         } catch (e: Exception) {
-            logger.e(e) { "Failed to decode saved game state" }
+            logger.e(e) { "Failed to retrieve saved game state: Database error" }
             null
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun clearSavedGameState() {
         try {
             dao.clearSavedGameState()

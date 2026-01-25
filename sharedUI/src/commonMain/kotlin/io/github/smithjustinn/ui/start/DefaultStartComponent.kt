@@ -59,6 +59,7 @@ class DefaultStartComponent(
         observeDailyChallengeStatus()
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun checkSavedGame() {
         scope.launch {
             try {
@@ -76,6 +77,7 @@ class DefaultStartComponent(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun observeDailyChallengeStatus() {
         scope.launch {
             try {

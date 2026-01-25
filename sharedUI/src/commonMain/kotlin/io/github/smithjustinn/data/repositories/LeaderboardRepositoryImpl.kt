@@ -24,6 +24,7 @@ internal class LeaderboardRepositoryImpl(private val dao: LeaderboardDao, privat
                 emit(emptyList())
             }
 
+    @Suppress("TooGenericExceptionCaught")
     override suspend fun addEntry(entry: LeaderboardEntry) {
         try {
             dao.insertEntry(entry.toEntity())

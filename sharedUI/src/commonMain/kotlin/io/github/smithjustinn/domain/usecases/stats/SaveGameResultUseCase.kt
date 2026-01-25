@@ -20,6 +20,7 @@ open class SaveGameResultUseCase(
     private val leaderboardRepository: LeaderboardRepository,
     private val logger: Logger,
 ) {
+    @Suppress("TooGenericExceptionCaught")
     open suspend operator fun invoke(pairCount: Int, score: Int, timeSeconds: Long, moves: Int, gameMode: GameMode) {
         try {
             // Stats are currently per difficulty, we might want to separate them by mode too in the future
