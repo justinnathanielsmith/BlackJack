@@ -56,7 +56,7 @@ fun ComboBadge(
                 if (compact) 1.05f else 1.1f
             },
             animationSpec = infiniteRepeatable(
-                animation = tween(400, easing = FastOutSlowInEasing),
+                animation = tween(COMBO_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
         )
@@ -71,7 +71,7 @@ fun ComboBadge(
         Surface(
             color = InactiveBackground.copy(alpha = 0.6f),
             shape = tacticalShape,
-            border = BorderStroke(1.5.dp, badgeColor),
+            border = BorderStroke(BORDER_WIDTH.dp, badgeColor),
             modifier = Modifier
                 .scale(comboPulseScale)
                 .shadow(
@@ -101,3 +101,6 @@ fun ComboBadge(
         }
     }
 }
+
+private const val COMBO_ANIMATION_DURATION_MS = 400
+private const val BORDER_WIDTH = 1.5

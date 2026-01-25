@@ -124,81 +124,80 @@ class DefaultGameComponent(
             try {
                 val savedGame = if (forceNewGame) null else getSavedGameUseCase()
                 if (savedGame != null && isSavedGameValid(savedGame, pairCount, mode)) {
-                    val initialTime =
-                        if (mode ==
-                            GameMode.TIME_ATTACK
-                        ) {
-                            MemoryGameLogic.calculateInitialTime(pairCount)
-                        } else {
-                            0L
-                        }
-                    _state.update {
-                        it.copy(
-                            game = savedGame.first.copy(lastMatchedIds = persistentListOf()),
-                            elapsedTimeSeconds = savedGame.second,
-                            maxTimeSeconds = initialTime,
-                            showComboExplosion = false,
-                            isNewHighScore = false,
-                            isPeeking = false,
-                            showTimeGain = false,
-                            showTimeLoss = false,
-                        )
-                    }
-                    startTimer(mode)
-
-                    if (savedGame.first.cards.any { it.isError }) {
-                        handleMatchFailure(savedGame.first, isResuming = true)
-                    }
+                    resumeExistingGame(savedGame)
                 } else {
-                    val finalSeed =
-                        seed ?: if (mode == GameMode.DAILY_CHALLENGE) {
-                            Clock.System.now().toEpochMilliseconds() / MILLIS_IN_DAY
-                        } else {
-                            null
-                        }
-
-                    val initialGameState = startNewGameUseCase(pairCount, mode = mode, seed = finalSeed)
-                    val initialTime =
-                        if (mode ==
-                            GameMode.TIME_ATTACK
-                        ) {
-                            MemoryGameLogic.calculateInitialTime(pairCount)
-                        } else {
-                            0L
-                        }
-
-                    _state.update {
-                        it.copy(
-                            game = initialGameState,
-                            elapsedTimeSeconds = initialTime,
-                            maxTimeSeconds = initialTime,
-                            showComboExplosion = false,
-                            isNewHighScore = false,
-                            isPeeking = false,
-                            showTimeGain = false,
-                            showTimeLoss = false,
-                        )
-                    }
-
-                    _events.emit(GameUiEvent.PlayDeal)
-
-                    // Wait a frame to ensure settings have been collected
-                    delay(SETTINGS_COLLECTION_DELAY)
-
-                    val currentState = _state.value
-                    if (currentState.showWalkthrough) {
-                        // Walkthrough will handle starting the timer
-                    } else if (currentState.isPeekFeatureEnabled) {
-                        peekCards(mode)
-                    } else {
-                        startTimer(mode)
-                    }
+                    setupNewGame(pairCount, mode, seed)
                 }
-
                 observeStats(pairCount)
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 logger.e(e) { "Error starting game" }
             }
+        }
+    }
+
+    private fun resumeExistingGame(savedGame: Pair<MemoryGameState, Long>) {
+        val initialTime = if (savedGame.first.mode == GameMode.TIME_ATTACK) {
+            MemoryGameLogic.calculateInitialTime(savedGame.first.pairCount)
+        } else {
+            0L
+        }
+
+        _state.update {
+            it.copy(
+                game = savedGame.first.copy(lastMatchedIds = persistentListOf()),
+                elapsedTimeSeconds = savedGame.second,
+                maxTimeSeconds = initialTime,
+                showComboExplosion = false,
+                isNewHighScore = false,
+                isPeeking = false,
+                showTimeGain = false,
+                showTimeLoss = false,
+            )
+        }
+        startTimer(savedGame.first.mode)
+
+        if (savedGame.first.cards.any { it.isError }) {
+            handleMatchFailure(savedGame.first, isResuming = true)
+        }
+    }
+
+    private suspend fun setupNewGame(pairCount: Int, mode: GameMode, seed: Long?) {
+        val finalSeed = seed ?: if (mode == GameMode.DAILY_CHALLENGE) {
+            Clock.System.now().toEpochMilliseconds() / MILLIS_IN_DAY
+        } else {
+            null
+        }
+
+        val initialGameState = startNewGameUseCase(pairCount, mode = mode, seed = finalSeed)
+        val initialTime = if (mode == GameMode.TIME_ATTACK) {
+            MemoryGameLogic.calculateInitialTime(pairCount)
+        } else {
+            0L
+        }
+
+        _state.update {
+            it.copy(
+                game = initialGameState,
+                elapsedTimeSeconds = initialTime,
+                maxTimeSeconds = initialTime,
+                showComboExplosion = false,
+                isNewHighScore = false,
+                isPeeking = false,
+                showTimeGain = false,
+                showTimeLoss = false,
+            )
+        }
+
+        _events.emit(GameUiEvent.PlayDeal)
+
+        // Wait a frame to ensure settings have been collected
+        delay(SETTINGS_COLLECTION_DELAY)
+
+        val currentState = _state.value
+        when {
+            currentState.showWalkthrough -> { /* Walkthrough handles timer */ }
+            currentState.isPeekFeatureEnabled -> peekCards(mode)
+            else -> startTimer(mode)
         }
     }
 
@@ -251,7 +250,7 @@ class DefaultGameComponent(
                                 shouldStop = true
                             }
 
-                            if (newTime in 1L..5L && !it.game.isGameOver) {
+                            if (newTime in MIN_TICK_TIME..MAX_TICK_TIME && !it.game.isGameOver) {
                                 _events.tryEmit(GameUiEvent.VibrateTick)
                             }
 
@@ -310,7 +309,7 @@ class DefaultGameComponent(
 
                 else -> {}
             }
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.e(e) { "Error flipping card: $cardId" }
         }
     }
@@ -331,7 +330,7 @@ class DefaultGameComponent(
 
         if (newState.mode == GameMode.TIME_ATTACK) {
             val totalTimeGain = MemoryGameLogic.calculateTimeGain(newState.comboMultiplier - 1)
-            val isMega = newState.comboMultiplier >= 3
+            val isMega = newState.comboMultiplier >= MEGA_BONUS_THRESHOLD
 
             _state.update {
                 it.copy(
@@ -559,5 +558,8 @@ class DefaultGameComponent(
         private const val REVEAL_DELAY_MS = 1000L
         private const val COMBO_EXPLOSION_DURATION_MS = 1000L
         private const val COMMENT_DURATION_MS = 2500L
+        private const val MIN_TICK_TIME = 1L
+        private const val MAX_TICK_TIME = 5L
+        private const val MEGA_BONUS_THRESHOLD = 3
     }
 }

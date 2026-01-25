@@ -83,7 +83,7 @@ class DefaultRootComponent(componentContext: ComponentContext, private val appGr
 
             @OptIn(com.arkivanov.decompose.DelicateDecomposeApi::class)
             navigation.push(Config.Game(pairs, mode, forceNewGame = true, seed = seed))
-        } catch (e: Exception) {
+        } catch (e: IllegalArgumentException) {
             logger.e(e) { "Error handling deep link: $url" }
         }
     }

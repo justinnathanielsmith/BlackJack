@@ -107,7 +107,7 @@ class AndroidAudioServiceImpl(
         val id = soundPool.load(tempFile.absolutePath, 1)
         soundMap[resource] = id
         id
-    } catch (e: Exception) {
+    } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
         logger.e(e) { "Error loading sound resource: $resource" }
         null
     }
@@ -142,7 +142,7 @@ class AndroidAudioServiceImpl(
                         start()
                     }
                 }
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 logger.e(e) { "Error playing fallback sound: $name" }
             }
         }
@@ -204,7 +204,7 @@ class AndroidAudioServiceImpl(
                         start()
                     }
                 }
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 logger.e(e) { "Error starting music" }
             }
         }

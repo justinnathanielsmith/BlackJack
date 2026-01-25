@@ -33,14 +33,14 @@ private class Particle(val color: Color, val size: Float, angle: Double, speed: 
     private var vx = cos(angle).toFloat() * speed
     private var vy = sin(angle).toFloat() * speed
     var alpha = 1f
-    var rotation = Random.nextFloat() * 360f
-    private val vRot = (Random.nextFloat() - 0.5f) * 20f
+    var rotation = Random.nextFloat() * MAX_ROTATION_DEG
+    private val vRot = (Random.nextFloat() - ROTATION_SPEED_OFFSET) * ROTATION_SPEED_MULTIPLIER
 
     fun update() {
         x += vx
         y += vy
-        vy += 0.2f // Gravity
-        alpha -= 0.01f
+        vy += GRAVITY_ACCEL
+        alpha -= ALPHA_DECAY
         rotation += vRot
     }
 }
@@ -73,9 +73,9 @@ fun ConfettiEffect(
         val newParticles = List(particleCount) {
             Particle(
                 color = colors.random(),
-                size = Random.nextFloat() * 10f + 8f,
+                size = Random.nextFloat() * MAX_PARTICLE_SIZE_DIFF + MIN_PARTICLE_SIZE,
                 angle = Random.nextDouble(0.0, 2.0 * PI),
-                speed = Random.nextFloat() * 12f + 4f,
+                speed = Random.nextFloat() * MAX_PARTICLE_SPEED_DIFF + MIN_PARTICLE_SPEED,
             )
         }
         particles.addAll(newParticles)
@@ -114,3 +114,13 @@ fun ConfettiEffect(
         }
     }
 }
+
+private const val MAX_ROTATION_DEG = 360f
+private const val ROTATION_SPEED_MULTIPLIER = 20f
+private const val ROTATION_SPEED_OFFSET = 0.5f
+private const val GRAVITY_ACCEL = 0.2f
+private const val ALPHA_DECAY = 0.01f
+private const val MAX_PARTICLE_SIZE_DIFF = 10f
+private const val MIN_PARTICLE_SIZE = 8f
+private const val MAX_PARTICLE_SPEED_DIFF = 12f
+private const val MIN_PARTICLE_SPEED = 4f

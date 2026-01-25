@@ -194,10 +194,10 @@ private fun calculateGridMetrics(
 private fun calculateCompactLandscapeMetrics(cardCount: Int, screenWidth: androidx.compose.ui.unit.Dp): GridMetrics {
     val cols =
         when {
-            cardCount <= 12 -> 6
-            cardCount <= 20 -> 7
-            cardCount <= 24 -> 8
-            else -> 10
+            cardCount <= SMALL_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_SMALL
+            cardCount <= MEDIUM_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_MEDIUM
+            cardCount <= LARGE_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_LARGE
+            else -> COMPACT_LANDSCAPE_COLS_DEFAULT
         }
     return GridMetrics(GridCells.Fixed(cols), screenWidth)
 }
@@ -213,14 +213,14 @@ private fun calculateWideMetrics(
     val availableWidth = screenWidth - hPadding
     val availableHeight = screenHeight - vPadding
 
-    var bestCols = 4
+    var bestCols = MIN_GRID_COLS_WIDE
     var maxCardHeight = 0.dp
 
-    val maxCols = minOf(cardCount, 12)
-    for (cols in 4..maxCols) {
+    val maxCols = minOf(cardCount, MAX_GRID_COLS_WIDE)
+    for (cols in MIN_GRID_COLS_WIDE..maxCols) {
         val rows = ceil(cardCount.toFloat() / cols).toInt()
         val wBasedCardWidth = (availableWidth - (spacing * (cols - 1))) / cols
-        val hFromW = wBasedCardWidth / 0.75f
+        val hFromW = wBasedCardWidth / CARD_ASPECT_RATIO
         val hFromH = (availableHeight - (spacing * (rows - 1))) / rows
         val possibleHeight = if (hFromW < hFromH) hFromW else hFromH
 
@@ -230,7 +230,7 @@ private fun calculateWideMetrics(
         }
     }
 
-    val finalCardWidth = maxCardHeight * 0.75f
+    val finalCardWidth = maxCardHeight * CARD_ASPECT_RATIO
     val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
     return GridMetrics(GridCells.Fixed(bestCols), calculatedWidth.coerceAtMost(screenWidth))
 }
@@ -251,16 +251,16 @@ private fun calculatePortraitMetrics(
 
     val cols =
         when {
-            cardCount <= 12 -> 3
-            cardCount <= 20 -> 4
-            else -> 4
+            cardCount <= SMALL_GRID_THRESHOLD -> PORTRAIT_COLS_SMALL
+            cardCount <= MEDIUM_GRID_THRESHOLD -> PORTRAIT_COLS_MEDIUM
+            else -> PORTRAIT_COLS_DEFAULT
         }
     val rows = ceil(cardCount.toFloat() / cols).toInt()
 
     val maxW = (availableWidth - (spacing * (cols - 1))) / cols
     val maxH = (availableHeight - (spacing * (rows - 1))) / rows
 
-    val wFromH = maxH * 0.75f
+    val wFromH = maxH * CARD_ASPECT_RATIO
     val finalCardWidth = minOf(maxW, wFromH).coerceAtLeast(60.dp)
     val calculatedWidth = (finalCardWidth * cols) + (spacing * (cols - 1)) + (hPadding * 2)
 
@@ -294,3 +294,21 @@ private fun calculateGridSpacing(isWide: Boolean, isCompactHeight: Boolean): Gri
         horizontalSpacing = hSpacing,
     )
 }
+
+private const val SMALL_GRID_THRESHOLD = 12
+private const val MEDIUM_GRID_THRESHOLD = 20
+private const val LARGE_GRID_THRESHOLD = 24
+
+private const val COMPACT_LANDSCAPE_COLS_SMALL = 6
+private const val COMPACT_LANDSCAPE_COLS_MEDIUM = 7
+private const val COMPACT_LANDSCAPE_COLS_LARGE = 8
+private const val COMPACT_LANDSCAPE_COLS_DEFAULT = 10
+
+private const val PORTRAIT_COLS_SMALL = 3
+private const val PORTRAIT_COLS_MEDIUM = 4
+private const val PORTRAIT_COLS_DEFAULT = 4
+
+private const val MIN_GRID_COLS_WIDE = 4
+private const val MAX_GRID_COLS_WIDE = 12
+
+private const val CARD_ASPECT_RATIO = 0.75f

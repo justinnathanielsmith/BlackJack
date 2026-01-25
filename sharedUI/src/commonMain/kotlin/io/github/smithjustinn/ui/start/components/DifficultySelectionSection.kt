@@ -76,122 +76,146 @@ fun DifficultySelectionSection(
             modifier = Modifier.fillMaxWidth(),
             verticalArrangement = Arrangement.spacedBy(32.dp),
         ) {
-            // Difficulty Selector
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(Res.string.select_difficulty),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.White.copy(alpha = 0.5f),
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.2.sp,
-                )
-
-                NeonSegmentedControl(
-                    items = state.difficulties,
-                    selectedItem = state.selectedDifficulty,
-                    onItemSelected = onDifficultySelected,
-                    labelProvider = { level -> level.pairs.toString() },
-                )
-            }
-
-            // Game Mode Selector
-            Column(
-                modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
-                horizontalAlignment = Alignment.CenterHorizontally,
-            ) {
-                Text(
-                    text = stringResource(Res.string.game_mode),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = Color.White.copy(alpha = 0.5f),
-                    fontWeight = FontWeight.Bold,
-                    letterSpacing = 1.2.sp,
-                )
-
-                NeonSegmentedControl(
-                    items = listOf(GameMode.STANDARD, GameMode.TIME_ATTACK),
-                    selectedItem = state.selectedMode,
-                    onItemSelected = onModeSelected,
-                    labelProvider = { mode ->
-                        when (mode) {
-                            GameMode.STANDARD -> stringResource(Res.string.mode_standard)
-                            GameMode.TIME_ATTACK -> stringResource(Res.string.mode_time_attack)
-                            GameMode.DAILY_CHALLENGE -> stringResource(Res.string.daily_challenge)
-                        }
-                    },
-                )
-            }
+            DifficultySelector(state, onDifficultySelected)
+            ModeSelector(state, onModeSelected)
         }
 
         Spacer(modifier = Modifier.height(48.dp))
 
         // Step 5: Implement Action Buttons
-        Column(
-            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp),
-        ) {
-            // Main Button(s)
-            if (state.hasSavedGame) {
-                NeonStyleButton(
-                    text = stringResource(Res.string.resume_game),
-                    onClick = onResumeGame,
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = AppIcons.ArrowBack,
-                )
+        ActionButtons(
+            state = state,
+            onStartGame = onStartGame,
+            onResumeGame = onResumeGame,
+            onSettingsClick = onSettingsClick,
+            onStatsClick = onStatsClick,
+            onDailyChallengeClick = onDailyChallengeClick,
+        )
+    }
+}
 
-                NeonStyleButton(
-                    text = stringResource(Res.string.start),
-                    onClick = onStartGame,
-                    modifier = Modifier.fillMaxWidth(),
-                    isPrimary = false,
-                )
-            } else {
-                NeonStyleButton(
-                    text = stringResource(Res.string.start),
-                    onClick = onStartGame,
-                    modifier = Modifier.fillMaxWidth(),
-                )
-            }
+@Composable
+private fun DifficultySelector(state: DifficultyState, onDifficultySelected: (DifficultyLevel) -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(Res.string.select_difficulty),
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.White.copy(alpha = 0.5f),
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp,
+        )
 
-            // Secondary Buttons Row
-            Row(
+        NeonSegmentedControl(
+            items = state.difficulties,
+            selectedItem = state.selectedDifficulty,
+            onItemSelected = onDifficultySelected,
+            labelProvider = { level -> level.pairs.toString() },
+        )
+    }
+}
+
+@Composable
+private fun ModeSelector(state: DifficultyState, onModeSelected: (GameMode) -> Unit) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(12.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(Res.string.game_mode),
+            style = MaterialTheme.typography.labelLarge,
+            color = Color.White.copy(alpha = 0.5f),
+            fontWeight = FontWeight.Bold,
+            letterSpacing = 1.2.sp,
+        )
+
+        NeonSegmentedControl(
+            items = listOf(GameMode.STANDARD, GameMode.TIME_ATTACK),
+            selectedItem = state.selectedMode,
+            onItemSelected = onModeSelected,
+            labelProvider = { mode ->
+                when (mode) {
+                    GameMode.STANDARD -> stringResource(Res.string.mode_standard)
+                    GameMode.TIME_ATTACK -> stringResource(Res.string.mode_time_attack)
+                    GameMode.DAILY_CHALLENGE -> stringResource(Res.string.daily_challenge)
+                }
+            },
+        )
+    }
+}
+
+@Composable
+private fun ActionButtons(
+    state: DifficultyState,
+    onStartGame: () -> Unit,
+    onResumeGame: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onStatsClick: () -> Unit,
+    onDailyChallengeClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+        verticalArrangement = Arrangement.spacedBy(16.dp),
+    ) {
+        if (state.hasSavedGame) {
+            NeonStyleButton(
+                text = stringResource(Res.string.resume_game),
+                onClick = onResumeGame,
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
-            ) {
-                NeonStyleButton(
-                    text = stringResource(Res.string.settings),
-                    onClick = onSettingsClick,
-                    modifier = Modifier.weight(1f),
-                    isPrimary = false,
-                    leadingIcon = AppIcons.Settings,
-                )
-                NeonStyleButton(
-                    text = stringResource(Res.string.leaderboard),
-                    onClick = onStatsClick,
-                    modifier = Modifier.weight(1f),
-                    isPrimary = false,
-                    leadingIcon = AppIcons.Trophy,
-                )
-            }
-            // Daily Challenge Button
-            val dailyText = if (state.isDailyChallengeCompleted) {
-                stringResource(Res.string.daily_challenge_completed)
-            } else {
-                stringResource(Res.string.daily_challenge)
-            }
+                trailingIcon = AppIcons.ArrowBack,
+            )
 
             NeonStyleButton(
-                text = dailyText,
-                onClick = onDailyChallengeClick,
+                text = stringResource(Res.string.start),
+                onClick = onStartGame,
                 modifier = Modifier.fillMaxWidth(),
-                isPrimary = !state.isDailyChallengeCompleted,
-                leadingIcon = AppIcons.DateRange, // Need to ensure AppIcons has DateRange or use a fallback
+                isPrimary = false,
+            )
+        } else {
+            NeonStyleButton(
+                text = stringResource(Res.string.start),
+                onClick = onStartGame,
+                modifier = Modifier.fillMaxWidth(),
             )
         }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        ) {
+            NeonStyleButton(
+                text = stringResource(Res.string.settings),
+                onClick = onSettingsClick,
+                modifier = Modifier.weight(1f),
+                isPrimary = false,
+                leadingIcon = AppIcons.Settings,
+            )
+            NeonStyleButton(
+                text = stringResource(Res.string.leaderboard),
+                onClick = onStatsClick,
+                modifier = Modifier.weight(1f),
+                isPrimary = false,
+                leadingIcon = AppIcons.Trophy,
+            )
+        }
+
+        val dailyText = if (state.isDailyChallengeCompleted) {
+            stringResource(Res.string.daily_challenge_completed)
+        } else {
+            stringResource(Res.string.daily_challenge)
+        }
+
+        NeonStyleButton(
+            text = dailyText,
+            onClick = onDailyChallengeClick,
+            modifier = Modifier.fillMaxWidth(),
+            isPrimary = !state.isDailyChallengeCompleted,
+            leadingIcon = AppIcons.DateRange,
+        )
     }
 }
 
@@ -238,44 +262,55 @@ fun NeonStyleButton(
         shape = buttonShape,
         color = backgroundColor,
     ) {
-        Box(
-            modifier = Modifier.fillMaxSize(),
-            contentAlignment = Alignment.Center,
+        NeonButtonContent(text, leadingIcon, trailingIcon)
+    }
+}
+
+@Composable
+private fun NeonButtonContent(
+    text: String,
+    leadingIcon: androidx.compose.ui.graphics.vector.ImageVector?,
+    trailingIcon: androidx.compose.ui.graphics.vector.ImageVector?,
+) {
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+            modifier = Modifier.padding(horizontal = 12.dp),
         ) {
-            Row(
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.Center,
-                modifier = Modifier.padding(horizontal = 12.dp),
-            ) {
-                if (leadingIcon != null) {
-                    Icon(
-                        imageVector = leadingIcon,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp),
-                    )
-                    Spacer(Modifier.width(8.dp))
-                }
-
-                Text(
-                    text = text,
-                    style = MaterialTheme.typography.titleMedium,
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                    maxLines = 1,
-                    softWrap = false,
-                    overflow = TextOverflow.Ellipsis,
+            if (leadingIcon != null) {
+                Icon(
+                    imageVector = leadingIcon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier.size(18.dp),
                 )
+                Spacer(Modifier.width(8.dp))
+            }
 
-                if (trailingIcon != null) {
-                    Spacer(Modifier.width(8.dp))
-                    Icon(
-                        imageVector = trailingIcon,
-                        contentDescription = null,
-                        tint = Color.White,
-                        modifier = Modifier.size(18.dp).graphicsLayer { rotationZ = TRAILING_ICON_ROTATION },
-                    )
-                }
+            Text(
+                text = text,
+                style = MaterialTheme.typography.titleMedium,
+                fontWeight = FontWeight.Bold,
+                color = Color.White,
+                maxLines = 1,
+                softWrap = false,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            if (trailingIcon != null) {
+                Spacer(Modifier.width(8.dp))
+                Icon(
+                    imageVector = trailingIcon,
+                    contentDescription = null,
+                    tint = Color.White,
+                    modifier = Modifier
+                        .size(18.dp)
+                        .graphicsLayer { rotationZ = TRAILING_ICON_ROTATION },
+                )
             }
         }
     }

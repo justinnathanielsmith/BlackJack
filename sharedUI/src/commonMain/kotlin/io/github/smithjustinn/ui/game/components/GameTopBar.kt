@@ -63,8 +63,8 @@ fun GameTopBar(
     onMuteClick: () -> Unit = {},
 ) {
     val isTimeAttack = mode == GameMode.TIME_ATTACK
-    val isLowTime = isTimeAttack && time <= 10
-    val isCriticalTime = isTimeAttack && time <= 5
+    val isLowTime = isTimeAttack && time <= LOW_TIME_THRESHOLD_SEC
+    val isCriticalTime = isTimeAttack && time <= CRITICAL_TIME_THRESHOLD_SEC
 
     val infiniteTransition = rememberInfiniteTransition()
 
@@ -256,3 +256,6 @@ private fun TimeProgressBar(
         )
     }
 }
+
+private const val LOW_TIME_THRESHOLD_SEC = 10
+private const val CRITICAL_TIME_THRESHOLD_SEC = 5

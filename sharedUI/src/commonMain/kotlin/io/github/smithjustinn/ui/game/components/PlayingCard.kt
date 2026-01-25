@@ -151,7 +151,11 @@ fun PlayingCard(
     val suitColor = calculateSuitColor(suit, settings.areSuitsMultiColored)
     val matchedGlowAlpha by animateFloatAsState(
         targetValue = if (isRecentlyMatched) SUBTLE_ALPHA else 0f,
-        animationSpec = infiniteRepeatable(animation = tween(GLOW_ANIMATION_DURATION_MS), repeatMode = RepeatMode.Reverse),
+        animationSpec = infiniteRepeatable(
+            animation = tween(GLOW_ANIMATION_DURATION_MS),
+            repeatMode = RepeatMode.Reverse,
+        ),
+        label = "matchedGlow",
     )
 
     CardContainer(
@@ -411,7 +415,10 @@ private fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbol
                     text = suit.symbol,
                     color = suitColor.copy(alpha = MODERATE_ALPHA),
                     style = MaterialTheme.typography.titleMedium.copy(fontSize = getFontSize(FONT_SIZE_LARGE)),
-                    modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp).graphicsLayer { rotationZ = FULL_ROTATION },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(4.dp)
+                        .graphicsLayer { rotationZ = FULL_ROTATION },
                 )
             }
 

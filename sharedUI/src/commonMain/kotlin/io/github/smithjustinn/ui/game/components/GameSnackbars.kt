@@ -118,57 +118,62 @@ fun MatchCommentSnackbar(matchComment: MatchComment?, modifier: Modifier = Modif
         ),
         modifier = modifier,
     ) {
-        if (matchComment != null) {
-            val commentText = stringResource(matchComment.res, *matchComment.args.toTypedArray())
+        matchComment?.let {
+            MatchCommentCard(it)
+        }
+    }
+}
 
-            Card(
+@Composable
+private fun MatchCommentCard(matchComment: MatchComment) {
+    val commentText = stringResource(matchComment.res, *matchComment.args.toTypedArray())
+
+    Card(
+        shape = RoundedCornerShape(12.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = StartBackgroundBottom,
+            contentColor = LightGreyBlue,
+        ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        modifier = Modifier
+            .padding(horizontal = 16.dp, vertical = 8.dp)
+            .fillMaxWidth()
+            .border(
+                width = 1.dp,
+                color = NeonCyan.copy(alpha = 0.6f),
                 shape = RoundedCornerShape(12.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = StartBackgroundBottom,
-                    contentColor = LightGreyBlue,
+            ),
+    ) {
+        Row(
+            modifier = Modifier
+                .padding(horizontal = 20.dp, vertical = 14.dp)
+                .align(Alignment.CenterHorizontally),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "“",
+                style = MaterialTheme.typography.headlineSmall,
+                color = NeonCyan,
+                fontWeight = FontWeight.Bold,
+            )
+            Text(
+                text = commentText,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontStyle = FontStyle.Italic,
+                    lineHeight = 20.sp,
+                    color = LightGreyBlue,
                 ),
-                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-                modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .fillMaxWidth()
-                    .border(
-                        width = 1.dp,
-                        color = NeonCyan.copy(alpha = 0.6f),
-                        shape = RoundedCornerShape(12.dp),
-                    ),
-            ) {
-                Row(
-                    modifier = Modifier
-                        .padding(horizontal = 20.dp, vertical = 14.dp)
-                        .align(Alignment.CenterHorizontally),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center,
-                ) {
-                    Text(
-                        text = "“",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = NeonCyan,
-                        fontWeight = FontWeight.Bold,
-                    )
-                    Text(
-                        text = commentText,
-                        style = MaterialTheme.typography.titleMedium.copy(
-                            fontStyle = FontStyle.Italic,
-                            lineHeight = 20.sp,
-                            color = LightGreyBlue,
-                        ),
-                        fontWeight = FontWeight.Bold,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(horizontal = 8.dp),
-                    )
-                    Text(
-                        text = "”",
-                        style = MaterialTheme.typography.headlineSmall,
-                        color = NeonCyan,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
+                fontWeight = FontWeight.Bold,
+                textAlign = TextAlign.Center,
+                modifier = Modifier.padding(horizontal = 8.dp),
+            )
+            Text(
+                text = "”",
+                style = MaterialTheme.typography.headlineSmall,
+                color = NeonCyan,
+                fontWeight = FontWeight.Bold,
+            )
         }
     }
 }

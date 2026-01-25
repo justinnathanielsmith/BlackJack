@@ -3,12 +3,6 @@
   <ManuallySuppressedIssues/>
   <CurrentIssues>
     <ID>FunctionNaming:main.kt:fun MainViewController(): UIViewController</ID>
-    <ID>LongMethod:DefaultGameComponent.kt:DefaultGameComponent$private fun startGame(pairCount: Int, forceNewGame: Boolean, mode: GameMode, seed: Long?)</ID>
-    <ID>LongMethod:DifficultySelectionSection.kt:@Composable fun DifficultySelectionSection( state: DifficultyState, onDifficultySelected: (DifficultyLevel) -&gt; Unit, onModeSelected: (GameMode) -&gt; Unit, onStartGame: () -&gt; Unit, onResumeGame: () -&gt; Unit, onSettingsClick: () -&gt; Unit, onStatsClick: () -&gt; Unit, onDailyChallengeClick: () -&gt; Unit, modifier: Modifier = Modifier, )</ID>
-    <ID>LongMethod:DifficultySelectionSection.kt:@Composable fun NeonStyleButton( text: String, onClick: () -&gt; Unit, modifier: Modifier = Modifier, isPrimary: Boolean = true, leadingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null, trailingIcon: androidx.compose.ui.graphics.vector.ImageVector? = null, )</ID>
-    <ID>LongMethod:GameContent.kt:@OptIn(ExperimentalMaterial3Api::class) @Composable fun GameContent(component: GameComponent, modifier: Modifier = Modifier)</ID>
-    <ID>LongMethod:GameGrid.kt:@Composable fun GameGrid( cards: ImmutableList&lt;CardState&gt;, onCardClick: (Int) -&gt; Unit, isPeeking: Boolean = false, lastMatchedIds: ImmutableList&lt;Int&gt; = persistentListOf(), showComboExplosion: Boolean = false, cardBackTheme: CardBackTheme = CardBackTheme.GEOMETRIC, cardSymbolTheme: CardSymbolTheme = CardSymbolTheme.CLASSIC, areSuitsMultiColored: Boolean = false, )</ID>
-    <ID>LongMethod:GameSnackbars.kt:@Composable fun MatchCommentSnackbar(matchComment: MatchComment?, modifier: Modifier = Modifier)</ID>
     <ID>LongMethod:LeaderboardSection.kt:@Composable fun LeaderboardSection( level: DifficultyLevel, entries: ImmutableList&lt;LeaderboardEntry&gt;, modifier: Modifier = Modifier, )</ID>
     <ID>LongMethod:LeaderboardSection.kt:@Composable private fun LeaderboardRow(rank: Int, entry: LeaderboardEntry)</ID>
     <ID>LongMethod:NeonSegmentedControl.kt:@Composable fun &lt;T&gt; NeonSegmentedControl( items: List&lt;T&gt;, selectedItem: T, onItemSelected: (T) -&gt; Unit, labelProvider: @Composable (T) -&gt; String, modifier: Modifier = Modifier, )</ID>

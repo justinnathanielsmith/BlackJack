@@ -24,7 +24,7 @@ fun main() {
     application {
         val windowState = rememberWindowState(
             position = WindowPosition(Alignment.Center),
-            size = DpSize(1100.dp, 850.dp),
+            size = DpSize(WINDOW_WIDTH.dp, WINDOW_HEIGHT.dp),
             placement = WindowPlacement.Floating,
         )
 
@@ -33,7 +33,7 @@ fun main() {
             state = windowState,
             onCloseRequest = ::exitApplication,
         ) {
-            window.minimumSize = Dimension(900, 700)
+            window.minimumSize = Dimension(MIN_WINDOW_WIDTH, MIN_WINDOW_HEIGHT)
             appGraph.logger.i { "Logging initialized via Metro" }
             App(
                 root = root,
@@ -42,3 +42,8 @@ fun main() {
         }
     }
 }
+
+private const val WINDOW_WIDTH = 1100
+private const val WINDOW_HEIGHT = 850
+private const val MIN_WINDOW_WIDTH = 900
+private const val MIN_WINDOW_HEIGHT = 700

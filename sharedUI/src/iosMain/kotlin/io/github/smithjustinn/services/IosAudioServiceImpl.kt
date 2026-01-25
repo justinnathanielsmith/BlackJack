@@ -72,7 +72,7 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
             val session = AVAudioSession.sharedInstance()
             session.setCategory(AVAudioSessionCategoryPlayback, error = null)
             session.setActive(true, error = null)
-        } catch (e: Exception) {
+        } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
             logger.e(e) { "Error setting up AVAudioSession" }
         }
     }
@@ -105,7 +105,7 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
                     player.volume = soundVolume
                     player.prepareToPlay()
                     players[resource] = player
-                } catch (e: Exception) {
+                } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                     logger.e(e) { "Error pre-loading sound resource: $resource" }
                 }
             }
@@ -180,7 +180,7 @@ class IosAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
                 if (isMusicRequested && isMusicEnabled) {
                     musicPlayer?.play()
                 }
-            } catch (e: Exception) {
+            } catch (@Suppress("TooGenericExceptionCaught") e: Exception) {
                 logger.e(e) { "Error starting music" }
             } finally {
                 musicLoadingJob = null
