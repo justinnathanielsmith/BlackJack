@@ -53,6 +53,12 @@ class AndroidHapticsServiceImpl(
     }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
+    override fun vibrateHeat() {
+        // Pronounced heat mode vibration - longer and more intense
+        vibrate(longArrayOf(0, 150, 50, 150), intArrayOf(0, 255, 0, 255))
+    }
+
+    @RequiresPermission(Manifest.permission.VIBRATE)
     private fun vibrate(timings: LongArray, amplitudes: IntArray) {
         vibrator?.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
     }

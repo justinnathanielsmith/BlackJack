@@ -32,6 +32,7 @@ data class ScoringConfig(
     val timeBonusPerPair: Int = 50,
     val timePenaltyPerSecond: Int = 1,
     val moveBonusMultiplier: Int = 10000, // Base for move efficiency
+    val heatModeThreshold: Int = 4, // Combo level to activate heat mode
 )
 
 /**

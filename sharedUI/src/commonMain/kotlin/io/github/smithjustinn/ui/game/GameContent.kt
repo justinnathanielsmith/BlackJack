@@ -1,6 +1,8 @@
 package io.github.smithjustinn.ui.game
 
+import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -22,6 +24,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.theme.HeatBackgroundBottom
+import io.github.smithjustinn.theme.HeatBackgroundTop
 import io.github.smithjustinn.theme.StartBackgroundBottom
 import io.github.smithjustinn.theme.StartBackgroundTop
 import io.github.smithjustinn.ui.game.components.BouncingCardsOverlay
@@ -67,6 +71,7 @@ fun GameContent(
                 GameUiEvent.VibrateMismatch -> hapticsService.vibrateMismatch()
                 GameUiEvent.VibrateTick -> hapticsService.vibrateTick()
                 GameUiEvent.VibrateWarning -> hapticsService.vibrateWarning()
+                GameUiEvent.VibrateHeat -> hapticsService.vibrateHeat()
             }
         }
     }
@@ -82,12 +87,22 @@ fun GameContent(
         val isCompactHeight = maxHeight < 500.dp
         val useCompactUI = isLandscape && isCompactHeight
 
+        // Heat mode responsive background
+        val backgroundTopColor by animateColorAsState(
+            targetValue = if (state.isHeatMode) HeatBackgroundTop else StartBackgroundTop,
+            animationSpec = tween(durationMillis = 800),
+        )
+        val backgroundBottomColor by animateColorAsState(
+            targetValue = if (state.isHeatMode) HeatBackgroundBottom else StartBackgroundBottom,
+            animationSpec = tween(durationMillis = 800),
+        )
+
         Box(
             modifier = Modifier
                 .fillMaxSize()
                 .background(
                     Brush.verticalGradient(
-                        colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+                        colors = listOf(backgroundTopColor, backgroundBottomColor),
                     ),
                 ),
         ) {
@@ -139,6 +154,7 @@ fun GameContent(
                         ComboBadge(
                             combo = state.game.comboMultiplier,
                             isMegaBonus = state.isMegaBonus,
+                            isHeatMode = state.isHeatMode,
                             infiniteTransition = rememberInfiniteTransition(),
                             modifier = Modifier
                                 .align(Alignment.TopEnd)

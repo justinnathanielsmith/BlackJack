@@ -271,6 +271,14 @@ class DefaultGameComponent(
 
         clearCommentAfterDelay()
 
+        // Check for heat mode activation
+        val wasInHeatMode = _state.value.isHeatMode
+        val isNowInHeatMode = newState.comboMultiplier >= newState.config.heatModeThreshold
+        
+        if (isNowInHeatMode && !wasInHeatMode) {
+            _events.tryEmit(GameUiEvent.VibrateHeat)
+        }
+
         if (newState.mode == GameMode.TIME_ATTACK) {
             val totalTimeGain = MemoryGameLogic.calculateTimeGain(newState.comboMultiplier - 1)
             val isMega = newState.comboMultiplier >= 3
@@ -281,9 +289,14 @@ class DefaultGameComponent(
                     showTimeGain = true,
                     timeGainAmount = totalTimeGain,
                     isMegaBonus = isMega,
+                    isHeatMode = isNowInHeatMode,
                 )
             }
             triggerTimeGainFeedback()
+        } else {
+            _state.update {
+                it.copy(isHeatMode = isNowInHeatMode)
+            }
         }
 
         if (newState.comboMultiplier > 2) {
@@ -304,6 +317,9 @@ class DefaultGameComponent(
             _events.tryEmit(GameUiEvent.VibrateMismatch)
             _events.tryEmit(GameUiEvent.PlayMismatch)
         }
+
+        // Deactivate heat mode when combo resets
+        _state.update { it.copy(isHeatMode = false) }
 
         var isGameOver = false
         if (newState.mode == GameMode.TIME_ATTACK && !isResuming) {

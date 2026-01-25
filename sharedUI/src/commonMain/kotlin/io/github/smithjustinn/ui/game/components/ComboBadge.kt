@@ -26,6 +26,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.theme.GoldenYellow
+import io.github.smithjustinn.theme.HeatGlowPrimary
 import io.github.smithjustinn.theme.InactiveBackground
 import io.github.smithjustinn.theme.NeonCyan
 import memory_match.sharedui.generated.resources.Res
@@ -36,6 +37,7 @@ import org.jetbrains.compose.resources.stringResource
 fun ComboBadge(
     combo: Int,
     isMegaBonus: Boolean,
+    isHeatMode: Boolean,
     infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier,
     compact: Boolean = false,
@@ -48,14 +50,22 @@ fun ComboBadge(
     ) {
         val comboPulseScale by infiniteTransition.animateFloat(
             initialValue = 1f,
-            targetValue = if (compact) 1.05f else 1.1f,
+            targetValue = if (isHeatMode) {
+                if (compact) 1.08f else 1.15f
+            } else {
+                if (compact) 1.05f else 1.1f
+            },
             animationSpec = infiniteRepeatable(
                 animation = tween(400, easing = FastOutSlowInEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
         )
 
-        val badgeColor = if (isMegaBonus) GoldenYellow else NeonCyan
+        val badgeColor = when {
+            isHeatMode -> HeatGlowPrimary
+            isMegaBonus -> GoldenYellow
+            else -> NeonCyan
+        }
         val tacticalShape = CutCornerShape(topStart = 8.dp, bottomEnd = 8.dp)
 
         Surface(
@@ -65,7 +75,11 @@ fun ComboBadge(
             modifier = Modifier
                 .scale(comboPulseScale)
                 .shadow(
-                    elevation = if (compact) 6.dp else 12.dp,
+                    elevation = if (isHeatMode) {
+                        if (compact) 10.dp else 18.dp
+                    } else {
+                        if (compact) 6.dp else 12.dp
+                    },
                     shape = tacticalShape,
                     ambientColor = badgeColor,
                     spotColor = badgeColor,

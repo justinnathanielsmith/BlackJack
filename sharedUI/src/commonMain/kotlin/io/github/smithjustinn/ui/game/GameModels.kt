@@ -25,6 +25,7 @@ data class GameUIState(
     val timeGainAmount: Int = 0,
     val timeLossAmount: Long = 0,
     val isMegaBonus: Boolean = false,
+    val isHeatMode: Boolean = false,
     val showWalkthrough: Boolean = false,
     val walkthroughStep: Int = 0,
 )
@@ -41,4 +42,5 @@ sealed class GameUiEvent {
     data object VibrateMismatch : GameUiEvent()
     data object VibrateTick : GameUiEvent()
     data object VibrateWarning : GameUiEvent()
+    data object VibrateHeat : GameUiEvent()
 }

@@ -31,4 +31,11 @@ class IosHapticsServiceImpl : HapticsService {
         generator.prepare()
         generator.notificationOccurred(UINotificationFeedbackType.UINotificationFeedbackTypeWarning)
     }
+
+    override fun vibrateHeat() {
+        // Pronounced heat mode vibration using heavy impact
+        val generator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
+        generator.prepare()
+        generator.impactOccurred()
+    }
 }

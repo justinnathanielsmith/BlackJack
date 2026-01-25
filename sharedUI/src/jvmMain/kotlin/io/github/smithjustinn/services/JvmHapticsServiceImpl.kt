@@ -19,4 +19,8 @@ class JvmHapticsServiceImpl : HapticsService {
     override fun vibrateWarning() {
         // No-op for Desktop
     }
+
+    override fun vibrateHeat() {
+        // No-op for Desktop
+    }
 }

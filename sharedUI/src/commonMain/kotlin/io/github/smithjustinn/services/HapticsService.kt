@@ -5,4 +5,5 @@ interface HapticsService {
     fun vibrateMismatch()
     fun vibrateTick()
     fun vibrateWarning()
+    fun vibrateHeat()
 }

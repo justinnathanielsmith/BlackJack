@@ -40,6 +40,31 @@ Memory-Match is not just a game; it's a reference implementation for **Clean Arc
 
 ---
 
+## 🎮 Gameplay & Features
+
+Memory-Match goes beyond a simple card game by introducing high-stakes mechanics and a dynamic "Heat" system that rewards precision and speed.
+
+### 🕹️ Game Modes
+*   **Standard**: A relaxed experience focused on accuracy. No time limits, perfect for sharpening your memory at your own pace.
+*   **Time Attack**: Race against the clock! Every match rewards you with extra seconds, while mismatches penalize your remaining time. How long can you survive?
+*   **Daily Challenge**: A unique, fixed puzzle generated every 24 hours. Compete with others on the same board and see who can achieve the best score.
+
+### 🔥 Combo-Driven "Heat" System
+Success breeds intensity. By matching multiple pairs in quick succession, you build a **Combo Multiplier**.
+*   **Activation**: Reach a `Combo x4` or higher to trigger **Heat Mode**.
+*   **Visual Transformation**: The UI shifts to an electric neon color palette with smooth animated background transitions.
+*   **Tactile Feedback**: Haptics become significantly more pronounced, making every match feel explosive.
+*   **Rewards**: High combos in Time Attack grant massive "Mega Bonus" time gains, essential for high-score runs.
+
+### ✨ Key Features
+*   **Customizable Aesthetics**: Choose from diverse **Card Back Themes** (Geometric, Minimal, Tactical) and **Symbol Sets** (Classic, Modern, Abstract).
+*   **Advanced Visual Effects**: Integrated particle systems for high-combo explosions and cascading celebratory confetti upon victory.
+*   **Professional Haptics**: Platform-native haptic feedback (iOS Taptic Engine / Android Vibrator) calibrated for specific game events.
+*   **State Persistence**: Your progress is automatically saved locally using **Room KMP**, allowing you to resume any game exactly where you left off.
+*   **Comprehensive Stats**: Track your best scores, fastest times, and total moves across all difficulty levels and game modes.
+
+---
+
 ## 🏗 Modular Architecture
 
 The project follows a **Local-First, Modular-Core** strategy within the `sharedUI` module, ensuring that 95% of business logic and UI remains shared while maintaining platform-specific performance.
