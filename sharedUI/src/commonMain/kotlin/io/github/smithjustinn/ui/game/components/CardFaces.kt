@@ -21,12 +21,7 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 
 @Composable
-internal fun CardFace(
-    rank: Rank,
-    suit: Suit,
-    suitColor: Color,
-    theme: CardSymbolTheme,
-) {
+internal fun CardFace(rank: Rank, suit: Suit, suitColor: Color, theme: CardSymbolTheme) {
     val density = LocalDensity.current
     BoxWithConstraints(modifier = Modifier.fillMaxSize().padding(6.dp)) {
         // Base scaling on the card width (maxWidth is a Dp value)
@@ -57,10 +52,10 @@ private fun ClassicCardFace(
             text = rank.symbol,
             color = suitColor,
             style =
-                MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                ),
+            MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = getFontSize(FONT_SIZE_MEDIUM),
+            ),
         )
         Text(
             text = suit.symbol,
@@ -81,10 +76,10 @@ private fun ClassicCardFace(
             text = rank.symbol,
             color = suitColor,
             style =
-                MaterialTheme.typography.headlineMedium.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = getFontSize(FONT_SIZE_TITLE),
-                ),
+            MaterialTheme.typography.headlineMedium.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = getFontSize(FONT_SIZE_TITLE),
+            ),
         )
     }
 
@@ -98,10 +93,10 @@ private fun ClassicCardFace(
                 text = rank.symbol,
                 color = suitColor,
                 style =
-                    MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Bold,
-                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                    ),
+                MaterialTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                ),
             )
             Text(
                 text = suit.symbol,
@@ -125,10 +120,10 @@ private fun MinimalCardFace(
             text = rank.symbol,
             color = suitColor,
             style =
-                MaterialTheme.typography.displayLarge.copy(
-                    fontWeight = FontWeight.ExtraBold,
-                    fontSize = getFontSize(FONT_SIZE_DISPLAY),
-                ),
+            MaterialTheme.typography.displayLarge.copy(
+                fontWeight = FontWeight.ExtraBold,
+                fontSize = getFontSize(FONT_SIZE_DISPLAY),
+            ),
             modifier = Modifier.align(Alignment.Center),
         )
 
@@ -145,10 +140,10 @@ private fun MinimalCardFace(
             color = suitColor.copy(alpha = MODERATE_ALPHA),
             style = MaterialTheme.typography.titleMedium.copy(fontSize = getFontSize(FONT_SIZE_LARGE)),
             modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(4.dp)
-                    .graphicsLayer { rotationZ = FULL_ROTATION },
+            Modifier
+                .align(Alignment.BottomEnd)
+                .padding(4.dp)
+                .graphicsLayer { rotationZ = FULL_ROTATION },
         )
     }
 }
@@ -166,10 +161,10 @@ private fun TextOnlyCardFace(
             text = rank.symbol,
             color = suitColor,
             style =
-                MaterialTheme.typography.displayLarge.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = getFontSize(FONT_SIZE_HERO),
-                ),
+            MaterialTheme.typography.displayLarge.copy(
+                fontWeight = FontWeight.Black,
+                fontSize = getFontSize(FONT_SIZE_HERO),
+            ),
             modifier = Modifier.align(Alignment.Center),
         )
 
@@ -178,10 +173,10 @@ private fun TextOnlyCardFace(
             text = suit.name.lowercase().replaceFirstChar { it.uppercase() },
             color = suitColor.copy(alpha = HALF_ALPHA),
             style =
-                MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(FONT_SIZE_SMALL),
-                    fontWeight = FontWeight.Medium,
-                ),
+            MaterialTheme.typography.labelSmall.copy(
+                fontSize = getFontSize(FONT_SIZE_SMALL),
+                fontWeight = FontWeight.Medium,
+            ),
             modifier = Modifier.align(Alignment.BottomCenter),
         )
     }

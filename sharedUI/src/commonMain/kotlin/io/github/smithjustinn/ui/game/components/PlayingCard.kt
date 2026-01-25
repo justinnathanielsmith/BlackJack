@@ -142,10 +142,10 @@ fun PlayingCard(
     val matchedGlowAlpha by animateFloatAsState(
         targetValue = if (isRecentlyMatched) SUBTLE_ALPHA else 0f,
         animationSpec =
-            infiniteRepeatable(
-                animation = tween(GLOW_ANIMATION_DURATION_MS),
-                repeatMode = RepeatMode.Reverse,
-            ),
+        infiniteRepeatable(
+            animation = tween(GLOW_ANIMATION_DURATION_MS),
+            repeatMode = RepeatMode.Reverse,
+        ),
         label = "matchedGlow",
     )
 
@@ -190,36 +190,36 @@ private fun CardContainer(
 ) {
     Box(
         modifier =
-            modifier
-                .widthIn(min = 60.dp)
-                .aspectRatio(CARD_ASPECT_RATIO)
-                .graphicsLayer {
-                    rotationY = rotation
-                    scaleX = scale
-                    scaleY = scale
-                    cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
-                }.shadow(
-                    elevation =
-                        if (isRecentlyMatched) {
-                            10.dp
-                        } else if (isMatched) {
-                            2.dp
-                        } else {
-                            6.dp
-                        },
-                    shape = RoundedCornerShape(12.dp),
-                    clip = false,
-                    ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,
-                    spotColor = if (isRecentlyMatched) NeonCyan else Color.Black,
-                ).drawBehind {
-                    if (isRecentlyMatched) {
-                        drawCircle(
-                            color = NeonCyan.copy(alpha = matchedGlowAlpha),
-                            radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
-                            center = center,
-                        )
-                    }
+        modifier
+            .widthIn(min = 60.dp)
+            .aspectRatio(CARD_ASPECT_RATIO)
+            .graphicsLayer {
+                rotationY = rotation
+                scaleX = scale
+                scaleY = scale
+                cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
+            }.shadow(
+                elevation =
+                if (isRecentlyMatched) {
+                    10.dp
+                } else if (isMatched) {
+                    2.dp
+                } else {
+                    6.dp
                 },
+                shape = RoundedCornerShape(12.dp),
+                clip = false,
+                ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,
+                spotColor = if (isRecentlyMatched) NeonCyan else Color.Black,
+            ).drawBehind {
+                if (isRecentlyMatched) {
+                    drawCircle(
+                        color = NeonCyan.copy(alpha = matchedGlowAlpha),
+                        radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
+                        center = center,
+                    )
+                }
+            },
     ) {
         Card(
             onClick = onClick,
@@ -227,9 +227,9 @@ private fun CardContainer(
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(12.dp),
             colors =
-                CardDefaults.cardColors(
-                    containerColor = if (rotation <= HALF_ROTATION) Color.White else backColor,
-                ),
+            CardDefaults.cardColors(
+                containerColor = if (rotation <= HALF_ROTATION) Color.White else backColor,
+            ),
             border = getCardBorder(rotation, isRecentlyMatched, isMatched, isError),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -245,52 +245,43 @@ private fun getCardBorder(
     isRecentlyMatched: Boolean,
     isMatched: Boolean,
     isError: Boolean,
-): BorderStroke =
-    if (rotation <= HALF_ROTATION) {
-        when {
-            isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
-            isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = MEDIUM_ALPHA))
-            isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
-            else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
-        }
-    } else {
-        val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
-        val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
-        BorderStroke(
-            width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp),
-            color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA),
-        )
+): BorderStroke = if (rotation <= HALF_ROTATION) {
+    when {
+        isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
+        isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = MEDIUM_ALPHA))
+        isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
+        else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
     }
+} else {
+    val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
+    val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
+    BorderStroke(
+        width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp),
+        color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA),
+    )
+}
 
-private fun calculateSuitColor(
-    suit: Suit,
-    areSuitsMultiColored: Boolean,
-): Color =
-    if (areSuitsMultiColored) {
-        when (suit) {
-            Suit.Hearts -> HeartRed
-            Suit.Diamonds -> DiamondBlue
-            Suit.Clubs -> ClubGreen
-            Suit.Spades -> SpadeBlack
-        }
-    } else {
-        if (suit.isRed) HeartRed else SpadeBlack
+private fun calculateSuitColor(suit: Suit, areSuitsMultiColored: Boolean): Color = if (areSuitsMultiColored) {
+    when (suit) {
+        Suit.Hearts -> HeartRed
+        Suit.Diamonds -> DiamondBlue
+        Suit.Clubs -> ClubGreen
+        Suit.Spades -> SpadeBlack
     }
+} else {
+    if (suit.isRed) HeartRed else SpadeBlack
+}
 
 @Composable
-private fun CardBack(
-    theme: CardBackTheme,
-    backColor: Color,
-    rotation: Float,
-) {
+private fun CardBack(theme: CardBackTheme, backColor: Color, rotation: Float) {
     val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
     val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
 
     Box(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .graphicsLayer { rotationY = FULL_ROTATION },
+        Modifier
+            .fillMaxSize()
+            .graphicsLayer { rotationY = FULL_ROTATION },
     ) {
         when (theme) {
             CardBackTheme.GEOMETRIC -> GeometricCardBack(backColor)
@@ -302,18 +293,18 @@ private fun CardBack(
         if (rimLightAlpha > 0f) {
             Box(
                 modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.horizontalGradient(
-                                colors =
-                                    listOf(
-                                        Color.Transparent,
-                                        rimLightColor,
-                                        Color.Transparent,
-                                    ),
+                Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.horizontalGradient(
+                            colors =
+                            listOf(
+                                Color.Transparent,
+                                rimLightColor,
+                                Color.Transparent,
                             ),
                         ),
+                    ),
             )
         }
     }
@@ -326,29 +317,29 @@ fun ShimmerEffect() {
         initialValue = 0f,
         targetValue = SHIMMER_TRANSLATE_TARGET,
         animationSpec =
-            infiniteRepeatable(
-                animation = tween(SHIMMER_ANIMATION_DURATION_MS, easing = LinearEasing),
-                repeatMode = RepeatMode.Restart,
-            ),
+        infiniteRepeatable(
+            animation = tween(SHIMMER_ANIMATION_DURATION_MS, easing = LinearEasing),
+            repeatMode = RepeatMode.Restart,
+        ),
     )
 
     val brush =
         Brush.linearGradient(
             colors =
-                listOf(
-                    Color.White.copy(alpha = 0.0f),
-                    NeonCyan.copy(alpha = MEDIUM_ALPHA),
-                    Color.White.copy(alpha = 0.0f),
-                ),
+            listOf(
+                Color.White.copy(alpha = 0.0f),
+                NeonCyan.copy(alpha = MEDIUM_ALPHA),
+                Color.White.copy(alpha = 0.0f),
+            ),
             start = Offset(translateAnim - SHIMMER_OFFSET, translateAnim - SHIMMER_OFFSET),
             end = Offset(translateAnim, translateAnim),
         )
 
     Box(
         modifier =
-            Modifier
-                .fillMaxSize()
-                .background(brush),
+        Modifier
+            .fillMaxSize()
+            .background(brush),
     )
 }
 
@@ -366,8 +357,8 @@ private fun GeometricCardBack(baseColor: Color) {
                         color = patternColor,
                         topLeft = Offset(x.toFloat(), y.toFloat()),
                         size =
-                            androidx.compose.ui.geometry
-                                .Size(step / HALF_DIVISOR, step / HALF_DIVISOR),
+                        androidx.compose.ui.geometry
+                            .Size(step / HALF_DIVISOR, step / HALF_DIVISOR),
                         style = Stroke(width = 1.dp.toPx()),
                     )
                 }
@@ -379,11 +370,11 @@ private fun GeometricCardBack(baseColor: Color) {
             color = Color.White.copy(alpha = SUBTLE_ALPHA),
             topLeft = Offset(8.dp.toPx(), 8.dp.toPx()),
             size =
-                androidx.compose.ui.geometry
-                    .Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
+            androidx.compose.ui.geometry
+                .Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
             cornerRadius =
-                androidx.compose.ui.geometry
-                    .CornerRadius(8.dp.toPx()),
+            androidx.compose.ui.geometry
+                .CornerRadius(8.dp.toPx()),
             style = Stroke(width = 1.dp.toPx()),
         )
     }
@@ -414,11 +405,11 @@ private fun ClassicCardBack(baseColor: Color) {
             color = Color.White,
             topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
             size =
-                androidx.compose.ui.geometry
-                    .Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
+            androidx.compose.ui.geometry
+                .Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
             cornerRadius =
-                androidx.compose.ui.geometry
-                    .CornerRadius(6.dp.toPx()),
+            androidx.compose.ui.geometry
+                .CornerRadius(6.dp.toPx()),
             style = Stroke(width = 3.dp.toPx()),
         )
     }
@@ -457,11 +448,11 @@ private fun PatternCardBack(baseColor: Color) {
             color = Color.White.copy(alpha = MEDIUM_ALPHA),
             topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
             size =
-                androidx.compose.ui.geometry
-                    .Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
+            androidx.compose.ui.geometry
+                .Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
             cornerRadius =
-                androidx.compose.ui.geometry
-                    .CornerRadius(6.dp.toPx()),
+            androidx.compose.ui.geometry
+                .CornerRadius(6.dp.toPx()),
             style = Stroke(width = 1.5.dp.toPx()),
         )
     }
