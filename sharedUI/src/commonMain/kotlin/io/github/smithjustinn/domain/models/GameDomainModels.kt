@@ -70,6 +70,7 @@ data class MemoryGameState(
     val mode: GameMode = GameMode.STANDARD,
     @Serializable(with = IntListSerializer::class)
     val lastMatchedIds: ImmutableList<Int> = persistentListOf(),
+    val seed: Long? = null,
 )
 
 /**

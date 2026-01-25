@@ -10,16 +10,20 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -42,6 +46,7 @@ import io.github.smithjustinn.domain.models.ScoreBreakdown
 import io.github.smithjustinn.theme.InactiveBackground
 import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.theme.TacticalRed
+import io.github.smithjustinn.ui.components.AppIcons
 import memory_match.sharedui.generated.resources.Res
 import memory_match.sharedui.generated.resources.game_complete
 import memory_match.sharedui.generated.resources.game_over
@@ -58,6 +63,7 @@ fun ResultsCard(
     elapsedTimeSeconds: Long,
     scoreBreakdown: ScoreBreakdown,
     onPlayAgain: () -> Unit,
+    onShareReplay: () -> Unit = {},
     modifier: Modifier = Modifier,
     mode: GameMode = GameMode.STANDARD,
     onScoreTick: () -> Unit = {},
@@ -167,6 +173,23 @@ fun ResultsCard(
                             )
                         }
                     }
+
+                    OutlinedButton(
+                        onClick = onShareReplay,
+                        modifier = Modifier.fillMaxWidth().height(48.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = NeonCyan),
+                        border = BorderStroke(1.dp, NeonCyan),
+                    ) {
+                        Icon(imageVector = AppIcons.Share, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "SHARE REPLAY",
+                            style = MaterialTheme.typography.labelLarge.copy(
+                                fontWeight = FontWeight.Bold,
+                            ),
+                        )
+                    }
                 } else {
                     ScoreBox(
                         score = animatedScore.value.roundToInt(),
@@ -191,6 +214,26 @@ fun ResultsCard(
                                 fontWeight = FontWeight.Black,
                                 letterSpacing = 1.sp,
                                 color = Color.White,
+                            ),
+                        )
+                    }
+
+                    OutlinedButton(
+                        onClick = onShareReplay,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp),
+                        shape = RoundedCornerShape(16.dp),
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = NeonCyan),
+                        border = BorderStroke(1.dp, NeonCyan),
+                    ) {
+                        Icon(imageVector = AppIcons.Share, contentDescription = null)
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text(
+                            text = "SHARE REPLAY",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                fontWeight = FontWeight.Black,
+                                letterSpacing = 1.sp,
                             ),
                         )
                     }

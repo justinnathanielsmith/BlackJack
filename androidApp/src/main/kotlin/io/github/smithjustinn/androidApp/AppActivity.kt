@@ -1,6 +1,7 @@
 package io.github.smithjustinn.androidApp
 
 import android.app.Activity
+import android.content.Intent
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -12,6 +13,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.core.view.WindowInsetsControllerCompat
 import com.arkivanov.decompose.defaultComponentContext
 import io.github.smithjustinn.App
+import io.github.smithjustinn.ui.root.DeepLinkHandler
 import io.github.smithjustinn.ui.root.DefaultRootComponent
 
 class AppActivity : ComponentActivity() {
@@ -25,12 +27,25 @@ class AppActivity : ComponentActivity() {
             appGraph = appGraph,
         )
 
+        handleIntent(intent)
+
         setContent {
             App(
                 root = root,
                 appGraph = appGraph,
                 onThemeChanged = { ApplySystemBarTheme(it) },
             )
+        }
+    }
+
+    override fun onNewIntent(intent: Intent) {
+        super.onNewIntent(intent)
+        handleIntent(intent)
+    }
+
+    private fun handleIntent(intent: Intent?) {
+        intent?.data?.toString()?.let { url ->
+            DeepLinkHandler.handleDeepLink(url)
         }
     }
 }

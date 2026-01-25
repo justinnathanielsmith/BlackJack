@@ -22,6 +22,7 @@ class DefaultGameComponent(
     private val pairCount: Int,
     private val mode: GameMode,
     forceNewGame: Boolean,
+    private val seed: Long? = null,
     private val onBackClicked: () -> Unit,
 ) : GameComponent,
     ComponentContext by componentContext {
@@ -101,10 +102,10 @@ class DefaultGameComponent(
             }.collect()
         }
 
-        startGame(pairCount, forceNewGame, mode)
+        startGame(pairCount, forceNewGame, mode, seed)
     }
 
-    private fun startGame(pairCount: Int, forceNewGame: Boolean, mode: GameMode) {
+    private fun startGame(pairCount: Int, forceNewGame: Boolean, mode: GameMode, seed: Long?) {
         scope.launch {
             try {
                 val savedGame = if (forceNewGame) null else getSavedGameUseCase()
@@ -136,13 +137,13 @@ class DefaultGameComponent(
                         handleMatchFailure(savedGame.first, isResuming = true)
                     }
                 } else {
-                    val seed = if (mode == GameMode.DAILY_CHALLENGE) {
+                    val finalSeed = seed ?: if (mode == GameMode.DAILY_CHALLENGE) {
                         Clock.System.now().toEpochMilliseconds() / 86400000
                     } else {
                         null
                     }
 
-                    val initialGameState = startNewGameUseCase(pairCount, mode = mode, seed = seed)
+                    val initialGameState = startNewGameUseCase(pairCount, mode = mode, seed = finalSeed)
                     val initialTime = if (mode ==
                         GameMode.TIME_ATTACK
                     ) {
@@ -166,14 +167,16 @@ class DefaultGameComponent(
 
                     _events.emit(GameUiEvent.PlayDeal)
 
-                    val walkthroughCompleted = settingsRepository.isWalkthroughCompleted.first()
-                    if (walkthroughCompleted) {
-                        val isPeekEnabled = settingsRepository.isPeekEnabled.first()
-                        if (isPeekEnabled) {
-                            peekCards(mode)
-                        } else {
-                            startTimer(mode)
-                        }
+                    // Wait a frame to ensure settings have been collected
+                    delay(50)
+                    
+                    val currentState = _state.value
+                    if (currentState.showWalkthrough) {
+                        // Walkthrough will handle starting the timer
+                    } else if (currentState.isPeekFeatureEnabled) {
+                        peekCards(mode)
+                    } else {
+                        startTimer(mode)
                     }
                 }
 
@@ -466,7 +469,7 @@ class DefaultGameComponent(
     }
 
     override fun onRestart() {
-        startGame(pairCount, true, mode)
+        startGame(pairCount, true, mode, seed)
     }
 
     override fun onBack() {

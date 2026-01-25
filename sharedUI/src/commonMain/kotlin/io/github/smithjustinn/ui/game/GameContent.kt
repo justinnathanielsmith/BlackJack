@@ -18,11 +18,15 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+
+import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.text.AnnotatedString
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.theme.HeatBackgroundBottom
 import io.github.smithjustinn.theme.HeatBackgroundTop
@@ -38,6 +42,7 @@ import io.github.smithjustinn.ui.game.components.NewHighScoreSnackbar
 import io.github.smithjustinn.ui.game.components.PeekCountdownOverlay
 import io.github.smithjustinn.ui.game.components.ResultsCard
 import io.github.smithjustinn.ui.game.components.WalkthroughOverlay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -46,6 +51,9 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
     val state by component.state.collectAsState()
     val audioService = graph.audioService
     val hapticsService = graph.hapticsService
+    @Suppress("DEPRECATION")
+    val clipboardManager = LocalClipboardManager.current
+    val scope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         audioService.startMusic()
@@ -225,6 +233,15 @@ fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
                                 audioService.playClick()
                                 component.onRestart()
                                 audioService.startMusic()
+                            },
+                            onShareReplay = {
+                                audioService.playClick()
+                                val seed = state.game.seed ?: 0L
+                                val link = "memorymatch://game?mode=${state.game.mode}&pairs=${state.game.pairCount}&seed=$seed"
+                                scope.launch {
+                                    clipboardManager.setText(AnnotatedString(link))
+                                }
+                                hapticsService.vibrateMatch()
                             },
                             onScoreTick = { hapticsService.vibrateTick() },
                             modifier = Modifier

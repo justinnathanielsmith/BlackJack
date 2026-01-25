@@ -61,6 +61,7 @@ Success breeds intensity. By matching multiple pairs in quick succession, you bu
 *   **Advanced Visual Effects**: Integrated particle systems for high-combo explosions and cascading celebratory confetti upon victory.
 *   **Professional Haptics**: Platform-native haptic feedback (iOS Taptic Engine / Android Vibrator) calibrated for specific game events.
 *   **State Persistence**: Your progress is automatically saved locally using **Room KMP**, allowing you to resume any game exactly where you left off.
+*   **Deep-Linked Replays**: Share specific game configurations with friends via deep links (`memorymatch://game?seed=...`). Every game generates a unique seed that can be shared to replay the exact same card layout.
 *   **Comprehensive Stats**: Track your best scores, fastest times, and total moves across all difficulty levels and game modes.
 
 ---

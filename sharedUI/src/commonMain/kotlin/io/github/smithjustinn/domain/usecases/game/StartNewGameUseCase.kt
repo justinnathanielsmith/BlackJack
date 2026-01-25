@@ -18,7 +18,8 @@ open class StartNewGameUseCase {
         mode: GameMode = GameMode.STANDARD,
         seed: Long? = null,
     ): MemoryGameState {
-        val random = if (seed != null) Random(seed) else Random
-        return MemoryGameLogic.createInitialState(pairCount, config, mode, random)
+        val finalSeed = seed ?: Random.nextLong()
+        val random = Random(finalSeed)
+        return MemoryGameLogic.createInitialState(pairCount, config, mode, random).copy(seed = finalSeed)
     }
 }

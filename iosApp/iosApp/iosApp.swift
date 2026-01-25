@@ -5,7 +5,11 @@ import SharedUI
 struct ComposeApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView().ignoresSafeArea(.all)
+            ContentView()
+                .ignoresSafeArea(.all)
+                .onOpenURL { url in
+                    SharedUI.DeepLinkHandler.shared.handleDeepLink(url: url.absoluteString)
+                }
         }
     }
 }
