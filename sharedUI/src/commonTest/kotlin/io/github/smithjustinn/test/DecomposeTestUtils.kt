@@ -24,9 +24,13 @@ fun runComponentTest(
     runTest(testDispatcher, timeout = timeout) {
         val lifecycle = LifecycleRegistry()
         lifecycle.onCreate()
+        lifecycle.onStart()
+        lifecycle.onResume()
         try {
             block(lifecycle)
         } finally {
+            lifecycle.onPause()
+            lifecycle.onStop()
             lifecycle.onDestroy()
         }
     }

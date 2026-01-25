@@ -1,6 +1,7 @@
 package io.github.smithjustinn.ui.start
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnResume
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
@@ -49,7 +50,7 @@ class DefaultStartComponent(
             }.collect()
         }
 
-        checkSavedGame()
+        lifecycle.doOnResume { checkSavedGame() }
         observeDailyChallengeStatus()
     }
 

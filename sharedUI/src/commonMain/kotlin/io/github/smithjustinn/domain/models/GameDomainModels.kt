@@ -1,10 +1,16 @@
 package io.github.smithjustinn.domain.models
 
+import io.github.smithjustinn.utils.ImmutableListSerializer
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
+import kotlinx.serialization.builtins.serializer
 import org.jetbrains.compose.resources.StringResource
+
+// Type-specific serializers for ImmutableList
+internal object CardStateListSerializer : ImmutableListSerializer<CardState>(CardState.serializer())
+internal object IntListSerializer : ImmutableListSerializer<Int>(Int.serializer())
 
 /**
  * Defines the available game modes.
@@ -49,6 +55,7 @@ data class MatchComment(val res: StringResource, val args: ImmutableList<Any> = 
  */
 @Serializable
 data class MemoryGameState(
+    @Serializable(with = CardStateListSerializer::class)
     val cards: ImmutableList<CardState> = persistentListOf(),
     val pairCount: Int = 8,
     val isGameWon: Boolean = false,
@@ -60,6 +67,7 @@ data class MemoryGameState(
     val config: ScoringConfig = ScoringConfig(),
     val scoreBreakdown: ScoreBreakdown = ScoreBreakdown(),
     val mode: GameMode = GameMode.STANDARD,
+    @Serializable(with = IntListSerializer::class)
     val lastMatchedIds: ImmutableList<Int> = persistentListOf(),
 )
 
