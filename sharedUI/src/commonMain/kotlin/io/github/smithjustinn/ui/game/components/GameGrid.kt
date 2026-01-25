@@ -20,6 +20,7 @@ import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -34,9 +35,15 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.ceil
 
-private data class CardLayoutInfo(val position: Offset, val size: Size)
+private data class CardLayoutInfo(
+    val position: Offset,
+    val size: Size,
+)
 
-private data class GridMetrics(val cells: GridCells, val maxWidth: androidx.compose.ui.unit.Dp)
+private data class GridMetrics(
+    val cells: GridCells,
+    val maxWidth: androidx.compose.ui.unit.Dp,
+)
 
 private data class GridSpacing(
     val horizontalPadding: androidx.compose.ui.unit.Dp,
@@ -46,27 +53,43 @@ private data class GridSpacing(
     val horizontalSpacing: androidx.compose.ui.unit.Dp,
 )
 
+data class GridCardState(
+    val cards: ImmutableList<CardState>,
+    val lastMatchedIds: ImmutableList<Int> = persistentListOf(),
+    val isPeeking: Boolean = false,
+)
+
+data class GridSettings(
+    val displaySettings: CardDisplaySettings = CardDisplaySettings(),
+    val showComboExplosion: Boolean = false,
+)
+
+data class GridScreenConfig(
+    val screenWidth: androidx.compose.ui.unit.Dp,
+    val screenHeight: androidx.compose.ui.unit.Dp,
+    val isWide: Boolean,
+    val isLandscape: Boolean,
+    val isCompactHeight: Boolean,
+)
+
 @Composable
 fun GameGrid(
-    cards: ImmutableList<CardState>,
+    gridCardState: GridCardState,
+    settings: GridSettings,
     onCardClick: (Int) -> Unit,
-    isPeeking: Boolean = false,
-    lastMatchedIds: ImmutableList<Int> = persistentListOf(),
-    showComboExplosion: Boolean = false,
-    settings: CardDisplaySettings = CardDisplaySettings(),
 ) {
     val cardLayouts = remember { mutableStateMapOf<Int, CardLayoutInfo>() }
     var gridPosition by remember { mutableStateOf(Offset.Zero) }
 
     BoxWithConstraints(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
-            ).onGloballyPositioned { layoutCoordinates ->
-                gridPosition = layoutCoordinates.positionInRoot()
-            },
+            Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+                ).onGloballyPositioned { layoutCoordinates ->
+                    gridPosition = layoutCoordinates.positionInRoot()
+                },
         contentAlignment = Alignment.Center,
     ) {
         val screenWidth = maxWidth
@@ -75,27 +98,34 @@ fun GameGrid(
         val isCompactHeight = screenHeight < 500.dp
         val isWide = screenWidth > 800.dp
 
+        val screenConfig =
+            GridScreenConfig(
+                screenWidth = screenWidth,
+                screenHeight = screenHeight,
+                isWide = isWide,
+                isLandscape = isLandscape,
+                isCompactHeight = isCompactHeight,
+            )
+
         val metrics =
-            remember(cards.size, screenWidth, screenHeight, isWide, isLandscape, isCompactHeight) {
-                calculateGridMetrics(cards.size, screenWidth, screenHeight, isWide, isLandscape, isCompactHeight)
+            remember(gridCardState.cards.size, screenConfig) {
+                calculateGridMetrics(gridCardState.cards.size, screenConfig)
             }
 
         val spacing = remember(isWide, isCompactHeight) { calculateGridSpacing(isWide, isCompactHeight) }
 
         GridContent(
-            cards = cards,
+            gridCardState = gridCardState,
             metrics = metrics,
             spacing = spacing,
-            isPeeking = isPeeking,
-            lastMatchedIds = lastMatchedIds,
             settings = settings,
             onCardClick = onCardClick,
             cardLayouts = cardLayouts,
         )
 
         GridExplosionEffect(
-            show = showComboExplosion,
-            lastMatchedIds = lastMatchedIds,
+            show = settings.showComboExplosion,
+            lastMatchedIds = gridCardState.lastMatchedIds,
             cardLayouts = cardLayouts,
             gridPosition = gridPosition,
         )
@@ -104,48 +134,52 @@ fun GameGrid(
 
 @Composable
 private fun GridContent(
-    cards: ImmutableList<CardState>,
+    gridCardState: GridCardState,
     metrics: GridMetrics,
     spacing: GridSpacing,
-    isPeeking: Boolean,
-    lastMatchedIds: ImmutableList<Int>,
-    settings: CardDisplaySettings,
+    settings: GridSettings,
     onCardClick: (Int) -> Unit,
-    cardLayouts: androidx.compose.runtime.snapshots.SnapshotStateMap<Int, CardLayoutInfo>,
+    cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
 ) {
     LazyVerticalGrid(
         columns = metrics.cells,
         contentPadding =
-        PaddingValues(
-            start = spacing.horizontalPadding,
-            top = spacing.topPadding,
-            end = spacing.horizontalPadding,
-            bottom = spacing.bottomPadding,
-        ),
+            PaddingValues(
+                start = spacing.horizontalPadding,
+                top = spacing.topPadding,
+                end = spacing.horizontalPadding,
+                bottom = spacing.bottomPadding,
+            ),
         verticalArrangement = Arrangement.spacedBy(spacing.verticalSpacing),
         horizontalArrangement = Arrangement.spacedBy(spacing.horizontalSpacing),
         modifier =
-        Modifier
-            .fillMaxHeight()
-            .widthIn(max = metrics.maxWidth),
+            Modifier
+                .fillMaxHeight()
+                .widthIn(max = metrics.maxWidth),
     ) {
-        items(cards, key = { it.id }) { card ->
+        items(gridCardState.cards, key = { it.id }) { card ->
             PlayingCard(
-                suit = card.suit,
-                rank = card.rank,
-                isFaceUp = card.isFaceUp || isPeeking,
-                isRecentlyMatched = lastMatchedIds.contains(card.id),
-                isError = card.isError,
-                settings = settings,
+                content =
+                    CardContent(
+                        suit = card.suit,
+                        rank = card.rank,
+                        visualState =
+                            CardVisualState(
+                                isFaceUp = card.isFaceUp || gridCardState.isPeeking,
+                                isRecentlyMatched = gridCardState.lastMatchedIds.contains(card.id),
+                                isError = card.isError,
+                            ),
+                    ),
+                settings = settings.displaySettings,
                 onClick = { onCardClick(card.id) },
                 modifier =
-                Modifier.onGloballyPositioned { layoutCoordinates ->
-                    cardLayouts[card.id] =
-                        CardLayoutInfo(
-                            position = layoutCoordinates.positionInRoot(),
-                            size = layoutCoordinates.size.toSize(),
-                        )
-                },
+                    Modifier.onGloballyPositioned { layoutCoordinates ->
+                        cardLayouts[card.id] =
+                            CardLayoutInfo(
+                                position = layoutCoordinates.positionInRoot(),
+                                size = layoutCoordinates.size.toSize(),
+                            )
+                    },
             )
         }
     }
@@ -180,18 +214,32 @@ private fun GridExplosionEffect(
 
 private fun calculateGridMetrics(
     cardCount: Int,
-    screenWidth: androidx.compose.ui.unit.Dp,
-    screenHeight: androidx.compose.ui.unit.Dp,
-    isWide: Boolean,
-    isLandscape: Boolean,
-    isCompactHeight: Boolean,
-): GridMetrics = when {
-    isLandscape && isCompactHeight -> calculateCompactLandscapeMetrics(cardCount, screenWidth)
-    isWide -> calculateWideMetrics(cardCount, screenWidth, screenHeight)
-    else -> calculatePortraitMetrics(cardCount, screenWidth, screenHeight, isCompactHeight, isWide)
-}
+    config: GridScreenConfig,
+): GridMetrics =
+    when {
+        config.isLandscape && config.isCompactHeight -> {
+            calculateCompactLandscapeMetrics(cardCount, config.screenWidth)
+        }
 
-private fun calculateCompactLandscapeMetrics(cardCount: Int, screenWidth: androidx.compose.ui.unit.Dp): GridMetrics {
+        config.isWide -> {
+            calculateWideMetrics(cardCount, config.screenWidth, config.screenHeight)
+        }
+
+        else -> {
+            calculatePortraitMetrics(
+                cardCount,
+                config.screenWidth,
+                config.screenHeight,
+                config.isCompactHeight,
+                config.isWide,
+            )
+        }
+    }
+
+private fun calculateCompactLandscapeMetrics(
+    cardCount: Int,
+    screenWidth: androidx.compose.ui.unit.Dp,
+): GridMetrics {
     val cols =
         when {
             cardCount <= SMALL_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_SMALL
@@ -267,7 +315,10 @@ private fun calculatePortraitMetrics(
     return GridMetrics(GridCells.Fixed(cols), calculatedWidth.coerceAtMost(screenWidth))
 }
 
-private fun calculateGridSpacing(isWide: Boolean, isCompactHeight: Boolean): GridSpacing {
+private fun calculateGridSpacing(
+    isWide: Boolean,
+    isCompactHeight: Boolean,
+): GridSpacing {
     val hPadding = if (isWide) 32.dp else 16.dp
     val topPadding = if (isCompactHeight) 8.dp else 16.dp
     val bottomPadding = if (isCompactHeight) 8.dp else 16.dp

@@ -22,13 +22,12 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 
+data class GameArgs(val pairCount: Int, val mode: GameMode, val forceNewGame: Boolean, val seed: Long? = null)
+
 class DefaultGameComponent(
     componentContext: ComponentContext,
     private val appGraph: AppGraph,
-    private val pairCount: Int,
-    private val mode: GameMode,
-    forceNewGame: Boolean,
-    private val seed: Long? = null,
+    private val args: GameArgs,
     private val onBackClicked: () -> Unit,
 ) : GameComponent,
     ComponentContext by componentContext {
@@ -116,19 +115,19 @@ class DefaultGameComponent(
             }.collect()
         }
 
-        startGame(pairCount, forceNewGame, mode, seed)
+        startGame(args)
     }
 
-    private fun startGame(pairCount: Int, forceNewGame: Boolean, mode: GameMode, seed: Long?) {
+    private fun startGame(args: GameArgs) {
         scope.launch {
             try {
-                val savedGame = if (forceNewGame) null else appGraph.getSavedGameUseCase()
-                if (savedGame != null && lifecycleHandler.isSavedGameValid(savedGame, pairCount, mode)) {
+                val savedGame = if (args.forceNewGame) null else appGraph.getSavedGameUseCase()
+                if (savedGame != null && lifecycleHandler.isSavedGameValid(savedGame, args.pairCount, args.mode)) {
                     lifecycleHandler.resumeExistingGame(savedGame)
                 } else {
-                    setupNewGame(pairCount, mode, seed)
+                    setupNewGame(args.pairCount, args.mode, args.seed)
                 }
-                observeStats(pairCount)
+                observeStats(args.pairCount)
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
@@ -268,7 +267,7 @@ class DefaultGameComponent(
         }
     }
 
-    override fun onRestart() = startGame(pairCount, true, mode, seed)
+    override fun onRestart() = startGame(args.copy(forceNewGame = true))
 
     override fun onBack() = onBackClicked()
 

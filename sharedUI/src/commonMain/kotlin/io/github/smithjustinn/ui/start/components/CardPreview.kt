@@ -28,6 +28,8 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.DarkBlue
 import io.github.smithjustinn.theme.SoftBlue
+import io.github.smithjustinn.ui.game.components.CardContent
+import io.github.smithjustinn.ui.game.components.CardVisualState
 import io.github.smithjustinn.ui.game.components.PlayingCard
 
 // Card Preview Layout & Animation Durations
@@ -169,10 +171,14 @@ private fun PreviewCard(
     translationY: Float = 0f,
 ) {
     PlayingCard(
-        suit = suit,
-        rank = Rank.Ace,
-        isFaceUp = true,
-        isMatched = false,
+        content = CardContent(
+            suit = suit,
+            rank = Rank.Ace,
+            visualState = CardVisualState(
+                isFaceUp = true,
+                isMatched = false,
+            ),
+        ),
         settings = settings,
         modifier =
         Modifier

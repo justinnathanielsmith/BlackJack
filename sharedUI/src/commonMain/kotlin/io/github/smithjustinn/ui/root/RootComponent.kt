@@ -10,6 +10,7 @@ import com.arkivanov.decompose.value.Value
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.ui.game.DefaultGameComponent
+import io.github.smithjustinn.ui.game.GameArgs
 import io.github.smithjustinn.ui.game.GameComponent
 import io.github.smithjustinn.ui.settings.DefaultSettingsComponent
 import io.github.smithjustinn.ui.settings.SettingsComponent
@@ -116,10 +117,12 @@ class DefaultRootComponent(componentContext: ComponentContext, private val appGr
         DefaultGameComponent(
             componentContext = componentContext,
             appGraph = appGraph,
-            pairCount = config.pairs,
-            mode = config.mode,
-            forceNewGame = config.forceNewGame,
-            seed = config.seed,
+            args = GameArgs(
+                pairCount = config.pairs,
+                mode = config.mode,
+                forceNewGame = config.forceNewGame,
+                seed = config.seed,
+            ),
             onBackClicked = navigation::pop,
         )
 

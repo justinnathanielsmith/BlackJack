@@ -49,6 +49,12 @@ data class TimerFeedback(
     val isMegaBonus: Boolean = false,
 )
 
+data class TimerVisuals(
+    val color: Color,
+    val scale: Float,
+    val isCompact: Boolean = false,
+)
+
 @Composable
 fun TimerDisplay(
     state: TimerState,
@@ -72,28 +78,24 @@ fun TimerDisplay(
         infiniteTransition = infiniteTransition,
     )
 
+    val visuals = TimerVisuals(
+        color = timerColor,
+        scale = timerScale,
+        isCompact = compact,
+    )
+
     if (minimal) {
         MinimalTimerDisplay(
-            time = state.time,
-            timerColor = timerColor,
-            timerScale = timerScale,
-            showTimeGain = feedback.showTimeGain,
-            timeGainAmount = feedback.timeGainAmount,
-            isMegaBonus = feedback.isMegaBonus,
+            state = state,
+            feedback = feedback,
+            visuals = visuals,
             modifier = modifier,
         )
     } else {
         StandardTimerDisplay(
-            time = state.time,
-            timerColor = timerColor,
-            timerScale = timerScale,
-            showTimeGain = feedback.showTimeGain,
-            timeGainAmount = feedback.timeGainAmount,
-            showTimeLoss = feedback.showTimeLoss,
-            timeLossAmount = feedback.timeLossAmount,
-            isMegaBonus = feedback.isMegaBonus,
-            isLowTime = state.isLowTime,
-            compact = compact,
+            state = state,
+            feedback = feedback,
+            visuals = visuals,
             modifier = modifier,
         )
     }
@@ -157,12 +159,9 @@ private fun calculateTimerScale(
 
 @Composable
 private fun MinimalTimerDisplay(
-    time: Long,
-    timerColor: Color,
-    timerScale: Float,
-    showTimeGain: Boolean,
-    timeGainAmount: Int,
-    isMegaBonus: Boolean,
+    state: TimerState,
+    feedback: TimerFeedback,
+    visuals: TimerVisuals,
     modifier: Modifier = Modifier,
 ) {
     Row(
@@ -171,25 +170,29 @@ private fun MinimalTimerDisplay(
         horizontalArrangement = Arrangement.Center,
     ) {
         Text(
-            text = formatTime(time),
+            text = formatTime(state.time),
             style = MaterialTheme.typography.titleLarge.copy(
                 fontSize = 14.sp,
                 fontWeight = FontWeight.Black,
                 letterSpacing = 0.5.sp,
             ),
-            modifier = Modifier.scale(timerScale),
-            color = timerColor,
+            modifier = Modifier.scale(visuals.scale),
+            color = visuals.color,
         )
 
         AnimatedVisibility(
-            visible = showTimeGain,
+            visible = feedback.showTimeGain,
             enter = fadeIn() + slideInVertically { it / 2 },
             exit = fadeOut() + slideOutVertically { -it / 2 },
         ) {
             Text(
-                text = "+${timeGainAmount}s",
+                text = "+${feedback.timeGainAmount}s",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                color = if (isMegaBonus) MemoryMatchTheme.colors.goldenYellow else MemoryMatchTheme.colors.bonusGreen,
+                color = if (feedback.isMegaBonus) {
+                    MemoryMatchTheme.colors.goldenYellow
+                } else {
+                    MemoryMatchTheme.colors.bonusGreen
+                },
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.padding(start = 4.dp),
             )
@@ -199,61 +202,54 @@ private fun MinimalTimerDisplay(
 
 @Composable
 private fun StandardTimerDisplay(
-    time: Long,
-    timerColor: Color,
-    timerScale: Float,
-    showTimeGain: Boolean,
-    timeGainAmount: Int,
-    showTimeLoss: Boolean,
-    timeLossAmount: Long,
-    isMegaBonus: Boolean,
-    isLowTime: Boolean,
-    compact: Boolean,
+    state: TimerState,
+    feedback: TimerFeedback,
+    visuals: TimerVisuals,
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        shape = RoundedCornerShape(if (compact) 16.dp else 24.dp),
+        shape = RoundedCornerShape(if (visuals.isCompact) 16.dp else 24.dp),
         color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.4f),
         border = BorderStroke(
             width = 1.dp,
-            color = if (isLowTime || showTimeLoss) {
+            color = if (state.isLowTime || feedback.showTimeLoss) {
                 MemoryMatchTheme.colors.tacticalRed.copy(alpha = 0.5f)
             } else {
                 Color.White.copy(alpha = 0.15f)
             },
         ),
-        modifier = modifier.height(if (compact) 36.dp else 44.dp),
+        modifier = modifier.height(if (visuals.isCompact) 36.dp else 44.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = if (compact) 10.dp else 16.dp),
+            modifier = Modifier.padding(horizontal = if (visuals.isCompact) 10.dp else 16.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
             Text(
-                text = formatTime(time),
+                text = formatTime(state.time),
                 style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = (if (compact) 16.sp else 20.sp),
+                    fontSize = (if (visuals.isCompact) 16.sp else 20.sp),
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp,
                 ),
                 modifier = Modifier
-                    .scale(timerScale)
+                    .scale(visuals.scale)
                     .padding(bottom = 2.dp), // Fine-tune vertical alignment
-                color = timerColor,
+                color = visuals.color,
                 maxLines = 1,
             )
 
             TimeGainIndicator(
-                showTimeGain = showTimeGain,
-                timeGainAmount = timeGainAmount,
-                isMegaBonus = isMegaBonus,
-                compact = compact,
+                showTimeGain = feedback.showTimeGain,
+                timeGainAmount = feedback.timeGainAmount,
+                isMegaBonus = feedback.isMegaBonus,
+                compact = visuals.isCompact,
             )
 
             TimeLossIndicator(
-                showTimeLoss = showTimeLoss,
-                timeLossAmount = timeLossAmount,
-                compact = compact,
+                showTimeLoss = feedback.showTimeLoss,
+                timeLossAmount = feedback.timeLossAmount,
+                compact = visuals.isCompact,
             )
         }
     }

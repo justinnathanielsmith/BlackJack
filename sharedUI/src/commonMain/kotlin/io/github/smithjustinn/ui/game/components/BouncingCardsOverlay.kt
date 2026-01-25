@@ -56,26 +56,28 @@ private const val DEGREES_TO_RADIANS = PI.toFloat() / 180f
  * 3. The class instance itself remains stable while its internal state evolves.
  */
 @Stable
-private class CelebrationCard(
-    val card: CardState,
-    initialX: Float,
-    initialY: Float,
+private data class CelebrationPhysics(
+    val initialX: Float,
+    val initialY: Float,
     val vx0: Float,
     val vy0: Float,
     val vRot: Float,
     val targetScale: Float,
     val delaySeconds: Float,
-) {
-    var x by mutableStateOf(initialX)
-    var y by mutableStateOf(initialY)
-    var vx = vx0
-    var vy = vy0
+)
+
+@Stable
+private class CelebrationCard(val card: CardState, val physics: CelebrationPhysics) {
+    var x by mutableStateOf(physics.initialX)
+    var y by mutableStateOf(physics.initialY)
+    var vx = physics.vx0
+    var vy = physics.vy0
     var rotation by mutableStateOf(0f)
     var scale by mutableStateOf(0f)
     var alpha by mutableStateOf(1f)
 
     fun update(gravity: Float, friction: Float, elapsedSeconds: Float, screenHeight: Float) {
-        val activeTime = elapsedSeconds - delaySeconds
+        val activeTime = elapsedSeconds - physics.delaySeconds
         if (activeTime < 0) return
 
         // Update physics
@@ -84,13 +86,13 @@ private class CelebrationCard(
         vy += gravity
         vx *= friction
         vy *= friction
-        rotation += vRot
+        rotation += physics.vRot
 
         // Appearance animation (Pop in)
         scale = if (activeTime < POP_IN_DURATION) {
-            (activeTime / POP_IN_DURATION) * targetScale
+            (activeTime / POP_IN_DURATION) * physics.targetScale
         } else {
-            targetScale
+            physics.targetScale
         }
 
         // Exit animation (Fade out when falling off screen or after duration)
@@ -134,14 +136,15 @@ fun BouncingCardsOverlay(
                     celebrationCards.add(
                         CelebrationCard(
                             card = card,
-                            initialX = (widthPx / 2f) - cardWidthPx / 2f,
-                            // Start at the bottom
-                            initialY = heightPx,
-                            vx0 = cos(radians) * speed,
-                            vy0 = sin(radians) * speed,
-                            vRot = (Random.nextFloat() - 0.5f) * 12f,
-                            targetScale = 0.7f + Random.nextFloat() * 0.5f,
-                            delaySeconds = index * 0.08f, // Staggered launch for "fountain" feel
+                            physics = CelebrationPhysics(
+                                initialX = (widthPx / 2f) - cardWidthPx / 2f,
+                                initialY = heightPx,
+                                vx0 = cos(radians) * speed,
+                                vy0 = sin(radians) * speed,
+                                vRot = (Random.nextFloat() - 0.5f) * 12f,
+                                targetScale = 0.7f + Random.nextFloat() * 0.5f,
+                                delaySeconds = index * 0.08f,
+                            ),
                         ),
                     )
                 }
@@ -176,10 +179,14 @@ private fun CelebrationCardsLayer(celebrationCards: List<CelebrationCard>, setti
         if (cCard.alpha > 0f && cCard.scale > 0f) {
             key(cCard.card.id) {
                 PlayingCard(
-                    suit = cCard.card.suit,
-                    rank = cCard.card.rank,
-                    isFaceUp = true,
-                    isMatched = true,
+                    content = CardContent(
+                        suit = cCard.card.suit,
+                        rank = cCard.card.rank,
+                        visualState = CardVisualState(
+                            isFaceUp = true,
+                            isMatched = true,
+                        ),
+                    ),
                     settings = settings,
                     modifier = Modifier
                         .size(BOUNCING_CARD_WIDTH, BASE_CARD_HEIGHT)

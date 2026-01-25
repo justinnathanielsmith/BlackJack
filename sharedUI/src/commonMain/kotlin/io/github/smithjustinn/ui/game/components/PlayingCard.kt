@@ -99,14 +99,27 @@ private const val BORDER_SIZE_MULTIPLIER = 2f
 private const val HALF_DIVISOR = 2
 private const val SHAKE_REPEAT_COUNT = 3
 
+data class CardVisualState(
+    val isFaceUp: Boolean,
+    val isMatched: Boolean = false,
+    val isRecentlyMatched: Boolean = false,
+    val isError: Boolean = false,
+)
+
+data class CardContent(val suit: Suit, val rank: Rank, val visualState: CardVisualState)
+
+data class CardContainerVisuals(
+    val visualState: CardVisualState,
+    val rotation: Float,
+    val scale: Float,
+    val matchedGlowAlpha: Float,
+)
+
+data class CardInteractions(val interactionSource: MutableInteractionSource, val onClick: () -> Unit)
+
 @Composable
 fun PlayingCard(
-    suit: Suit,
-    rank: Rank,
-    isFaceUp: Boolean,
-    isMatched: Boolean = false,
-    isRecentlyMatched: Boolean = false,
-    isError: Boolean = false,
+    content: CardContent,
     modifier: Modifier = Modifier,
     backColor: Color = StartBackgroundTop,
     settings: CardDisplaySettings = CardDisplaySettings(),
@@ -116,20 +129,25 @@ fun PlayingCard(
     val isHovered by interactionSource.collectIsHoveredAsState()
 
     val rotation by animateFloatAsState(
-        targetValue = if (isFaceUp) 0f else FULL_ROTATION,
+        targetValue = if (content.visualState.isFaceUp) 0f else FULL_ROTATION,
         animationSpec = tween(durationMillis = FLIP_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
         label = "cardFlip",
     )
 
     val scale by animateFloatAsState(
-        targetValue = if (isRecentlyMatched || (isHovered && !isFaceUp)) 1.05f else 1f,
+        targetValue =
+        if (content.visualState.isRecentlyMatched || (isHovered && !content.visualState.isFaceUp)) {
+            1.05f
+        } else {
+            1f
+        },
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "pulse",
     )
 
     val shakeOffset = remember { Animatable(0f) }
-    LaunchedEffect(isError) {
-        if (isError) {
+    LaunchedEffect(content.visualState.isError) {
+        if (content.visualState.isError) {
             repeat(SHAKE_REPEAT_COUNT) {
                 shakeOffset.animateTo(SHAKE_OFFSET_PX, tween(SHAKE_ANIMATION_DURATION_MS))
                 shakeOffset.animateTo(-SHAKE_OFFSET_PX, tween(SHAKE_ANIMATION_DURATION_MS))
@@ -138,9 +156,9 @@ fun PlayingCard(
         }
     }
 
-    val suitColor = calculateSuitColor(suit, settings.areSuitsMultiColored)
+    val suitColor = calculateSuitColor(content.suit, settings.areSuitsMultiColored)
     val matchedGlowAlpha by animateFloatAsState(
-        targetValue = if (isRecentlyMatched) SUBTLE_ALPHA else 0f,
+        targetValue = if (content.visualState.isRecentlyMatched) SUBTLE_ALPHA else 0f,
         animationSpec =
         infiniteRepeatable(
             animation = tween(GLOW_ANIMATION_DURATION_MS),
@@ -151,19 +169,18 @@ fun PlayingCard(
 
     CardContainer(
         modifier = modifier.offset { IntOffset(shakeOffset.value.roundToInt(), 0) },
-        rotation = rotation,
-        scale = scale,
-        isMatched = isMatched,
-        isRecentlyMatched = isRecentlyMatched,
-        isError = isError,
-        matchedGlowAlpha = matchedGlowAlpha,
+        visuals = CardContainerVisuals(
+            visualState = content.visualState,
+            rotation = rotation,
+            scale = scale,
+            matchedGlowAlpha = matchedGlowAlpha,
+        ),
         backColor = backColor,
-        onClick = onClick,
-        interactionSource = interactionSource,
+        interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
     ) {
         if (rotation <= HALF_ROTATION) {
-            CardFace(rank = rank, suit = suit, suitColor = suitColor, theme = settings.symbolTheme)
-            if (isRecentlyMatched) ShimmerEffect()
+            CardFace(rank = content.rank, suit = content.suit, suitColor = suitColor, theme = settings.symbolTheme)
+            if (content.visualState.isRecentlyMatched) ShimmerEffect()
         } else {
             CardBack(
                 theme = settings.backTheme,
@@ -177,15 +194,9 @@ fun PlayingCard(
 @Composable
 private fun CardContainer(
     modifier: Modifier,
-    rotation: Float,
-    scale: Float,
-    isMatched: Boolean,
-    isRecentlyMatched: Boolean,
-    isError: Boolean,
-    matchedGlowAlpha: Float,
+    visuals: CardContainerVisuals,
     backColor: Color,
-    onClick: () -> Unit,
-    interactionSource: MutableInteractionSource,
+    interactions: CardInteractions,
     content: @Composable () -> Unit,
 ) {
     Box(
@@ -194,27 +205,27 @@ private fun CardContainer(
             .widthIn(min = 60.dp)
             .aspectRatio(CARD_ASPECT_RATIO)
             .graphicsLayer {
-                rotationY = rotation
-                scaleX = scale
-                scaleY = scale
+                rotationY = visuals.rotation
+                scaleX = visuals.scale
+                scaleY = visuals.scale
                 cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
             }.shadow(
                 elevation =
-                if (isRecentlyMatched) {
+                if (visuals.visualState.isRecentlyMatched) {
                     10.dp
-                } else if (isMatched) {
+                } else if (visuals.visualState.isMatched) {
                     2.dp
                 } else {
                     6.dp
                 },
                 shape = RoundedCornerShape(12.dp),
                 clip = false,
-                ambientColor = if (isRecentlyMatched) NeonCyan else Color.Black,
-                spotColor = if (isRecentlyMatched) NeonCyan else Color.Black,
+                ambientColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
+                spotColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
             ).drawBehind {
-                if (isRecentlyMatched) {
+                if (visuals.visualState.isRecentlyMatched) {
                     drawCircle(
-                        color = NeonCyan.copy(alpha = matchedGlowAlpha),
+                        color = NeonCyan.copy(alpha = visuals.matchedGlowAlpha),
                         radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
                         center = center,
                     )
@@ -222,15 +233,15 @@ private fun CardContainer(
             },
     ) {
         Card(
-            onClick = onClick,
-            interactionSource = interactionSource,
+            onClick = interactions.onClick,
+            interactionSource = interactions.interactionSource,
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(12.dp),
             colors =
             CardDefaults.cardColors(
-                containerColor = if (rotation <= HALF_ROTATION) Color.White else backColor,
+                containerColor = if (visuals.rotation <= HALF_ROTATION) Color.White else backColor,
             ),
-            border = getCardBorder(rotation, isRecentlyMatched, isMatched, isError),
+            border = getCardBorder(visuals.rotation, visuals.visualState),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 content()
@@ -240,26 +251,22 @@ private fun CardContainer(
 }
 
 @Composable
-private fun getCardBorder(
-    rotation: Float,
-    isRecentlyMatched: Boolean,
-    isMatched: Boolean,
-    isError: Boolean,
-): BorderStroke = if (rotation <= HALF_ROTATION) {
-    when {
-        isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
-        isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = MEDIUM_ALPHA))
-        isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
-        else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
+private fun getCardBorder(rotation: Float, visualState: CardVisualState): BorderStroke =
+    if (rotation <= HALF_ROTATION) {
+        when {
+            visualState.isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
+            visualState.isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = MEDIUM_ALPHA))
+            visualState.isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
+            else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
+        }
+    } else {
+        val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
+        val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
+        BorderStroke(
+            width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp),
+            color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA),
+        )
     }
-} else {
-    val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
-    val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
-    BorderStroke(
-        width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp),
-        color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA),
-    )
-}
 
 private fun calculateSuitColor(suit: Suit, areSuitsMultiColored: Boolean): Color = if (areSuitsMultiColored) {
     when (suit) {

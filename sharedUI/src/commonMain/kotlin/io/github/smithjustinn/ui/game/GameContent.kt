@@ -35,6 +35,8 @@ import io.github.smithjustinn.ui.game.components.BouncingCardsOverlay
 import io.github.smithjustinn.ui.game.components.ComboBadge
 import io.github.smithjustinn.ui.game.components.ConfettiEffect
 import io.github.smithjustinn.ui.game.components.GameGrid
+import io.github.smithjustinn.ui.game.components.GridCardState
+import io.github.smithjustinn.ui.game.components.GridSettings
 import io.github.smithjustinn.ui.game.components.GameTopBar
 import io.github.smithjustinn.ui.game.components.MatchCommentSnackbar
 import io.github.smithjustinn.ui.game.components.NewHighScoreSnackbar
@@ -307,12 +309,16 @@ private fun GameMainContent(
 ) {
     Box(modifier = modifier.fillMaxSize()) {
         GameGrid(
-            cards = state.game.cards,
+            gridCardState = GridCardState(
+                cards = state.game.cards,
+                lastMatchedIds = state.game.lastMatchedIds,
+                isPeeking = state.isPeeking,
+            ),
+            settings = GridSettings(
+                displaySettings = state.cardSettings,
+                showComboExplosion = state.showComboExplosion,
+            ),
             onCardClick = { cardId -> component.onFlipCard(cardId) },
-            isPeeking = state.isPeeking,
-            lastMatchedIds = state.game.lastMatchedIds,
-            showComboExplosion = state.showComboExplosion,
-            settings = state.cardSettings,
         )
 
         if (state.game.comboMultiplier > 1) {
