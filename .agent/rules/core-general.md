@@ -12,8 +12,7 @@ Use this document as the **Immutable Source of Truth** for high-level project al
 Before generating code, you **MUST** align with:
 1. **Kotlin Version**: Assume Kotlin **2.3+ (K2 Mode)**.
 2. **UI Stack**: Compose Multiplatform **1.10.0+**.
-3. **Context Parameters**: Use `-Xcontext-parameters`, NOT Context Receivers.
-4. **Conventional Commits**: `feat:`, `fix:`, `chore:`, etc.
+3. **Conventional Commits**: `feat:`, `fix:`, `chore:`, etc.
 
 ## 1. Tech Stack Overview
 - **UI**: Compose Multiplatform 1.10+
@@ -25,7 +24,6 @@ Before generating code, you **MUST** align with:
 
 ## 2. Compose Best Practices (2026)
 - **Strong Skipping**: Defaults are good; minimize `@Stable` boilerplate.
-- **Context Parameters**: Use `-Xcontext-parameters` for DI/Theme injection.
 - **Collections**: Use `kotlinx.collections.immutable`.
 - **Modifiers**: Prefer `Modifier.Node` over `composed {}`.
 - **Slots**: Use Slot API over passing complex data models.
