@@ -5,6 +5,7 @@ kotlin = "2.3.0"
 ksp = "2.3.4"
 spotless = "8.2.0"
 detekt = "2.0.0-alpha.1"
+kover = "0.9.4"
 
 # UI & Compose
 compose-multiplatform = "1.10.0"
@@ -131,3 +132,4 @@ mokkery = { id = "dev.mokkery", version.ref = "mokkery" }
 room = { id = "androidx.room", version.ref = "room" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 detekt = { id = "dev.detekt", version.ref = "detekt" }
+kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }

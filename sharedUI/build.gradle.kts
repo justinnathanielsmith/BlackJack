@@ -12,6 +12,7 @@ plugins {
     alias(libs.plugins.room)
     alias(libs.plugins.ksp)
     alias(libs.plugins.mokkery)
+    alias(libs.plugins.kover)
 }
 
 ksp {

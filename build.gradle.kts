@@ -11,6 +11,61 @@ plugins {
     alias(libs.plugins.ksp).apply(false)
     alias(libs.plugins.spotless)
     alias(libs.plugins.detekt)
+    alias(libs.plugins.kover)
+}
+
+dependencies {
+    kover(project(":sharedUI"))
+}
+
+kover {
+    reports {
+        filters {
+            excludes {
+                packages(
+                    "io.github.smithjustinn.ui",
+                    "io.github.smithjustinn.ui.*",
+                    "io.github.smithjustinn.ui.**",
+                    "io.github.smithjustinn.theme",
+                    "io.github.smithjustinn.theme.*",
+                    "io.github.smithjustinn.services",
+                    "io.github.smithjustinn.services.*",
+                    "io.github.smithjustinn.di",
+                    "io.github.smithjustinn.di.*",
+                    "io.github.smithjustinn.di.**",
+                    "memory_match.*",
+                    "memory_match.**"
+                )
+                classes(
+                    "*Generated*",
+                    "*_Factory",
+                    "*_Impl",
+                    "*_Module",
+                    "*.di.*",
+                    "Res",
+                    "Res$*",
+                    "*MetroFactory*",
+                    "*.AppKt",
+                    "*.AppKt$*",
+                    "*.ComposableSingletons*",
+                    "*ComponentScopeKt*"
+                )
+            }
+        }
+        total {
+            xml {
+                onCheck = true
+            }
+            html {
+                onCheck = true
+            }
+            verify {
+                rule {
+                    minBound(70)
+                }
+            }
+        }
+    }
 }
 
 detekt {

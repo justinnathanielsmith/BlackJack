@@ -57,14 +57,14 @@ fun GameTopBar(
 
     Column(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-                ).padding(
-                    horizontal = if (state.compact) 16.dp else 24.dp,
-                    vertical = if (state.compact) 8.dp else 12.dp,
-                ),
+        modifier
+            .fillMaxWidth()
+            .windowInsetsPadding(
+                WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+            ).padding(
+                horizontal = if (state.compact) 16.dp else 24.dp,
+                vertical = if (state.compact) 8.dp else 12.dp,
+            ),
         verticalArrangement = Arrangement.spacedBy(if (state.compact) 8.dp else 12.dp),
     ) {
         TopBarMainRow(
@@ -105,19 +105,19 @@ private fun TopBarMainRow(
         TimerDisplay(
             infiniteTransition = rememberInfiniteTransition(),
             state =
-                TimerState(
-                    time = state.time,
-                    isLowTime = state.isLowTime,
-                    isCriticalTime = state.isCriticalTime,
-                ),
+            TimerState(
+                time = state.time,
+                isLowTime = state.isLowTime,
+                isCriticalTime = state.isCriticalTime,
+            ),
             feedback =
-                TimerFeedback(
-                    showTimeGain = state.showTimeGain,
-                    timeGainAmount = state.timeGainAmount,
-                    showTimeLoss = state.showTimeLoss,
-                    timeLossAmount = state.timeLossAmount,
-                    isMegaBonus = state.isMegaBonus,
-                ),
+            TimerFeedback(
+                showTimeGain = state.showTimeGain,
+                timeGainAmount = state.timeGainAmount,
+                showTimeLoss = state.showTimeLoss,
+                timeLossAmount = state.timeLossAmount,
+                isMegaBonus = state.isMegaBonus,
+            ),
             layout = if (state.compact) TimerLayout.COMPACT else TimerLayout.STANDARD,
         )
 
@@ -152,11 +152,7 @@ private fun ControlButtons(
 }
 
 @Composable
-private fun BackButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    compact: Boolean = false,
-) {
+private fun BackButton(onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -176,11 +172,7 @@ private fun BackButton(
 }
 
 @Composable
-private fun RestartButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier,
-    compact: Boolean = false,
-) {
+private fun RestartButton(onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -217,13 +209,13 @@ private fun MuteButton(
             Icon(
                 if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
                 contentDescription =
-                    stringResource(
-                        if (isAudioEnabled) {
-                            Res.string.mute_content_description
-                        } else {
-                            Res.string.unmute_content_description
-                        },
-                    ),
+                stringResource(
+                    if (isAudioEnabled) {
+                        Res.string.mute_content_description
+                    } else {
+                        Res.string.unmute_content_description
+                    },
+                ),
                 tint = if (isAudioEnabled) NeonCyan else TacticalRed,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
@@ -246,32 +238,31 @@ private fun TimeProgressBar(
 
     Box(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .height(if (compact) 4.dp else 8.dp)
-                .clip(CircleShape)
-                .background(InactiveBackground.copy(alpha = 0.5f)),
+        modifier
+            .fillMaxWidth()
+            .height(if (compact) 4.dp else 8.dp)
+            .clip(CircleShape)
+            .background(InactiveBackground.copy(alpha = 0.5f)),
     ) {
         Box(
             modifier =
-                Modifier
-                    .fillMaxWidth(progress)
-                    .fillMaxHeight()
-                    .shadow(
-                        elevation = if (isLowTime) 0.dp else 12.dp,
-                        shape = CircleShape,
-                        ambientColor = NeonCyan,
-                        spotColor = NeonCyan,
-                        clip = false,
-                    ).clip(CircleShape)
-                    .background(
-                        if (isLowTime) {
-                            Brush.horizontalGradient(listOf(TacticalRed, TacticalRed.copy(alpha = 0.7f)))
-                        } else {
-                            Brush.horizontalGradient(listOf(NeonCyan, NeonCyan.copy(alpha = 0.7f)))
-                        },
-                    ),
+            Modifier
+                .fillMaxWidth(progress)
+                .fillMaxHeight()
+                .shadow(
+                    elevation = if (isLowTime) 0.dp else 12.dp,
+                    shape = CircleShape,
+                    ambientColor = NeonCyan,
+                    spotColor = NeonCyan,
+                    clip = false,
+                ).clip(CircleShape)
+                .background(
+                    if (isLowTime) {
+                        Brush.horizontalGradient(listOf(TacticalRed, TacticalRed.copy(alpha = 0.7f)))
+                    } else {
+                        Brush.horizontalGradient(listOf(NeonCyan, NeonCyan.copy(alpha = 0.7f)))
+                    },
+                ),
         )
     }
 }
-
