@@ -47,82 +47,92 @@ import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun GameTopBar(
-    time: Long,
+    state: GameTopBarState,
     onBackClick: () -> Unit,
     onRestartClick: () -> Unit,
+    onMuteClick: () -> Unit,
     modifier: Modifier = Modifier,
-    mode: GameMode = GameMode.STANDARD,
-    maxTime: Long = 0,
-    showTimeGain: Boolean = false,
-    timeGainAmount: Int = 0,
-    showTimeLoss: Boolean = false,
-    timeLossAmount: Long = 0,
-    isMegaBonus: Boolean = false,
-    compact: Boolean = false,
-    isAudioEnabled: Boolean = true,
-    onMuteClick: () -> Unit = {},
 ) {
-    val isTimeAttack = mode == GameMode.TIME_ATTACK
-    val isLowTime = isTimeAttack && time <= LOW_TIME_THRESHOLD_SEC
-    val isCriticalTime = isTimeAttack && time <= CRITICAL_TIME_THRESHOLD_SEC
-
-    val infiniteTransition = rememberInfiniteTransition()
+    val isTimeAttack = state.mode == GameMode.TIME_ATTACK
+    val isLowTime = isTimeAttack && state.time <= LOW_TIME_THRESHOLD_SEC
+    val isCriticalTime = isTimeAttack && state.time <= CRITICAL_TIME_THRESHOLD_SEC
 
     Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .windowInsetsPadding(WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal))
-            .padding(
-                horizontal = if (compact) 16.dp else 24.dp,
-                vertical = if (compact) 8.dp else 12.dp,
-            ),
-        verticalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 12.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                ).padding(
+                    horizontal = if (state.compact) 16.dp else 24.dp,
+                    vertical = if (state.compact) 8.dp else 12.dp,
+                ),
+        verticalArrangement = Arrangement.spacedBy(if (state.compact) 8.dp else 12.dp),
     ) {
-        // Main HUD Row
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween,
-        ) {
-            BackButton(
-                onClick = onBackClick,
-                compact = compact,
-            )
+        TopBarMainRow(
+            state = state,
+            isLowTime = isLowTime,
+            isCriticalTime = isCriticalTime,
+            onBackClick = onBackClick,
+            onRestartClick = onRestartClick,
+            onMuteClick = onMuteClick,
+        )
 
-            TimerDisplay(
-                state = TimerState(
-                    time = time,
+        if (isTimeAttack && state.maxTime > 0) {
+            TimeProgressBar(
+                time = state.time,
+                maxTime = state.maxTime,
+                isLowTime = isLowTime,
+                compact = state.compact,
+            )
+        }
+    }
+}
+
+@Composable
+private fun TopBarMainRow(
+    state: GameTopBarState,
+    isLowTime: Boolean,
+    isCriticalTime: Boolean,
+    onBackClick: () -> Unit,
+    onRestartClick: () -> Unit,
+    onMuteClick: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        BackButton(
+            onClick = onBackClick,
+            compact = state.compact,
+        )
+
+        TimerDisplay(
+            infiniteTransition = rememberInfiniteTransition(),
+            state =
+                TimerState(
+                    time = state.time,
                     isLowTime = isLowTime,
                     isCriticalTime = isCriticalTime,
                 ),
-                feedback = TimerFeedback(
-                    showTimeGain = showTimeGain,
-                    timeGainAmount = timeGainAmount,
-                    showTimeLoss = showTimeLoss,
-                    timeLossAmount = timeLossAmount,
-                    isMegaBonus = isMegaBonus,
+            feedback =
+                TimerFeedback(
+                    showTimeGain = state.showTimeGain,
+                    timeGainAmount = state.timeGainAmount,
+                    showTimeLoss = state.showTimeLoss,
+                    timeLossAmount = state.timeLossAmount,
+                    isMegaBonus = state.isMegaBonus,
                 ),
-                infiniteTransition = infiniteTransition,
-                compact = compact,
-                minimal = false,
-            )
+            layout = if (state.compact) TimerLayout.COMPACT else TimerLayout.STANDARD,
+        )
 
-            ControlButtons(
-                isAudioEnabled = isAudioEnabled,
-                onMuteClick = onMuteClick,
-                onRestartClick = onRestartClick,
-                compact = compact,
-            )
-        }
-
-        if (isTimeAttack && maxTime > 0) {
-            TimeProgressBar(
-                time = time,
-                maxTime = maxTime,
-                isLowTime = isLowTime,
-                compact = compact,
-            )
-        }
+        ControlButtons(
+            isAudioEnabled = state.isAudioEnabled,
+            onMuteClick = onMuteClick,
+            onRestartClick = onRestartClick,
+            compact = state.compact,
+        )
     }
 }
 
@@ -148,7 +158,11 @@ private fun ControlButtons(
 }
 
 @Composable
-private fun BackButton(onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
+private fun BackButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false,
+) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -168,7 +182,11 @@ private fun BackButton(onClick: () -> Unit, modifier: Modifier = Modifier, compa
 }
 
 @Composable
-private fun RestartButton(onClick: () -> Unit, modifier: Modifier = Modifier, compact: Boolean = false) {
+private fun RestartButton(
+    onClick: () -> Unit,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false,
+) {
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
@@ -204,9 +222,14 @@ private fun MuteButton(
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
-                contentDescription = stringResource(
-                    if (isAudioEnabled) Res.string.mute_content_description else Res.string.unmute_content_description,
-                ),
+                contentDescription =
+                    stringResource(
+                        if (isAudioEnabled) {
+                            Res.string.mute_content_description
+                        } else {
+                            Res.string.unmute_content_description
+                        },
+                    ),
                 tint = if (isAudioEnabled) NeonCyan else TacticalRed,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
@@ -228,31 +251,32 @@ private fun TimeProgressBar(
     )
 
     Box(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(if (compact) 4.dp else 8.dp)
-            .clip(CircleShape)
-            .background(InactiveBackground.copy(alpha = 0.5f)),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(if (compact) 4.dp else 8.dp)
+                .clip(CircleShape)
+                .background(InactiveBackground.copy(alpha = 0.5f)),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth(progress)
-                .fillMaxHeight()
-                .shadow(
-                    elevation = if (isLowTime) 0.dp else 12.dp,
-                    shape = CircleShape,
-                    ambientColor = NeonCyan,
-                    spotColor = NeonCyan,
-                    clip = false,
-                )
-                .clip(CircleShape)
-                .background(
-                    if (isLowTime) {
-                        Brush.horizontalGradient(listOf(TacticalRed, TacticalRed.copy(alpha = 0.7f)))
-                    } else {
-                        Brush.horizontalGradient(listOf(NeonCyan, NeonCyan.copy(alpha = 0.7f)))
-                    },
-                ),
+            modifier =
+                Modifier
+                    .fillMaxWidth(progress)
+                    .fillMaxHeight()
+                    .shadow(
+                        elevation = if (isLowTime) 0.dp else 12.dp,
+                        shape = CircleShape,
+                        ambientColor = NeonCyan,
+                        spotColor = NeonCyan,
+                        clip = false,
+                    ).clip(CircleShape)
+                    .background(
+                        if (isLowTime) {
+                            Brush.horizontalGradient(listOf(TacticalRed, TacticalRed.copy(alpha = 0.7f)))
+                        } else {
+                            Brush.horizontalGradient(listOf(NeonCyan, NeonCyan.copy(alpha = 0.7f)))
+                        },
+                    ),
         )
     }
 }

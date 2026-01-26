@@ -39,48 +39,38 @@ import io.github.smithjustinn.utils.formatTime
 private const val COLOR_TRANSITION_DURATION_MS = 500
 private const val PULSE_SCALE_TARGET = 1.15f
 
-data class TimerState(val time: Long, val isLowTime: Boolean, val isCriticalTime: Boolean)
-
-data class TimerFeedback(
-    val showTimeGain: Boolean = false,
-    val timeGainAmount: Int = 0,
-    val showTimeLoss: Boolean = false,
-    val timeLossAmount: Long = 0,
-    val isMegaBonus: Boolean = false,
-)
-
-data class TimerVisuals(val color: Color, val scale: Float, val isCompact: Boolean = false)
-
 @Composable
 fun TimerDisplay(
+    infiniteTransition: InfiniteTransition,
     state: TimerState,
     feedback: TimerFeedback,
-    infiniteTransition: InfiniteTransition,
     modifier: Modifier = Modifier,
-    compact: Boolean = false,
-    minimal: Boolean = false,
+    layout: TimerLayout = TimerLayout.STANDARD,
 ) {
-    val timerColor = animateTimerColor(
-        showTimeLoss = feedback.showTimeLoss,
-        showTimeGain = feedback.showTimeGain,
-        isMegaBonus = feedback.isMegaBonus,
-        isLowTime = state.isLowTime,
-        minimal = minimal,
-    )
+    val timerColor =
+        animateTimerColor(
+            showTimeLoss = feedback.showTimeLoss,
+            showTimeGain = feedback.showTimeGain,
+            isMegaBonus = feedback.isMegaBonus,
+            isLowTime = state.isLowTime,
+            minimal = layout == TimerLayout.MINIMAL,
+        )
 
-    val timerScale = calculateTimerScale(
-        showTimeLoss = feedback.showTimeLoss,
-        isCriticalTime = state.isCriticalTime,
-        infiniteTransition = infiniteTransition,
-    )
+    val timerScale =
+        calculateTimerScale(
+            infiniteTransition = infiniteTransition,
+            showTimeLoss = feedback.showTimeLoss,
+            isCriticalTime = state.isCriticalTime,
+        )
 
-    val visuals = TimerVisuals(
-        color = timerColor,
-        scale = timerScale,
-        isCompact = compact,
-    )
+    val visuals =
+        TimerVisuals(
+            color = timerColor,
+            scale = timerScale,
+            layout = layout,
+        )
 
-    if (minimal) {
+    if (layout == TimerLayout.MINIMAL) {
         MinimalTimerDisplay(
             state = state,
             feedback = feedback,
@@ -105,14 +95,15 @@ private fun animateTimerColor(
     isLowTime: Boolean,
     minimal: Boolean,
 ): Color {
-    val targetValue = when {
-        showTimeLoss -> MemoryMatchTheme.colors.tacticalRed
-        showTimeGain && isMegaBonus -> MemoryMatchTheme.colors.goldenYellow
-        showTimeGain -> MemoryMatchTheme.colors.bonusGreen
-        isLowTime -> MemoryMatchTheme.colors.tacticalRed
-        minimal -> Color.White
-        else -> MemoryMatchTheme.colors.neonCyan
-    }
+    val targetValue =
+        when {
+            showTimeLoss -> MemoryMatchTheme.colors.tacticalRed
+            showTimeGain && isMegaBonus -> MemoryMatchTheme.colors.goldenYellow
+            showTimeGain -> MemoryMatchTheme.colors.bonusGreen
+            isLowTime -> MemoryMatchTheme.colors.tacticalRed
+            minimal -> Color.White
+            else -> MemoryMatchTheme.colors.neonCyan
+        }
 
     val color by animateColorAsState(
         targetValue = targetValue,
@@ -124,26 +115,28 @@ private fun animateTimerColor(
 
 @Composable
 private fun calculateTimerScale(
+    infiniteTransition: InfiniteTransition,
     showTimeLoss: Boolean,
     isCriticalTime: Boolean,
-    infiniteTransition: InfiniteTransition,
 ): Float {
     val infinitePulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = PULSE_SCALE_TARGET,
-        animationSpec = infiniteRepeatable(
-            animation = tween(COLOR_TRANSITION_DURATION_MS, easing = LinearEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(COLOR_TRANSITION_DURATION_MS, easing = LinearEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
     )
 
     val lossPulseScale by animateFloatAsState(
         targetValue = if (showTimeLoss) 1.2f else 1f,
-        animationSpec = if (showTimeLoss) {
-            spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessMedium)
-        } else {
-            spring(stiffness = Spring.StiffnessLow)
-        },
+        animationSpec =
+            if (showTimeLoss) {
+                spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessMedium)
+            } else {
+                spring(stiffness = Spring.StiffnessLow)
+            },
     )
 
     return when {
@@ -167,11 +160,12 @@ private fun MinimalTimerDisplay(
     ) {
         Text(
             text = formatTime(state.time),
-            style = MaterialTheme.typography.titleLarge.copy(
-                fontSize = 14.sp,
-                fontWeight = FontWeight.Black,
-                letterSpacing = 0.5.sp,
-            ),
+            style =
+                MaterialTheme.typography.titleLarge.copy(
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 0.5.sp,
+                ),
             modifier = Modifier.scale(visuals.scale),
             color = visuals.color,
         )
@@ -184,11 +178,12 @@ private fun MinimalTimerDisplay(
             Text(
                 text = "+${feedback.timeGainAmount}s",
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
-                color = if (feedback.isMegaBonus) {
-                    MemoryMatchTheme.colors.goldenYellow
-                } else {
-                    MemoryMatchTheme.colors.bonusGreen
-                },
+                color =
+                    if (feedback.isMegaBonus) {
+                        MemoryMatchTheme.colors.goldenYellow
+                    } else {
+                        MemoryMatchTheme.colors.bonusGreen
+                    },
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.padding(start = 4.dp),
             )
@@ -204,33 +199,38 @@ private fun StandardTimerDisplay(
     modifier: Modifier = Modifier,
 ) {
     Surface(
-        shape = RoundedCornerShape(if (visuals.isCompact) 16.dp else 24.dp),
+        shape = RoundedCornerShape(if (visuals.layout == TimerLayout.COMPACT) 16.dp else 24.dp),
         color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.4f),
-        border = BorderStroke(
-            width = 1.dp,
-            color = if (state.isLowTime || feedback.showTimeLoss) {
-                MemoryMatchTheme.colors.tacticalRed.copy(alpha = 0.5f)
-            } else {
-                Color.White.copy(alpha = 0.15f)
-            },
-        ),
-        modifier = modifier.height(if (visuals.isCompact) 36.dp else 44.dp),
+        border =
+            BorderStroke(
+                width = 1.dp,
+                color =
+                    if (state.isLowTime || feedback.showTimeLoss) {
+                        MemoryMatchTheme.colors.tacticalRed.copy(alpha = 0.5f)
+                    } else {
+                        Color.White.copy(alpha = 0.15f)
+                    },
+            ),
+        modifier = modifier.height(if (visuals.layout == TimerLayout.COMPACT) 36.dp else 44.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = if (visuals.isCompact) 10.dp else 16.dp),
+            modifier = Modifier.padding(horizontal = if (visuals.layout == TimerLayout.COMPACT) 10.dp else 16.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
             Text(
                 text = formatTime(state.time),
-                style = MaterialTheme.typography.titleLarge.copy(
-                    fontSize = (if (visuals.isCompact) 16.sp else 20.sp),
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 0.5.sp,
-                ),
-                modifier = Modifier
-                    .scale(visuals.scale)
-                    .padding(bottom = 2.dp), // Fine-tune vertical alignment
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontSize = (if (visuals.layout == TimerLayout.COMPACT) 16.sp else 20.sp),
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 0.5.sp,
+                    ),
+                modifier =
+                    Modifier
+                        .scale(visuals.scale)
+                        .padding(bottom = 2.dp),
+                // Fine-tune vertical alignment
                 color = visuals.color,
                 maxLines = 1,
             )
@@ -239,20 +239,25 @@ private fun StandardTimerDisplay(
                 showTimeGain = feedback.showTimeGain,
                 timeGainAmount = feedback.timeGainAmount,
                 isMegaBonus = feedback.isMegaBonus,
-                compact = visuals.isCompact,
+                compact = visuals.layout == TimerLayout.COMPACT,
             )
 
             TimeLossIndicator(
                 showTimeLoss = feedback.showTimeLoss,
                 timeLossAmount = feedback.timeLossAmount,
-                compact = visuals.isCompact,
+                compact = visuals.layout == TimerLayout.COMPACT,
             )
         }
     }
 }
 
 @Composable
-private fun TimeGainIndicator(showTimeGain: Boolean, timeGainAmount: Int, isMegaBonus: Boolean, compact: Boolean) {
+private fun TimeGainIndicator(
+    showTimeGain: Boolean,
+    timeGainAmount: Int,
+    isMegaBonus: Boolean,
+    compact: Boolean,
+) {
     AnimatedVisibility(
         visible = showTimeGain,
         enter = fadeIn() + slideInVertically { it / 2 },
@@ -260,11 +265,12 @@ private fun TimeGainIndicator(showTimeGain: Boolean, timeGainAmount: Int, isMega
     ) {
         Text(
             text = "+${timeGainAmount}s",
-            style = if (compact) {
-                MaterialTheme.typography.labelSmall
-            } else {
-                MaterialTheme.typography.labelLarge
-            },
+            style =
+                if (compact) {
+                    MaterialTheme.typography.labelSmall
+                } else {
+                    MaterialTheme.typography.labelLarge
+                },
             color = if (isMegaBonus) MemoryMatchTheme.colors.goldenYellow else MemoryMatchTheme.colors.bonusGreen,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(start = 6.dp),
@@ -273,7 +279,11 @@ private fun TimeGainIndicator(showTimeGain: Boolean, timeGainAmount: Int, isMega
 }
 
 @Composable
-private fun TimeLossIndicator(showTimeLoss: Boolean, timeLossAmount: Long, compact: Boolean) {
+private fun TimeLossIndicator(
+    showTimeLoss: Boolean,
+    timeLossAmount: Long,
+    compact: Boolean,
+) {
     AnimatedVisibility(
         visible = showTimeLoss,
         enter = fadeIn() + slideInVertically { -it / 2 },
@@ -281,11 +291,12 @@ private fun TimeLossIndicator(showTimeLoss: Boolean, timeLossAmount: Long, compa
     ) {
         Text(
             text = "-${timeLossAmount}s",
-            style = if (compact) {
-                MaterialTheme.typography.labelSmall
-            } else {
-                MaterialTheme.typography.labelLarge
-            },
+            style =
+                if (compact) {
+                    MaterialTheme.typography.labelSmall
+                } else {
+                    MaterialTheme.typography.labelLarge
+                },
             color = MemoryMatchTheme.colors.tacticalRed,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(start = 6.dp),
