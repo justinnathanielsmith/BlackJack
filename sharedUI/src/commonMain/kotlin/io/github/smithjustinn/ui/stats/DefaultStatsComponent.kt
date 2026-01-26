@@ -32,7 +32,6 @@ class DefaultStatsComponent(
     private val onBackClicked: () -> Unit,
 ) : StatsComponent,
     ComponentContext by componentContext {
-
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     private val leaderboardRepository = appGraph.leaderboardRepository
@@ -52,26 +51,24 @@ class DefaultStatsComponent(
         selectedGameMode
             .flatMapLatest { mode ->
                 val difficulties = DifficultyLevel.defaultLevels
-                val flows = difficulties.map { level ->
-                    leaderboardRepository.getTopEntries(level.pairs, mode).map { entries ->
-                        level to
-                            entries.toImmutableList()
+                val flows =
+                    difficulties.map { level ->
+                        leaderboardRepository.getTopEntries(level.pairs, mode).map { entries ->
+                            level to
+                                entries.toImmutableList()
+                        }
                     }
-                }
                 combine(flows) { pairs ->
                     StatsState(
                         difficultyLeaderboards = pairs.toList().toImmutableList(),
                         selectedGameMode = mode,
                     )
                 }
-            }
-            .onEach { newState ->
+            }.onEach { newState ->
                 _state.update { newState }
-            }
-            .catch { e ->
+            }.catch { e ->
                 logger.e(e) { "Error loading leaderboards" }
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
     }
 
     override fun onGameModeSelected(mode: GameMode) {

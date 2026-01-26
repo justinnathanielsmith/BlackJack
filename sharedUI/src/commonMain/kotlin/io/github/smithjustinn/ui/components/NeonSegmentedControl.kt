@@ -50,12 +50,13 @@ fun <T> NeonSegmentedControl(
     val controlShape = RoundedCornerShape(12.dp)
 
     BoxWithConstraints(
-        modifier = modifier
-            .fillMaxWidth()
-            .height(52.dp)
-            .clip(controlShape)
-            .background(InactiveBackground.copy(alpha = 0.5f))
-            .padding(4.dp),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .height(52.dp)
+                .clip(controlShape)
+                .background(InactiveBackground.copy(alpha = 0.5f))
+                .padding(4.dp),
     ) {
         val maxWidth = maxWidth
         val itemWidth = maxWidth / items.size
@@ -68,18 +69,18 @@ fun <T> NeonSegmentedControl(
 
         // Sliding Indicator (The "active" state background)
         Box(
-            modifier = Modifier
-                .offset(x = indicatorOffset)
-                .width(itemWidth)
-                .fillMaxHeight()
-                .shadow(
-                    elevation = 8.dp,
-                    shape = controlShape,
-                    ambientColor = NeonCyan.copy(alpha = 0.5f),
-                    spotColor = NeonCyan.copy(alpha = 0.5f),
-                )
-                .clip(controlShape)
-                .background(NeonCyan),
+            modifier =
+                Modifier
+                    .offset(x = indicatorOffset)
+                    .width(itemWidth)
+                    .fillMaxHeight()
+                    .shadow(
+                        elevation = 8.dp,
+                        shape = controlShape,
+                        ambientColor = NeonCyan.copy(alpha = 0.5f),
+                        spotColor = NeonCyan.copy(alpha = 0.5f),
+                    ).clip(controlShape)
+                    .background(NeonCyan),
         )
 
         SegmentedControlLabels(
@@ -110,15 +111,16 @@ private fun <T> SegmentedControlLabels(
             )
 
             Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxHeight()
-                    .clip(controlShape)
-                    .clickable(
-                        interactionSource = remember { MutableInteractionSource() },
-                        indication = null,
-                        onClick = { onItemSelected(item) },
-                    ),
+                modifier =
+                    Modifier
+                        .weight(1f)
+                        .fillMaxHeight()
+                        .clip(controlShape)
+                        .clickable(
+                            interactionSource = remember { MutableInteractionSource() },
+                            indication = null,
+                            onClick = { onItemSelected(item) },
+                        ),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(

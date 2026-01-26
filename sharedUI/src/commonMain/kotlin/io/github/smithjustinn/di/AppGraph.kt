@@ -47,6 +47,7 @@ interface AppGraph {
     val clearSavedGameUseCase: ClearSavedGameUseCase
 }
 
-val LocalAppGraph = staticCompositionLocalOf<AppGraph> {
-    error("No AppGraph provided")
-}
+val LocalAppGraph =
+    staticCompositionLocalOf<AppGraph> {
+        error("No AppGraph provided")
+    }

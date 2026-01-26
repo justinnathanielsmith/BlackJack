@@ -16,12 +16,20 @@ interface SettingsRepository {
     val areSuitsMultiColored: StateFlow<Boolean>
 
     suspend fun setPeekEnabled(enabled: Boolean)
+
     suspend fun setSoundEnabled(enabled: Boolean)
+
     suspend fun setMusicEnabled(enabled: Boolean)
+
     suspend fun setWalkthroughCompleted(completed: Boolean)
+
     suspend fun setSoundVolume(volume: Float)
+
     suspend fun setMusicVolume(volume: Float)
+
     suspend fun setCardBackTheme(theme: CardBackTheme)
+
     suspend fun setCardSymbolTheme(theme: CardSymbolTheme)
+
     suspend fun setSuitsMultiColored(enabled: Boolean)
 }

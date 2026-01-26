@@ -27,36 +27,43 @@ import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.start.components.StartHeader
 
 @Composable
-fun StartContent(component: StartComponent, modifier: Modifier = Modifier) {
+fun StartContent(
+    component: StartComponent,
+    modifier: Modifier = Modifier,
+) {
     val state by component.state.collectAsState()
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
 
     Box(
         modifier =
-        modifier
-            .fillMaxSize()
-            .background(
-                brush =
-                Brush.verticalGradient(
-                    colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+            modifier
+                .fillMaxSize()
+                .background(
+                    brush =
+                        Brush.verticalGradient(
+                            colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+                        ),
                 ),
-            ),
     ) {
         StartMainContent(state, component, audioService)
     }
 }
 
 @Composable
-private fun StartMainContent(state: DifficultyState, component: StartComponent, audioService: AudioService) {
+private fun StartMainContent(
+    state: DifficultyState,
+    component: StartComponent,
+    audioService: AudioService,
+) {
     Column(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .statusBarsPadding()
-            .navigationBarsPadding()
-            .verticalScroll(rememberScrollState())
-            .padding(horizontal = 24.dp, vertical = 32.dp),
+            Modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 24.dp, vertical = 32.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Top,
     ) {

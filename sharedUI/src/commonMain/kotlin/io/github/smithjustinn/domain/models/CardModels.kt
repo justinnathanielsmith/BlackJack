@@ -3,7 +3,9 @@ package io.github.smithjustinn.domain.models
 import kotlinx.serialization.Serializable
 
 @Serializable
-enum class Suit(val symbol: String) {
+enum class Suit(
+    val symbol: String,
+) {
     Hearts("♥"),
     Diamonds("♦"),
     Clubs("♣"),
@@ -14,7 +16,9 @@ enum class Suit(val symbol: String) {
 }
 
 @Serializable
-enum class Rank(val symbol: String) {
+enum class Rank(
+    val symbol: String,
+) {
     Ace("A"),
     Two("2"),
     Three("3"),

@@ -31,7 +31,10 @@ import org.jetbrains.compose.resources.stringResource
 private val BonusColor = BonusGreen
 
 @Composable
-fun ScoreBreakdownSection(scoreBreakdown: ScoreBreakdown, modifier: Modifier = Modifier) {
+fun ScoreBreakdownSection(
+    scoreBreakdown: ScoreBreakdown,
+    modifier: Modifier = Modifier,
+) {
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
@@ -69,7 +72,12 @@ fun ScoreBreakdownSection(scoreBreakdown: ScoreBreakdown, modifier: Modifier = M
 }
 
 @Composable
-private fun BreakdownRow(label: String, value: String, color: Color, modifier: Modifier = Modifier) {
+private fun BreakdownRow(
+    label: String,
+    value: String,
+    color: Color,
+    modifier: Modifier = Modifier,
+) {
     Row(
         modifier = modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween,
@@ -83,9 +91,10 @@ private fun BreakdownRow(label: String, value: String, color: Color, modifier: M
         )
         Text(
             text = value,
-            style = MaterialTheme.typography.bodyMedium.copy(
-                fontFeatureSettings = "tnum",
-            ),
+            style =
+                MaterialTheme.typography.bodyMedium.copy(
+                    fontFeatureSettings = "tnum",
+                ),
             color = color,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.End,

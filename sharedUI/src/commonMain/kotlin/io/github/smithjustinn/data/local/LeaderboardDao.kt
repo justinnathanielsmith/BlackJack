@@ -13,7 +13,10 @@ interface LeaderboardDao {
             "WHERE pairCount = :pairCount AND gameMode = :gameMode " +
             "ORDER BY score DESC, timeSeconds ASC LIMIT 10",
     )
-    fun getTopEntries(pairCount: Int, gameMode: GameMode): Flow<List<LeaderboardEntity>>
+    fun getTopEntries(
+        pairCount: Int,
+        gameMode: GameMode,
+    ): Flow<List<LeaderboardEntity>>
 
     @Insert
     suspend fun insertEntry(entry: LeaderboardEntity)

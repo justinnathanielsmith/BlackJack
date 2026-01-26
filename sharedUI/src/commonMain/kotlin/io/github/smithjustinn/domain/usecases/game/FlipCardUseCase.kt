@@ -10,6 +10,8 @@ import io.github.smithjustinn.domain.models.MemoryGameState
  */
 @Inject
 open class FlipCardUseCase {
-    open operator fun invoke(state: MemoryGameState, cardId: Int): Pair<MemoryGameState, GameDomainEvent?> =
-        MemoryGameLogic.flipCard(state, cardId)
+    open operator fun invoke(
+        state: MemoryGameState,
+        cardId: Int,
+    ): Pair<MemoryGameState, GameDomainEvent?> = MemoryGameLogic.flipCard(state, cardId)
 }

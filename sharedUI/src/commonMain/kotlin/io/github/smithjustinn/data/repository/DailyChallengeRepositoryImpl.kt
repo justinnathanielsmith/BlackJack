@@ -9,22 +9,31 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
 @Inject
-class DailyChallengeRepositoryImpl(private val dao: DailyChallengeDao, private val dispatchers: CoroutineDispatchers) :
-    DailyChallengeRepository {
-    override fun isChallengeCompleted(date: Long): Flow<Boolean> = dao.getDailyChallenge(date).map {
-        it?.isCompleted ==
-            true
-    }
+class DailyChallengeRepositoryImpl(
+    private val dao: DailyChallengeDao,
+    private val dispatchers: CoroutineDispatchers,
+) : DailyChallengeRepository {
+    override fun isChallengeCompleted(date: Long): Flow<Boolean> =
+        dao.getDailyChallenge(date).map {
+            it?.isCompleted ==
+                true
+        }
 
-    override suspend fun saveChallengeResult(date: Long, score: Int, timeSeconds: Long, moves: Int) {
+    override suspend fun saveChallengeResult(
+        date: Long,
+        score: Int,
+        timeSeconds: Long,
+        moves: Int,
+    ) {
         withContext(dispatchers.io) {
-            val entity = DailyChallengeEntity(
-                date = date,
-                isCompleted = true,
-                score = score,
-                timeSeconds = timeSeconds,
-                moves = moves,
-            )
+            val entity =
+                DailyChallengeEntity(
+                    date = date,
+                    isCompleted = true,
+                    score = score,
+                    timeSeconds = timeSeconds,
+                    moves = moves,
+                )
             dao.insertOrUpdate(entity)
         }
     }

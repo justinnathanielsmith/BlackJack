@@ -47,52 +47,59 @@ fun ComboBadge(
     ) {
         val comboPulseScale by infiniteTransition.animateFloat(
             initialValue = 1f,
-            targetValue = if (isHeatMode) {
-                if (compact) 1.08f else 1.15f
-            } else {
-                if (compact) 1.05f else 1.1f
-            },
-            animationSpec = infiniteRepeatable(
-                animation = tween(COMBO_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
+            targetValue =
+                if (isHeatMode) {
+                    if (compact) 1.08f else 1.15f
+                } else {
+                    if (compact) 1.05f else 1.1f
+                },
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(COMBO_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
         )
 
-        val badgeColor = when {
-            isHeatMode -> MemoryMatchTheme.colors.heatGlowPrimary
-            isMegaBonus -> MemoryMatchTheme.colors.goldenYellow
-            else -> MemoryMatchTheme.colors.neonCyan
-        }
+        val badgeColor =
+            when {
+                isHeatMode -> MemoryMatchTheme.colors.heatGlowPrimary
+                isMegaBonus -> MemoryMatchTheme.colors.goldenYellow
+                else -> MemoryMatchTheme.colors.neonCyan
+            }
         val tacticalShape = CutCornerShape(topStart = 8.dp, bottomEnd = 8.dp)
 
         Surface(
             color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.6f),
             shape = tacticalShape,
             border = BorderStroke(BORDER_WIDTH.dp, badgeColor),
-            modifier = Modifier
-                .scale(comboPulseScale)
-                .shadow(
-                    elevation = if (isHeatMode) {
-                        if (compact) 10.dp else 18.dp
-                    } else {
-                        if (compact) 6.dp else 12.dp
-                    },
-                    shape = tacticalShape,
-                    ambientColor = badgeColor,
-                    spotColor = badgeColor,
-                ),
+            modifier =
+                Modifier
+                    .scale(comboPulseScale)
+                    .shadow(
+                        elevation =
+                            if (isHeatMode) {
+                                if (compact) 10.dp else 18.dp
+                            } else {
+                                if (compact) 6.dp else 12.dp
+                            },
+                        shape = tacticalShape,
+                        ambientColor = badgeColor,
+                        spotColor = badgeColor,
+                    ),
         ) {
             Text(
                 text = stringResource(Res.string.combo_format, combo).uppercase(),
-                modifier = Modifier.padding(
-                    horizontal = if (compact) 8.dp else 12.dp,
-                    vertical = if (compact) 2.dp else 4.dp,
-                ),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Black,
-                    fontSize = if (compact) 12.sp else 16.sp,
-                    letterSpacing = 1.sp,
-                ),
+                modifier =
+                    Modifier.padding(
+                        horizontal = if (compact) 8.dp else 12.dp,
+                        vertical = if (compact) 2.dp else 4.dp,
+                    ),
+                style =
+                    MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Black,
+                        fontSize = if (compact) 12.sp else 16.sp,
+                        letterSpacing = 1.sp,
+                    ),
                 color = badgeColor,
             )
         }

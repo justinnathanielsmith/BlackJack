@@ -10,13 +10,22 @@ interface SettingsComponent {
     val events: Flow<SettingsUiEvent>
 
     fun setCardBackTheme(theme: CardBackTheme)
+
     fun setCardSymbolTheme(theme: CardSymbolTheme)
+
     fun toggleSuitsMultiColored(enabled: Boolean)
+
     fun toggleSoundEnabled(enabled: Boolean)
+
     fun setSoundVolume(volume: Float)
+
     fun toggleMusicEnabled(enabled: Boolean)
+
     fun setMusicVolume(volume: Float)
+
     fun togglePeekEnabled(enabled: Boolean)
+
     fun resetWalkthrough()
+
     fun onBack()
 }

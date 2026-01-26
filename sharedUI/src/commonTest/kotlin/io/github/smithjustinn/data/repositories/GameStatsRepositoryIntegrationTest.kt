@@ -18,10 +18,11 @@ class GameStatsRepositoryIntegrationTest {
     @BeforeTest
     fun setup() {
         database = createTestDatabase()
-        repository = GameStatsRepositoryImpl(
-            dao = database.gameStatsDao(),
-            logger = Logger.withTag("Test"),
-        )
+        repository =
+            GameStatsRepositoryImpl(
+                dao = database.gameStatsDao(),
+                logger = Logger.withTag("Test"),
+            )
     }
 
     @AfterTest
@@ -30,19 +31,20 @@ class GameStatsRepositoryIntegrationTest {
     }
 
     @Test
-    fun getStatsForDifficulty_emitsUpdates() = runTest {
-        val pairCount = 8
-        val stats = GameStats(pairCount = pairCount, bestScore = 1000, bestTimeSeconds = 60)
+    fun getStatsForDifficulty_emitsUpdates() =
+        runTest {
+            val pairCount = 8
+            val stats = GameStats(pairCount = pairCount, bestScore = 1000, bestTimeSeconds = 60)
 
-        repository.getStatsForDifficulty(pairCount).test {
-            assertEquals(null, awaitItem())
+            repository.getStatsForDifficulty(pairCount).test {
+                assertEquals(null, awaitItem())
 
-            repository.updateStats(stats)
-            assertEquals(stats, awaitItem())
+                repository.updateStats(stats)
+                assertEquals(stats, awaitItem())
 
-            val updatedStats = stats.copy(bestScore = 1200)
-            repository.updateStats(updatedStats)
-            assertEquals(updatedStats, awaitItem())
+                val updatedStats = stats.copy(bestScore = 1200)
+                repository.updateStats(updatedStats)
+                assertEquals(updatedStats, awaitItem())
+            }
         }
-    }
 }

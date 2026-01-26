@@ -9,10 +9,16 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
 import kotlinx.serialization.json.Json
 
 @Inject
-class GameStateRepositoryImpl(private val dao: GameStateDao, private val json: Json, private val logger: Logger) :
-    GameStateRepository {
+class GameStateRepositoryImpl(
+    private val dao: GameStateDao,
+    private val json: Json,
+    private val logger: Logger,
+) : GameStateRepository {
     @Suppress("TooGenericExceptionCaught")
-    override suspend fun saveGameState(gameState: MemoryGameState, elapsedTimeSeconds: Long) {
+    override suspend fun saveGameState(
+        gameState: MemoryGameState,
+        elapsedTimeSeconds: Long,
+    ) {
         try {
             val jsonString = json.encodeToString(gameState)
             dao.saveGameState(GameStateEntity(gameStateJson = jsonString, elapsedTimeSeconds = elapsedTimeSeconds))

@@ -11,25 +11,27 @@ import io.github.smithjustinn.ui.game.components.PlayingCard
 
 @Preview(showBackground = true)
 @Composable
-fun PlayingCardFaceUpPreview() {
+private fun PlayingCardFaceUpPreview() {
     PlayingCard(
-        content = CardContent(
-            suit = Suit.Hearts,
-            rank = Rank.Ace,
-            visualState = CardVisualState(isFaceUp = true),
-        ),
+        content =
+            CardContent(
+                suit = Suit.Hearts,
+                rank = Rank.Ace,
+                visualState = CardVisualState(isFaceUp = true),
+            ),
     )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun PlayingCardFaceDownPreview() {
+private fun PlayingCardFaceDownPreview() {
     PlayingCard(
-        content = CardContent(
-            suit = Suit.Spades,
-            rank = Rank.King,
-            visualState = CardVisualState(isFaceUp = false),
-        ),
+        content =
+            CardContent(
+                suit = Suit.Spades,
+                rank = Rank.King,
+                visualState = CardVisualState(isFaceUp = false),
+            ),
         backColor = Color.Red,
     )
 }

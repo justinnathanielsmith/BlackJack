@@ -45,11 +45,12 @@ class DefaultStartComponent(
             ) { cardBack, cardSymbol, multiColor ->
                 _state.update {
                     it.copy(
-                        cardSettings = CardDisplaySettings(
-                            backTheme = cardBack,
-                            symbolTheme = cardSymbol,
-                            areSuitsMultiColored = multiColor,
-                        ),
+                        cardSettings =
+                            CardDisplaySettings(
+                                backTheme = cardBack,
+                                symbolTheme = cardSymbol,
+                                areSuitsMultiColored = multiColor,
+                            ),
                     )
                 }
             }.collect()

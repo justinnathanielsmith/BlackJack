@@ -36,15 +36,19 @@ private const val SHIMMER_OFFSET = 500f
 private const val DIAGONAL_ROTATION = 45f
 
 @Composable
-internal fun CardBack(theme: CardBackTheme, backColor: Color, rotation: Float) {
+internal fun CardBack(
+    theme: CardBackTheme,
+    backColor: Color,
+    rotation: Float,
+) {
     val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
     val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
 
     Box(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .graphicsLayer { rotationY = FULL_ROTATION },
+            Modifier
+                .fillMaxSize()
+                .graphicsLayer { rotationY = FULL_ROTATION },
     ) {
         when (theme) {
             CardBackTheme.GEOMETRIC -> GeometricCardBack(backColor)
@@ -56,18 +60,18 @@ internal fun CardBack(theme: CardBackTheme, backColor: Color, rotation: Float) {
         if (rimLightAlpha > 0f) {
             Box(
                 modifier =
-                Modifier
-                    .fillMaxSize()
-                    .background(
-                        Brush.horizontalGradient(
-                            colors =
-                            listOf(
-                                Color.Transparent,
-                                rimLightColor,
-                                Color.Transparent,
+                    Modifier
+                        .fillMaxSize()
+                        .background(
+                            Brush.horizontalGradient(
+                                colors =
+                                    listOf(
+                                        Color.Transparent,
+                                        rimLightColor,
+                                        Color.Transparent,
+                                    ),
                             ),
                         ),
-                    ),
             )
         }
     }
@@ -80,29 +84,29 @@ internal fun ShimmerEffect() {
         initialValue = 0f,
         targetValue = SHIMMER_TRANSLATE_TARGET,
         animationSpec =
-        infiniteRepeatable(
-            animation = tween(SHIMMER_ANIMATION_DURATION_MS, easing = LinearEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
+            infiniteRepeatable(
+                animation = tween(SHIMMER_ANIMATION_DURATION_MS, easing = LinearEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
     )
 
     val brush =
         Brush.linearGradient(
             colors =
-            listOf(
-                Color.White.copy(alpha = 0.0f),
-                NeonCyan.copy(alpha = MEDIUM_ALPHA),
-                Color.White.copy(alpha = 0.0f),
-            ),
+                listOf(
+                    Color.White.copy(alpha = 0.0f),
+                    NeonCyan.copy(alpha = MEDIUM_ALPHA),
+                    Color.White.copy(alpha = 0.0f),
+                ),
             start = Offset(translateAnim - SHIMMER_OFFSET, translateAnim - SHIMMER_OFFSET),
             end = Offset(translateAnim, translateAnim),
         )
 
     Box(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .background(brush),
+            Modifier
+                .fillMaxSize()
+                .background(brush),
     )
 }
 
@@ -120,8 +124,8 @@ private fun GeometricCardBack(baseColor: Color) {
                         color = patternColor,
                         topLeft = Offset(x.toFloat(), y.toFloat()),
                         size =
-                        androidx.compose.ui.geometry
-                            .Size(step / HALF_DIVISOR, step / HALF_DIVISOR),
+                            androidx.compose.ui.geometry
+                                .Size(step / HALF_DIVISOR, step / HALF_DIVISOR),
                         style = Stroke(width = 1.dp.toPx()),
                     )
                 }
@@ -133,11 +137,11 @@ private fun GeometricCardBack(baseColor: Color) {
             color = Color.White.copy(alpha = SUBTLE_ALPHA),
             topLeft = Offset(8.dp.toPx(), 8.dp.toPx()),
             size =
-            androidx.compose.ui.geometry
-                .Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
+                androidx.compose.ui.geometry
+                    .Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
             cornerRadius =
-            androidx.compose.ui.geometry
-                .CornerRadius(8.dp.toPx()),
+                androidx.compose.ui.geometry
+                    .CornerRadius(8.dp.toPx()),
             style = Stroke(width = 1.dp.toPx()),
         )
     }
@@ -168,11 +172,11 @@ private fun ClassicCardBack(baseColor: Color) {
             color = Color.White,
             topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
             size =
-            androidx.compose.ui.geometry
-                .Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
+                androidx.compose.ui.geometry
+                    .Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
             cornerRadius =
-            androidx.compose.ui.geometry
-                .CornerRadius(6.dp.toPx()),
+                androidx.compose.ui.geometry
+                    .CornerRadius(6.dp.toPx()),
             style = Stroke(width = 3.dp.toPx()),
         )
     }
@@ -211,11 +215,11 @@ private fun PatternCardBack(baseColor: Color) {
             color = Color.White.copy(alpha = MEDIUM_ALPHA),
             topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
             size =
-            androidx.compose.ui.geometry
-                .Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
+                androidx.compose.ui.geometry
+                    .Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
             cornerRadius =
-            androidx.compose.ui.geometry
-                .CornerRadius(6.dp.toPx()),
+                androidx.compose.ui.geometry
+                    .CornerRadius(6.dp.toPx()),
             style = Stroke(width = 1.5.dp.toPx()),
         )
     }

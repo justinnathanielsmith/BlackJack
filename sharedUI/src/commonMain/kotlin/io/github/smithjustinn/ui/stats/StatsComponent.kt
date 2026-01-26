@@ -9,5 +9,6 @@ interface StatsComponent {
     val events: Flow<StatsUiEvent>
 
     fun onGameModeSelected(mode: GameMode)
+
     fun onBack()
 }

@@ -13,24 +13,26 @@ import platform.UIKit.UIStatusBarStyleLightContent
 import platform.UIKit.UIViewController
 import platform.UIKit.setStatusBarStyle
 
-fun MainViewController(): UIViewController = ComposeUIViewController {
-    val appGraph = remember { createIosGraph() }
-    val lifecycle = remember { LifecycleRegistry() }
-    val root = remember {
-        DefaultRootComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle),
+fun MainViewController(): UIViewController =
+    ComposeUIViewController {
+        val appGraph = remember { createIosGraph() }
+        val lifecycle = remember { LifecycleRegistry() }
+        val root =
+            remember {
+                DefaultRootComponent(
+                    componentContext = DefaultComponentContext(lifecycle = lifecycle),
+                    appGraph = appGraph,
+                )
+            }
+
+        appGraph.logger.i { "Logging initialized via Metro" }
+
+        App(
+            root = root,
             appGraph = appGraph,
+            onThemeChanged = { ApplySystemBarTheme(it) },
         )
     }
-
-    appGraph.logger.i { "Logging initialized via Metro" }
-
-    App(
-        root = root,
-        appGraph = appGraph,
-        onThemeChanged = { ApplySystemBarTheme(it) },
-    )
-}
 
 @Composable
 private fun ApplySystemBarTheme(isDark: Boolean) {

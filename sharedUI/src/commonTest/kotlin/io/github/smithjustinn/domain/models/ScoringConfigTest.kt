@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class ScoringConfigTest {
-
     @Test
     fun testDefaultValues() {
         val config = ScoringConfig()
@@ -18,14 +17,15 @@ class ScoringConfigTest {
 
     @Test
     fun testCustomValues() {
-        val config = ScoringConfig(
-            baseMatchPoints = 10,
-            comboBonusPoints = 20,
-            timeBonusPerPair = 30,
-            timePenaltyPerSecond = 2,
-            moveBonusMultiplier = 5000,
-            heatModeThreshold = 3,
-        )
+        val config =
+            ScoringConfig(
+                baseMatchPoints = 10,
+                comboBonusPoints = 20,
+                timeBonusPerPair = 30,
+                timePenaltyPerSecond = 2,
+                moveBonusMultiplier = 5000,
+                heatModeThreshold = 3,
+            )
         assertEquals(10, config.baseMatchPoints)
         assertEquals(20, config.comboBonusPoints)
         assertEquals(30, config.timeBonusPerPair)

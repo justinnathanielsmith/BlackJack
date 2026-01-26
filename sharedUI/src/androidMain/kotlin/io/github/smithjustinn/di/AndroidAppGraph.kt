@@ -34,7 +34,9 @@ interface AndroidAppGraph : AppGraph {
 
     @DependencyGraph.Factory
     fun interface Factory {
-        fun create(@Provides application: Application): AndroidAppGraph
+        fun create(
+            @Provides application: Application,
+        ): AndroidAppGraph
     }
 
     @Provides

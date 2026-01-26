@@ -47,28 +47,30 @@ fun ScoreBox(
         ) {
             Text(
                 text = stringResource(Res.string.final_score_label).uppercase(),
-                style = if (compact) {
-                    MaterialTheme.typography.labelMedium.copy(
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 1.2.sp,
-                    )
-                } else {
-                    MaterialTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp,
-                    )
-                },
+                style =
+                    if (compact) {
+                        MaterialTheme.typography.labelMedium.copy(
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 1.2.sp,
+                        )
+                    } else {
+                        MaterialTheme.typography.labelLarge.copy(
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 2.sp,
+                        )
+                    },
                 color = NeonCyan,
                 textAlign = TextAlign.Center,
             )
 
             Text(
                 text = score.toString(),
-                style = if (compact) {
-                    MaterialTheme.typography.headlineLarge
-                } else {
-                    MaterialTheme.typography.displayMedium
-                }.copy(fontWeight = FontWeight.Black),
+                style =
+                    if (compact) {
+                        MaterialTheme.typography.headlineLarge
+                    } else {
+                        MaterialTheme.typography.displayMedium
+                    }.copy(fontWeight = FontWeight.Black),
                 color = Color.White,
                 textAlign = TextAlign.Center,
             )
@@ -93,7 +95,12 @@ fun ScoreBox(
 }
 
 @Composable
-private fun StatItem(label: String, color: Color, modifier: Modifier = Modifier, compact: Boolean = false) {
+private fun StatItem(
+    label: String,
+    color: Color,
+    modifier: Modifier = Modifier,
+    compact: Boolean = false,
+) {
     Surface(
         modifier = modifier,
         color = Color.White.copy(alpha = 0.05f),
@@ -102,10 +109,11 @@ private fun StatItem(label: String, color: Color, modifier: Modifier = Modifier,
     ) {
         Text(
             text = label,
-            modifier = Modifier.padding(
-                horizontal = if (compact) 8.dp else 12.dp,
-                vertical = if (compact) 4.dp else 6.dp,
-            ),
+            modifier =
+                Modifier.padding(
+                    horizontal = if (compact) 8.dp else 12.dp,
+                    vertical = if (compact) 4.dp else 6.dp,
+                ),
             style = if (compact) MaterialTheme.typography.labelSmall else MaterialTheme.typography.labelLarge,
             color = color,
             fontWeight = FontWeight.Black,

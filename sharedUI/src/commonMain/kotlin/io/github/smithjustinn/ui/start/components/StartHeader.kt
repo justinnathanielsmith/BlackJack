@@ -27,7 +27,10 @@ import org.jetbrains.compose.resources.stringResource
  * StartHeader
  */
 @Composable
-fun StartHeader(modifier: Modifier = Modifier, settings: CardDisplaySettings = CardDisplaySettings()) {
+fun StartHeader(
+    modifier: Modifier = Modifier,
+    settings: CardDisplaySettings = CardDisplaySettings(),
+) {
     Column(
         modifier = modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -36,22 +39,26 @@ fun StartHeader(modifier: Modifier = Modifier, settings: CardDisplaySettings = C
 
         Text(
             text = title,
-            style = TextStyle(
-                fontSize = 48.sp,
-                fontWeight = FontWeight.ExtraBold,
-                brush = Brush.verticalGradient(
-                    colors = listOf(
-                        LightPurple,
-                        SoftBlue,
-                    ),
+            style =
+                TextStyle(
+                    fontSize = 48.sp,
+                    fontWeight = FontWeight.ExtraBold,
+                    brush =
+                        Brush.verticalGradient(
+                            colors =
+                                listOf(
+                                    LightPurple,
+                                    SoftBlue,
+                                ),
+                        ),
+                    textAlign = TextAlign.Center,
+                    shadow =
+                        Shadow(
+                            color = LightPurple.copy(alpha = 0.4f),
+                            offset = Offset(0f, 0f),
+                            blurRadius = 30f,
+                        ),
                 ),
-                textAlign = TextAlign.Center,
-                shadow = Shadow(
-                    color = LightPurple.copy(alpha = 0.4f),
-                    offset = Offset(0f, 0f),
-                    blurRadius = 30f,
-                ),
-            ),
         )
 
         Spacer(modifier = Modifier.height(32.dp))

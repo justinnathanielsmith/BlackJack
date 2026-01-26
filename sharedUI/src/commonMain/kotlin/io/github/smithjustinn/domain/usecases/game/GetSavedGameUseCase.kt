@@ -9,12 +9,16 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
  * Use case to retrieve the saved game state.
  */
 @Inject
-open class GetSavedGameUseCase(private val gameStateRepository: GameStateRepository, private val logger: Logger) {
+open class GetSavedGameUseCase(
+    private val gameStateRepository: GameStateRepository,
+    private val logger: Logger,
+) {
     @Suppress("TooGenericExceptionCaught")
-    open suspend operator fun invoke(): Pair<MemoryGameState, Long>? = try {
-        gameStateRepository.getSavedGameState()
-    } catch (e: Exception) {
-        logger.e(e) { "Failed to get saved game state via use case" }
-        null
-    }
+    open suspend operator fun invoke(): Pair<MemoryGameState, Long>? =
+        try {
+            gameStateRepository.getSavedGameState()
+        } catch (e: Exception) {
+            logger.e(e) { "Failed to get saved game state via use case" }
+            null
+        }
 }

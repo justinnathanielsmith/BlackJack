@@ -12,12 +12,17 @@ import kotlinx.serialization.encoding.Encoder
  * A custom serializer for [ImmutableList] that delegates to a standard [ListSerializer].
  * This allows kotlinx.serialization to properly serialize/deserialize ImmutableList types.
  */
-open class ImmutableListSerializer<T>(elementSerializer: KSerializer<T>) : KSerializer<ImmutableList<T>> {
+open class ImmutableListSerializer<T>(
+    elementSerializer: KSerializer<T>,
+) : KSerializer<ImmutableList<T>> {
     private val delegateSerializer = ListSerializer(elementSerializer)
 
     override val descriptor: SerialDescriptor = delegateSerializer.descriptor
 
-    override fun serialize(encoder: Encoder, value: ImmutableList<T>) {
+    override fun serialize(
+        encoder: Encoder,
+        value: ImmutableList<T>,
+    ) {
         delegateSerializer.serialize(encoder, value.toList())
     }
 

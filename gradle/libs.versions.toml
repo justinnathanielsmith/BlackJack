@@ -4,6 +4,8 @@ agp = "9.0.0"
 kotlin = "2.3.0"
 ksp = "2.3.4"
 spotless = "8.2.0"
+ktlint = "1.3.1"
+compose-rules = "0.4.22"
 detekt = "2.0.0-alpha.1"
 kover = "0.9.4"
 

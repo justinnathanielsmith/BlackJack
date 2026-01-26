@@ -36,7 +36,9 @@ import kotlinx.coroutines.test.TestScope
  * A centralized context for Mokkery-based tests. Provides pre-configured mocks for repositories and
  * services, and an [AppGraph] that returns them.
  */
-class MokkeryTestContext(testDispatcher: TestDispatcher) {
+class MokkeryTestContext(
+    testDispatcher: TestDispatcher,
+) {
     val gameStateRepository: GameStateRepository = mock()
     val settingsRepository: SettingsRepository = mock()
     val gameStatsRepository: GameStatsRepository = mock()

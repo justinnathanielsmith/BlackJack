@@ -43,7 +43,10 @@ import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier) {
+fun StatsContent(
+    component: StatsComponent,
+    modifier: Modifier = Modifier,
+) {
     val graph = LocalAppGraph.current
     val state by component.state.collectAsState()
     val audioService = graph.audioService
@@ -58,14 +61,14 @@ fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier) {
 
     Box(
         modifier =
-        modifier
-            .fillMaxSize()
-            .background(
-                brush =
-                Brush.verticalGradient(
-                    colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+            modifier
+                .fillMaxSize()
+                .background(
+                    brush =
+                        Brush.verticalGradient(
+                            colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+                        ),
                 ),
-            ),
     ) {
         StatsMainContent(state, component, audioService)
     }
@@ -73,7 +76,11 @@ fun StatsContent(component: StatsComponent, modifier: Modifier = Modifier) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun StatsMainContent(state: StatsState, component: StatsComponent, audioService: AudioService) {
+private fun StatsMainContent(
+    state: StatsState,
+    component: StatsComponent,
+    audioService: AudioService,
+) {
     Scaffold(
         containerColor = Color.Transparent,
         topBar = {
@@ -83,10 +90,10 @@ private fun StatsMainContent(state: StatsState, component: StatsComponent, audio
         Box(modifier = Modifier.fillMaxSize().padding(paddingValues)) {
             Column(
                 modifier =
-                Modifier
-                    .fillMaxSize()
-                    .widthIn(max = 800.dp)
-                    .align(Alignment.TopCenter),
+                    Modifier
+                        .fillMaxSize()
+                        .widthIn(max = 800.dp)
+                        .align(Alignment.TopCenter),
             ) {
                 ModeSelector(
                     selectedMode = state.selectedGameMode,
@@ -95,9 +102,9 @@ private fun StatsMainContent(state: StatsState, component: StatsComponent, audio
                         component.onGameModeSelected(it)
                     },
                     modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 24.dp, vertical = 12.dp),
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(horizontal = 24.dp, vertical = 12.dp),
                 )
 
                 LazyColumn(
@@ -116,7 +123,10 @@ private fun StatsMainContent(state: StatsState, component: StatsComponent, audio
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun StatsTopBar(audioService: AudioService, component: StatsComponent) {
+private fun StatsTopBar(
+    audioService: AudioService,
+    component: StatsComponent,
+) {
     TopAppBar(
         title = {
             Text(

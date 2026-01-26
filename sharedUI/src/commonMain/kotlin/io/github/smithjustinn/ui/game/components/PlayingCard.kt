@@ -90,7 +90,11 @@ data class CardVisualState(
     val isError: Boolean = false,
 )
 
-data class CardContent(val suit: Suit, val rank: Rank, val visualState: CardVisualState)
+data class CardContent(
+    val suit: Suit,
+    val rank: Rank,
+    val visualState: CardVisualState,
+)
 
 data class CardContainerVisuals(
     val visualState: CardVisualState,
@@ -99,9 +103,17 @@ data class CardContainerVisuals(
     val matchedGlowAlpha: Float,
 )
 
-data class CardInteractions(val interactionSource: MutableInteractionSource, val onClick: () -> Unit)
+data class CardInteractions(
+    val interactionSource: MutableInteractionSource,
+    val onClick: () -> Unit,
+)
 
-data class CardAnimations(val rotation: Float, val scale: Float, val shakeOffset: Float, val matchedGlowAlpha: Float)
+data class CardAnimations(
+    val rotation: Float,
+    val scale: Float,
+    val shakeOffset: Float,
+    val matchedGlowAlpha: Float,
+)
 
 @Composable
 fun PlayingCard(
@@ -119,12 +131,12 @@ fun PlayingCard(
     CardContainer(
         modifier = modifier.offset { IntOffset(animations.shakeOffset.roundToInt(), 0) },
         visuals =
-        CardContainerVisuals(
-            visualState = content.visualState,
-            rotation = animations.rotation,
-            scale = animations.scale,
-            matchedGlowAlpha = animations.matchedGlowAlpha,
-        ),
+            CardContainerVisuals(
+                visualState = content.visualState,
+                rotation = animations.rotation,
+                scale = animations.scale,
+                matchedGlowAlpha = animations.matchedGlowAlpha,
+            ),
         backColor = backColor,
         interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
     ) {
@@ -159,7 +171,10 @@ private fun CardContentSelectors(
 }
 
 @Composable
-private fun rememberCardAnimations(content: CardContent, isHovered: Boolean): CardAnimations {
+private fun rememberCardAnimations(
+    content: CardContent,
+    isHovered: Boolean,
+): CardAnimations {
     val rotation by animateFloatAsState(
         targetValue = if (content.visualState.isFaceUp) 0f else FULL_ROTATION,
         animationSpec = tween(durationMillis = FLIP_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
@@ -168,11 +183,11 @@ private fun rememberCardAnimations(content: CardContent, isHovered: Boolean): Ca
 
     val scale by animateFloatAsState(
         targetValue =
-        if (content.visualState.isRecentlyMatched || (isHovered && !content.visualState.isFaceUp)) {
-            1.05f
-        } else {
-            1f
-        },
+            if (content.visualState.isRecentlyMatched || (isHovered && !content.visualState.isFaceUp)) {
+                1.05f
+            } else {
+                1f
+            },
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "pulse",
     )
@@ -191,10 +206,10 @@ private fun rememberCardAnimations(content: CardContent, isHovered: Boolean): Ca
     val matchedGlowAlpha by animateFloatAsState(
         targetValue = if (content.visualState.isRecentlyMatched) SUBTLE_ALPHA else 0f,
         animationSpec =
-        infiniteRepeatable(
-            animation = tween(GLOW_ANIMATION_DURATION_MS),
-            repeatMode = RepeatMode.Reverse,
-        ),
+            infiniteRepeatable(
+                animation = tween(GLOW_ANIMATION_DURATION_MS),
+                repeatMode = RepeatMode.Reverse,
+            ),
         label = "matchedGlow",
     )
 
@@ -208,7 +223,7 @@ private fun rememberCardAnimations(content: CardContent, isHovered: Boolean): Ca
 
 @Composable
 private fun CardContainer(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
     visuals: CardContainerVisuals,
     backColor: Color,
     interactions: CardInteractions,
@@ -216,36 +231,36 @@ private fun CardContainer(
 ) {
     Box(
         modifier =
-        modifier
-            .widthIn(min = 60.dp)
-            .aspectRatio(CARD_ASPECT_RATIO)
-            .graphicsLayer {
-                rotationY = visuals.rotation
-                scaleX = visuals.scale
-                scaleY = visuals.scale
-                cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
-            }.shadow(
-                elevation =
-                if (visuals.visualState.isRecentlyMatched) {
-                    10.dp
-                } else if (visuals.visualState.isMatched) {
-                    2.dp
-                } else {
-                    6.dp
+            modifier
+                .widthIn(min = 60.dp)
+                .aspectRatio(CARD_ASPECT_RATIO)
+                .graphicsLayer {
+                    rotationY = visuals.rotation
+                    scaleX = visuals.scale
+                    scaleY = visuals.scale
+                    cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
+                }.shadow(
+                    elevation =
+                        if (visuals.visualState.isRecentlyMatched) {
+                            10.dp
+                        } else if (visuals.visualState.isMatched) {
+                            2.dp
+                        } else {
+                            6.dp
+                        },
+                    shape = RoundedCornerShape(12.dp),
+                    clip = false,
+                    ambientColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
+                    spotColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
+                ).drawBehind {
+                    if (visuals.visualState.isRecentlyMatched) {
+                        drawCircle(
+                            color = NeonCyan.copy(alpha = visuals.matchedGlowAlpha),
+                            radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
+                            center = center,
+                        )
+                    }
                 },
-                shape = RoundedCornerShape(12.dp),
-                clip = false,
-                ambientColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
-                spotColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
-            ).drawBehind {
-                if (visuals.visualState.isRecentlyMatched) {
-                    drawCircle(
-                        color = NeonCyan.copy(alpha = visuals.matchedGlowAlpha),
-                        radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
-                        center = center,
-                    )
-                }
-            },
     ) {
         Card(
             onClick = interactions.onClick,
@@ -253,9 +268,9 @@ private fun CardContainer(
             modifier = Modifier.fillMaxSize(),
             shape = RoundedCornerShape(12.dp),
             colors =
-            CardDefaults.cardColors(
-                containerColor = if (visuals.rotation <= HALF_ROTATION) Color.White else backColor,
-            ),
+                CardDefaults.cardColors(
+                    containerColor = if (visuals.rotation <= HALF_ROTATION) Color.White else backColor,
+                ),
             border = getCardBorder(visuals.rotation, visuals.visualState),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
@@ -266,7 +281,10 @@ private fun CardContainer(
 }
 
 @Composable
-private fun getCardBorder(rotation: Float, visualState: CardVisualState): BorderStroke =
+private fun getCardBorder(
+    rotation: Float,
+    visualState: CardVisualState,
+): BorderStroke =
     if (rotation <= HALF_ROTATION) {
         when {
             visualState.isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
@@ -283,13 +301,17 @@ private fun getCardBorder(rotation: Float, visualState: CardVisualState): Border
         )
     }
 
-private fun calculateSuitColor(suit: Suit, areSuitsMultiColored: Boolean): Color = if (areSuitsMultiColored) {
-    when (suit) {
-        Suit.Hearts -> HeartRed
-        Suit.Diamonds -> DiamondBlue
-        Suit.Clubs -> ClubGreen
-        Suit.Spades -> SpadeBlack
+private fun calculateSuitColor(
+    suit: Suit,
+    areSuitsMultiColored: Boolean,
+): Color =
+    if (areSuitsMultiColored) {
+        when (suit) {
+            Suit.Hearts -> HeartRed
+            Suit.Diamonds -> DiamondBlue
+            Suit.Clubs -> ClubGreen
+            Suit.Spades -> SpadeBlack
+        }
+    } else {
+        if (suit.isRed) HeartRed else SpadeBlack
     }
-} else {
-    if (suit.isRed) HeartRed else SpadeBlack
-}

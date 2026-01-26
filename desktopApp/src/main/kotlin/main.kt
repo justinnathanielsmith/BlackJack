@@ -16,17 +16,19 @@ import java.awt.Dimension
 fun main() {
     val lifecycle = LifecycleRegistry()
     val appGraph = createJvmGraph()
-    val root = DefaultRootComponent(
-        componentContext = DefaultComponentContext(lifecycle = lifecycle),
-        appGraph = appGraph,
-    )
+    val root =
+        DefaultRootComponent(
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
+            appGraph = appGraph,
+        )
 
     application {
-        val windowState = rememberWindowState(
-            position = WindowPosition(Alignment.Center),
-            size = DpSize(WINDOW_WIDTH.dp, WINDOW_HEIGHT.dp),
-            placement = WindowPlacement.Floating,
-        )
+        val windowState =
+            rememberWindowState(
+                position = WindowPosition(Alignment.Center),
+                size = DpSize(WINDOW_WIDTH.dp, WINDOW_HEIGHT.dp),
+                placement = WindowPlacement.Floating,
+            )
 
         Window(
             title = "Memory Match",

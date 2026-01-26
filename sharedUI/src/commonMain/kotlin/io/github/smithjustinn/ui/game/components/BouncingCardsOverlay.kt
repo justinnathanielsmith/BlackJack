@@ -67,7 +67,10 @@ private data class CelebrationPhysics(
 )
 
 @Stable
-private class CelebrationCard(val card: CardState, val physics: CelebrationPhysics) {
+private class CelebrationCard(
+    val card: CardState,
+    val physics: CelebrationPhysics,
+) {
     var x by mutableStateOf(physics.initialX)
     var y by mutableStateOf(physics.initialY)
     var vx = physics.vx0
@@ -76,7 +79,12 @@ private class CelebrationCard(val card: CardState, val physics: CelebrationPhysi
     var scale by mutableStateOf(0f)
     var alpha by mutableStateOf(1f)
 
-    fun update(gravity: Float, friction: Float, elapsedSeconds: Float, screenHeight: Float) {
+    fun update(
+        gravity: Float,
+        friction: Float,
+        elapsedSeconds: Float,
+        screenHeight: Float,
+    ) {
         val activeTime = elapsedSeconds - physics.delaySeconds
         if (activeTime < 0) return
 
@@ -89,11 +97,12 @@ private class CelebrationCard(val card: CardState, val physics: CelebrationPhysi
         rotation += physics.vRot
 
         // Appearance animation (Pop in)
-        scale = if (activeTime < POP_IN_DURATION) {
-            (activeTime / POP_IN_DURATION) * physics.targetScale
-        } else {
-            physics.targetScale
-        }
+        scale =
+            if (activeTime < POP_IN_DURATION) {
+                (activeTime / POP_IN_DURATION) * physics.targetScale
+            } else {
+                physics.targetScale
+            }
 
         // Exit animation (Fade out when falling off screen or after duration)
         if (y > screenHeight + OFF_SCREEN_THRESHOLD || activeTime > MAX_CELEBRATION_DURATION) {
@@ -136,15 +145,16 @@ fun BouncingCardsOverlay(
                     celebrationCards.add(
                         CelebrationCard(
                             card = card,
-                            physics = CelebrationPhysics(
-                                initialX = (widthPx / 2f) - cardWidthPx / 2f,
-                                initialY = heightPx,
-                                vx0 = cos(radians) * speed,
-                                vy0 = sin(radians) * speed,
-                                vRot = (Random.nextFloat() - 0.5f) * 12f,
-                                targetScale = 0.7f + Random.nextFloat() * 0.5f,
-                                delaySeconds = index * 0.08f,
-                            ),
+                            physics =
+                                CelebrationPhysics(
+                                    initialX = (widthPx / 2f) - cardWidthPx / 2f,
+                                    initialY = heightPx,
+                                    vx0 = cos(radians) * speed,
+                                    vy0 = sin(radians) * speed,
+                                    vRot = (Random.nextFloat() - 0.5f) * 12f,
+                                    targetScale = 0.7f + Random.nextFloat() * 0.5f,
+                                    delaySeconds = index * 0.08f,
+                                ),
                         ),
                     )
                 }
@@ -158,7 +168,10 @@ fun BouncingCardsOverlay(
 }
 
 @Composable
-private fun PhysicsEngine(celebrationCards: List<CelebrationCard>, heightPx: Float) {
+private fun PhysicsEngine(
+    celebrationCards: List<CelebrationCard>,
+    heightPx: Float,
+) {
     var startTimeNanos by remember { mutableLongStateOf(0L) }
     LaunchedEffect(celebrationCards.size) {
         if (celebrationCards.isNotEmpty()) {
@@ -174,30 +187,36 @@ private fun PhysicsEngine(celebrationCards: List<CelebrationCard>, heightPx: Flo
 }
 
 @Composable
-private fun CelebrationCardsLayer(celebrationCards: List<CelebrationCard>, settings: CardDisplaySettings) {
+private fun CelebrationCardsLayer(
+    celebrationCards: List<CelebrationCard>,
+    settings: CardDisplaySettings,
+) {
     celebrationCards.forEach { cCard ->
         if (cCard.alpha > 0f && cCard.scale > 0f) {
             key(cCard.card.id) {
                 PlayingCard(
-                    content = CardContent(
-                        suit = cCard.card.suit,
-                        rank = cCard.card.rank,
-                        visualState = CardVisualState(
-                            isFaceUp = true,
-                            isMatched = true,
+                    content =
+                        CardContent(
+                            suit = cCard.card.suit,
+                            rank = cCard.card.rank,
+                            visualState =
+                                CardVisualState(
+                                    isFaceUp = true,
+                                    isMatched = true,
+                                ),
                         ),
-                    ),
                     settings = settings,
-                    modifier = Modifier
-                        .size(BOUNCING_CARD_WIDTH, BASE_CARD_HEIGHT)
-                        .offset { IntOffset(cCard.x.roundToInt(), cCard.y.roundToInt()) }
-                        .graphicsLayer {
-                            rotationZ = cCard.rotation
-                            scaleX = cCard.scale
-                            scaleY = cCard.scale
-                            alpha = cCard.alpha
-                            shadowElevation = 8.dp.toPx()
-                        },
+                    modifier =
+                        Modifier
+                            .size(BOUNCING_CARD_WIDTH, BASE_CARD_HEIGHT)
+                            .offset { IntOffset(cCard.x.roundToInt(), cCard.y.roundToInt()) }
+                            .graphicsLayer {
+                                rotationZ = cCard.rotation
+                                scaleX = cCard.scale
+                                scaleY = cCard.scale
+                                alpha = cCard.alpha
+                                shadowElevation = 8.dp.toPx()
+                            },
                 )
             }
         }

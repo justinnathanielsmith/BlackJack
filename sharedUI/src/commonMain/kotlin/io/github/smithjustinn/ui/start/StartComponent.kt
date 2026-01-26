@@ -8,10 +8,16 @@ interface StartComponent {
     val state: StateFlow<DifficultyState>
 
     fun onDifficultySelected(level: DifficultyLevel)
+
     fun onModeSelected(mode: GameMode)
+
     fun onStartGame()
+
     fun onResumeGame()
+
     fun onDailyChallengeClick()
+
     fun onSettingsClick()
+
     fun onStatsClick()
 }

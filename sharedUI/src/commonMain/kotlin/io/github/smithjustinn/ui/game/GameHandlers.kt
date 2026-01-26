@@ -110,7 +110,11 @@ internal class GameFeedbackHandler(
     private var timeGainJob: Job? = null
     private var timeLossJob: Job? = null
 
-    fun handleMatchSuccess(newState: MemoryGameState, isHeatMode: Boolean, isNowInHeatMode: Boolean) {
+    fun handleMatchSuccess(
+        newState: MemoryGameState,
+        isHeatMode: Boolean,
+        isNowInHeatMode: Boolean,
+    ) {
         events.tryEmit(GameUiEvent.VibrateMatch)
         events.tryEmit(GameUiEvent.PlayMatch)
 
@@ -143,7 +147,10 @@ internal class GameFeedbackHandler(
         }
     }
 
-    fun handleMatchFailure(newState: MemoryGameState, isResuming: Boolean) {
+    fun handleMatchFailure(
+        newState: MemoryGameState,
+        isResuming: Boolean,
+    ) {
         if (!isResuming) {
             events.tryEmit(GameUiEvent.VibrateMismatch)
             events.tryEmit(GameUiEvent.PlayMismatch)
@@ -252,7 +259,11 @@ internal class GameLifecycleHandler(
         }
     }
 
-    fun setupNewGameState(initialGameState: MemoryGameState, mode: GameMode, pairCount: Int) {
+    fun setupNewGameState(
+        initialGameState: MemoryGameState,
+        mode: GameMode,
+        pairCount: Int,
+    ) {
         val initialTime =
             if (mode == GameMode.TIME_ATTACK) {
                 MemoryGameLogic.calculateInitialTime(pairCount)
@@ -276,7 +287,11 @@ internal class GameLifecycleHandler(
         events.tryEmit(GameUiEvent.PlayDeal)
     }
 
-    fun isSavedGameValid(savedGame: Pair<MemoryGameState, Long>, pairCount: Int, mode: GameMode): Boolean =
+    fun isSavedGameValid(
+        savedGame: Pair<MemoryGameState, Long>,
+        pairCount: Int,
+        mode: GameMode,
+    ): Boolean =
         savedGame.first.pairCount == pairCount &&
             !savedGame.first.isGameOver &&
             savedGame.first.mode == mode

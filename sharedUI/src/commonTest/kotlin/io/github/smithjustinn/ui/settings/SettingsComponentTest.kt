@@ -19,7 +19,6 @@ import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class SettingsComponentTest : BaseComponentTest() {
-
     private lateinit var component: DefaultSettingsComponent
 
     @BeforeTest
@@ -36,53 +35,57 @@ class SettingsComponentTest : BaseComponentTest() {
     }
 
     @Test
-    fun `initial state is correct`() = runTest { lifecycle ->
-        // Setup specific volume for this test
-        every { context.settingsRepository.soundVolume } returns MutableStateFlow(0.8f)
+    fun `initial state is correct`() =
+        runTest { lifecycle ->
+            // Setup specific volume for this test
+            every { context.settingsRepository.soundVolume } returns MutableStateFlow(0.8f)
 
-        component = createComponent(lifecycle)
-        testDispatcher.scheduler.runCurrent()
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
 
-        component.state.test {
-            // The state might emit several times as flows are being collected
-            // We want to find the first emission that matches our mocked configuration
-            var foundDesiredState = false
-            while (!foundDesiredState) {
-                val state = awaitItem()
-                if (state.soundVolume == 0.8f) {
-                    assertTrue(state.isPeekEnabled || !state.isPeekEnabled) // Just consume it
-                    assertEquals(CardBackTheme.GEOMETRIC, state.cardBackTheme)
-                    foundDesiredState = true
+            component.state.test {
+                // The state might emit several times as flows are being collected
+                // We want to find the first emission that matches our mocked configuration
+                var foundDesiredState = false
+                while (!foundDesiredState) {
+                    val state = awaitItem()
+                    if (state.soundVolume == 0.8f) {
+                        assertTrue(state.isPeekEnabled || !state.isPeekEnabled) // Just consume it
+                        assertEquals(CardBackTheme.GEOMETRIC, state.cardBackTheme)
+                        foundDesiredState = true
+                    }
                 }
             }
         }
-    }
 
     @Test
-    fun `togglePeekEnabled updates repository`() = runTest { lifecycle ->
-        component = createComponent(lifecycle)
-        testDispatcher.scheduler.runCurrent()
+    fun `togglePeekEnabled updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
 
-        component.togglePeekEnabled(false)
-        testDispatcher.scheduler.runCurrent()
+            component.togglePeekEnabled(false)
+            testDispatcher.scheduler.runCurrent()
 
-        verifySuspend { context.settingsRepository.setPeekEnabled(false) }
-    }
+            verifySuspend { context.settingsRepository.setPeekEnabled(false) }
+        }
 
     @Test
-    fun `setCardBackTheme updates repository`() = runTest { lifecycle ->
-        component = createComponent(lifecycle)
-        testDispatcher.scheduler.runCurrent()
+    fun `setCardBackTheme updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
 
-        component.setCardBackTheme(CardBackTheme.GEOMETRIC)
-        testDispatcher.scheduler.runCurrent()
+            component.setCardBackTheme(CardBackTheme.GEOMETRIC)
+            testDispatcher.scheduler.runCurrent()
 
-        verifySuspend { context.settingsRepository.setCardBackTheme(CardBackTheme.GEOMETRIC) }
-    }
+            verifySuspend { context.settingsRepository.setCardBackTheme(CardBackTheme.GEOMETRIC) }
+        }
 
-    private fun createComponent(lifecycle: Lifecycle): DefaultSettingsComponent = DefaultSettingsComponent(
-        componentContext = DefaultComponentContext(lifecycle = lifecycle),
-        appGraph = context.appGraph,
-        onBackClicked = {},
-    )
+    private fun createComponent(lifecycle: Lifecycle): DefaultSettingsComponent =
+        DefaultSettingsComponent(
+            componentContext = DefaultComponentContext(lifecycle = lifecycle),
+            appGraph = context.appGraph,
+            onBackClicked = {},
+        )
 }

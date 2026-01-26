@@ -6,7 +6,6 @@ import kotlin.test.assertNull
 import kotlin.time.Instant
 
 class ConvertersTest {
-
     private val converters = Converters()
 
     @Test

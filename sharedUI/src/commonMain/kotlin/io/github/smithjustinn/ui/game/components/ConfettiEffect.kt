@@ -27,7 +27,12 @@ import kotlin.random.Random
 /**
  * A particle representing a single piece of confetti.
  */
-private class Particle(val color: Color, val size: Float, angle: Double, speed: Float) {
+private class Particle(
+    val color: Color,
+    val size: Float,
+    angle: Double,
+    speed: Float,
+) {
     var x = 0f
     var y = 0f
     private var vx = cos(angle).toFloat() * speed
@@ -56,28 +61,30 @@ private class Particle(val color: Color, val size: Float, angle: Double, speed: 
 fun ConfettiEffect(
     modifier: Modifier = Modifier,
     particleCount: Int = 100,
-    colors: List<Color> = listOf(
-        ConfettiPink,
-        ConfettiPurple,
-        ConfettiBlue,
-        BonusGreen,
-        ConfettiYellow,
-        ConfettiOrange,
-    ),
+    colors: List<Color> =
+        listOf(
+            ConfettiPink,
+            ConfettiPurple,
+            ConfettiBlue,
+            BonusGreen,
+            ConfettiYellow,
+            ConfettiOrange,
+        ),
 ) {
     val particles = remember { mutableStateListOf<Particle>() }
     val frameState = remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
         // Create a burst of particles
-        val newParticles = List(particleCount) {
-            Particle(
-                color = colors.random(),
-                size = Random.nextFloat() * MAX_PARTICLE_SIZE_DIFF + MIN_PARTICLE_SIZE,
-                angle = Random.nextDouble(0.0, 2.0 * PI),
-                speed = Random.nextFloat() * MAX_PARTICLE_SPEED_DIFF + MIN_PARTICLE_SPEED,
-            )
-        }
+        val newParticles =
+            List(particleCount) {
+                Particle(
+                    color = colors.random(),
+                    size = Random.nextFloat() * MAX_PARTICLE_SIZE_DIFF + MIN_PARTICLE_SIZE,
+                    angle = Random.nextDouble(0.0, 2.0 * PI),
+                    speed = Random.nextFloat() * MAX_PARTICLE_SPEED_DIFF + MIN_PARTICLE_SPEED,
+                )
+            }
         particles.addAll(newParticles)
 
         // Animation loop

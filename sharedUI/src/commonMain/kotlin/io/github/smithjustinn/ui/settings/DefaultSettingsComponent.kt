@@ -26,7 +26,6 @@ class DefaultSettingsComponent(
     private val onBackClicked: () -> Unit,
 ) : SettingsComponent,
     ComponentContext by componentContext {
-
     private val scope = CoroutineScope(Dispatchers.Main.immediate + SupervisorJob())
 
     private val settingsRepository = appGraph.settingsRepository
@@ -34,45 +33,48 @@ class DefaultSettingsComponent(
     private val _events = Channel<SettingsUiEvent>(Channel.BUFFERED)
     override val events: Flow<SettingsUiEvent> = _events.receiveAsFlow()
 
-    private val audioSettingsFlow = combine(
-        settingsRepository.isSoundEnabled,
-        settingsRepository.isMusicEnabled,
-        settingsRepository.soundVolume,
-        settingsRepository.musicVolume,
-    ) { sound, music, soundVol, musicVol ->
-        AudioSettings(sound, music, soundVol, musicVol)
-    }
+    private val audioSettingsFlow =
+        combine(
+            settingsRepository.isSoundEnabled,
+            settingsRepository.isMusicEnabled,
+            settingsRepository.soundVolume,
+            settingsRepository.musicVolume,
+        ) { sound, music, soundVol, musicVol ->
+            AudioSettings(sound, music, soundVol, musicVol)
+        }
 
-    private val themeSettingsFlow = combine(
-        settingsRepository.cardBackTheme,
-        settingsRepository.cardSymbolTheme,
-        settingsRepository.areSuitsMultiColored,
-    ) { back, symbol, multiColor ->
-        ThemeSettings(back, symbol, multiColor)
-    }
+    private val themeSettingsFlow =
+        combine(
+            settingsRepository.cardBackTheme,
+            settingsRepository.cardSymbolTheme,
+            settingsRepository.areSuitsMultiColored,
+        ) { back, symbol, multiColor ->
+            ThemeSettings(back, symbol, multiColor)
+        }
 
-    override val state: StateFlow<SettingsState> = combine(
-        settingsRepository.isPeekEnabled,
-        settingsRepository.isWalkthroughCompleted,
-        audioSettingsFlow,
-        themeSettingsFlow,
-    ) { peek, walkthrough, audio, theme ->
-        SettingsState(
-            isPeekEnabled = peek,
-            isWalkthroughCompleted = walkthrough,
-            isSoundEnabled = audio.isSoundEnabled,
-            isMusicEnabled = audio.isMusicEnabled,
-            soundVolume = audio.soundVolume,
-            musicVolume = audio.musicVolume,
-            cardBackTheme = theme.cardBackTheme,
-            cardSymbolTheme = theme.cardSymbolTheme,
-            areSuitsMultiColored = theme.areSuitsMultiColored,
+    override val state: StateFlow<SettingsState> =
+        combine(
+            settingsRepository.isPeekEnabled,
+            settingsRepository.isWalkthroughCompleted,
+            audioSettingsFlow,
+            themeSettingsFlow,
+        ) { peek, walkthrough, audio, theme ->
+            SettingsState(
+                isPeekEnabled = peek,
+                isWalkthroughCompleted = walkthrough,
+                isSoundEnabled = audio.isSoundEnabled,
+                isMusicEnabled = audio.isMusicEnabled,
+                soundVolume = audio.soundVolume,
+                musicVolume = audio.musicVolume,
+                cardBackTheme = theme.cardBackTheme,
+                cardSymbolTheme = theme.cardSymbolTheme,
+                areSuitsMultiColored = theme.areSuitsMultiColored,
+            )
+        }.stateIn(
+            scope = scope,
+            started = SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS),
+            initialValue = SettingsState(),
         )
-    }.stateIn(
-        scope = scope,
-        started = SharingStarted.WhileSubscribed(SUBSCRIPTION_TIMEOUT_MS),
-        initialValue = SettingsState(),
-    )
 
     private data class AudioSettings(
         val isSoundEnabled: Boolean,

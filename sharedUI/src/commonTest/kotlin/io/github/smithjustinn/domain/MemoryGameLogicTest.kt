@@ -12,7 +12,6 @@ import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class MemoryGameLogicTest {
-
     @Test
     fun `createInitialState should create correct number of cards`() {
         val pairCount = 4
@@ -68,10 +67,12 @@ class MemoryGameLogicTest {
 
         // Find a pair
         val firstCard = initialState.cards[0]
-        val secondCard = initialState.cards.first {
-            it.id != firstCard.id && it.suit == firstCard.suit &&
-                it.rank == firstCard.rank
-        }
+        val secondCard =
+            initialState.cards.first {
+                it.id != firstCard.id &&
+                    it.suit == firstCard.suit &&
+                    it.rank == firstCard.rank
+            }
 
         val (state1, _) = MemoryGameLogic.flipCard(initialState, firstCard.id)
         val (state2, event) = MemoryGameLogic.flipCard(state1, secondCard.id)
@@ -151,11 +152,12 @@ class MemoryGameLogicTest {
         var state = MemoryGameLogic.createInitialState(pairCount, mode = GameMode.STANDARD)
 
         // Manually set the state to win with some stats
-        state = state.copy(
-            isGameWon = true,
-            moves = 2, // Perfect efficiency for 2 pairs
-            score = 40, // 2 matches * 20 points
-        )
+        state =
+            state.copy(
+                isGameWon = true,
+                moves = 2, // Perfect efficiency for 2 pairs
+                score = 40, // 2 matches * 20 points
+            )
 
         // 10 seconds elapsed
         val finalState = MemoryGameLogic.applyFinalBonuses(state, 10)
@@ -173,11 +175,12 @@ class MemoryGameLogicTest {
         val pairCount = 2
         var state = MemoryGameLogic.createInitialState(pairCount, mode = GameMode.TIME_ATTACK)
 
-        state = state.copy(
-            isGameWon = true,
-            moves = 2,
-            score = 40,
-        )
+        state =
+            state.copy(
+                isGameWon = true,
+                moves = 2,
+                score = 40,
+            )
 
         val remainingTime = 15L
         val finalState = MemoryGameLogic.applyFinalBonuses(state, remainingTime)
@@ -219,12 +222,14 @@ class MemoryGameLogicTest {
 
         // Find a card that is NOT card1/card2 and its counterpart is NOT card3
         val card3 = initialState.cards.first { it.id != card1.id && it.id != card2.id }
-        val card4 = initialState.cards.first {
-            it.id != card3.id && (it.suit != card3.suit || it.rank != card3.rank) &&
-                !it.isMatched &&
-                it.id != card1.id &&
-                it.id != card2.id
-        }
+        val card4 =
+            initialState.cards.first {
+                it.id != card3.id &&
+                    (it.suit != card3.suit || it.rank != card3.rank) &&
+                    !it.isMatched &&
+                    it.id != card1.id &&
+                    it.id != card2.id
+            }
 
         // First match: combo becomes 2
         val (s1, _) = MemoryGameLogic.flipCard(initialState, card1.id)
@@ -245,16 +250,20 @@ class MemoryGameLogicTest {
 
         // Find two pairs
         val pair1Card1 = initialState.cards[0]
-        val pair1Card2 = initialState.cards.first {
-            it.id != pair1Card1.id && it.suit == pair1Card1.suit &&
-                it.rank == pair1Card1.rank
-        }
+        val pair1Card2 =
+            initialState.cards.first {
+                it.id != pair1Card1.id &&
+                    it.suit == pair1Card1.suit &&
+                    it.rank == pair1Card1.rank
+            }
 
         val pair2Card1 = initialState.cards.first { !it.isMatched && it.id != pair1Card1.id && it.id != pair1Card2.id }
-        val pair2Card2 = initialState.cards.first {
-            it.id != pair2Card1.id && it.suit == pair2Card1.suit &&
-                it.rank == pair2Card1.rank
-        }
+        val pair2Card2 =
+            initialState.cards.first {
+                it.id != pair2Card1.id &&
+                    it.suit == pair2Card1.suit &&
+                    it.rank == pair2Card1.rank
+            }
 
         // Match 1
         val (s1, _) = MemoryGameLogic.flipCard(initialState, pair1Card1.id)
@@ -298,18 +307,22 @@ class MemoryGameLogicTest {
         val p1c1 = state.cards[0]
         val p1c2 = state.cards.first { it.id != p1c1.id && it.suit == p1c1.suit && it.rank == p1c1.rank }
 
-        state = state.copy(
-            cards = state.cards.map {
-                if (it.id == p1c1.id || it.id == p1c2.id) it.copy(isMatched = true) else it
-            }.toImmutableList(),
-            moves = 10, // Ensure moves > matches * 2 to avoid photographic
-        )
+        state =
+            state.copy(
+                cards =
+                    state.cards
+                        .map {
+                            if (it.id == p1c1.id || it.id == p1c2.id) it.copy(isMatched = true) else it
+                        }.toImmutableList(),
+                moves = 10, // Ensure moves > matches * 2 to avoid photographic
+            )
 
         // Now find Pair 2
         val p2c1 = state.cards.first { !it.isMatched }
-        val p2c2 = state.cards.first {
-            !it.isMatched && it.suit == p2c1.suit && it.rank == p2c1.rank && it.id != p2c1.id
-        }
+        val p2c2 =
+            state.cards.first {
+                !it.isMatched && it.suit == p2c1.suit && it.rank == p2c1.rank && it.id != p2c1.id
+            }
 
         var (s1, _) = MemoryGameLogic.flipCard(state, p2c1.id)
         var (s2, _) = MemoryGameLogic.flipCard(s1, p2c2.id)
@@ -329,14 +342,23 @@ class MemoryGameLogicTest {
         val pair1 = pairs[1]
         val pair2 = pairs[2] // Target
 
-        state = state.copy(
-            cards = state.cards.map { c ->
-                if (pair0.any { it.id == c.id } || pair1.any { it.id == c.id }) c.copy(isMatched = true) else c
-            }.toImmutableList(),
-            lastMatchedIds = persistentListOf(),
-            moves = 20,
-            comboMultiplier = 1,
-        )
+        state =
+            state.copy(
+                cards =
+                    state.cards
+                        .map { c ->
+                            if (pair0.any { it.id == c.id } ||
+                                pair1.any { it.id == c.id }
+                            ) {
+                                c.copy(isMatched = true)
+                            } else {
+                                c
+                            }
+                        }.toImmutableList(),
+                lastMatchedIds = persistentListOf(),
+                moves = 20,
+                comboMultiplier = 1,
+            )
 
         // Match Pair 2 -> Matches = 3. Total 4. One more to go.
         s1 = MemoryGameLogic.flipCard(state, pair2[0].id).first
@@ -346,7 +368,11 @@ class MemoryGameLogicTest {
         // 3. Photographic (moves <= matches * 2)
         state = MemoryGameLogic.createInitialState(4)
         // No matches. Match first pair with 2 moves.
-        val pairs3 = state.cards.groupBy { it.suit to it.rank }.values.toList()
+        val pairs3 =
+            state.cards
+                .groupBy { it.suit to it.rank }
+                .values
+                .toList()
         s1 = MemoryGameLogic.flipCard(state, pairs3[0][0].id).first
         s2 = MemoryGameLogic.flipCard(s1, pairs3[0][1].id).first
         // moves=1. matches=1. 1 <= 2.
@@ -354,16 +380,23 @@ class MemoryGameLogicTest {
         // So to hit Photographic we need matches > 1, not halfway, not one more.
         // Total 10 pairs. Match 2. (Matches=2. Total=10. Not 1. Not 5. Not 9.)
         state = MemoryGameLogic.createInitialState(10)
-        val pairs4 = state.cards.groupBy { it.suit to it.rank }.values.toList()
+        val pairs4 =
+            state.cards
+                .groupBy { it.suit to it.rank }
+                .values
+                .toList()
 
-        state = state.copy(
-            cards = state.cards.map { c ->
-                if (pairs4[0].any { it.id == c.id }) c.copy(isMatched = true) else c
-            }.toImmutableList(),
-            lastMatchedIds = persistentListOf(),
-            moves = 2,
-            comboMultiplier = 1,
-        )
+        state =
+            state.copy(
+                cards =
+                    state.cards
+                        .map { c ->
+                            if (pairs4[0].any { it.id == c.id }) c.copy(isMatched = true) else c
+                        }.toImmutableList(),
+                lastMatchedIds = persistentListOf(),
+                moves = 2,
+                comboMultiplier = 1,
+            )
         // Match pair 1
         s1 = MemoryGameLogic.flipCard(state, pairs4[1][0].id).first
         s2 = MemoryGameLogic.flipCard(s1, pairs4[1][1].id).first
@@ -372,29 +405,43 @@ class MemoryGameLogicTest {
 
         // 4. Else (Random)
         state = MemoryGameLogic.createInitialState(10)
-        val pairs5 = state.cards.groupBy { it.suit to it.rank }.values.toList()
-        state = state.copy(
-            cards = state.cards.map { c ->
-                if (pairs5[0].any { it.id == c.id } || pairs5[1].any { it.id == c.id }) c.copy(isMatched = true) else c
-            }.toImmutableList(),
-            lastMatchedIds = persistentListOf(),
-            moves = 50, // Lots of moves
-            comboMultiplier = 1,
-        )
+        val pairs5 =
+            state.cards
+                .groupBy { it.suit to it.rank }
+                .values
+                .toList()
+        state =
+            state.copy(
+                cards =
+                    state.cards
+                        .map { c ->
+                            if (pairs5[0].any { it.id == c.id } ||
+                                pairs5[1].any { it.id == c.id }
+                            ) {
+                                c.copy(isMatched = true)
+                            } else {
+                                c
+                            }
+                        }.toImmutableList(),
+                lastMatchedIds = persistentListOf(),
+                moves = 50, // Lots of moves
+                comboMultiplier = 1,
+            )
         // Match pair 2
         s1 = MemoryGameLogic.flipCard(state, pairs5[2][0].id).first
         s2 = MemoryGameLogic.flipCard(s1, pairs5[2][1].id).first
 
         // Should be one of the random ones
-        val randomComments = listOf(
-            Res.string.comment_great_find,
-            Res.string.comment_you_got_it,
-            Res.string.comment_boom,
-            Res.string.comment_eagle_eyes,
-            Res.string.comment_sharp,
-            Res.string.comment_on_a_roll,
-            Res.string.comment_keep_it_up,
-        )
+        val randomComments =
+            listOf(
+                Res.string.comment_great_find,
+                Res.string.comment_you_got_it,
+                Res.string.comment_boom,
+                Res.string.comment_eagle_eyes,
+                Res.string.comment_sharp,
+                Res.string.comment_on_a_roll,
+                Res.string.comment_keep_it_up,
+            )
         assertTrue(randomComments.contains(s2.matchComment?.res))
     }
 }

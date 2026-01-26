@@ -88,10 +88,11 @@ private fun LeaderboardList(entries: ImmutableList<LeaderboardEntry>) {
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
         color = InactiveBackground.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(
-            width = 1.dp,
-            color = Color.White.copy(alpha = 0.1f),
-        ),
+        border =
+            androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color = Color.White.copy(alpha = 0.1f),
+            ),
     ) {
         if (entries.isEmpty()) {
             Box(
@@ -121,11 +122,15 @@ private fun LeaderboardList(entries: ImmutableList<LeaderboardEntry>) {
 }
 
 @Composable
-private fun LeaderboardRow(rank: Int, entry: LeaderboardEntry) {
+private fun LeaderboardRow(
+    rank: Int,
+    entry: LeaderboardEntry,
+) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 12.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.spacedBy(12.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -158,40 +163,47 @@ private fun RankBadge(rank: Int) {
     Surface(
         modifier = Modifier.size(32.dp),
         shape = CircleShape,
-        color = when (rank) {
-            1 -> GoldenYellow.copy(alpha = 0.2f)
-            2 -> Silver.copy(alpha = 0.2f)
-            3 -> Bronze.copy(alpha = 0.2f)
-            else -> Color.White.copy(alpha = 0.05f)
-        },
-        border = androidx.compose.foundation.BorderStroke(
-            width = 1.dp,
-            color = when (rank) {
-                1 -> GoldenYellow.copy(alpha = 0.5f)
-                2 -> Silver.copy(alpha = 0.5f)
-                3 -> Bronze.copy(alpha = 0.5f)
-                else -> Color.White.copy(alpha = 0.1f)
+        color =
+            when (rank) {
+                1 -> GoldenYellow.copy(alpha = 0.2f)
+                2 -> Silver.copy(alpha = 0.2f)
+                3 -> Bronze.copy(alpha = 0.2f)
+                else -> Color.White.copy(alpha = 0.05f)
             },
-        ),
+        border =
+            androidx.compose.foundation.BorderStroke(
+                width = 1.dp,
+                color =
+                    when (rank) {
+                        1 -> GoldenYellow.copy(alpha = 0.5f)
+                        2 -> Silver.copy(alpha = 0.5f)
+                        3 -> Bronze.copy(alpha = 0.5f)
+                        else -> Color.White.copy(alpha = 0.1f)
+                    },
+            ),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = rank.toString(),
                 style = MaterialTheme.typography.labelMedium,
                 fontWeight = FontWeight.ExtraBold,
-                color = when (rank) {
-                    1 -> GoldenYellow
-                    2 -> Silver
-                    3 -> Bronze
-                    else -> Color.White.copy(alpha = 0.6f)
-                },
+                color =
+                    when (rank) {
+                        1 -> GoldenYellow
+                        2 -> Silver
+                        3 -> Bronze
+                        else -> Color.White.copy(alpha = 0.6f)
+                    },
             )
         }
     }
 }
 
 @Composable
-private fun StatMiniItem(label: String, value: String) {
+private fun StatMiniItem(
+    label: String,
+    value: String,
+) {
     Column(horizontalAlignment = Alignment.End) {
         Text(
             text = label,

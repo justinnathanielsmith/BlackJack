@@ -20,24 +20,27 @@ import io.github.smithjustinn.ui.stats.StatsContent
 
 @OptIn(ExperimentalDecomposeApi::class)
 @Composable
-fun App(root: RootComponent, appGraph: AppGraph, onThemeChanged: @Composable (isDark: Boolean) -> Unit = {}) =
-    AppTheme(onThemeChanged) {
-        CompositionLocalProvider(LocalAppGraph provides appGraph) {
-            Children(
-                stack = root.childStack,
-                animation =
+fun App(
+    root: RootComponent,
+    appGraph: AppGraph,
+    onThemeChanged: @Composable (isDark: Boolean) -> Unit = {},
+) = AppTheme(onThemeChanged) {
+    CompositionLocalProvider(LocalAppGraph provides appGraph) {
+        Children(
+            stack = root.childStack,
+            animation =
                 predictiveBackAnimation(
                     backHandler = root.backHandler,
                     fallbackAnimation = stackAnimation(slide() + fade()),
                     onBack = root::pop,
                 ),
-            ) {
-                when (val child = it.instance) {
-                    is RootComponent.Child.Start -> StartContent(child.component)
-                    is RootComponent.Child.Game -> GameContent(child.component)
-                    is RootComponent.Child.Settings -> SettingsContent(child.component)
-                    is RootComponent.Child.Stats -> StatsContent(child.component)
-                }
+        ) {
+            when (val child = it.instance) {
+                is RootComponent.Child.Start -> StartContent(child.component)
+                is RootComponent.Child.Game -> GameContent(child.component)
+                is RootComponent.Child.Settings -> SettingsContent(child.component)
+                is RootComponent.Child.Stats -> StatsContent(child.component)
             }
         }
     }
+}

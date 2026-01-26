@@ -35,9 +35,15 @@ import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.ceil
 
-private data class CardLayoutInfo(val position: Offset, val size: Size)
+private data class CardLayoutInfo(
+    val position: Offset,
+    val size: Size,
+)
 
-private data class GridMetrics(val cells: GridCells, val maxWidth: androidx.compose.ui.unit.Dp)
+private data class GridMetrics(
+    val cells: GridCells,
+    val maxWidth: androidx.compose.ui.unit.Dp,
+)
 
 private data class GridSpacing(
     val horizontalPadding: androidx.compose.ui.unit.Dp,
@@ -47,7 +53,10 @@ private data class GridSpacing(
     val horizontalSpacing: androidx.compose.ui.unit.Dp,
 )
 
-private data class GridLayoutConfig(val metrics: GridMetrics, val spacing: GridSpacing)
+private data class GridLayoutConfig(
+    val metrics: GridMetrics,
+    val spacing: GridSpacing,
+)
 
 data class GridCardState(
     val cards: ImmutableList<CardState>,
@@ -69,19 +78,23 @@ data class GridScreenConfig(
 )
 
 @Composable
-fun GameGrid(gridCardState: GridCardState, settings: GridSettings, onCardClick: (Int) -> Unit) {
+fun GameGrid(
+    gridCardState: GridCardState,
+    settings: GridSettings,
+    onCardClick: (Int) -> Unit,
+) {
     val cardLayouts = remember { mutableStateMapOf<Int, CardLayoutInfo>() }
     var gridPosition by remember { mutableStateOf(Offset.Zero) }
 
     BoxWithConstraints(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .windowInsetsPadding(
-                WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
-            ).onGloballyPositioned { layoutCoordinates ->
-                gridPosition = layoutCoordinates.positionInRoot()
-            },
+            Modifier
+                .fillMaxSize()
+                .windowInsetsPadding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+                ).onGloballyPositioned { layoutCoordinates ->
+                    gridPosition = layoutCoordinates.positionInRoot()
+                },
         contentAlignment = Alignment.Center,
     ) {
         val screenWidth = maxWidth
@@ -136,42 +149,42 @@ private fun GridContent(
     LazyVerticalGrid(
         columns = layoutConfig.metrics.cells,
         contentPadding =
-        PaddingValues(
-            start = layoutConfig.spacing.horizontalPadding,
-            top = layoutConfig.spacing.topPadding,
-            end = layoutConfig.spacing.horizontalPadding,
-            bottom = layoutConfig.spacing.bottomPadding,
-        ),
+            PaddingValues(
+                start = layoutConfig.spacing.horizontalPadding,
+                top = layoutConfig.spacing.topPadding,
+                end = layoutConfig.spacing.horizontalPadding,
+                bottom = layoutConfig.spacing.bottomPadding,
+            ),
         verticalArrangement = Arrangement.spacedBy(layoutConfig.spacing.verticalSpacing),
         horizontalArrangement = Arrangement.spacedBy(layoutConfig.spacing.horizontalSpacing),
         modifier =
-        Modifier
-            .fillMaxHeight()
-            .widthIn(max = layoutConfig.metrics.maxWidth),
+            Modifier
+                .fillMaxHeight()
+                .widthIn(max = layoutConfig.metrics.maxWidth),
     ) {
         items(gridCardState.cards, key = { it.id }) { card ->
             PlayingCard(
                 content =
-                CardContent(
-                    suit = card.suit,
-                    rank = card.rank,
-                    visualState =
-                    CardVisualState(
-                        isFaceUp = card.isFaceUp || gridCardState.isPeeking,
-                        isRecentlyMatched = gridCardState.lastMatchedIds.contains(card.id),
-                        isError = card.isError,
+                    CardContent(
+                        suit = card.suit,
+                        rank = card.rank,
+                        visualState =
+                            CardVisualState(
+                                isFaceUp = card.isFaceUp || gridCardState.isPeeking,
+                                isRecentlyMatched = gridCardState.lastMatchedIds.contains(card.id),
+                                isError = card.isError,
+                            ),
                     ),
-                ),
                 settings = settings.displaySettings,
                 onClick = { onCardClick(card.id) },
                 modifier =
-                Modifier.onGloballyPositioned { layoutCoordinates ->
-                    cardLayouts[card.id] =
-                        CardLayoutInfo(
-                            position = layoutCoordinates.positionInRoot(),
-                            size = layoutCoordinates.size.toSize(),
-                        )
-                },
+                    Modifier.onGloballyPositioned { layoutCoordinates ->
+                        cardLayouts[card.id] =
+                            CardLayoutInfo(
+                                position = layoutCoordinates.positionInRoot(),
+                                size = layoutCoordinates.size.toSize(),
+                            )
+                    },
             )
         }
     }
@@ -204,27 +217,34 @@ private fun GridExplosionEffect(
     }
 }
 
-private fun calculateGridMetrics(cardCount: Int, config: GridScreenConfig): GridMetrics = when {
-    config.isLandscape && config.isCompactHeight -> {
-        calculateCompactLandscapeMetrics(cardCount, config.screenWidth)
+private fun calculateGridMetrics(
+    cardCount: Int,
+    config: GridScreenConfig,
+): GridMetrics =
+    when {
+        config.isLandscape && config.isCompactHeight -> {
+            calculateCompactLandscapeMetrics(cardCount, config.screenWidth)
+        }
+
+        config.isWide -> {
+            calculateWideMetrics(cardCount, config.screenWidth, config.screenHeight)
+        }
+
+        else -> {
+            calculatePortraitMetrics(
+                cardCount,
+                config.screenWidth,
+                config.screenHeight,
+                config.isCompactHeight,
+                config.isWide,
+            )
+        }
     }
 
-    config.isWide -> {
-        calculateWideMetrics(cardCount, config.screenWidth, config.screenHeight)
-    }
-
-    else -> {
-        calculatePortraitMetrics(
-            cardCount,
-            config.screenWidth,
-            config.screenHeight,
-            config.isCompactHeight,
-            config.isWide,
-        )
-    }
-}
-
-private fun calculateCompactLandscapeMetrics(cardCount: Int, screenWidth: androidx.compose.ui.unit.Dp): GridMetrics {
+private fun calculateCompactLandscapeMetrics(
+    cardCount: Int,
+    screenWidth: androidx.compose.ui.unit.Dp,
+): GridMetrics {
     val cols =
         when {
             cardCount <= SMALL_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_SMALL
@@ -300,7 +320,10 @@ private fun calculatePortraitMetrics(
     return GridMetrics(GridCells.Fixed(cols), calculatedWidth.coerceAtMost(screenWidth))
 }
 
-private fun calculateGridSpacing(isWide: Boolean, isCompactHeight: Boolean): GridSpacing {
+private fun calculateGridSpacing(
+    isWide: Boolean,
+    isCompactHeight: Boolean,
+): GridSpacing {
     val hPadding = if (isWide) 32.dp else 16.dp
     val topPadding = if (isCompactHeight) 8.dp else 16.dp
     val bottomPadding = if (isCompactHeight) 8.dp else 16.dp

@@ -21,7 +21,10 @@ import javax.sound.sampled.FloatControl
 import kotlin.math.log10
 
 @Inject
-class JvmAudioServiceImpl(private val logger: Logger, settingsRepository: SettingsRepository) : AudioService {
+class JvmAudioServiceImpl(
+    private val logger: Logger,
+    settingsRepository: SettingsRepository,
+) : AudioService {
     private val scope = CoroutineScope(Dispatchers.IO)
     private val clips = ConcurrentHashMap<StringResource, Clip>()
     private var isSoundEnabled = true
@@ -40,22 +43,19 @@ class JvmAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
             .onEach { volume ->
                 soundVolume = volume
                 clips.values.forEach { it.setVolume(volume) }
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         settingsRepository.isMusicEnabled
             .onEach { enabled ->
                 isMusicEnabled = enabled
                 updateMusicPlayback()
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         settingsRepository.musicVolume
             .onEach { volume ->
                 musicVolume = volume
                 musicClip?.setVolume(volume)
-            }
-            .launchIn(scope)
+            }.launchIn(scope)
 
         scope.launch {
             AudioService.SoundEffect.entries.forEach { effect ->
@@ -133,9 +133,10 @@ class JvmAudioServiceImpl(private val logger: Logger, settingsRepository: Settin
                     val bytes = Res.readBytes("files/$path")
                     val inputStream = ByteArrayInputStream(bytes)
                     val audioStream = AudioSystem.getAudioInputStream(BufferedInputStream(inputStream))
-                    musicClip = AudioSystem.getClip().apply {
-                        open(audioStream)
-                    }
+                    musicClip =
+                        AudioSystem.getClip().apply {
+                            open(audioStream)
+                        }
                 }
 
                 musicClip?.apply {

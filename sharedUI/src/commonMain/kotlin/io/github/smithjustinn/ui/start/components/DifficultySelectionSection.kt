@@ -95,7 +95,10 @@ fun DifficultySelectionSection(
 }
 
 @Composable
-private fun DifficultySelector(state: DifficultyState, onDifficultySelected: (DifficultyLevel) -> Unit) {
+private fun DifficultySelector(
+    state: DifficultyState,
+    onDifficultySelected: (DifficultyLevel) -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -119,7 +122,10 @@ private fun DifficultySelector(state: DifficultyState, onDifficultySelected: (Di
 }
 
 @Composable
-private fun ModeSelector(state: DifficultyState, onModeSelected: (GameMode) -> Unit) {
+private fun ModeSelector(
+    state: DifficultyState,
+    onModeSelected: (GameMode) -> Unit,
+) {
     Column(
         modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
         verticalArrangement = Arrangement.spacedBy(12.dp),
@@ -203,11 +209,12 @@ private fun ActionButtons(
             )
         }
 
-        val dailyText = if (state.isDailyChallengeCompleted) {
-            stringResource(Res.string.daily_challenge_completed)
-        } else {
-            stringResource(Res.string.daily_challenge)
-        }
+        val dailyText =
+            if (state.isDailyChallengeCompleted) {
+                stringResource(Res.string.daily_challenge_completed)
+            } else {
+                stringResource(Res.string.daily_challenge)
+            }
 
         NeonStyleButton(
             text = dailyText,
@@ -241,24 +248,24 @@ fun NeonStyleButton(
     Surface(
         onClick = onClick,
         interactionSource = interactionSource,
-        modifier = modifier
-            .height(60.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
-            .then(
-                if (isPrimary) {
-                    Modifier.shadow(
-                        elevation = 12.dp,
-                        shape = buttonShape,
-                        ambientColor = NeonCyan.copy(alpha = 0.6f),
-                        spotColor = NeonCyan.copy(alpha = 0.6f),
-                    )
-                } else {
-                    Modifier
-                },
-            ),
+        modifier =
+            modifier
+                .height(60.dp)
+                .graphicsLayer {
+                    scaleX = scale
+                    scaleY = scale
+                }.then(
+                    if (isPrimary) {
+                        Modifier.shadow(
+                            elevation = 12.dp,
+                            shape = buttonShape,
+                            ambientColor = NeonCyan.copy(alpha = 0.6f),
+                            spotColor = NeonCyan.copy(alpha = 0.6f),
+                        )
+                    } else {
+                        Modifier
+                    },
+                ),
         shape = buttonShape,
         color = backgroundColor,
     ) {
@@ -307,9 +314,10 @@ private fun NeonButtonContent(
                     imageVector = trailingIcon,
                     contentDescription = null,
                     tint = Color.White,
-                    modifier = Modifier
-                        .size(18.dp)
-                        .graphicsLayer { rotationZ = TRAILING_ICON_ROTATION },
+                    modifier =
+                        Modifier
+                            .size(18.dp)
+                            .graphicsLayer { rotationZ = TRAILING_ICON_ROTATION },
                 )
             }
         }

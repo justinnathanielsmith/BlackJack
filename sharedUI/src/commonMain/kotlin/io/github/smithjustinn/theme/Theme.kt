@@ -103,7 +103,10 @@ object MemoryMatchTheme {
 }
 
 @Composable
-fun AppTheme(onThemeChanged: @Composable (isDark: Boolean) -> Unit = {}, content: @Composable () -> Unit) {
+fun AppTheme(
+    onThemeChanged: @Composable (isDark: Boolean) -> Unit = {},
+    content: @Composable () -> Unit,
+) {
     val systemIsDark = isSystemInDarkTheme()
     val isDarkState = remember(systemIsDark) { mutableStateOf(systemIsDark) }
     val colors = if (isDarkState.value) DarkAppColors else LightAppColors

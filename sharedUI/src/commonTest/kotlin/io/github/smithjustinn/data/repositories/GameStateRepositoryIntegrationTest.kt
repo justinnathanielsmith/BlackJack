@@ -21,11 +21,12 @@ class GameStateRepositoryIntegrationTest {
     @BeforeTest
     fun setup() {
         database = createTestDatabase()
-        repository = GameStateRepositoryImpl(
-            dao = database.gameStateDao(),
-            json = Json,
-            logger = Logger.withTag("Test"),
-        )
+        repository =
+            GameStateRepositoryImpl(
+                dao = database.gameStateDao(),
+                json = Json,
+                logger = Logger.withTag("Test"),
+            )
     }
 
     @AfterTest
@@ -34,30 +35,33 @@ class GameStateRepositoryIntegrationTest {
     }
 
     @Test
-    fun saveAndGetGameState() = runTest {
-        val gameState = MemoryGameState(
-            pairCount = 8,
-            mode = GameMode.STANDARD,
-        )
-        val elapsedTime = 120L
+    fun saveAndGetGameState() =
+        runTest {
+            val gameState =
+                MemoryGameState(
+                    pairCount = 8,
+                    mode = GameMode.STANDARD,
+                )
+            val elapsedTime = 120L
 
-        repository.saveGameState(gameState, elapsedTime)
+            repository.saveGameState(gameState, elapsedTime)
 
-        val retrieved = repository.getSavedGameState()
-        assertNotNull(retrieved)
-        assertEquals(gameState.pairCount, retrieved.first.pairCount)
-        assertEquals(gameState.mode, retrieved.first.mode)
-        assertEquals(elapsedTime, retrieved.second)
-    }
+            val retrieved = repository.getSavedGameState()
+            assertNotNull(retrieved)
+            assertEquals(gameState.pairCount, retrieved.first.pairCount)
+            assertEquals(gameState.mode, retrieved.first.mode)
+            assertEquals(elapsedTime, retrieved.second)
+        }
 
     @Test
-    fun clearGameState() = runTest {
-        val gameState = MemoryGameState(pairCount = 8, mode = GameMode.STANDARD)
-        repository.saveGameState(gameState, 100L)
+    fun clearGameState() =
+        runTest {
+            val gameState = MemoryGameState(pairCount = 8, mode = GameMode.STANDARD)
+            repository.saveGameState(gameState, 100L)
 
-        repository.clearSavedGameState()
+            repository.clearSavedGameState()
 
-        val retrieved = repository.getSavedGameState()
-        assertNull(retrieved)
-    }
+            val retrieved = repository.getSavedGameState()
+            assertNull(retrieved)
+        }
 }

@@ -6,14 +6,14 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class CardStateTest {
-
     @Test
     fun testDefaults() {
-        val card = CardState(
-            id = 1,
-            suit = Suit.Hearts,
-            rank = Rank.Ace,
-        )
+        val card =
+            CardState(
+                id = 1,
+                suit = Suit.Hearts,
+                rank = Rank.Ace,
+            )
         assertEquals(1, card.id)
         assertEquals(Suit.Hearts, card.suit)
         assertEquals(Rank.Ace, card.rank)

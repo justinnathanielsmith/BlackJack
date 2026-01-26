@@ -48,7 +48,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GameContent(component: GameComponent, modifier: Modifier = Modifier) {
+fun GameContent(
+    component: GameComponent,
+    modifier: Modifier = Modifier,
+) {
     val state by component.state.collectAsState()
 
     GameEventHandler(component)
@@ -142,12 +145,16 @@ private fun GameEventHandler(component: GameComponent) {
 }
 
 @Composable
-private fun GameGameOverOverlay(state: GameUIState, component: GameComponent, useCompactUI: Boolean) {
+private fun GameGameOverOverlay(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
     Box(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.4f)),
+            Modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.4f)),
     ) {
         if (state.game.isGameWon) {
             GameWonOverlay(state)
@@ -172,16 +179,20 @@ private fun BoxScope.GameWonOverlay(state: GameUIState) {
     if (state.isNewHighScore) {
         NewHighScoreSnackbar(
             modifier =
-            Modifier
-                .align(Alignment.TopCenter)
-                .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                .widthIn(max = 500.dp),
+                Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
+                    .widthIn(max = 500.dp),
         )
     }
 }
 
 @Composable
-private fun BoxScope.GameResultsOverlay(state: GameUIState, component: GameComponent, useCompactUI: Boolean) {
+private fun BoxScope.GameResultsOverlay(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
     val hapticsService = graph.hapticsService
@@ -212,12 +223,12 @@ private fun BoxScope.GameResultsOverlay(state: GameUIState, component: GameCompo
         },
         onScoreTick = { hapticsService.vibrateTick() },
         modifier =
-        Modifier
-            .align(Alignment.Center)
-            .widthIn(max = 550.dp)
-            .padding(
-                vertical = if (useCompactUI) 8.dp else 24.dp,
-            ),
+            Modifier
+                .align(Alignment.Center)
+                .widthIn(max = 550.dp)
+                .padding(
+                    vertical = if (useCompactUI) 8.dp else 24.dp,
+                ),
         mode = state.game.mode,
     )
 }
@@ -226,37 +237,41 @@ private fun BoxScope.GameResultsOverlay(state: GameUIState, component: GameCompo
 private fun GameBackground(isHeatMode: Boolean) {
     val backgroundTopColor by animateColorAsState(
         targetValue =
-        if (isHeatMode) {
-            MemoryMatchTheme.colors.heatBackgroundTop
-        } else {
-            MemoryMatchTheme.colors.startBackgroundTop
-        },
+            if (isHeatMode) {
+                MemoryMatchTheme.colors.heatBackgroundTop
+            } else {
+                MemoryMatchTheme.colors.startBackgroundTop
+            },
         animationSpec = tween(durationMillis = 800),
     )
     val backgroundBottomColor by animateColorAsState(
         targetValue =
-        if (isHeatMode) {
-            MemoryMatchTheme.colors.heatBackgroundBottom
-        } else {
-            MemoryMatchTheme.colors.startBackgroundBottom
-        },
+            if (isHeatMode) {
+                MemoryMatchTheme.colors.heatBackgroundBottom
+            } else {
+                MemoryMatchTheme.colors.startBackgroundBottom
+            },
         animationSpec = tween(durationMillis = 800),
     )
 
     Box(
         modifier =
-        Modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(backgroundTopColor, backgroundBottomColor),
+            Modifier
+                .fillMaxSize()
+                .background(
+                    Brush.verticalGradient(
+                        colors = listOf(backgroundTopColor, backgroundBottomColor),
+                    ),
                 ),
-            ),
     )
 }
 
 @Composable
-private fun GameMainScreen(state: GameUIState, component: GameComponent, useCompactUI: Boolean) {
+private fun GameMainScreen(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
 
@@ -267,24 +282,24 @@ private fun GameMainScreen(state: GameUIState, component: GameComponent, useComp
         topBar = {
             GameTopBar(
                 state =
-                GameTopBarState(
-                    time = state.elapsedTimeSeconds,
-                    mode = state.game.mode,
-                    maxTime = state.maxTimeSeconds,
-                    showTimeGain = state.showTimeGain,
-                    timeGainAmount = state.timeGainAmount,
-                    showTimeLoss = state.showTimeLoss,
-                    timeLossAmount = state.timeLossAmount,
-                    isMegaBonus = state.isMegaBonus,
-                    compact = useCompactUI,
-                    isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
-                    isLowTime =
-                    state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
-                        state.elapsedTimeSeconds <= GameTopBarState.LOW_TIME_THRESHOLD_SEC,
-                    isCriticalTime =
-                    state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
-                        state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
-                ),
+                    GameTopBarState(
+                        time = state.elapsedTimeSeconds,
+                        mode = state.game.mode,
+                        maxTime = state.maxTimeSeconds,
+                        showTimeGain = state.showTimeGain,
+                        timeGainAmount = state.timeGainAmount,
+                        showTimeLoss = state.showTimeLoss,
+                        timeLossAmount = state.timeLossAmount,
+                        isMegaBonus = state.isMegaBonus,
+                        compact = useCompactUI,
+                        isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
+                        isLowTime =
+                            state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
+                                state.elapsedTimeSeconds <= GameTopBarState.LOW_TIME_THRESHOLD_SEC,
+                        isCriticalTime =
+                            state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
+                                state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
+                    ),
                 onBackClick = {
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onBack()
@@ -320,16 +335,16 @@ private fun GameMainContent(
     Box(modifier = modifier.fillMaxSize()) {
         GameGrid(
             gridCardState =
-            GridCardState(
-                cards = state.game.cards,
-                lastMatchedIds = state.game.lastMatchedIds,
-                isPeeking = state.isPeeking,
-            ),
+                GridCardState(
+                    cards = state.game.cards,
+                    lastMatchedIds = state.game.lastMatchedIds,
+                    isPeeking = state.isPeeking,
+                ),
             settings =
-            GridSettings(
-                displaySettings = state.cardSettings,
-                showComboExplosion = state.showComboExplosion,
-            ),
+                GridSettings(
+                    displaySettings = state.cardSettings,
+                    showComboExplosion = state.showComboExplosion,
+                ),
             onCardClick = { cardId -> component.onFlipCard(cardId) },
         )
 
@@ -344,7 +359,10 @@ private fun GameMainContent(
 }
 
 @Composable
-private fun BoxScope.GameHUD(state: GameUIState, useCompactUI: Boolean) {
+private fun BoxScope.GameHUD(
+    state: GameUIState,
+    useCompactUI: Boolean,
+) {
     if (state.game.comboMultiplier > 1) {
         ComboBadge(
             combo = state.game.comboMultiplier,
@@ -352,9 +370,9 @@ private fun BoxScope.GameHUD(state: GameUIState, useCompactUI: Boolean) {
             isHeatMode = state.isHeatMode,
             infiniteTransition = rememberInfiniteTransition(),
             modifier =
-            Modifier
-                .align(Alignment.TopEnd)
-                .padding(top = 16.dp, end = 24.dp),
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 24.dp),
             compact = useCompactUI,
         )
     }
@@ -362,20 +380,24 @@ private fun BoxScope.GameHUD(state: GameUIState, useCompactUI: Boolean) {
     MatchCommentSnackbar(
         matchComment = state.game.matchComment,
         modifier =
-        Modifier
-            .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
-            .navigationBarsPadding()
-            .padding(
-                bottom = if (useCompactUI) 0.dp else 32.dp,
-                top = if (useCompactUI) 8.dp else 0.dp,
-                start = 16.dp,
-                end = 16.dp,
-            ).widthIn(max = 600.dp),
+            Modifier
+                .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(
+                    bottom = if (useCompactUI) 0.dp else 32.dp,
+                    top = if (useCompactUI) 8.dp else 0.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                ).widthIn(max = 600.dp),
     )
 }
 
 @Composable
-private fun GameOverlays(state: GameUIState, component: GameComponent, useCompactUI: Boolean) {
+private fun GameOverlays(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
     if (state.isPeeking) {
         PeekCountdownOverlay(countdown = state.peekCountdown)
     }

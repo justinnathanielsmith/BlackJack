@@ -13,7 +13,6 @@ import kotlin.test.BeforeTest
  */
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class BaseComponentTest {
-
     protected val testDispatcher = StandardTestDispatcher()
     protected val context = MokkeryTestContext(testDispatcher)
     protected val coroutineHelper = CoroutineTestHelper(testDispatcher)

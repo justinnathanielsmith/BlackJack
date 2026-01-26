@@ -18,7 +18,10 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
 
 @Inject
-class SettingsRepositoryImpl(private val dao: SettingsDao, private val logger: Logger) : SettingsRepository {
+class SettingsRepositoryImpl(
+    private val dao: SettingsDao,
+    private val logger: Logger,
+) : SettingsRepository {
     private val scope = CoroutineScope(Dispatchers.IO)
 
     private val settingsFlow =

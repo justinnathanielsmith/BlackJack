@@ -53,29 +53,33 @@ fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
     val scale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = 1.05f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
-            repeatMode = RepeatMode.Reverse,
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(durationMillis = 800, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
         label = "Scale",
     )
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = StartBackgroundTop,
-            contentColor = Color.White,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
-        modifier = modifier
-            .scale(scale)
-            .border(
-                width = 2.dp,
-                brush = Brush.linearGradient(
-                    listOf(GoldenYellow, GoldenYellow.copy(alpha = 0.5f), GoldenYellow),
-                ),
-                shape = RoundedCornerShape(12.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = StartBackgroundTop,
+                contentColor = Color.White,
             ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
+        modifier =
+            modifier
+                .scale(scale)
+                .border(
+                    width = 2.dp,
+                    brush =
+                        Brush.linearGradient(
+                            listOf(GoldenYellow, GoldenYellow.copy(alpha = 0.5f), GoldenYellow),
+                        ),
+                    shape = RoundedCornerShape(12.dp),
+                ),
     ) {
         Row(
             modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
@@ -105,17 +109,24 @@ fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun MatchCommentSnackbar(matchComment: MatchComment?, modifier: Modifier = Modifier) {
+fun MatchCommentSnackbar(
+    matchComment: MatchComment?,
+    modifier: Modifier = Modifier,
+) {
     AnimatedVisibility(
         visible = matchComment != null,
-        enter = fadeIn(animationSpec = spring()) + slideInVertically(
-            initialOffsetY = { it },
-            animationSpec = spring(),
-        ),
-        exit = fadeOut(animationSpec = spring()) + slideOutVertically(
-            targetOffsetY = { it },
-            animationSpec = spring(),
-        ),
+        enter =
+            fadeIn(animationSpec = spring()) +
+                slideInVertically(
+                    initialOffsetY = { it },
+                    animationSpec = spring(),
+                ),
+        exit =
+            fadeOut(animationSpec = spring()) +
+                slideOutVertically(
+                    targetOffsetY = { it },
+                    animationSpec = spring(),
+                ),
         modifier = modifier,
     ) {
         matchComment?.let {
@@ -130,24 +141,27 @@ private fun MatchCommentCard(matchComment: MatchComment) {
 
     Card(
         shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = StartBackgroundBottom,
-            contentColor = LightGreyBlue,
-        ),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
-        modifier = Modifier
-            .padding(horizontal = 16.dp, vertical = 8.dp)
-            .fillMaxWidth()
-            .border(
-                width = 1.dp,
-                color = NeonCyan.copy(alpha = 0.6f),
-                shape = RoundedCornerShape(12.dp),
+        colors =
+            CardDefaults.cardColors(
+                containerColor = StartBackgroundBottom,
+                contentColor = LightGreyBlue,
             ),
+        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
+        modifier =
+            Modifier
+                .padding(horizontal = 16.dp, vertical = 8.dp)
+                .fillMaxWidth()
+                .border(
+                    width = 1.dp,
+                    color = NeonCyan.copy(alpha = 0.6f),
+                    shape = RoundedCornerShape(12.dp),
+                ),
     ) {
         Row(
-            modifier = Modifier
-                .padding(horizontal = 20.dp, vertical = 14.dp)
-                .align(Alignment.CenterHorizontally),
+            modifier =
+                Modifier
+                    .padding(horizontal = 20.dp, vertical = 14.dp)
+                    .align(Alignment.CenterHorizontally),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
         ) {
@@ -159,11 +173,12 @@ private fun MatchCommentCard(matchComment: MatchComment) {
             )
             Text(
                 text = commentText,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontStyle = FontStyle.Italic,
-                    lineHeight = 20.sp,
-                    color = LightGreyBlue,
-                ),
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontStyle = FontStyle.Italic,
+                        lineHeight = 20.sp,
+                        color = LightGreyBlue,
+                    ),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.padding(horizontal = 8.dp),

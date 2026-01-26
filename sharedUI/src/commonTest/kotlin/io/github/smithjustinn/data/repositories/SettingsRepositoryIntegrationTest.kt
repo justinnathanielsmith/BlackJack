@@ -20,10 +20,11 @@ class SettingsRepositoryIntegrationTest {
     @BeforeTest
     fun setup() {
         database = createTestDatabase()
-        repository = SettingsRepositoryImpl(
-            dao = database.settingsDao(),
-            logger = Logger.withTag("Test"),
-        )
+        repository =
+            SettingsRepositoryImpl(
+                dao = database.settingsDao(),
+                logger = Logger.withTag("Test"),
+            )
     }
 
     @AfterTest
@@ -32,40 +33,41 @@ class SettingsRepositoryIntegrationTest {
     }
 
     @Test
-    fun testSettingsUpdates() = runTest {
-        // Test Peek Enabled
-        repository.isPeekEnabled.test {
-            assertTrue(awaitItem()) // Default
-            repository.setPeekEnabled(false)
-            assertFalse(awaitItem())
-        }
+    fun testSettingsUpdates() =
+        runTest {
+            // Test Peek Enabled
+            repository.isPeekEnabled.test {
+                assertTrue(awaitItem()) // Default
+                repository.setPeekEnabled(false)
+                assertFalse(awaitItem())
+            }
 
-        // Test Sound Enabled
-        repository.isSoundEnabled.test {
-            assertTrue(awaitItem()) // Default
-            repository.setSoundEnabled(false)
-            assertFalse(awaitItem())
-        }
+            // Test Sound Enabled
+            repository.isSoundEnabled.test {
+                assertTrue(awaitItem()) // Default
+                repository.setSoundEnabled(false)
+                assertFalse(awaitItem())
+            }
 
-        // Test Sound Volume
-        repository.soundVolume.test {
-            assertEquals(1.0f, awaitItem()) // Default
-            repository.setSoundVolume(0.5f)
-            assertEquals(0.5f, awaitItem())
-        }
+            // Test Sound Volume
+            repository.soundVolume.test {
+                assertEquals(1.0f, awaitItem()) // Default
+                repository.setSoundVolume(0.5f)
+                assertEquals(0.5f, awaitItem())
+            }
 
-        // Test Card Back Theme
-        repository.cardBackTheme.test {
-            assertEquals(CardBackTheme.GEOMETRIC, awaitItem()) // Default
-            repository.setCardBackTheme(CardBackTheme.PATTERN)
-            assertEquals(CardBackTheme.PATTERN, awaitItem())
-        }
+            // Test Card Back Theme
+            repository.cardBackTheme.test {
+                assertEquals(CardBackTheme.GEOMETRIC, awaitItem()) // Default
+                repository.setCardBackTheme(CardBackTheme.PATTERN)
+                assertEquals(CardBackTheme.PATTERN, awaitItem())
+            }
 
-        // Test walkthrough
-        repository.isWalkthroughCompleted.test {
-            assertFalse(awaitItem())
-            repository.setWalkthroughCompleted(true)
-            assertTrue(awaitItem())
+            // Test walkthrough
+            repository.isWalkthroughCompleted.test {
+                assertFalse(awaitItem())
+                repository.setWalkthroughCompleted(true)
+                assertTrue(awaitItem())
+            }
         }
-    }
 }

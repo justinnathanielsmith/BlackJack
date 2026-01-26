@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TimeUtilsTest {
-
     @Test
     fun `formatTime should format zero seconds correctly`() {
         assertEquals("00:00", formatTime(0))

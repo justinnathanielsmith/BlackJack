@@ -16,53 +16,55 @@ import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 
 class SaveGameResultUseCaseTest {
-
     private val statsRepository = mock<GameStatsRepository>()
     private val leaderboardRepository = mock<LeaderboardRepository>()
     private val logger = Logger.withTag("Test")
     private val useCase = SaveGameResultUseCase(statsRepository, leaderboardRepository, logger)
 
     @Test
-    fun testInvoke_newBestScore() = runTest {
-        val pairCount = 8
-        val score = 100
-        val time = 60L
-        val moves = 20
+    fun testInvoke_newBestScore() =
+        runTest {
+            val pairCount = 8
+            val score = 100
+            val time = 60L
+            val moves = 20
 
-        everySuspend { statsRepository.getStatsForDifficulty(pairCount) } returns flowOf(null)
-        everySuspend { statsRepository.updateStats(any()) } returns Unit
-        everySuspend { leaderboardRepository.addEntry(any()) } returns Unit
+            everySuspend { statsRepository.getStatsForDifficulty(pairCount) } returns flowOf(null)
+            everySuspend { statsRepository.updateStats(any()) } returns Unit
+            everySuspend { leaderboardRepository.addEntry(any()) } returns Unit
 
-        useCase(pairCount, score, time, moves, GameMode.STANDARD)
+            useCase(pairCount, score, time, moves, GameMode.STANDARD)
 
-        verifySuspend {
-            statsRepository.updateStats(GameStats(pairCount, score, time))
-            leaderboardRepository.addEntry(any())
+            verifySuspend {
+                statsRepository.updateStats(GameStats(pairCount, score, time))
+                leaderboardRepository.addEntry(any())
+            }
         }
-    }
 
     @Test
-    fun testInvoke_notBestScore() = runTest {
-        val pairCount = 8
-        val score = 50
-        val time = 100L
-        val moves = 20
-        val existingStats = GameStats(pairCount, 100, 50L)
+    fun testInvoke_notBestScore() =
+        runTest {
+            val pairCount = 8
+            val score = 50
+            val time = 100L
+            val moves = 20
+            val existingStats = GameStats(pairCount, 100, 50L)
 
-        everySuspend { statsRepository.getStatsForDifficulty(pairCount) } returns flowOf(existingStats)
-        everySuspend { statsRepository.updateStats(any()) } returns Unit
-        everySuspend { leaderboardRepository.addEntry(any()) } returns Unit
+            everySuspend { statsRepository.getStatsForDifficulty(pairCount) } returns flowOf(existingStats)
+            everySuspend { statsRepository.updateStats(any()) } returns Unit
+            everySuspend { leaderboardRepository.addEntry(any()) } returns Unit
 
-        useCase(pairCount, score, time, moves, GameMode.STANDARD)
+            useCase(pairCount, score, time, moves, GameMode.STANDARD)
 
-        verifySuspend {
-            statsRepository.updateStats(GameStats(pairCount, 100, 50L))
+            verifySuspend {
+                statsRepository.updateStats(GameStats(pairCount, 100, 50L))
+            }
         }
-    }
 
     @Test
-    fun testInvoke_error() = runTest {
-        everySuspend { statsRepository.getStatsForDifficulty(any()) } throws RuntimeException("Error")
-        useCase(8, 100, 60L, 20, GameMode.STANDARD)
-    }
+    fun testInvoke_error() =
+        runTest {
+            everySuspend { statsRepository.getStatsForDifficulty(any()) } throws RuntimeException("Error")
+            useCase(8, 100, 60L, 20, GameMode.STANDARD)
+        }
 }

@@ -19,7 +19,11 @@ import memory_match.sharedui.generated.resources.mode_time_attack
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun ModeSelector(selectedMode: GameMode, onModeSelected: (GameMode) -> Unit, modifier: Modifier = Modifier) {
+fun ModeSelector(
+    selectedMode: GameMode,
+    onModeSelected: (GameMode) -> Unit,
+    modifier: Modifier = Modifier,
+) {
     val modes = listOf(GameMode.STANDARD, GameMode.TIME_ATTACK)
 
     Column(

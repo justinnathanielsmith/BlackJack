@@ -45,13 +45,19 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-fun WalkthroughOverlay(step: Int, onNext: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+fun WalkthroughOverlay(
+    step: Int,
+    onNext: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Box(
-        modifier = modifier
-            .fillMaxSize()
-            .background(Color.Black.copy(alpha = 0.7f))
-            // Consume clicks
-            .clickable(enabled = false) {},
+        modifier =
+            modifier
+                .fillMaxSize()
+                .background(Color.Black.copy(alpha = 0.7f))
+                // Consume clicks
+                .clickable(enabled = false) {},
     ) {
         WalkthroughDialog(
             step = step,
@@ -63,11 +69,17 @@ fun WalkthroughOverlay(step: Int, onNext: () -> Unit, onDismiss: () -> Unit, mod
 }
 
 @Composable
-private fun WalkthroughDialog(step: Int, onNext: () -> Unit, onDismiss: () -> Unit, modifier: Modifier = Modifier) {
+private fun WalkthroughDialog(
+    step: Int,
+    onNext: () -> Unit,
+    onDismiss: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
     Surface(
-        modifier = modifier
-            .padding(32.dp)
-            .widthIn(max = 400.dp),
+        modifier =
+            modifier
+                .padding(32.dp)
+                .widthIn(max = 400.dp),
         shape = RoundedCornerShape(24.dp),
         color = InactiveBackground.copy(alpha = 0.9f),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
@@ -78,7 +90,11 @@ private fun WalkthroughDialog(step: Int, onNext: () -> Unit, onDismiss: () -> Un
 }
 
 @Composable
-private fun WalkthroughContent(step: Int, onNext: () -> Unit, onDismiss: () -> Unit) {
+private fun WalkthroughContent(
+    step: Int,
+    onNext: () -> Unit,
+    onDismiss: () -> Unit,
+) {
     Column(
         modifier = Modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -140,16 +156,18 @@ private fun WalkthroughContent(step: Int, onNext: () -> Unit, onDismiss: () -> U
     }
 }
 
-private fun getTitleRes(step: Int): StringResource = when (step) {
-    0 -> Res.string.walkthrough_title_welcome
-    1 -> Res.string.walkthrough_title_find_pairs
-    2 -> Res.string.walkthrough_title_combos
-    else -> Res.string.app_name
-}
+private fun getTitleRes(step: Int): StringResource =
+    when (step) {
+        0 -> Res.string.walkthrough_title_welcome
+        1 -> Res.string.walkthrough_title_find_pairs
+        2 -> Res.string.walkthrough_title_combos
+        else -> Res.string.app_name
+    }
 
-private fun getDescriptionRes(step: Int): StringResource = when (step) {
-    0 -> Res.string.walkthrough_desc_welcome
-    1 -> Res.string.walkthrough_desc_find_pairs
-    2 -> Res.string.walkthrough_desc_combos
-    else -> Res.string.app_name
-}
+private fun getDescriptionRes(step: Int): StringResource =
+    when (step) {
+        0 -> Res.string.walkthrough_desc_welcome
+        1 -> Res.string.walkthrough_desc_find_pairs
+        2 -> Res.string.walkthrough_desc_combos
+        else -> Res.string.app_name
+    }

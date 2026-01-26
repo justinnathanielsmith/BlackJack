@@ -10,8 +10,9 @@ import androidx.annotation.RequiresPermission
 import dev.zacsweers.metro.Inject
 
 @Inject
-class AndroidHapticsServiceImpl(private val context: Context) : HapticsService {
-
+class AndroidHapticsServiceImpl(
+    private val context: Context,
+) : HapticsService {
     private val vibrator: Vibrator? by lazy {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
             val vibratorManager = context.getSystemService(Context.VIBRATOR_MANAGER_SERVICE) as? VibratorManager
@@ -63,7 +64,10 @@ class AndroidHapticsServiceImpl(private val context: Context) : HapticsService {
     }
 
     @RequiresPermission(Manifest.permission.VIBRATE)
-    private fun vibrate(timings: LongArray, amplitudes: IntArray) {
+    private fun vibrate(
+        timings: LongArray,
+        amplitudes: IntArray,
+    ) {
         vibrator?.vibrate(VibrationEffect.createWaveform(timings, amplitudes, -1))
     }
 

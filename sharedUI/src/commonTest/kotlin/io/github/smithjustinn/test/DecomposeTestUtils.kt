@@ -36,7 +36,9 @@ fun runComponentTest(
 
 /** A helper to handle coroutine dispatcher setup and cleanup in tests. */
 @OptIn(ExperimentalCoroutinesApi::class)
-class CoroutineTestHelper(val testDispatcher: TestDispatcher) {
+class CoroutineTestHelper(
+    val testDispatcher: TestDispatcher,
+) {
     fun setUp() {
         Dispatchers.setMain(testDispatcher)
     }

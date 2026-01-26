@@ -17,55 +17,58 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class GameStateRepositoryTest {
-
     private val dao = mock<GameStateDao>()
     private val json = Json { ignoreUnknownKeys = true }
     private val logger = Logger.withTag("Test")
     private val repository = GameStateRepositoryImpl(dao, json, logger)
 
     @Test
-    fun testSaveGameState() = runTest {
-        val state = MemoryGameState(score = 100)
-        everySuspend { dao.saveGameState(any()) } returns Unit
+    fun testSaveGameState() =
+        runTest {
+            val state = MemoryGameState(score = 100)
+            everySuspend { dao.saveGameState(any()) } returns Unit
 
-        val expectedEntity =
-            GameStateEntity(
-                id = 0,
-                gameStateJson = json.encodeToString(MemoryGameState.serializer(), state),
-                elapsedTimeSeconds = 120,
-            )
+            val expectedEntity =
+                GameStateEntity(
+                    id = 0,
+                    gameStateJson = json.encodeToString(MemoryGameState.serializer(), state),
+                    elapsedTimeSeconds = 120,
+                )
 
-        repository.saveGameState(state, 120)
+            repository.saveGameState(state, 120)
 
-        verifySuspend {
-            dao.saveGameState(expectedEntity)
+            verifySuspend {
+                dao.saveGameState(expectedEntity)
+            }
         }
-    }
 
     @Test
-    fun testGetSavedGameState_found() = runTest {
-        val state = MemoryGameState(score = 200)
-        val jsonString = json.encodeToString(MemoryGameState.serializer(), state)
-        val entity = GameStateEntity(id = 0, gameStateJson = jsonString, elapsedTimeSeconds = 300)
-        everySuspend { dao.getSavedGameState() } returns entity
+    fun testGetSavedGameState_found() =
+        runTest {
+            val state = MemoryGameState(score = 200)
+            val jsonString = json.encodeToString(MemoryGameState.serializer(), state)
+            val entity = GameStateEntity(id = 0, gameStateJson = jsonString, elapsedTimeSeconds = 300)
+            everySuspend { dao.getSavedGameState() } returns entity
 
-        val result = repository.getSavedGameState()
-        assertNotNull(result)
-        assertEquals(200, result.first.score)
-        assertEquals(300, result.second)
-    }
-
-    @Test
-    fun testGetSavedGameState_notFound() = runTest {
-        everySuspend { dao.getSavedGameState() } returns null
-        val result = repository.getSavedGameState()
-        assertNull(result)
-    }
+            val result = repository.getSavedGameState()
+            assertNotNull(result)
+            assertEquals(200, result.first.score)
+            assertEquals(300, result.second)
+        }
 
     @Test
-    fun testClearSavedGameState() = runTest {
-        everySuspend { dao.clearSavedGameState() } returns Unit
-        repository.clearSavedGameState()
-        verifySuspend { dao.clearSavedGameState() }
-    }
+    fun testGetSavedGameState_notFound() =
+        runTest {
+            everySuspend { dao.getSavedGameState() } returns null
+            val result = repository.getSavedGameState()
+            assertNull(result)
+        }
+
+    @Test
+    fun testClearSavedGameState() =
+        runTest {
+            everySuspend { dao.clearSavedGameState() } returns Unit
+            repository.clearSavedGameState()
+            verifySuspend { dao.clearSavedGameState() }
+        }
 }

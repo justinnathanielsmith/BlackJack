@@ -10,14 +10,18 @@ import androidx.compose.ui.unit.Density
  * capping the [Density.fontScale] to prevent UI breakdown at extreme system font sizes.
  */
 @Composable
-fun AdaptiveDensity(maxFontScale: Float = 1.15f, content: @Composable () -> Unit) {
+fun AdaptiveDensity(
+    maxFontScale: Float = 1.15f,
+    content: @Composable () -> Unit,
+) {
     val currentDensity = LocalDensity.current
     val cappedFontScale = currentDensity.fontScale.coerceAtMost(maxFontScale)
 
-    val adaptiveDensity = Density(
-        density = currentDensity.density,
-        fontScale = cappedFontScale,
-    )
+    val adaptiveDensity =
+        Density(
+            density = currentDensity.density,
+            fontScale = cappedFontScale,
+        )
 
     CompositionLocalProvider(LocalDensity provides adaptiveDensity) {
         content()

@@ -1,3 +1,5 @@
+root = true
+
 [*.{kt,kts}]
 indent_size = 4
 max_line_length = 120
@@ -10,5 +12,18 @@ ktlint_standard_filename = disabled
 # Compose specific rules
 # Allow PascalCase for Composable functions
 ktlint_standard_function-naming = disabled
+ktlint_function_naming_ignore_when_annotated_with = Composable
 # Allow backing property naming (e.g. _foo for Foo)
 ktlint_standard_backing-property-naming = disabled
+
+# Disable overly strict Compose rules
+ktlint_compose_compositionlocal-allowlist = disabled
+ktlint_compose_parameter-naming = disabled
+ktlint_compose_mutable-state-autoboxing = disabled
+ktlint_compose_multiple-emitters-check = disabled
+ktlint_compose_modifier-missing-check = disabled
+ktlint_compose_param-order-check = disabled
+
+# Test files - allow longer lines for assertions
+[*Test.kt]
+ktlint_standard_max-line-length = disabled

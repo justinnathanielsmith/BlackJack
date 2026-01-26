@@ -93,17 +93,20 @@ private const val STAR_7_DELAY = 1200
  * while updating the cards to the Ace of Spades and Ace of Clubs to match the reference image.
  */
 @Composable
-fun CardPreview(modifier: Modifier = Modifier, settings: CardDisplaySettings = CardDisplaySettings()) {
+fun CardPreview(
+    modifier: Modifier = Modifier,
+    settings: CardDisplaySettings = CardDisplaySettings(),
+) {
     val infiniteTransition = rememberInfiniteTransition(label = "card_preview_anim")
 
     val rotation by infiniteTransition.animateFloat(
         initialValue = -CARD_MAX_ROTATION_Z,
         targetValue = CARD_MAX_ROTATION_Z,
         animationSpec =
-        infiniteRepeatable(
-            animation = tween(CARD_ROTATION_DURATION, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
+            infiniteRepeatable(
+                animation = tween(CARD_ROTATION_DURATION, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse,
+            ),
         label = "rotation",
     )
 
@@ -111,10 +114,10 @@ fun CardPreview(modifier: Modifier = Modifier, settings: CardDisplaySettings = C
         initialValue = -CARD_MAX_FLOAT_OFFSET,
         targetValue = CARD_MAX_FLOAT_OFFSET,
         animationSpec =
-        infiniteRepeatable(
-            animation = tween(CARD_FLOAT_DURATION, easing = EaseInOutSine),
-            repeatMode = RepeatMode.Reverse,
-        ),
+            infiniteRepeatable(
+                animation = tween(CARD_FLOAT_DURATION, easing = EaseInOutSine),
+                repeatMode = RepeatMode.Reverse,
+            ),
         label = "float",
     )
 
@@ -132,26 +135,30 @@ fun CardPreview(modifier: Modifier = Modifier, settings: CardDisplaySettings = C
 private fun BackgroundGlow() {
     Box(
         modifier =
-        Modifier
-            .size(GLOW_SIZE.dp)
-            .drawBehind {
-                drawCircle(
-                    brush =
-                    Brush.radialGradient(
-                        colors =
-                        listOf(
-                            SoftBlue.copy(alpha = GLOW_SOFT_BLUE_ALPHA),
-                            DarkBlue.copy(alpha = GLOW_DARK_BLUE_ALPHA),
-                            Color.Transparent,
-                        ),
-                    ),
-                )
-            },
+            Modifier
+                .size(GLOW_SIZE.dp)
+                .drawBehind {
+                    drawCircle(
+                        brush =
+                            Brush.radialGradient(
+                                colors =
+                                    listOf(
+                                        SoftBlue.copy(alpha = GLOW_SOFT_BLUE_ALPHA),
+                                        DarkBlue.copy(alpha = GLOW_DARK_BLUE_ALPHA),
+                                        Color.Transparent,
+                                    ),
+                            ),
+                    )
+                },
     )
 }
 
 @Composable
-private fun CardStack(floatOffset: Float, rotation: Float, settings: CardDisplaySettings) {
+private fun CardStack(
+    floatOffset: Float,
+    rotation: Float,
+    settings: CardDisplaySettings,
+) {
     Row(
         horizontalArrangement = Arrangement.spacedBy(CARD_SPACING.dp),
         verticalAlignment = Alignment.CenterVertically,
@@ -171,23 +178,25 @@ private fun PreviewCard(
     translationY: Float = 0f,
 ) {
     PlayingCard(
-        content = CardContent(
-            suit = suit,
-            rank = Rank.Ace,
-            visualState = CardVisualState(
-                isFaceUp = true,
-                isMatched = false,
+        content =
+            CardContent(
+                suit = suit,
+                rank = Rank.Ace,
+                visualState =
+                    CardVisualState(
+                        isFaceUp = true,
+                        isMatched = false,
+                    ),
             ),
-        ),
         settings = settings,
         modifier =
-        Modifier
-            .width(CARD_WIDTH.dp)
-            .zIndex(zIndex)
-            .graphicsLayer {
-                this.rotationZ = rotationZ
-                this.translationY = translationY
-            },
+            Modifier
+                .width(CARD_WIDTH.dp)
+                .zIndex(zIndex)
+                .graphicsLayer {
+                    this.rotationZ = rotationZ
+                    this.translationY = translationY
+                },
     )
 }
 

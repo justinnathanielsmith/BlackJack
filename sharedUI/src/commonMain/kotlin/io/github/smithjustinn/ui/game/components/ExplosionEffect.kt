@@ -41,28 +41,30 @@ fun ExplosionEffect(
     val progress by infiniteTransition.animateFloat(
         initialValue = 0f,
         targetValue = 1f,
-        animationSpec = infiniteRepeatable(
-            animation = tween(EXPLOSION_DURATION_MS, easing = LinearOutSlowInEasing),
-            repeatMode = RepeatMode.Restart,
-        ),
+        animationSpec =
+            infiniteRepeatable(
+                animation = tween(EXPLOSION_DURATION_MS, easing = LinearOutSlowInEasing),
+                repeatMode = RepeatMode.Restart,
+            ),
     )
 
-    val particles = remember {
-        List(particleCount) {
-            val angle = Random.nextFloat() * 2 * kotlin.math.PI
-            val speed = Random.nextFloat() * MAX_PARTICLE_SPEED + MIN_PARTICLE_SPEED
-            ExplosionParticle(
-                x = 0f,
-                y = 0f,
-                vx = (cos(angle) * speed).toFloat(),
-                vy = (sin(angle) * speed).toFloat(),
-                color = colors.random(),
-                size = Random.nextFloat() * MAX_PARTICLE_SIZE + MIN_PARTICLE_SIZE,
-                rotation = Random.nextFloat() * MAX_ROTATION_DEG,
-                rotationSpeed = Random.nextFloat() * MAX_ROTATION_SPEED_DIFF - MIN_ROTATION_SPEED_OFFSET,
-            )
+    val particles =
+        remember {
+            List(particleCount) {
+                val angle = Random.nextFloat() * 2 * kotlin.math.PI
+                val speed = Random.nextFloat() * MAX_PARTICLE_SPEED + MIN_PARTICLE_SPEED
+                ExplosionParticle(
+                    x = 0f,
+                    y = 0f,
+                    vx = (cos(angle) * speed).toFloat(),
+                    vy = (sin(angle) * speed).toFloat(),
+                    color = colors.random(),
+                    size = Random.nextFloat() * MAX_PARTICLE_SIZE + MIN_PARTICLE_SIZE,
+                    rotation = Random.nextFloat() * MAX_ROTATION_DEG,
+                    rotationSpeed = Random.nextFloat() * MAX_ROTATION_SPEED_DIFF - MIN_ROTATION_SPEED_OFFSET,
+                )
+            }
         }
-    }
 
     Canvas(modifier = modifier.fillMaxSize()) {
         val center = centerOverride ?: Offset(size.width / 2, size.height / 2)
@@ -79,7 +81,9 @@ fun ExplosionEffect(
                 drawRect(
                     color = particle.color.copy(alpha = alpha),
                     topLeft = Offset(currentX - particle.size / 2, currentY - particle.size / 2),
-                    size = androidx.compose.ui.geometry.Size(particle.size, particle.size),
+                    size =
+                        androidx.compose.ui.geometry
+                            .Size(particle.size, particle.size),
                 )
             }
         }

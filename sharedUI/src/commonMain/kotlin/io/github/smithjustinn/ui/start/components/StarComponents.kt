@@ -50,38 +50,42 @@ private data class StarAnimationValues(
 )
 
 @Composable
-private fun rememberStarFloatX(infiniteTransition: InfiniteTransition, delayMillis: Int) =
-    infiniteTransition.animateFloat(
-        initialValue = -STAR_MAX_FLOAT_OFFSET,
-        targetValue = STAR_MAX_FLOAT_OFFSET,
-        animationSpec =
+private fun rememberStarFloatX(
+    infiniteTransition: InfiniteTransition,
+    delayMillis: Int,
+) = infiniteTransition.animateFloat(
+    initialValue = -STAR_MAX_FLOAT_OFFSET,
+    targetValue = STAR_MAX_FLOAT_OFFSET,
+    animationSpec =
         infiniteRepeatable(
             animation =
-            tween(
-                durationMillis = STAR_FLOAT_X_DURATION_BASE + delayMillis % STAR_DURATION_DELAY_MODULUS,
-                easing = EaseInOutSine,
-            ),
+                tween(
+                    durationMillis = STAR_FLOAT_X_DURATION_BASE + delayMillis % STAR_DURATION_DELAY_MODULUS,
+                    easing = EaseInOutSine,
+                ),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "floatX",
-    )
+    label = "floatX",
+)
 
 @Composable
-private fun rememberStarFloatY(infiniteTransition: InfiniteTransition, delayMillis: Int) =
-    infiniteTransition.animateFloat(
-        initialValue = -STAR_MAX_FLOAT_OFFSET,
-        targetValue = STAR_MAX_FLOAT_OFFSET,
-        animationSpec =
+private fun rememberStarFloatY(
+    infiniteTransition: InfiniteTransition,
+    delayMillis: Int,
+) = infiniteTransition.animateFloat(
+    initialValue = -STAR_MAX_FLOAT_OFFSET,
+    targetValue = STAR_MAX_FLOAT_OFFSET,
+    animationSpec =
         infiniteRepeatable(
             animation =
-            tween(
-                durationMillis = STAR_FLOAT_Y_DURATION_BASE + delayMillis % STAR_DURATION_DELAY_MODULUS,
-                easing = EaseInOutSine,
-            ),
+                tween(
+                    durationMillis = STAR_FLOAT_Y_DURATION_BASE + delayMillis % STAR_DURATION_DELAY_MODULUS,
+                    easing = EaseInOutSine,
+                ),
             repeatMode = RepeatMode.Reverse,
         ),
-        label = "floatY",
-    )
+    label = "floatY",
+)
 
 @Composable
 private fun rememberStarPulse(
@@ -94,25 +98,27 @@ private fun rememberStarPulse(
     initialValue = initial,
     targetValue = target,
     animationSpec =
-    infiniteRepeatable(
-        animation = tween(STAR_PULSE_DURATION, delayMillis = delayMillis, easing = EaseInOutSine),
-        repeatMode = RepeatMode.Reverse,
-    ),
+        infiniteRepeatable(
+            animation = tween(STAR_PULSE_DURATION, delayMillis = delayMillis, easing = EaseInOutSine),
+            repeatMode = RepeatMode.Reverse,
+        ),
     label = label,
 )
 
 @Composable
-private fun rememberStarRotation(infiniteTransition: InfiniteTransition, delayMillis: Int) =
-    infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = STAR_FULL_ROTATION_DEGREES,
-        animationSpec =
+private fun rememberStarRotation(
+    infiniteTransition: InfiniteTransition,
+    delayMillis: Int,
+) = infiniteTransition.animateFloat(
+    initialValue = 0f,
+    targetValue = STAR_FULL_ROTATION_DEGREES,
+    animationSpec =
         infiniteRepeatable(
             animation = tween(STAR_ROTATION_DURATION_BASE + delayMillis, easing = LinearEasing),
             repeatMode = RepeatMode.Restart,
         ),
-        label = "rotation",
-    )
+    label = "rotation",
+)
 
 @Composable
 private fun rememberStarAnimationValues(delayMillis: Int): StarAnimationValues {
@@ -128,21 +134,24 @@ private fun rememberStarAnimationValues(delayMillis: Int): StarAnimationValues {
 }
 
 @Composable
-fun AnimatedStar(modifier: Modifier = Modifier, delayMillis: Int = 0) {
+fun AnimatedStar(
+    modifier: Modifier = Modifier,
+    delayMillis: Int = 0,
+) {
     val animValues = rememberStarAnimationValues(delayMillis)
 
     StarDrawing(
         modifier =
-        modifier
-            .offset(x = animValues.floatX.dp, y = animValues.floatY.dp)
-            .scale(animValues.scale)
-            .alpha(animValues.alpha)
-            .graphicsLayer { rotationZ = animValues.rotation },
+            modifier
+                .offset(x = animValues.floatX.dp, y = animValues.floatY.dp)
+                .scale(animValues.scale)
+                .alpha(animValues.alpha)
+                .graphicsLayer { rotationZ = animValues.rotation },
     )
 }
 
 @Composable
-private fun StarDrawing(modifier: Modifier) {
+private fun StarDrawing(modifier: Modifier = Modifier) {
     Canvas(modifier = modifier) {
         val center = center
         val radius = size.minDimension / 2

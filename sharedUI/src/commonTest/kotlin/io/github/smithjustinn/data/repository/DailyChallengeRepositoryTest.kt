@@ -17,68 +17,73 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DailyChallengeRepositoryTest {
-
     private val dao = mock<DailyChallengeDao>()
     private val testDispatcher = StandardTestDispatcher()
-    private val dispatchers = CoroutineDispatchers(
-        main = testDispatcher,
-        mainImmediate = testDispatcher,
-        io = testDispatcher,
-        default = testDispatcher,
-    )
+    private val dispatchers =
+        CoroutineDispatchers(
+            main = testDispatcher,
+            mainImmediate = testDispatcher,
+            io = testDispatcher,
+            default = testDispatcher,
+        )
     private val repository = DailyChallengeRepositoryImpl(dao, dispatchers)
 
     @Test
-    fun testIsChallengeCompleted_true() = runTest(testDispatcher) {
-        val date = 123456789L
-        val entity = DailyChallengeEntity(date, true, 100, 60, 20)
-        every { dao.getDailyChallenge(date) } returns flowOf(entity)
+    fun testIsChallengeCompleted_true() =
+        runTest(testDispatcher) {
+            val date = 123456789L
+            val entity = DailyChallengeEntity(date, true, 100, 60, 20)
+            every { dao.getDailyChallenge(date) } returns flowOf(entity)
 
-        repository.isChallengeCompleted(date).test {
-            assertEquals(true, awaitItem())
-            awaitComplete()
+            repository.isChallengeCompleted(date).test {
+                assertEquals(true, awaitItem())
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testIsChallengeCompleted_false() = runTest(testDispatcher) {
-        val date = 123456789L
-        val entity = DailyChallengeEntity(date, false, 0, 0, 0)
-        every { dao.getDailyChallenge(date) } returns flowOf(entity)
+    fun testIsChallengeCompleted_false() =
+        runTest(testDispatcher) {
+            val date = 123456789L
+            val entity = DailyChallengeEntity(date, false, 0, 0, 0)
+            every { dao.getDailyChallenge(date) } returns flowOf(entity)
 
-        repository.isChallengeCompleted(date).test {
-            assertEquals(false, awaitItem())
-            awaitComplete()
+            repository.isChallengeCompleted(date).test {
+                assertEquals(false, awaitItem())
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testIsChallengeCompleted_null() = runTest(testDispatcher) {
-        val date = 123456789L
-        every { dao.getDailyChallenge(date) } returns flowOf(null)
+    fun testIsChallengeCompleted_null() =
+        runTest(testDispatcher) {
+            val date = 123456789L
+            every { dao.getDailyChallenge(date) } returns flowOf(null)
 
-        repository.isChallengeCompleted(date).test {
-            assertEquals(false, awaitItem())
-            awaitComplete()
+            repository.isChallengeCompleted(date).test {
+                assertEquals(false, awaitItem())
+                awaitComplete()
+            }
         }
-    }
 
     @Test
-    fun testSaveChallengeResult() = runTest(testDispatcher) {
-        val date = 123456789L
-        everySuspend { dao.insertOrUpdate(any()) } returns Unit
+    fun testSaveChallengeResult() =
+        runTest(testDispatcher) {
+            val date = 123456789L
+            everySuspend { dao.insertOrUpdate(any()) } returns Unit
 
-        repository.saveChallengeResult(date, 100, 60, 20)
+            repository.saveChallengeResult(date, 100, 60, 20)
 
-        val expectedEntity = DailyChallengeEntity(
-            date = date,
-            isCompleted = true,
-            score = 100,
-            timeSeconds = 60,
-            moves = 20,
-        )
-        verifySuspend {
-            dao.insertOrUpdate(expectedEntity)
+            val expectedEntity =
+                DailyChallengeEntity(
+                    date = date,
+                    isCompleted = true,
+                    score = 100,
+                    timeSeconds = 60,
+                    moves = 20,
+                )
+            verifySuspend {
+                dao.insertOrUpdate(expectedEntity)
+            }
         }
-    }
 }

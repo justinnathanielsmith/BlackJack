@@ -73,11 +73,12 @@ fun ResultsCard(
     onScoreTick: () -> Unit = {},
 ) {
     val isTimeAttack = mode == GameMode.TIME_ATTACK
-    val titleRes = when {
-        isWon -> Res.string.game_complete
-        isTimeAttack -> Res.string.times_up
-        else -> Res.string.game_over
-    }
+    val titleRes =
+        when {
+            isWon -> Res.string.game_complete
+            isTimeAttack -> Res.string.times_up
+            else -> Res.string.game_over
+        }
 
     // Animation Logic extracted
     val animatedScore = rememberAnimatedScore(score, onScoreTick)
@@ -102,7 +103,10 @@ fun ResultsCard(
 }
 
 @Composable
-private fun rememberAnimatedScore(score: Int, onScoreTick: () -> Unit): androidx.compose.runtime.State<Float> {
+private fun rememberAnimatedScore(
+    score: Int,
+    onScoreTick: () -> Unit,
+): androidx.compose.runtime.State<Float> {
     val animatedScore = remember { Animatable(0f) }
     var lastRoundedScore by remember { mutableStateOf(0) }
     val scoreTickHandler by rememberUpdatedState(onScoreTick)
@@ -129,10 +133,11 @@ private fun rememberResultsScale(): Float {
     LaunchedEffect(Unit) {
         scale.animateTo(
             targetValue = 1f,
-            animationSpec = spring(
-                dampingRatio = Spring.DampingRatioMediumBouncy,
-                stiffness = Spring.StiffnessLow,
-            ),
+            animationSpec =
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
         )
     }
     return scale.value
@@ -152,9 +157,10 @@ private fun ResultsCardContent(
     onShareReplay: () -> Unit,
 ) {
     Surface(
-        modifier = Modifier
-            .scale(scale)
-            .widthIn(max = 550.dp),
+        modifier =
+            Modifier
+                .scale(scale)
+                .widthIn(max = 550.dp),
         shape = RoundedCornerShape(24.dp),
         color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.8f),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
@@ -165,23 +171,25 @@ private fun ResultsCardContent(
         val headerColor = if (isWon) MemoryMatchTheme.colors.neonCyan else MemoryMatchTheme.colors.tacticalRed
 
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(contentPadding)
-                .then(if (isCompactHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier),
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(contentPadding)
+                    .then(if (isCompactHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier),
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(verticalSpacing),
         ) {
             Text(
                 text = stringResource(titleRes).uppercase(),
-                style = if (isCompactHeight) {
-                    MaterialTheme.typography.headlineSmall
-                } else {
-                    MaterialTheme.typography.headlineLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 2.sp,
-                    )
-                },
+                style =
+                    if (isCompactHeight) {
+                        MaterialTheme.typography.headlineSmall
+                    } else {
+                        MaterialTheme.typography.headlineLarge.copy(
+                            fontWeight = FontWeight.Black,
+                            letterSpacing = 2.sp,
+                        )
+                    },
                 color = headerColor,
                 textAlign = TextAlign.Center,
             )
@@ -237,10 +245,11 @@ private fun CompactResultsContent(
         ) {
             Text(
                 text = stringResource(Res.string.play_again).uppercase(),
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    color = Color.White,
-                ),
+                style =
+                    MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White,
+                    ),
             )
         }
     }
@@ -267,20 +276,22 @@ private fun StandardResultsContent(
 
     Button(
         onClick = onPlayAgain,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(containerColor = MemoryMatchTheme.colors.neonCyan),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
     ) {
         Text(
             text = stringResource(Res.string.play_again).uppercase(),
-            style = MaterialTheme.typography.titleMedium.copy(
-                fontWeight = FontWeight.Black,
-                letterSpacing = 1.sp,
-                color = Color.White,
-            ),
+            style =
+                MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 1.sp,
+                    color = Color.White,
+                ),
         )
     }
 
@@ -288,12 +299,16 @@ private fun StandardResultsContent(
 }
 
 @Composable
-private fun ResultsActionButtons(onShareReplay: () -> Unit, isCompact: Boolean) {
+private fun ResultsActionButtons(
+    onShareReplay: () -> Unit,
+    isCompact: Boolean,
+) {
     OutlinedButton(
         onClick = onShareReplay,
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(if (isCompact) 48.dp else 56.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .height(if (isCompact) 48.dp else 56.dp),
         shape = RoundedCornerShape(12.dp),
         colors = ButtonDefaults.outlinedButtonColors(contentColor = MemoryMatchTheme.colors.neonCyan),
         border = BorderStroke(1.dp, MemoryMatchTheme.colors.neonCyan),
@@ -302,14 +317,15 @@ private fun ResultsActionButtons(onShareReplay: () -> Unit, isCompact: Boolean) 
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "SHARE REPLAY",
-            style = if (isCompact) {
-                MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
-            } else {
-                MaterialTheme.typography.titleMedium.copy(
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 1.sp,
-                )
-            },
+            style =
+                if (isCompact) {
+                    MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                } else {
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 1.sp,
+                    )
+                },
         )
     }
 }

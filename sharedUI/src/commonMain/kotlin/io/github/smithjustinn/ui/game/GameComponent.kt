@@ -8,8 +8,12 @@ interface GameComponent {
     val events: Flow<GameUiEvent>
 
     fun onFlipCard(cardId: Int)
+
     fun onRestart()
+
     fun onBack()
+
     fun onToggleAudio()
+
     fun onWalkthroughAction(isComplete: Boolean)
 }

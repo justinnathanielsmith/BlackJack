@@ -38,46 +38,51 @@ class GameUseCasesTest {
     }
 
     @Test
-    fun testClearSavedGameUseCase() = runTest {
-        val useCase = ClearSavedGameUseCase(repository, logger)
-        everySuspend { repository.clearSavedGameState() } returns Unit
-        useCase()
-        verifySuspend { repository.clearSavedGameState() }
-    }
+    fun testClearSavedGameUseCase() =
+        runTest {
+            val useCase = ClearSavedGameUseCase(repository, logger)
+            everySuspend { repository.clearSavedGameState() } returns Unit
+            useCase()
+            verifySuspend { repository.clearSavedGameState() }
+        }
 
     @Test
-    fun testGetSavedGameUseCase() = runTest {
-        val useCase = GetSavedGameUseCase(repository, logger)
-        val state = MemoryGameState()
-        everySuspend { repository.getSavedGameState() } returns (state to 100L)
-        val result = useCase()
-        assertEquals(state, result?.first)
-        assertEquals(100L, result?.second)
-    }
+    fun testGetSavedGameUseCase() =
+        runTest {
+            val useCase = GetSavedGameUseCase(repository, logger)
+            val state = MemoryGameState()
+            everySuspend { repository.getSavedGameState() } returns (state to 100L)
+            val result = useCase()
+            assertEquals(state, result?.first)
+            assertEquals(100L, result?.second)
+        }
 
     @Test
-    fun testGetSavedGameUseCase_error() = runTest {
-        val useCase = GetSavedGameUseCase(repository, logger)
-        everySuspend { repository.getSavedGameState() } throws RuntimeException("DB Error")
-        val result = useCase()
-        assertEquals(null, result)
-    }
+    fun testGetSavedGameUseCase_error() =
+        runTest {
+            val useCase = GetSavedGameUseCase(repository, logger)
+            everySuspend { repository.getSavedGameState() } throws RuntimeException("DB Error")
+            val result = useCase()
+            assertEquals(null, result)
+        }
 
     @Test
-    fun testSaveGameStateUseCase() = runTest {
-        val useCase = SaveGameStateUseCase(repository, logger)
-        val state = MemoryGameState()
-        everySuspend { repository.saveGameState(any(), any()) } returns Unit
-        useCase(state, 100L)
-        verifySuspend { repository.saveGameState(state, 100L) }
-    }
+    fun testSaveGameStateUseCase() =
+        runTest {
+            val useCase = SaveGameStateUseCase(repository, logger)
+            val state = MemoryGameState()
+            everySuspend { repository.saveGameState(any(), any()) } returns Unit
+            useCase(state, 100L)
+            verifySuspend { repository.saveGameState(state, 100L) }
+        }
 
     @Test
-    fun testSaveGameStateUseCase_error() = runTest {
-        val useCase = SaveGameStateUseCase(repository, logger)
-        everySuspend { repository.saveGameState(any(), any()) } throws RuntimeException("DB Error")
-        useCase(MemoryGameState(), 100L)
-    }
+    fun testSaveGameStateUseCase_error() =
+        runTest {
+            val useCase = SaveGameStateUseCase(repository, logger)
+            everySuspend { repository.saveGameState(any(), any()) } throws RuntimeException("DB Error")
+            useCase(MemoryGameState(), 100L)
+        }
 
     @Test
     fun testCalculateFinalScoreUseCase() {

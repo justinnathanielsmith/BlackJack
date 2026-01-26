@@ -90,28 +90,27 @@ detekt {
 
 subprojects {
     apply(plugin = "com.diffplug.spotless")
+    
     configure<com.diffplug.gradle.spotless.SpotlessExtension> {
         kotlin {
             target("**/*.kt")
-            targetExclude("**/build/**")
-            ktlint()
-                .editorConfigOverride(
-                    mapOf(
-                        "ktlint_standard_filename" to "disabled",
-                        "ktlint_standard_no-wildcard-imports" to "disabled",
-                    ),
+            targetExclude("${layout.buildDirectory}/**/*.kt")
+            
+            // Enable ktlint with specific version
+            ktlint(libs.versions.ktlint.get())
+                .setEditorConfigPath(rootProject.file(".editorconfig"))
+                // Add Compose-specific rules for ktlint
+                .customRuleSets(
+                    listOf("io.nlopez.compose.rules:ktlint:0.4.22")
                 )
+
+            trimTrailingWhitespace()
+            endWithNewline()
         }
+        
         kotlinGradle {
-            target("**/*.kts")
-            targetExclude("**/build/**")
-            ktlint()
-                .editorConfigOverride(
-                    mapOf(
-                        "ktlint_standard_filename" to "disabled",
-                        "ktlint_standard_no-wildcard-imports" to "disabled",
-                    ),
-                )
+            target("*.gradle.kts")
+            ktlint(libs.versions.ktlint.get())
         }
     }
 }
