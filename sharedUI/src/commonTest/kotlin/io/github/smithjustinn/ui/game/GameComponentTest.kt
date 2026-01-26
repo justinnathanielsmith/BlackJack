@@ -96,6 +96,8 @@ class GameComponentTest : BaseComponentTest() {
     fun `timer ticks in Standard mode after initializing`() = runTest { lifecycle ->
         component = createComponent(lifecycle, mode = GameMode.STANDARD)
         testDispatcher.scheduler.runCurrent()
+        testDispatcher.scheduler.advanceTimeBy(50L) // Account for initialization delay
+        testDispatcher.scheduler.runCurrent()
 
         assertEquals(0L, component.state.value.elapsedTimeSeconds)
 
@@ -112,6 +114,8 @@ class GameComponentTest : BaseComponentTest() {
     fun `timer counts down in Time Attack mode`() = runTest { lifecycle ->
         component = createComponent(lifecycle, pairCount = 8, mode = GameMode.TIME_ATTACK)
         testDispatcher.scheduler.runCurrent()
+        testDispatcher.scheduler.advanceTimeBy(50L) // Account for initialization delay
+        testDispatcher.scheduler.runCurrent()
 
         val startSeconds = component.state.value.elapsedTimeSeconds
         assertTrue(startSeconds > 0)
@@ -126,6 +130,8 @@ class GameComponentTest : BaseComponentTest() {
         every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
 
         component = createComponent(lifecycle, mode = GameMode.STANDARD)
+        testDispatcher.scheduler.runCurrent()
+        testDispatcher.scheduler.advanceTimeBy(50L) // Account for initialization delay
         testDispatcher.scheduler.runCurrent()
 
         // Should be in peeking state initially
