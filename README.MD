@@ -197,6 +197,29 @@ We use **Detekt** to maintain high code quality and enforce Kotlin-specific best
 
 ---
 
+## 📊 Code Coverage (Kover)
+
+We use **Kotlinx Kover** to measure and enforce test coverage across our KMP modules. Our current goal is to maintain a minimum of **80% line coverage** for all business logic in the domain and data layers.
+
+### 📈 Current Status
+- **Overall Line Coverage**: **90.9%** (Exceeding the 80% target) ✅
+- **Domain Layer Coverage**: **100%** 🎯
+
+### 🚀 Usage Commands
+
+| Command                     | Description                                                  |
+| :-------------------------- | :----------------------------------------------------------- |
+| `./gradlew koverHtmlReport` | Generates a comprehensive HTML coverage report.              |
+| `./gradlew koverVerify`     | Verifies that the code coverage meets the defined threshold. |
+| `./gradlew koverXmlReport`  | Generates an XML report (useful for CI/CD integration).      |
+
+### 📚 Detailed Documentation
+For more information on our coverage strategy, metrics, and best practices, please refer to:
+- **[KOVER_COVERAGE_SUMMARY.md](docs/KOVER_COVERAGE_SUMMARY.md)**: A high-level overview of our recent coverage improvements.
+- **[KOVER_COVERAGE_RESEARCH.md](docs/KOVER_COVERAGE_RESEARCH.md)**: In-depth research on KMP coverage, Kover limitations, and our 80%+ strategy.
+
+---
+
 ## 🤖 AI-Agentic Development
 
 This repository is **Agent-Ready**, designed to be seamlessly navigated and extended by AI coding assistants.
