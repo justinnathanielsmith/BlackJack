@@ -13,4 +13,11 @@ data class GameTopBarState(
     val isMegaBonus: Boolean = false,
     val compact: Boolean = false,
     val isAudioEnabled: Boolean = true,
-)
+    val isLowTime: Boolean = false,
+    val isCriticalTime: Boolean = false,
+) {
+    companion object {
+        const val LOW_TIME_THRESHOLD_SEC = 10
+        const val CRITICAL_TIME_THRESHOLD_SEC = 5
+    }
+}

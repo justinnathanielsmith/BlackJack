@@ -293,6 +293,12 @@ private fun GameMainScreen(
                         isMegaBonus = state.isMegaBonus,
                         compact = useCompactUI,
                         isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
+                        isLowTime =
+                            state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
+                                state.elapsedTimeSeconds <= GameTopBarState.LOW_TIME_THRESHOLD_SEC,
+                        isCriticalTime =
+                            state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
+                                state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
                     ),
                 onBackClick = {
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
@@ -342,52 +348,73 @@ private fun GameMainContent(
             onCardClick = { cardId -> component.onFlipCard(cardId) },
         )
 
-        if (state.game.comboMultiplier > 1) {
-            ComboBadge(
-                combo = state.game.comboMultiplier,
-                isMegaBonus = state.isMegaBonus,
-                isHeatMode = state.isHeatMode,
-                infiniteTransition = rememberInfiniteTransition(),
-                modifier =
-                    Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(top = 16.dp, end = 24.dp),
-                compact = useCompactUI,
-            )
-        }
+        GameHUD(state = state, useCompactUI = useCompactUI)
 
-        MatchCommentSnackbar(
-            matchComment = state.game.matchComment,
+        GameOverlays(
+            state = state,
+            component = component,
+            useCompactUI = useCompactUI,
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.GameHUD(
+    state: GameUIState,
+    useCompactUI: Boolean,
+) {
+    if (state.game.comboMultiplier > 1) {
+        ComboBadge(
+            combo = state.game.comboMultiplier,
+            isMegaBonus = state.isMegaBonus,
+            isHeatMode = state.isHeatMode,
+            infiniteTransition = rememberInfiniteTransition(),
             modifier =
                 Modifier
-                    .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
-                    .navigationBarsPadding()
-                    .padding(
-                        bottom = if (useCompactUI) 0.dp else 32.dp,
-                        top = if (useCompactUI) 8.dp else 0.dp,
-                        start = 16.dp,
-                        end = 16.dp,
-                    ).widthIn(max = 600.dp),
+                    .align(Alignment.TopEnd)
+                    .padding(top = 16.dp, end = 24.dp),
+            compact = useCompactUI,
         )
+    }
 
-        if (state.isPeeking) {
-            PeekCountdownOverlay(countdown = state.peekCountdown)
-        }
+    MatchCommentSnackbar(
+        matchComment = state.game.matchComment,
+        modifier =
+            Modifier
+                .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
+                .navigationBarsPadding()
+                .padding(
+                    bottom = if (useCompactUI) 0.dp else 32.dp,
+                    top = if (useCompactUI) 8.dp else 0.dp,
+                    start = 16.dp,
+                    end = 16.dp,
+                ).widthIn(max = 600.dp),
+    )
+}
 
-        if (state.game.isGameOver) {
-            GameGameOverOverlay(
-                state = state,
-                component = component,
-                useCompactUI = useCompactUI,
-            )
-        }
+@Composable
+private fun GameOverlays(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+) {
+    if (state.isPeeking) {
+        PeekCountdownOverlay(countdown = state.peekCountdown)
+    }
 
-        if (state.showWalkthrough) {
-            WalkthroughOverlay(
-                step = state.walkthroughStep,
-                onNext = { component.onWalkthroughAction(isComplete = false) },
-                onDismiss = { component.onWalkthroughAction(isComplete = true) },
-            )
-        }
+    if (state.game.isGameOver) {
+        GameGameOverOverlay(
+            state = state,
+            component = component,
+            useCompactUI = useCompactUI,
+        )
+    }
+
+    if (state.showWalkthrough) {
+        WalkthroughOverlay(
+            step = state.walkthroughStep,
+            onNext = { component.onWalkthroughAction(isComplete = false) },
+            onDismiss = { component.onWalkthroughAction(isComplete = true) },
+        )
     }
 }

@@ -54,8 +54,6 @@ fun GameTopBar(
     modifier: Modifier = Modifier,
 ) {
     val isTimeAttack = state.mode == GameMode.TIME_ATTACK
-    val isLowTime = isTimeAttack && state.time <= LOW_TIME_THRESHOLD_SEC
-    val isCriticalTime = isTimeAttack && state.time <= CRITICAL_TIME_THRESHOLD_SEC
 
     Column(
         modifier =
@@ -71,8 +69,6 @@ fun GameTopBar(
     ) {
         TopBarMainRow(
             state = state,
-            isLowTime = isLowTime,
-            isCriticalTime = isCriticalTime,
             onBackClick = onBackClick,
             onRestartClick = onRestartClick,
             onMuteClick = onMuteClick,
@@ -82,7 +78,7 @@ fun GameTopBar(
             TimeProgressBar(
                 time = state.time,
                 maxTime = state.maxTime,
-                isLowTime = isLowTime,
+                isLowTime = state.isLowTime,
                 compact = state.compact,
             )
         }
@@ -92,8 +88,6 @@ fun GameTopBar(
 @Composable
 private fun TopBarMainRow(
     state: GameTopBarState,
-    isLowTime: Boolean,
-    isCriticalTime: Boolean,
     onBackClick: () -> Unit,
     onRestartClick: () -> Unit,
     onMuteClick: () -> Unit,
@@ -113,8 +107,8 @@ private fun TopBarMainRow(
             state =
                 TimerState(
                     time = state.time,
-                    isLowTime = isLowTime,
-                    isCriticalTime = isCriticalTime,
+                    isLowTime = state.isLowTime,
+                    isCriticalTime = state.isCriticalTime,
                 ),
             feedback =
                 TimerFeedback(
@@ -281,5 +275,3 @@ private fun TimeProgressBar(
     }
 }
 
-private const val LOW_TIME_THRESHOLD_SEC = 10
-private const val CRITICAL_TIME_THRESHOLD_SEC = 5
