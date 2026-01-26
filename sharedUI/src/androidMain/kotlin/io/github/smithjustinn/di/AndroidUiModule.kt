@@ -15,25 +15,27 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
-val androidUiModule = module {
-    single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
-    singleOf(::AndroidHapticsServiceImpl) { bind<HapticsService>() }
-    singleOf(::AndroidAudioServiceImpl) { bind<AudioService>() }
-    single<AppDatabase> {
-        val context = get<Context>()
-        val dbFile = context.getDatabasePath("memory_match.db")
-        Room.databaseBuilder<AppDatabase>(
-            context = context,
-            name = dbFile.absolutePath,
-        ).setDriver(BundledSQLiteDriver())
-            .setQueryCoroutineContext(Dispatchers.IO)
-            .addMigrations(
-                AppDatabase.MIGRATION_1_2,
-                AppDatabase.MIGRATION_2_3,
-                AppDatabase.MIGRATION_3_4,
-                AppDatabase.MIGRATION_4_5,
-                AppDatabase.MIGRATION_5_6,
-                AppDatabase.MIGRATION_6_7,
-            ).build()
+val androidUiModule =
+    module {
+        single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
+        singleOf(::AndroidHapticsServiceImpl) { bind<HapticsService>() }
+        singleOf(::AndroidAudioServiceImpl) { bind<AudioService>() }
+        single<AppDatabase> {
+            val context = get<Context>()
+            val dbFile = context.getDatabasePath("memory_match.db")
+            Room
+                .databaseBuilder<AppDatabase>(
+                    context = context,
+                    name = dbFile.absolutePath,
+                ).setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .addMigrations(
+                    AppDatabase.MIGRATION_1_2,
+                    AppDatabase.MIGRATION_2_3,
+                    AppDatabase.MIGRATION_3_4,
+                    AppDatabase.MIGRATION_4_5,
+                    AppDatabase.MIGRATION_5_6,
+                    AppDatabase.MIGRATION_6_7,
+                ).build()
+        }
     }
-}

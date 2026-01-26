@@ -12,7 +12,6 @@ import io.github.smithjustinn.App
 import io.github.smithjustinn.di.createJvmGraph
 import io.github.smithjustinn.ui.root.DefaultRootComponent
 import java.awt.Dimension
-
 import javax.swing.SwingUtilities
 
 fun main() {

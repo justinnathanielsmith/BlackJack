@@ -16,18 +16,19 @@ import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
-val dataModule = module {
-    single { get<AppDatabase>().gameStatsDao() }
-    single { get<AppDatabase>().leaderboardDao() }
-    single { get<AppDatabase>().gameStateDao() }
-    single { get<AppDatabase>().settingsDao() }
-    single { get<AppDatabase>().dailyChallengeDao() }
+val dataModule =
+    module {
+        single { get<AppDatabase>().gameStatsDao() }
+        single { get<AppDatabase>().leaderboardDao() }
+        single { get<AppDatabase>().gameStateDao() }
+        single { get<AppDatabase>().settingsDao() }
+        single { get<AppDatabase>().dailyChallengeDao() }
 
-    singleOf(::GameStatsRepositoryImpl) { bind<GameStatsRepository>() }
-    singleOf(::LeaderboardRepositoryImpl) { bind<LeaderboardRepository>() }
-    singleOf(::GameStateRepositoryImpl) { bind<GameStateRepository>() }
-    singleOf(::SettingsRepositoryImpl) { bind<SettingsRepository>() }
-    singleOf(::DailyChallengeRepositoryImpl) { bind<DailyChallengeRepository>() }
+        singleOf(::GameStatsRepositoryImpl) { bind<GameStatsRepository>() }
+        singleOf(::LeaderboardRepositoryImpl) { bind<LeaderboardRepository>() }
+        singleOf(::GameStateRepositoryImpl) { bind<GameStateRepository>() }
+        singleOf(::SettingsRepositoryImpl) { bind<SettingsRepository>() }
+        singleOf(::DailyChallengeRepositoryImpl) { bind<DailyChallengeRepository>() }
 
-    single { Json { ignoreUnknownKeys = true } }
-}
+        single { Json { ignoreUnknownKeys = true } }
+    }

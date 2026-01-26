@@ -15,23 +15,25 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import java.io.File
 
-val jvmUiModule = module {
-    single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
-    singleOf(::JvmHapticsServiceImpl) { bind<HapticsService>() }
-    singleOf(::JvmAudioServiceImpl) { bind<AudioService>() }
-    single<AppDatabase> {
-        val dbFile = File(System.getProperty("user.home"), ".memory_match.db")
-        Room.databaseBuilder<AppDatabase>(
-            name = dbFile.absolutePath,
-        ).setDriver(BundledSQLiteDriver())
-            .setQueryCoroutineContext(Dispatchers.IO)
-            .addMigrations(
-                AppDatabase.MIGRATION_1_2,
-                AppDatabase.MIGRATION_2_3,
-                AppDatabase.MIGRATION_3_4,
-                AppDatabase.MIGRATION_4_5,
-                AppDatabase.MIGRATION_5_6,
-                AppDatabase.MIGRATION_6_7,
-            ).build()
+val jvmUiModule =
+    module {
+        single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
+        singleOf(::JvmHapticsServiceImpl) { bind<HapticsService>() }
+        singleOf(::JvmAudioServiceImpl) { bind<AudioService>() }
+        single<AppDatabase> {
+            val dbFile = File(System.getProperty("user.home"), ".memory_match.db")
+            Room
+                .databaseBuilder<AppDatabase>(
+                    name = dbFile.absolutePath,
+                ).setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .addMigrations(
+                    AppDatabase.MIGRATION_1_2,
+                    AppDatabase.MIGRATION_2_3,
+                    AppDatabase.MIGRATION_3_4,
+                    AppDatabase.MIGRATION_4_5,
+                    AppDatabase.MIGRATION_5_6,
+                    AppDatabase.MIGRATION_6_7,
+                ).build()
+        }
     }
-}

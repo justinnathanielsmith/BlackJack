@@ -17,24 +17,26 @@ import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 import platform.Foundation.NSHomeDirectory
 
-val iosUiModule = module {
-    single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
-    singleOf(::IosHapticsServiceImpl) { bind<HapticsService>() }
-    singleOf(::IosAudioServiceImpl) { bind<AudioService>() }
-    single<AppDatabase> {
-        val dbFile = NSHomeDirectory() + "/memory_match.db"
-        return@single Room.databaseBuilder<AppDatabase>(
-            name = dbFile,
-            factory = { AppDatabaseConstructor.initialize() },
-        ).setDriver(BundledSQLiteDriver())
-            .setQueryCoroutineContext(Dispatchers.IO)
-            .addMigrations(
-                AppDatabase.MIGRATION_1_2,
-                AppDatabase.MIGRATION_2_3,
-                AppDatabase.MIGRATION_3_4,
-                AppDatabase.MIGRATION_4_5,
-                AppDatabase.MIGRATION_5_6,
-                AppDatabase.MIGRATION_6_7,
-            ).build()
+val iosUiModule =
+    module {
+        single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
+        singleOf(::IosHapticsServiceImpl) { bind<HapticsService>() }
+        singleOf(::IosAudioServiceImpl) { bind<AudioService>() }
+        single<AppDatabase> {
+            val dbFile = NSHomeDirectory() + "/memory_match.db"
+            return@single Room
+                .databaseBuilder<AppDatabase>(
+                    name = dbFile,
+                    factory = { AppDatabaseConstructor.initialize() },
+                ).setDriver(BundledSQLiteDriver())
+                .setQueryCoroutineContext(Dispatchers.IO)
+                .addMigrations(
+                    AppDatabase.MIGRATION_1_2,
+                    AppDatabase.MIGRATION_2_3,
+                    AppDatabase.MIGRATION_3_4,
+                    AppDatabase.MIGRATION_4_5,
+                    AppDatabase.MIGRATION_5_6,
+                    AppDatabase.MIGRATION_6_7,
+                ).build()
+        }
     }
-}

@@ -65,26 +65,27 @@ kotlin {
             implementation(libs.javafx.media)
             implementation(libs.javafx.graphics)
             implementation(libs.javafx.base)
-            
+
             implementation(libs.javafx.swing)
 
             // Determine current OS and Architecture to include the correct JavaFX natives
             val osName = System.getProperty("os.name").lowercase(Locale.getDefault())
             val osArch = System.getProperty("os.arch").lowercase(Locale.getDefault())
-            
+
             val isMac = osName.contains("mac")
             val isWin = osName.contains("windows")
             val isLinux = osName.contains("linux")
             val isArm64 = osArch.contains("aarch64") || osArch.contains("arm64")
 
-            val classifier = when {
-                isMac && isArm64 -> "mac-aarch64"
-                isMac -> "mac"
-                isWin -> "win"
-                isLinux -> "linux"
-                else -> "mac" // Fallback
-            }
-            
+            val classifier =
+                when {
+                    isMac && isArm64 -> "mac-aarch64"
+                    isMac -> "mac"
+                    isWin -> "win"
+                    isLinux -> "linux"
+                    else -> "mac" // Fallback
+                }
+
             val jfxVersion = libs.versions.javafx.get()
             implementation("org.openjfx:javafx-media:$jfxVersion:$classifier")
             implementation("org.openjfx:javafx-graphics:$jfxVersion:$classifier")
