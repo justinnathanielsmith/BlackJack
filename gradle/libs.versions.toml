@@ -18,7 +18,7 @@ google-material = "1.13.0"
 coil = "3.3.0"
 
 # Architecture & DI
-koin = "4.0.2"
+koin = "4.1.1"
 decompose = "3.4.0"
 
 # Data & Networking
@@ -32,6 +32,7 @@ kotlinx-datetime = "0.7.1"
 kotlinx-coroutines = "1.10.2"
 kotlinx-collections-immutable = "0.4.0"
 kermit = "2.0.8"
+javafx = "21"
 
 # Testing
 turbine = "1.2.1"
@@ -98,6 +99,13 @@ koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+
+# JavaFX
+javafx-media = { group = "org.openjfx", name = "javafx-media", version.ref = "javafx" }
+javafx-graphics = { group = "org.openjfx", name = "javafx-graphics", version.ref = "javafx" }
+javafx-base = { group = "org.openjfx", name = "javafx-base", version.ref = "javafx" }
+javafx-controls = { group = "org.openjfx", name = "javafx-controls", version.ref = "javafx" }
+javafx-swing = { group = "org.openjfx", name = "javafx-swing", version.ref = "javafx" }
 
 [bundles]
 compose-ui = [

@@ -4,35 +4,51 @@ import co.touchlab.kermit.Logger
 import io.github.smithjustinn.domain.repositories.SettingsRepository
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.services.AudioService.Companion.toResource
+import javafx.application.Platform
+import javafx.scene.media.Media
+import javafx.scene.media.MediaPlayer
+import javafx.util.Duration
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
-import java.io.BufferedInputStream
-import java.io.ByteArrayInputStream
+import java.io.File
+import java.io.FileOutputStream
 import java.util.concurrent.ConcurrentHashMap
-import javax.sound.sampled.AudioSystem
-import javax.sound.sampled.Clip
-import javax.sound.sampled.FloatControl
-import kotlin.math.log10
 
 class JvmAudioServiceImpl(
     private val logger: Logger,
     settingsRepository: SettingsRepository,
 ) : AudioService {
     private val scope = CoroutineScope(Dispatchers.IO)
-    private val clips = ConcurrentHashMap<StringResource, Clip>()
+    private val players = ConcurrentHashMap<StringResource, MediaPlayer>()
     private var isSoundEnabled = true
     private var isMusicEnabled = true
     private var isMusicRequested = false
     private var soundVolume = 1.0f
     private var musicVolume = 1.0f
-    private var musicClip: Clip? = null
+    private var musicPlayer: MediaPlayer? = null
+
+    private val tempCacheDir =
+        File(System.getProperty("java.io.tmpdir"), "memory_match_audio").apply {
+            if (!exists()) mkdirs()
+        }
 
     init {
+        // Ensure JavaFX platform is initialized
+        // Using Platform.startup now that we have all usage dependencies (base, graphics, controls)
+        try {
+            Platform.startup {}
+        } catch (e: IllegalStateException) {
+            // Already initialized
+        } catch (e: Exception) {
+            logger.e(e) { "Error initializing JavaFX toolkit" }
+        }
+
         settingsRepository.isSoundEnabled
             .onEach { isSoundEnabled = it }
             .launchIn(scope)
@@ -40,7 +56,7 @@ class JvmAudioServiceImpl(
         settingsRepository.soundVolume
             .onEach { volume ->
                 soundVolume = volume
-                clips.values.forEach { it.setVolume(volume) }
+                players.values.forEach { it.volume = volume.toDouble() }
             }.launchIn(scope)
 
         settingsRepository.isMusicEnabled
@@ -52,50 +68,46 @@ class JvmAudioServiceImpl(
         settingsRepository.musicVolume
             .onEach { volume ->
                 musicVolume = volume
-                musicClip?.setVolume(volume)
+                musicPlayer?.volume = volume.toDouble()
             }.launchIn(scope)
 
         scope.launch {
             AudioService.SoundEffect.entries.forEach { effect ->
-                val resource = effect.toResource()
-                try {
-                    val name = getString(resource)
-                    val path = "$name.wav"
-                    val bytes = Res.readBytes("files/$path")
-                    val inputStream = ByteArrayInputStream(bytes)
-                    val audioStream = AudioSystem.getAudioInputStream(BufferedInputStream(inputStream))
-                    val clip = AudioSystem.getClip()
-                    clip.open(audioStream)
-                    clip.setVolume(soundVolume)
-                    clips[resource] = clip
-                } catch (e: Exception) {
-                    logger.e(e) { "Error pre-loading sound resource: $resource" }
-                }
+                loadSound(effect.toResource())
             }
         }
     }
 
-    private fun Clip.setVolume(volume: Float) {
-        try {
-            if (isControlSupported(FloatControl.Type.MASTER_GAIN)) {
-                val gainControl = getControl(FloatControl.Type.MASTER_GAIN) as FloatControl
-                val dB = (log10(volume.coerceAtLeast(0.0001f).toDouble()) * 20.0).toFloat()
-                gainControl.value = dB.coerceIn(gainControl.minimum, gainControl.maximum)
+    private suspend fun loadSound(resource: StringResource): MediaPlayer? =
+        withContext(Dispatchers.IO) {
+            try {
+                val name = getString(resource)
+                val fileName = "$name.m4a"
+                val tempFile = File(tempCacheDir, fileName)
+
+                if (!tempFile.exists()) {
+                    val bytes = Res.readBytes("files/$fileName")
+                    FileOutputStream(tempFile).use { it.write(bytes) }
+                }
+
+                val media = Media(tempFile.toURI().toString())
+                val player = MediaPlayer(media)
+                player.volume = soundVolume.toDouble()
+                players[resource] = player
+                player
+            } catch (e: Exception) {
+                logger.e(e) { "Error pre-loading sound resource: $resource" }
+                null
             }
-        } catch (e: Exception) {
-            logger.e(e) { "Error setting volume for clip" }
         }
-    }
 
     private fun playSound(resource: StringResource) {
         if (!isSoundEnabled) return
 
-        val clip = clips[resource] ?: return
-        if (clip.isRunning) {
-            clip.stop()
-        }
-        clip.framePosition = 0
-        clip.start()
+        val player = players[resource] ?: return
+        player.stop()
+        player.seek(Duration.ZERO)
+        player.play()
     }
 
     override fun playEffect(effect: AudioService.SoundEffect) {
@@ -114,7 +126,7 @@ class JvmAudioServiceImpl(
 
     private fun updateMusicPlayback() {
         if (isMusicRequested && isMusicEnabled) {
-            if (musicClip?.isRunning != true) {
+            if (musicPlayer?.status != MediaPlayer.Status.PLAYING) {
                 actuallyStartMusic()
             }
         } else {
@@ -125,25 +137,26 @@ class JvmAudioServiceImpl(
     private fun actuallyStartMusic() {
         scope.launch {
             try {
-                if (musicClip == null) {
+                if (musicPlayer == null) {
                     val name = getString(AudioService.MUSIC)
-                    val path = "$name.wav"
-                    val bytes = Res.readBytes("files/$path")
-                    val inputStream = ByteArrayInputStream(bytes)
-                    val audioStream = AudioSystem.getAudioInputStream(BufferedInputStream(inputStream))
-                    musicClip =
-                        AudioSystem.getClip().apply {
-                            open(audioStream)
+                    val fileName = "$name.m4a"
+                    val tempFile = File(tempCacheDir, fileName)
+
+                    if (!tempFile.exists()) {
+                        val bytes = Res.readBytes("files/$fileName")
+                        FileOutputStream(tempFile).use { it.write(bytes) }
+                    }
+
+                    val media = Media(tempFile.toURI().toString())
+                    musicPlayer =
+                        MediaPlayer(media).apply {
+                            cycleCount = MediaPlayer.INDEFINITE
+                            volume = musicVolume.toDouble()
                         }
                 }
 
-                musicClip?.apply {
-                    setVolume(musicVolume)
-                    if (!isRunning && isMusicRequested && isMusicEnabled) {
-                        framePosition = 0
-                        loop(Clip.LOOP_CONTINUOUSLY)
-                        start()
-                    }
+                if (isMusicRequested && isMusicEnabled) {
+                    musicPlayer?.play()
                 }
             } catch (e: Exception) {
                 logger.e(e) { "Error starting music" }
@@ -152,8 +165,8 @@ class JvmAudioServiceImpl(
     }
 
     private fun actuallyStopMusic() {
-        musicClip?.stop()
-        musicClip?.close()
-        musicClip = null
+        musicPlayer?.stop()
+        musicPlayer?.dispose()
+        musicPlayer = null
     }
 }

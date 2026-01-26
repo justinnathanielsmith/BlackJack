@@ -13,14 +13,22 @@ import io.github.smithjustinn.di.createJvmGraph
 import io.github.smithjustinn.ui.root.DefaultRootComponent
 import java.awt.Dimension
 
+import javax.swing.SwingUtilities
+
 fun main() {
-    val lifecycle = LifecycleRegistry()
-    val appGraph = createJvmGraph()
-    val root =
-        DefaultRootComponent(
-            componentContext = DefaultComponentContext(lifecycle = lifecycle),
-            appGraph = appGraph,
-        )
+    lateinit var lifecycle: LifecycleRegistry
+    lateinit var root: DefaultRootComponent
+    lateinit var appGraph: io.github.smithjustinn.di.AppGraph
+
+    SwingUtilities.invokeAndWait {
+        lifecycle = LifecycleRegistry()
+        appGraph = createJvmGraph()
+        root =
+            DefaultRootComponent(
+                componentContext = DefaultComponentContext(lifecycle = lifecycle),
+                appGraph = appGraph,
+            )
+    }
 
     application {
         val windowState =
