@@ -93,7 +93,7 @@ fun StartContent(
 
 @Composable
 private fun StartScreenLayout(
-    state: StartState,
+    state: DifficultyState,
     onDifficultySelected: (DifficultyLevel) -> Unit,
     onModeSelected: (GameMode) -> Unit,
     onStartGame: () -> Unit,

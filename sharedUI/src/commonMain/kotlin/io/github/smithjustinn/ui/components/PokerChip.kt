@@ -136,3 +136,6 @@ private const val DASH_INTERVAL_ON = 20f
 private const val DASH_INTERVAL_OFF = 20f
 private const val INNER_BORDER_RADIUS_FACTOR = 0.6f
 private const val INNER_BORDER_ALPHA = 0.8f
+
+private const val SCALE_SELECTED = 1.1f
+private const val SCALE_DEFAULT = 1.0f

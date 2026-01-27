@@ -45,7 +45,6 @@ import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
-@Composable
 fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "HighScorePulse")
     val scale by infiniteTransition.animateFloat(

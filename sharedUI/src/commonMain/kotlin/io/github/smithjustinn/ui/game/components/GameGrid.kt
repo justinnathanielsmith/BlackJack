@@ -100,7 +100,6 @@ fun GameGrid(
             Modifier
                 .fillMaxSize(),
         contentAlignment = Alignment.Center,
-        contentAlignment = Alignment.Center,
     ) {
         GridBackground(
             modifier =
