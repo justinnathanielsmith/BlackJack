@@ -130,17 +130,25 @@ private fun LeaderboardRow(
                     ),
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
+                maxLines = 1,
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
             )
         }
 
-        Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        Row(
+            modifier = Modifier.weight(0.6f),
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            verticalAlignment = Alignment.CenterVertically
+        ) {
             StatMiniItem(
                 label = stringResource(Res.string.stats_time_header),
                 value = formatTime(entry.timeSeconds),
+                modifier = Modifier.weight(1f)
             )
             StatMiniItem(
                 label = stringResource(Res.string.stats_moves_header),
                 value = entry.moves.toString(),
+                modifier = Modifier.weight(1f)
             )
         }
     }
@@ -194,10 +202,14 @@ private fun RankBadge(rank: Int) {
 private fun StatMiniItem(
     label: String,
     value: String,
+    modifier: Modifier = Modifier,
 ) {
-    Column(horizontalAlignment = Alignment.End) {
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.End
+    ) {
         Text(
-            text = label,
+            text = label.uppercase(),
             style =
                 MaterialTheme.typography.labelSmall.copy(
                     fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
@@ -205,12 +217,16 @@ private fun StatMiniItem(
             color = GoldenYellow.copy(alpha = 0.7f),
             fontWeight = FontWeight.ExtraBold,
             letterSpacing = 0.5.sp,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
             fontWeight = FontWeight.Bold,
             color = Color.White,
+            maxLines = 1,
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
         )
     }
 }

@@ -159,16 +159,12 @@ private fun BackButton(
     compact: Boolean = false,
 ) {
     val size = if (compact) 40.dp else 48.dp
-    // Using PokerChip directly for custom icon or just DealerButton with text "Back"?
-    // Spec says "large, circular Dealer Buttons". But space is limited in TopBar.
-    // I'll use a slightly smaller DealerButton with the Arrow Icon instead of text if space is tight,
-    // OR create a IconChip.
     // Let's use PokerButton style (Chip) but with Icon.
 
     // We can reuse PokerChip logic but passing custom content is not easy with current PokerChip.
     // I will implement it here using similar style.
 
-    // Actually, let's use the DealerButton style (Chip shape) but with the Icon.
+    // Actually, let's use the Chip shape style but with the Icon.
 
     Surface(
         onClick = onClick,

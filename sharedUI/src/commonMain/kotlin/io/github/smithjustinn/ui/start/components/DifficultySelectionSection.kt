@@ -27,7 +27,6 @@ import io.github.smithjustinn.resources.settings
 import io.github.smithjustinn.resources.start
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.components.LargeDealerButton
 import io.github.smithjustinn.ui.components.PillSegmentedControl
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.PokerChip
@@ -63,8 +62,7 @@ fun DifficultySelectionSection(
         }
 
         Spacer(modifier = Modifier.height(48.dp))
-
-        // Step 5: Implement Action Buttons
+        // Action Buttons
         ActionButtons(
             state = state,
             onStartGame = onStartGame,
@@ -138,69 +136,69 @@ private fun ActionButtons(
     onDailyChallengeClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
-        verticalArrangement = Arrangement.spacedBy(16.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
+        verticalArrangement = Arrangement.spacedBy(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        if (state.hasSavedGame) {
-            PokerButton(
-                text = stringResource(Res.string.resume_game),
-                onClick = onResumeGame,
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = AppIcons.ArrowBack,
-                containerColor = PokerTheme.ChipBlue,
-                contentColor = Color.White,
-            )
-
-            LargeDealerButton(
-                text = stringResource(Res.string.start),
-                onClick = onStartGame,
-                modifier = Modifier,
-                color = PokerTheme.ChipGreen,
-                size = 96.dp,
-            )
-        } else {
-            LargeDealerButton(
-                text = stringResource(Res.string.start),
-                onClick = onStartGame,
-                modifier = Modifier,
-                color = PokerTheme.ChipGreen,
-                size = 96.dp,
-            )
-        }
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
+        // Primary Actions: Start / Resume
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             PokerButton(
-                text = stringResource(Res.string.settings),
-                onClick = onSettingsClick,
-                modifier = Modifier.weight(1f),
-                leadingIcon = AppIcons.Settings,
+                text = stringResource(Res.string.start),
+                onClick = onStartGame,
+                modifier = Modifier.fillMaxWidth(),
             )
-            PokerButton(
-                text = stringResource(Res.string.leaderboard),
-                onClick = onStatsClick,
-                modifier = Modifier.weight(1f),
-                leadingIcon = AppIcons.Trophy,
-            )
+
+            if (state.hasSavedGame) {
+                PokerButton(
+                    text = stringResource(Res.string.resume_game),
+                    onClick = onResumeGame,
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = AppIcons.ArrowBack,
+                )
+            }
         }
 
-        val dailyText =
-            if (state.isDailyChallengeCompleted) {
-                stringResource(Res.string.daily_challenge_completed)
-            } else {
-                stringResource(Res.string.daily_challenge)
+        // Secondary Actions: Settings, Stats, Daily
+        Column(
+            modifier = Modifier.fillMaxWidth(),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                PokerButton(
+                    text = stringResource(Res.string.settings),
+                    onClick = onSettingsClick,
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = AppIcons.Settings,
+                )
+                PokerButton(
+                    text = stringResource(Res.string.leaderboard),
+                    onClick = onStatsClick,
+                    modifier = Modifier.weight(1f),
+                    leadingIcon = AppIcons.Trophy,
+                )
             }
 
-        PokerButton(
-            text = dailyText,
-            onClick = onDailyChallengeClick,
-            modifier = Modifier.fillMaxWidth(),
-            leadingIcon = AppIcons.DateRange,
-            containerColor = if (state.isDailyChallengeCompleted) PokerTheme.OakWood else PokerTheme.ChipRed,
-            contentColor = if (state.isDailyChallengeCompleted) PokerTheme.Gold else Color.White,
-        )
+            val dailyText =
+                if (state.isDailyChallengeCompleted) {
+                    stringResource(Res.string.daily_challenge_completed)
+                } else {
+                    stringResource(Res.string.daily_challenge)
+                }
+
+            PokerButton(
+                text = dailyText,
+                onClick = onDailyChallengeClick,
+                modifier = Modifier.fillMaxWidth(),
+                leadingIcon = AppIcons.DateRange,
+                containerColor = if (state.isDailyChallengeCompleted) PokerTheme.OakWood else PokerTheme.ChipRed,
+                contentColor = if (state.isDailyChallengeCompleted) PokerTheme.Gold else Color.White,
+            )
+        }
     }
 }
