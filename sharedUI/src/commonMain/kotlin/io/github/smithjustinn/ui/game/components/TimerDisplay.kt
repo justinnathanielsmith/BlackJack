@@ -201,7 +201,7 @@ private fun StandardTimerDisplay(
 ) {
     Surface(
         shape = RoundedCornerShape(if (visuals.layout == TimerLayout.COMPACT) 16.dp else 24.dp),
-        color = PokerTheme.HudBackground,
+        color = PokerTheme.OakWood,
         border =
             BorderStroke(
                 width = 2.dp,
@@ -209,7 +209,6 @@ private fun StandardTimerDisplay(
                     if (state.isLowTime || feedback.showTimeLoss) {
                         MemoryMatchTheme.colors.tacticalRed
                     } else {
-                        PokerTheme.OakWood // Wood border for HUD? Or Gold. Let's try Gold for premium look.
                         PokerTheme.Gold.copy(alpha = 0.5f)
                     },
             ),

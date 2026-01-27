@@ -4,7 +4,6 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -40,7 +39,6 @@ import io.github.smithjustinn.resources.mute_content_description
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.unmute_content_description
 import io.github.smithjustinn.theme.GoldenYellow
-import io.github.smithjustinn.theme.InactiveBackground
 import io.github.smithjustinn.theme.TacticalRed
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.theme.PokerTheme
@@ -209,15 +207,15 @@ private fun RestartButton(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        color = InactiveBackground.copy(alpha = 0.4f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
+        color = PokerTheme.OakWood,
+        shadowElevation = 4.dp,
         modifier = modifier.size(if (compact) 40.dp else 48.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 AppIcons.Restart,
                 contentDescription = stringResource(Res.string.restart_content_description),
-                tint = GoldenYellow,
+                tint = PokerTheme.Gold,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -234,8 +232,8 @@ private fun MuteButton(
     Surface(
         onClick = onClick,
         shape = RoundedCornerShape(12.dp),
-        color = InactiveBackground.copy(alpha = 0.4f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
+        color = PokerTheme.OakWood,
+        shadowElevation = 4.dp,
         modifier = modifier.size(if (compact) 40.dp else 48.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -249,7 +247,7 @@ private fun MuteButton(
                             Res.string.unmute_content_description
                         },
                     ),
-                tint = if (isAudioEnabled) GoldenYellow else TacticalRed,
+                tint = if (isAudioEnabled) PokerTheme.Gold else TacticalRed,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -275,7 +273,7 @@ private fun TimeProgressBar(
                 .fillMaxWidth()
                 .height(if (compact) 4.dp else 8.dp)
                 .clip(CircleShape)
-                .background(InactiveBackground.copy(alpha = 0.5f)),
+                .background(Color.Black.copy(alpha = 0.4f)),
     ) {
         Box(
             modifier =

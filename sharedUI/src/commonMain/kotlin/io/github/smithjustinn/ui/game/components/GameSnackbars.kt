@@ -41,6 +41,7 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.new_high_score
 import io.github.smithjustinn.theme.GoldenYellow
 import io.github.smithjustinn.ui.components.AppIcons
+import io.github.smithjustinn.ui.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -61,7 +62,7 @@ fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(12.dp),
         colors =
             CardDefaults.cardColors(
-                containerColor = Color.Black.copy(alpha = 0.9f), // Dark background
+                containerColor = PokerTheme.OakWood,
                 contentColor = Color.White,
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
@@ -142,7 +143,7 @@ private fun MatchCommentCard(matchComment: MatchComment) {
         shape = RoundedCornerShape(12.dp),
         colors =
             CardDefaults.cardColors(
-                containerColor = Color.Black.copy(alpha = 0.8f),
+                containerColor = PokerTheme.OakWood,
                 contentColor = Color.White,
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),

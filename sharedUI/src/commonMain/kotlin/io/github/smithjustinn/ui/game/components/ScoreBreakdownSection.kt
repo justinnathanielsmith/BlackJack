@@ -24,6 +24,7 @@ import io.github.smithjustinn.resources.score_match_points
 import io.github.smithjustinn.resources.score_move_bonus
 import io.github.smithjustinn.resources.score_time_bonus
 import io.github.smithjustinn.theme.BonusGreen
+import io.github.smithjustinn.ui.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 private val BonusColor = BonusGreen
@@ -36,14 +37,11 @@ fun ScoreBreakdownSection(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color =
-            io.github.smithjustinn.theme.MemoryMatchTheme.colors.inactiveBackground
-                .copy(alpha = 0.4f),
+        color = PokerTheme.OakWood.copy(alpha = 0.6f),
         border =
             BorderStroke(
                 1.dp,
-                io.github.smithjustinn.theme.MemoryMatchTheme.colors.goldenYellow
-                    .copy(alpha = 0.3f),
+                PokerTheme.Gold.copy(alpha = 0.3f),
             ),
     ) {
         Column(

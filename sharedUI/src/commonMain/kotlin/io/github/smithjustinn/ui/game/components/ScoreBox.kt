@@ -23,6 +23,7 @@ import io.github.smithjustinn.resources.final_score_label
 import io.github.smithjustinn.resources.moves_label
 import io.github.smithjustinn.resources.time_label
 import io.github.smithjustinn.theme.MemoryMatchTheme
+import io.github.smithjustinn.ui.theme.PokerTheme
 import io.github.smithjustinn.utils.formatTime
 import org.jetbrains.compose.resources.stringResource
 
@@ -37,8 +38,8 @@ fun ScoreBox(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = MemoryMatchTheme.colors.inactiveBackground, // Dark translucent
-        border = BorderStroke(2.dp, MemoryMatchTheme.colors.goldenYellow.copy(alpha = 0.6f)), // Gold border
+        color = PokerTheme.OakWood,
+        border = BorderStroke(2.dp, PokerTheme.Gold.copy(alpha = 0.6f)), // Gold border
     ) {
         Column(
             modifier = Modifier.padding(if (compact) 12.dp else 20.dp),

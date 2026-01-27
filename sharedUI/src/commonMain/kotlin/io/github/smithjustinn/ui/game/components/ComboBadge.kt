@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.combo_format
 import io.github.smithjustinn.theme.MemoryMatchTheme
+import io.github.smithjustinn.ui.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -88,7 +89,7 @@ private fun ComboBadgeContent(
             .RoundedCornerShape(50)
 
     Surface(
-        color = Color.Black.copy(alpha = 0.8f), // Dark chip background
+        color = PokerTheme.OakWood,
         shape = chipShape,
         border = BorderStroke(BORDER_WIDTH.dp, badgeColor),
         modifier =
