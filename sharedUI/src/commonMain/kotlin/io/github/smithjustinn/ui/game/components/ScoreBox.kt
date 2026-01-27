@@ -22,8 +22,7 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.final_score_label
 import io.github.smithjustinn.resources.moves_label
 import io.github.smithjustinn.resources.time_label
-import io.github.smithjustinn.theme.InactiveBackground
-import io.github.smithjustinn.theme.NeonCyan
+import io.github.smithjustinn.theme.MemoryMatchTheme
 import io.github.smithjustinn.utils.formatTime
 import org.jetbrains.compose.resources.stringResource
 
@@ -38,8 +37,8 @@ fun ScoreBox(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = InactiveBackground.copy(alpha = 0.5f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
+        color = MemoryMatchTheme.colors.inactiveBackground, // Dark translucent
+        border = BorderStroke(2.dp, MemoryMatchTheme.colors.goldenYellow.copy(alpha = 0.6f)), // Gold border
     ) {
         Column(
             modifier = Modifier.padding(if (compact) 12.dp else 20.dp),
@@ -52,14 +51,16 @@ fun ScoreBox(
                         MaterialTheme.typography.labelMedium.copy(
                             fontWeight = FontWeight.Black,
                             letterSpacing = 1.2.sp,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                         )
                     } else {
                         MaterialTheme.typography.labelLarge.copy(
                             fontWeight = FontWeight.Black,
                             letterSpacing = 2.sp,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                         )
                     },
-                color = NeonCyan,
+                color = MemoryMatchTheme.colors.goldenYellow,
                 textAlign = TextAlign.Center,
             )
 
@@ -70,7 +71,10 @@ fun ScoreBox(
                         MaterialTheme.typography.headlineLarge
                     } else {
                         MaterialTheme.typography.displayMedium
-                    }.copy(fontWeight = FontWeight.Black),
+                    }.copy(
+                        fontWeight = FontWeight.Black,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    ),
                 color = Color.White,
                 textAlign = TextAlign.Center,
             )

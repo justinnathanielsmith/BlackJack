@@ -23,14 +23,18 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.CardState
+import io.github.smithjustinn.ui.theme.PokerTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.ceil
@@ -90,7 +94,23 @@ fun GameGrid(
         modifier =
             Modifier
                 .fillMaxSize()
-                .windowInsetsPadding(
+                .drawBehind {
+                    // Felt Background
+                    drawRect(
+                        brush =
+                            Brush.radialGradient(
+                                colors = listOf(PokerTheme.FeltGreen, PokerTheme.FeltGreenDark),
+                                center = center,
+                                radius = size.maxDimension / 1.5f,
+                            ),
+                    )
+
+                    // Wood Border ("Racetrack")
+                    drawRect(
+                        color = PokerTheme.OakWood,
+                        style = Stroke(width = 16.dp.toPx()),
+                    )
+                }.windowInsetsPadding(
                     WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
                 ).onGloballyPositioned { layoutCoordinates ->
                     gridPosition = layoutCoordinates.positionInRoot()

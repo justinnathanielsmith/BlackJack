@@ -67,11 +67,8 @@ import io.github.smithjustinn.resources.settings_sound_effects_desc
 import io.github.smithjustinn.resources.settings_symbol_style
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.InactiveBackground
-import io.github.smithjustinn.theme.NeonCyan
-import io.github.smithjustinn.theme.StartBackgroundBottom
-import io.github.smithjustinn.theme.StartBackgroundTop
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.components.NeonSegmentedControl
+import io.github.smithjustinn.ui.components.PillSegmentedControl
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -98,8 +95,14 @@ fun SettingsContent(
                 .fillMaxSize()
                 .background(
                     brush =
-                        Brush.verticalGradient(
-                            colors = listOf(StartBackgroundTop, StartBackgroundBottom),
+                        Brush.radialGradient(
+                            colors =
+                                listOf(
+                                    io.github.smithjustinn.theme.FeltGreenTop,
+                                    io.github.smithjustinn.theme.FeltGreenBottom,
+                                ),
+                            center = androidx.compose.ui.geometry.Offset.Unspecified,
+                            radius = 1000f, // Broad spread for the "tabletop" look
                         ),
                 ),
     ) {
@@ -137,7 +140,10 @@ private fun SettingsTopBar(
         title = {
             Text(
                 text = stringResource(Res.string.settings),
-                style = MaterialTheme.typography.titleLarge,
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    ),
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
             )
@@ -151,7 +157,7 @@ private fun SettingsTopBar(
                 Icon(
                     imageVector = AppIcons.ArrowBack,
                     contentDescription = stringResource(Res.string.back_content_description),
-                    tint = Color.White,
+                    tint = io.github.smithjustinn.theme.GoldenYellow,
                 )
             }
         },
@@ -307,8 +313,10 @@ private fun SettingsResetSection(
                 enabled = state.isWalkthroughCompleted,
                 colors =
                     ButtonDefaults.buttonColors(
-                        containerColor = NeonCyan.copy(alpha = 0.2f),
-                        contentColor = NeonCyan,
+                        containerColor =
+                            io.github.smithjustinn.theme.GoldenYellow
+                                .copy(alpha = 0.2f),
+                        contentColor = io.github.smithjustinn.theme.GoldenYellow,
                         disabledContainerColor = InactiveBackground.copy(alpha = 0.5f),
                         disabledContentColor = Color.White.copy(alpha = 0.3f),
                     ),
@@ -335,7 +343,7 @@ private fun <T> ThemeSelector(
             color = Color.White,
         )
 
-        NeonSegmentedControl(
+        PillSegmentedControl(
             items = options,
             selectedItem = selected,
             onItemSelected = onSelect,
@@ -361,7 +369,7 @@ private fun VolumeSlider(
         Icon(
             imageVector = AppIcons.VolumeUp,
             contentDescription = null,
-            tint = NeonCyan,
+            tint = io.github.smithjustinn.theme.GoldenYellow,
             modifier = Modifier.size(18.dp),
         )
         Slider(
@@ -371,7 +379,7 @@ private fun VolumeSlider(
             colors =
                 SliderDefaults.colors(
                     thumbColor = Color.White,
-                    activeTrackColor = NeonCyan,
+                    activeTrackColor = io.github.smithjustinn.theme.GoldenYellow,
                     inactiveTrackColor = InactiveBackground,
                 ),
         )
@@ -391,12 +399,15 @@ private fun SettingsCard(
 ) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(24.dp),
-        color = InactiveBackground.copy(alpha = 0.4f),
+        shape = RoundedCornerShape(12.dp), // Sharper corners for a "wooden" feel
+        color = Color.Black.copy(alpha = 0.3f), // Recessed felt look
         border =
             androidx.compose.foundation.BorderStroke(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.1f),
+                color =
+                    io.github.smithjustinn.theme.GoldenYellow
+                        .copy(alpha = 0.2f),
+                // Brass-like inlay border
             ),
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
@@ -404,7 +415,7 @@ private fun SettingsCard(
                 Text(
                     text = title.uppercase(),
                     style = MaterialTheme.typography.labelLarge,
-                    color = NeonCyan,
+                    color = io.github.smithjustinn.theme.GoldenYellow,
                     fontWeight = FontWeight.ExtraBold,
                     modifier = Modifier.padding(bottom = 16.dp),
                 )
@@ -447,7 +458,7 @@ private fun SettingsToggle(
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
-                    checkedTrackColor = NeonCyan,
+                    checkedTrackColor = io.github.smithjustinn.theme.GoldenYellow,
                     uncheckedTrackColor = InactiveBackground,
                     uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
                     uncheckedBorderColor = Color.Transparent,

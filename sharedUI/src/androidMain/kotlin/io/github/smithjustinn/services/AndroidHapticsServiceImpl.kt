@@ -23,7 +23,11 @@ class AndroidHapticsServiceImpl(
 
     @RequiresPermission(Manifest.permission.VIBRATE)
     override fun vibrateMatch() {
-        vibrate(longArrayOf(0, MATCH_DURATION), intArrayOf(0, MAX_AMPLITUDE))
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            vibrator?.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK))
+        } else {
+            vibrate(longArrayOf(0, MATCH_DURATION), intArrayOf(0, MAX_AMPLITUDE))
+        }
     }
 
     @RequiresPermission(Manifest.permission.VIBRATE)

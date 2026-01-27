@@ -15,7 +15,7 @@ import io.github.smithjustinn.resources.daily_challenge
 import io.github.smithjustinn.resources.game_mode
 import io.github.smithjustinn.resources.mode_standard
 import io.github.smithjustinn.resources.mode_time_attack
-import io.github.smithjustinn.ui.components.NeonSegmentedControl
+import io.github.smithjustinn.ui.components.PillSegmentedControl
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -37,7 +37,7 @@ fun ModeSelector(
             color = Color.White,
         )
 
-        NeonSegmentedControl(
+        PillSegmentedControl(
             items = modes,
             selectedItem = selectedMode,
             onItemSelected = onModeSelected,

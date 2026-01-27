@@ -162,13 +162,13 @@ private fun ResultsCardContent(
                 .scale(scale)
                 .widthIn(max = 550.dp),
         shape = RoundedCornerShape(24.dp),
-        color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.8f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
+        color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.9f), // Darker for poker table feel
+        border = BorderStroke(2.dp, MemoryMatchTheme.colors.goldenYellow.copy(alpha = 0.5f)), // Gold border
         shadowElevation = 16.dp,
     ) {
         val contentPadding = if (isCompactHeight) 12.dp else 24.dp
         val verticalSpacing = if (isCompactHeight) 8.dp else 16.dp
-        val headerColor = if (isWon) MemoryMatchTheme.colors.neonCyan else MemoryMatchTheme.colors.tacticalRed
+        val headerColor = if (isWon) MemoryMatchTheme.colors.goldenYellow else MemoryMatchTheme.colors.tacticalRed // Gold for win, Red for loss
 
         Column(
             modifier =
@@ -183,11 +183,12 @@ private fun ResultsCardContent(
                 text = stringResource(titleRes).uppercase(),
                 style =
                     if (isCompactHeight) {
-                        MaterialTheme.typography.headlineSmall
+                        MaterialTheme.typography.headlineSmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif)
                     } else {
                         MaterialTheme.typography.headlineLarge.copy(
                             fontWeight = FontWeight.Black,
                             letterSpacing = 2.sp,
+                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
                         )
                     },
                 color = headerColor,
@@ -241,14 +242,15 @@ private fun CompactResultsContent(
             onClick = onPlayAgain,
             modifier = Modifier.height(48.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(containerColor = MemoryMatchTheme.colors.neonCyan),
+            colors = ButtonDefaults.buttonColors(containerColor = MemoryMatchTheme.colors.goldenYellow),
         ) {
             Text(
                 text = stringResource(Res.string.play_again).uppercase(),
                 style =
                     MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        color = Color.White,
+                        color = Color.Black,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
                     ),
             )
         }
@@ -281,7 +283,7 @@ private fun StandardResultsContent(
                 .fillMaxWidth()
                 .height(56.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = MemoryMatchTheme.colors.neonCyan),
+        colors = ButtonDefaults.buttonColors(containerColor = MemoryMatchTheme.colors.goldenYellow),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
     ) {
         Text(
@@ -290,7 +292,8 @@ private fun StandardResultsContent(
                 MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp,
-                    color = Color.White,
+                    color = Color.Black,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
                 ),
         )
     }
@@ -310,8 +313,8 @@ private fun ResultsActionButtons(
                 .fillMaxWidth()
                 .height(if (isCompact) 48.dp else 56.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = MemoryMatchTheme.colors.neonCyan),
-        border = BorderStroke(1.dp, MemoryMatchTheme.colors.neonCyan),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = MemoryMatchTheme.colors.goldenYellow),
+        border = BorderStroke(1.dp, MemoryMatchTheme.colors.goldenYellow),
     ) {
         Icon(imageVector = AppIcons.Share, contentDescription = null)
         Spacer(modifier = Modifier.width(8.dp))
@@ -319,11 +322,12 @@ private fun ResultsActionButtons(
             text = "SHARE REPLAY",
             style =
                 if (isCompact) {
-                    MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold)
+                    MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold, fontFamily = androidx.compose.ui.text.font.FontFamily.Serif)
                 } else {
                     MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Black,
                         letterSpacing = 1.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
                     )
                 },
         )

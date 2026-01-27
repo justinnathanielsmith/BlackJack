@@ -31,7 +31,6 @@ import io.github.smithjustinn.resources.stats_time_header
 import io.github.smithjustinn.theme.Bronze
 import io.github.smithjustinn.theme.GoldenYellow
 import io.github.smithjustinn.theme.InactiveBackground
-import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.theme.Silver
 import io.github.smithjustinn.utils.formatTime
 import kotlinx.collections.immutable.ImmutableList
@@ -61,21 +60,21 @@ private fun LeaderboardHeader(level: DifficultyLevel) {
     ) {
         Text(
             text = stringResource(level.nameRes).uppercase(),
-            style = MaterialTheme.typography.labelLarge,
+            style = MaterialTheme.typography.labelLarge.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif),
             fontWeight = FontWeight.ExtraBold,
-            color = NeonCyan,
+            color = GoldenYellow,
             letterSpacing = 1.sp,
         )
         Surface(
-            color = NeonCyan.copy(alpha = 0.15f),
+            color = GoldenYellow.copy(alpha = 0.15f),
             shape = RoundedCornerShape(8.dp),
-            border = androidx.compose.foundation.BorderStroke(1.dp, NeonCyan.copy(alpha = 0.3f)),
+            border = androidx.compose.foundation.BorderStroke(1.dp, GoldenYellow.copy(alpha = 0.3f)),
         ) {
             Text(
                 text = stringResource(Res.string.pairs_format, level.pairs),
-                style = MaterialTheme.typography.labelSmall,
+                style = MaterialTheme.typography.labelSmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif),
                 fontWeight = FontWeight.Bold,
-                color = Color.White,
+                color = GoldenYellow,
                 modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
             )
         }
@@ -87,11 +86,11 @@ private fun LeaderboardList(entries: ImmutableList<LeaderboardEntry>) {
     Surface(
         modifier = Modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = InactiveBackground.copy(alpha = 0.4f),
+        color = InactiveBackground.copy(alpha = 0.4f), // Felt darkness
         border =
             androidx.compose.foundation.BorderStroke(
                 width = 1.dp,
-                color = Color.White.copy(alpha = 0.1f),
+                color = GoldenYellow.copy(alpha = 0.15f), // Brass inlay
             ),
     ) {
         if (entries.isEmpty()) {
@@ -101,7 +100,7 @@ private fun LeaderboardList(entries: ImmutableList<LeaderboardEntry>) {
             ) {
                 Text(
                     text = stringResource(Res.string.no_stats_yet),
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodyMedium.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif),
                     color = Color.White.copy(alpha = 0.4f),
                 )
             }
@@ -112,7 +111,7 @@ private fun LeaderboardList(entries: ImmutableList<LeaderboardEntry>) {
                     if (index < entries.size - 1) {
                         HorizontalDivider(
                             modifier = Modifier.padding(horizontal = 16.dp),
-                            color = Color.White.copy(alpha = 0.05f),
+                            color = GoldenYellow.copy(alpha = 0.1f),
                         )
                     }
                 }
@@ -139,7 +138,7 @@ private fun LeaderboardRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = stringResource(Res.string.score_label, entry.score),
-                style = MaterialTheme.typography.bodyLarge,
+                style = MaterialTheme.typography.bodyLarge.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif),
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
             )
@@ -168,16 +167,16 @@ private fun RankBadge(rank: Int) {
                 1 -> GoldenYellow.copy(alpha = 0.2f)
                 2 -> Silver.copy(alpha = 0.2f)
                 3 -> Bronze.copy(alpha = 0.2f)
-                else -> Color.White.copy(alpha = 0.05f)
+                else -> Color.Black.copy(alpha = 0.3f)
             },
         border =
             androidx.compose.foundation.BorderStroke(
                 width = 1.dp,
                 color =
                     when (rank) {
-                        1 -> GoldenYellow.copy(alpha = 0.5f)
-                        2 -> Silver.copy(alpha = 0.5f)
-                        3 -> Bronze.copy(alpha = 0.5f)
+                        1 -> GoldenYellow.copy(alpha = 0.8f)
+                        2 -> Silver.copy(alpha = 0.8f)
+                        3 -> Bronze.copy(alpha = 0.8f)
                         else -> Color.White.copy(alpha = 0.1f)
                     },
             ),
@@ -185,7 +184,7 @@ private fun RankBadge(rank: Int) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = rank.toString(),
-                style = MaterialTheme.typography.labelMedium,
+                style = MaterialTheme.typography.labelMedium.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif),
                 fontWeight = FontWeight.ExtraBold,
                 color =
                     when (rank) {
@@ -207,8 +206,8 @@ private fun StatMiniItem(
     Column(horizontalAlignment = Alignment.End) {
         Text(
             text = label,
-            style = MaterialTheme.typography.labelSmall,
-            color = NeonCyan.copy(alpha = 0.6f),
+            style = MaterialTheme.typography.labelSmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif),
+            color = GoldenYellow.copy(alpha = 0.7f),
             fontWeight = FontWeight.ExtraBold,
             letterSpacing = 0.5.sp,
         )

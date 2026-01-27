@@ -34,7 +34,12 @@ private data class ExplosionParticle(
 fun ExplosionEffect(
     modifier: Modifier = Modifier,
     particleCount: Int = 30,
-    colors: List<Color> = listOf(Color.Yellow, Color.Red, Color.Cyan, Color.Magenta, Color.White),
+    colors: List<Color> = listOf(
+        io.github.smithjustinn.theme.GoldenYellow, 
+        io.github.smithjustinn.theme.TacticalRed, 
+        Color.Black, 
+        Color.White
+    ),
     centerOverride: Offset? = null,
 ) {
     val infiniteTransition = rememberInfiniteTransition()

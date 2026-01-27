@@ -55,6 +55,12 @@
     <string name="comment_sharp">Sharp as a tack! 📍</string>
     <string name="comment_on_a_roll">On a roll! 🌊</string>
     <string name="comment_keep_it_up">Keep it up! ✨</string>
+    <string name="comment_full_house">Full House! 🏠</string>
+    <string name="comment_the_nuts">The Nuts! 🥜</string>
+    <string name="comment_bad_beat">Bad Beat? No way! 🚀</string>
+    <string name="comment_all_in">All In! 💰</string>
+    <string name="comment_pot_odds">Good Pot Odds! 📈</string>
+    <string name="comment_high_roller">High Roller! 💎</string>
 
     <string name="score_breakdown_title">Score Breakdown</string>
     <string name="score_match_points">Match Points</string>

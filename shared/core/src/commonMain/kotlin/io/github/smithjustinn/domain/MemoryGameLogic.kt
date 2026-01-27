@@ -10,19 +10,20 @@ import io.github.smithjustinn.domain.models.ScoreBreakdown
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.comment_all_in
+import io.github.smithjustinn.resources.comment_bad_beat
 import io.github.smithjustinn.resources.comment_boom
 import io.github.smithjustinn.resources.comment_eagle_eyes
-import io.github.smithjustinn.resources.comment_first_match
+import io.github.smithjustinn.resources.comment_full_house
 import io.github.smithjustinn.resources.comment_great_find
-import io.github.smithjustinn.resources.comment_halfway
-import io.github.smithjustinn.resources.comment_incredible
-import io.github.smithjustinn.resources.comment_keep_it_up
-import io.github.smithjustinn.resources.comment_nice
+import io.github.smithjustinn.resources.comment_high_roller
 import io.github.smithjustinn.resources.comment_on_a_roll
 import io.github.smithjustinn.resources.comment_one_more
 import io.github.smithjustinn.resources.comment_perfect
 import io.github.smithjustinn.resources.comment_photographic
+import io.github.smithjustinn.resources.comment_pot_odds
 import io.github.smithjustinn.resources.comment_sharp
+import io.github.smithjustinn.resources.comment_the_nuts
 import io.github.smithjustinn.resources.comment_you_got_it
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
@@ -245,19 +246,19 @@ object MemoryGameLogic {
 
         return when {
             combo > INCREDIBLE_COMBO_THRESHOLD -> {
-                MatchComment(Res.string.comment_incredible, persistentListOf(combo))
+                MatchComment(Res.string.comment_the_nuts, persistentListOf(combo))
             }
 
             combo > NICE_COMBO_THRESHOLD -> {
-                MatchComment(Res.string.comment_nice, persistentListOf(combo))
+                MatchComment(Res.string.comment_high_roller, persistentListOf(combo))
             }
 
             matchesFound == 1 -> {
-                MatchComment(Res.string.comment_first_match)
+                MatchComment(Res.string.comment_all_in)
             }
 
             matchesFound == totalPairs / 2 -> {
-                MatchComment(Res.string.comment_halfway)
+                MatchComment(Res.string.comment_pot_odds)
             }
 
             moves <= matchesFound * 2 -> {
@@ -277,7 +278,8 @@ object MemoryGameLogic {
                         Res.string.comment_eagle_eyes,
                         Res.string.comment_sharp,
                         Res.string.comment_on_a_roll,
-                        Res.string.comment_keep_it_up,
+                        Res.string.comment_full_house, // Poker Term
+                        Res.string.comment_bad_beat, // Poker Term (Irony)
                     ).random()
                 MatchComment(randomRes)
             }

@@ -32,14 +32,16 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardDisplaySettings
+import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.ClubGreen
 import io.github.smithjustinn.theme.DiamondBlue
+import io.github.smithjustinn.theme.GoldenYellow
 import io.github.smithjustinn.theme.HeartRed
-import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.theme.SpadeBlack
 import io.github.smithjustinn.theme.StartBackgroundTop
+import io.github.smithjustinn.ui.theme.PokerTheme
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -126,7 +128,7 @@ fun PlayingCard(
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val animations = rememberCardAnimations(content, isHovered)
-    val suitColor = calculateSuitColor(content.suit, settings.areSuitsMultiColored)
+    val suitColor = calculateSuitColor(content.suit, settings.areSuitsMultiColored, settings.symbolTheme)
 
     CardContainer(
         modifier = modifier.offset { IntOffset(animations.shakeOffset.roundToInt(), 0) },
@@ -243,19 +245,21 @@ private fun CardContainer(
                     elevation =
                         if (visuals.visualState.isRecentlyMatched) {
                             10.dp
+                        } else if (visuals.visualState.isFaceUp && !visuals.visualState.isMatched) {
+                            12.dp // Lifted up when viewed
                         } else if (visuals.visualState.isMatched) {
                             2.dp
                         } else {
-                            6.dp
+                            4.dp // Resting state
                         },
                     shape = RoundedCornerShape(12.dp),
                     clip = false,
-                    ambientColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
-                    spotColor = if (visuals.visualState.isRecentlyMatched) NeonCyan else Color.Black,
+                    ambientColor = if (visuals.visualState.isRecentlyMatched) GoldenYellow else Color.Black,
+                    spotColor = if (visuals.visualState.isRecentlyMatched) GoldenYellow else Color.Black,
                 ).drawBehind {
                     if (visuals.visualState.isRecentlyMatched) {
                         drawCircle(
-                            color = NeonCyan.copy(alpha = visuals.matchedGlowAlpha),
+                            color = GoldenYellow.copy(alpha = visuals.matchedGlowAlpha),
                             radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
                             center = center,
                         )
@@ -287,8 +291,8 @@ private fun getCardBorder(
 ): BorderStroke =
     if (rotation <= HALF_ROTATION) {
         when {
-            visualState.isRecentlyMatched -> BorderStroke(2.dp, NeonCyan)
-            visualState.isMatched -> BorderStroke(1.dp, NeonCyan.copy(alpha = MEDIUM_ALPHA))
+            visualState.isRecentlyMatched -> BorderStroke(2.dp, GoldenYellow)
+            visualState.isMatched -> BorderStroke(1.dp, GoldenYellow.copy(alpha = MEDIUM_ALPHA))
             visualState.isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
             else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
         }
@@ -304,8 +308,12 @@ private fun getCardBorder(
 private fun calculateSuitColor(
     suit: Suit,
     areSuitsMultiColored: Boolean,
+    theme: CardSymbolTheme,
 ): Color =
-    if (areSuitsMultiColored) {
+    if (theme == CardSymbolTheme.POKER) {
+        // Strict Poker Colors
+        if (suit.isRed) PokerTheme.CardRed else PokerTheme.CardBlack
+    } else if (areSuitsMultiColored) {
         when (suit) {
             Suit.Hearts -> HeartRed
             Suit.Diamonds -> DiamondBlue

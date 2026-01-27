@@ -41,7 +41,6 @@ data class AppColors(
     val surfaceContainerHigh: Color,
     val surfaceContainerHighest: Color,
     // Custom Gameplay Colors
-    val neonCyan: Color,
     val tacticalRed: Color,
     val goldenYellow: Color,
     val heartRed: Color,
@@ -59,8 +58,8 @@ data class AppColors(
 
 internal val LightAppColors =
     AppColors(
-        primary = PrimaryLight,
-        onPrimary = OnPrimaryLight,
+        primary = GoldenYellow, // Gold Primary
+        onPrimary = Color.Black,
         primaryContainer = PrimaryContainerLight,
         onPrimaryContainer = OnPrimaryContainerLight,
         secondary = SecondaryLight,
@@ -75,8 +74,8 @@ internal val LightAppColors =
         onError = OnErrorLight,
         errorContainer = ErrorContainerLight,
         onErrorContainer = OnErrorContainerLight,
-        background = BackgroundLight,
-        onBackground = OnBackgroundLight,
+        background = Color(0xFF35654d), // Felt Green
+        onBackground = Color.White,
         surface = SurfaceLight,
         onSurface = OnSurfaceLight,
         surfaceVariant = SurfaceVariantLight,
@@ -94,18 +93,17 @@ internal val LightAppColors =
         surfaceContainer = SurfaceContainerLight,
         surfaceContainerHigh = SurfaceContainerHighLight,
         surfaceContainerHighest = SurfaceContainerHighestLight,
-        neonCyan = NeonCyan,
-        tacticalRed = TacticalRed,
+        tacticalRed = Color(0xFFB91C1C), // Casino Red
         goldenYellow = GoldenYellow,
         heartRed = HeartRed,
         diamondBlue = DiamondBlue,
         bonusGreen = BonusGreen,
         heatGlowPrimary = HeatGlowPrimary,
-        startBackgroundTop = StartBackgroundTop,
-        startBackgroundBottom = StartBackgroundBottom,
+        startBackgroundTop = Color(0xFF35654d),
+        startBackgroundBottom = Color(0xFF1e3a2f),
         softBlue = SoftBlue,
         darkBlue = DarkBlue,
-        inactiveBackground = InactiveBackground,
+        inactiveBackground = Color(0x99000000), // Dark translucent
         heatBackgroundTop = HeatBackgroundTop,
         heatBackgroundBottom = HeatBackgroundBottom,
     )
@@ -147,7 +145,6 @@ internal val DarkAppColors =
         surfaceContainer = SurfaceContainerDark,
         surfaceContainerHigh = SurfaceContainerHighDark,
         surfaceContainerHighest = SurfaceContainerHighestDark,
-        neonCyan = NeonCyan,
         tacticalRed = TacticalRed,
         goldenYellow = GoldenYellow,
         heartRed = HeartRed,

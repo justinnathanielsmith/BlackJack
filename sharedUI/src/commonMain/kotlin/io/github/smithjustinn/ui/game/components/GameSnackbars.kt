@@ -40,10 +40,6 @@ import io.github.smithjustinn.domain.models.MatchComment
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.new_high_score
 import io.github.smithjustinn.theme.GoldenYellow
-import io.github.smithjustinn.theme.LightGreyBlue
-import io.github.smithjustinn.theme.NeonCyan
-import io.github.smithjustinn.theme.StartBackgroundBottom
-import io.github.smithjustinn.theme.StartBackgroundTop
 import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
 
@@ -65,7 +61,7 @@ fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
         shape = RoundedCornerShape(12.dp),
         colors =
             CardDefaults.cardColors(
-                containerColor = StartBackgroundTop,
+                containerColor = Color.Black.copy(alpha = 0.9f), // Dark background
                 contentColor = Color.White,
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 16.dp),
@@ -94,7 +90,10 @@ fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
             )
             Text(
                 text = stringResource(Res.string.new_high_score).uppercase(),
-                style = MaterialTheme.typography.titleLarge,
+                style =
+                    MaterialTheme.typography.titleLarge.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    ),
                 fontWeight = FontWeight.Black,
                 color = Color.White,
             )
@@ -143,8 +142,8 @@ private fun MatchCommentCard(matchComment: MatchComment) {
         shape = RoundedCornerShape(12.dp),
         colors =
             CardDefaults.cardColors(
-                containerColor = StartBackgroundBottom,
-                contentColor = LightGreyBlue,
+                containerColor = Color.Black.copy(alpha = 0.8f),
+                contentColor = Color.White,
             ),
         elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         modifier =
@@ -152,8 +151,8 @@ private fun MatchCommentCard(matchComment: MatchComment) {
                 .padding(horizontal = 16.dp, vertical = 8.dp)
                 .fillMaxWidth()
                 .border(
-                    width = 1.dp,
-                    color = NeonCyan.copy(alpha = 0.6f),
+                    width = 1.5.dp,
+                    color = GoldenYellow.copy(alpha = 0.8f),
                     shape = RoundedCornerShape(12.dp),
                 ),
     ) {
@@ -167,8 +166,11 @@ private fun MatchCommentCard(matchComment: MatchComment) {
         ) {
             Text(
                 text = "“",
-                style = MaterialTheme.typography.headlineSmall,
-                color = NeonCyan,
+                style =
+                    MaterialTheme.typography.headlineSmall.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    ),
+                color = GoldenYellow,
                 fontWeight = FontWeight.Bold,
             )
             Text(
@@ -177,7 +179,8 @@ private fun MatchCommentCard(matchComment: MatchComment) {
                     MaterialTheme.typography.titleMedium.copy(
                         fontStyle = FontStyle.Italic,
                         lineHeight = 20.sp,
-                        color = LightGreyBlue,
+                        color = Color.White,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                     ),
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center,
@@ -185,8 +188,11 @@ private fun MatchCommentCard(matchComment: MatchComment) {
             )
             Text(
                 text = "”",
-                style = MaterialTheme.typography.headlineSmall,
-                color = NeonCyan,
+                style =
+                    MaterialTheme.typography.headlineSmall.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    ),
+                color = GoldenYellow,
                 fontWeight = FontWeight.Bold,
             )
         }

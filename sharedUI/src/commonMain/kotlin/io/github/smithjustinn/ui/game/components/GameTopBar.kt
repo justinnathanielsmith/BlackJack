@@ -39,10 +39,11 @@ import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.mute_content_description
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.unmute_content_description
+import io.github.smithjustinn.theme.GoldenYellow
 import io.github.smithjustinn.theme.InactiveBackground
-import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.theme.TacticalRed
 import io.github.smithjustinn.ui.components.AppIcons
+import io.github.smithjustinn.ui.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -157,18 +158,46 @@ private fun BackButton(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
+    val size = if (compact) 40.dp else 48.dp
+    // Using PokerChip directly for custom icon or just DealerButton with text "Back"?
+    // Spec says "large, circular Dealer Buttons". But space is limited in TopBar.
+    // I'll use a slightly smaller DealerButton with the Arrow Icon instead of text if space is tight,
+    // OR create a IconChip.
+    // Let's use PokerButton style (Chip) but with Icon.
+
+    // We can reuse PokerChip logic but passing custom content is not easy with current PokerChip.
+    // I will implement it here using similar style.
+
+    // Actually, let's use the DealerButton style (Chip shape) but with the Icon.
+
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        color = InactiveBackground.copy(alpha = 0.4f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.15f)),
-        modifier = modifier.size(if (compact) 40.dp else 48.dp),
+        shape = CircleShape,
+        color = PokerTheme.ChipRed,
+        shadowElevation = 8.dp,
+        modifier = modifier.size(size),
     ) {
         Box(contentAlignment = Alignment.Center) {
+            // Dashed border effect (simplified for icon button)
+            androidx.compose.foundation.Canvas(modifier = Modifier.matchParentSize()) {
+                val strokeWidth = size.toPx() * 0.1f
+                drawCircle(
+                    color = Color.White,
+                    style =
+                        androidx.compose.ui.graphics.drawscope.Stroke(
+                            width = strokeWidth,
+                            pathEffect =
+                                androidx.compose.ui.graphics.PathEffect
+                                    .dashPathEffect(floatArrayOf(10f, 10f), 0f),
+                        ),
+                    radius = this.size.minDimension / 2 * 0.85f,
+                )
+            }
+
             Icon(
                 AppIcons.ArrowBack,
                 contentDescription = stringResource(Res.string.back_content_description),
-                tint = NeonCyan,
+                tint = PokerTheme.Gold,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -192,7 +221,7 @@ private fun RestartButton(
             Icon(
                 AppIcons.Restart,
                 contentDescription = stringResource(Res.string.restart_content_description),
-                tint = NeonCyan,
+                tint = GoldenYellow,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -224,7 +253,7 @@ private fun MuteButton(
                             Res.string.unmute_content_description
                         },
                     ),
-                tint = if (isAudioEnabled) NeonCyan else TacticalRed,
+                tint = if (isAudioEnabled) GoldenYellow else TacticalRed,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -260,15 +289,15 @@ private fun TimeProgressBar(
                     .shadow(
                         elevation = if (isLowTime) 0.dp else 12.dp,
                         shape = CircleShape,
-                        ambientColor = NeonCyan,
-                        spotColor = NeonCyan,
+                        ambientColor = GoldenYellow,
+                        spotColor = GoldenYellow,
                         clip = false,
                     ).clip(CircleShape)
                     .background(
                         if (isLowTime) {
                             Brush.horizontalGradient(listOf(TacticalRed, TacticalRed.copy(alpha = 0.7f)))
                         } else {
-                            Brush.horizontalGradient(listOf(NeonCyan, NeonCyan.copy(alpha = 0.7f)))
+                            Brush.horizontalGradient(listOf(GoldenYellow, GoldenYellow.copy(alpha = 0.7f)))
                         },
                     ),
         )

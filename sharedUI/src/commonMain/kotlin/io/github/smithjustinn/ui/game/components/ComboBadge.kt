@@ -13,7 +13,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -22,6 +21,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -75,15 +75,21 @@ private fun ComboBadgeContent(
 ) {
     val badgeColor =
         when {
-            state.isHeatMode -> MemoryMatchTheme.colors.heatGlowPrimary
+            state.isHeatMode -> MemoryMatchTheme.colors.tacticalRed
+
+            // Casino Red
             state.isMegaBonus -> MemoryMatchTheme.colors.goldenYellow
-            else -> MemoryMatchTheme.colors.neonCyan
+
+            else -> MemoryMatchTheme.colors.goldenYellow // Gold default
         }
-    val tacticalShape = CutCornerShape(topStart = 8.dp, bottomEnd = 8.dp)
+    // Chip Shape (Circle or Rounded)
+    val chipShape =
+        androidx.compose.foundation.shape
+            .RoundedCornerShape(50)
 
     Surface(
-        color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.6f),
-        shape = tacticalShape,
+        color = Color.Black.copy(alpha = 0.8f), // Dark chip background
+        shape = chipShape,
         border = BorderStroke(BORDER_WIDTH.dp, badgeColor),
         modifier =
             modifier
@@ -93,25 +99,30 @@ private fun ComboBadgeContent(
                         if (state.isHeatMode) {
                             if (compact) 10.dp else 18.dp
                         } else {
-                            if (compact) 6.dp else 12.dp
+                            if (compact) 4.dp else 8.dp
                         },
-                    shape = tacticalShape,
-                    ambientColor = badgeColor,
-                    spotColor = badgeColor,
+                    shape = chipShape,
+                    ambientColor = Color.Black, // Dark shadow
+                    spotColor = Color.Black,
+                    clip = false,
                 ),
     ) {
+        // Chip Dashed Ring Effect (Simulated with dashed border or just inner content)
+        // For simplicity, just text.
+
         Text(
             text = stringResource(Res.string.combo_format, state.combo).uppercase(),
             modifier =
                 Modifier.padding(
-                    horizontal = if (compact) 8.dp else 12.dp,
-                    vertical = if (compact) 2.dp else 4.dp,
+                    horizontal = if (compact) 12.dp else 16.dp,
+                    vertical = if (compact) 4.dp else 8.dp,
                 ),
             style =
                 MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Black,
+                    fontWeight = FontWeight.Bold,
                     fontSize = if (compact) 12.sp else 16.sp,
                     letterSpacing = 1.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 ),
             color = badgeColor,
         )

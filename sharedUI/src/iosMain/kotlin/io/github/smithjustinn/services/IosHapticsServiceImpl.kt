@@ -7,7 +7,7 @@ import platform.UIKit.UINotificationFeedbackType
 
 class IosHapticsServiceImpl : HapticsService {
     override fun vibrateMatch() {
-        val generator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleMedium)
+        val generator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
         generator.prepare()
         generator.impactOccurred()
     }

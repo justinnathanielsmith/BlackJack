@@ -34,6 +34,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.theme.MemoryMatchTheme
+import io.github.smithjustinn.ui.theme.PokerTheme
 import io.github.smithjustinn.utils.formatTime
 
 private const val COLOR_TRANSITION_DURATION_MS = 500
@@ -102,7 +103,7 @@ private fun animateTimerColor(
             showTimeGain -> MemoryMatchTheme.colors.bonusGreen
             isLowTime -> MemoryMatchTheme.colors.tacticalRed
             minimal -> Color.White
-            else -> MemoryMatchTheme.colors.neonCyan
+            else -> MemoryMatchTheme.colors.goldenYellow
         }
 
     val color by animateColorAsState(
@@ -200,15 +201,16 @@ private fun StandardTimerDisplay(
 ) {
     Surface(
         shape = RoundedCornerShape(if (visuals.layout == TimerLayout.COMPACT) 16.dp else 24.dp),
-        color = MemoryMatchTheme.colors.inactiveBackground.copy(alpha = 0.4f),
+        color = PokerTheme.HudBackground,
         border =
             BorderStroke(
-                width = 1.dp,
+                width = 2.dp,
                 color =
                     if (state.isLowTime || feedback.showTimeLoss) {
-                        MemoryMatchTheme.colors.tacticalRed.copy(alpha = 0.5f)
+                        MemoryMatchTheme.colors.tacticalRed
                     } else {
-                        Color.White.copy(alpha = 0.15f)
+                        PokerTheme.OakWood // Wood border for HUD? Or Gold. Let's try Gold for premium look.
+                        PokerTheme.Gold.copy(alpha = 0.5f)
                     },
             ),
         modifier = modifier.height(if (visuals.layout == TimerLayout.COMPACT) 36.dp else 44.dp),

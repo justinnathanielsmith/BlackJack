@@ -24,8 +24,6 @@ import io.github.smithjustinn.resources.score_match_points
 import io.github.smithjustinn.resources.score_move_bonus
 import io.github.smithjustinn.resources.score_time_bonus
 import io.github.smithjustinn.theme.BonusGreen
-import io.github.smithjustinn.theme.InactiveBackground
-import io.github.smithjustinn.theme.NeonCyan
 import org.jetbrains.compose.resources.stringResource
 
 private val BonusColor = BonusGreen
@@ -38,8 +36,15 @@ fun ScoreBreakdownSection(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = InactiveBackground.copy(alpha = 0.4f),
-        border = BorderStroke(1.dp, Color.White.copy(alpha = 0.1f)),
+        color =
+            io.github.smithjustinn.theme.MemoryMatchTheme.colors.inactiveBackground
+                .copy(alpha = 0.4f),
+        border =
+            BorderStroke(
+                1.dp,
+                io.github.smithjustinn.theme.MemoryMatchTheme.colors.goldenYellow
+                    .copy(alpha = 0.3f),
+            ),
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
@@ -47,9 +52,12 @@ fun ScoreBreakdownSection(
         ) {
             Text(
                 text = stringResource(Res.string.score_breakdown_title).uppercase(),
-                style = MaterialTheme.typography.labelMedium,
+                style =
+                    MaterialTheme.typography.labelMedium.copy(
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    ),
                 fontWeight = FontWeight.Black,
-                color = NeonCyan,
+                color = io.github.smithjustinn.theme.MemoryMatchTheme.colors.goldenYellow,
             )
 
             BreakdownRow(

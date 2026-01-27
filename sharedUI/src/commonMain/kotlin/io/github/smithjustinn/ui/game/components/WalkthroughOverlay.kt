@@ -39,8 +39,8 @@ import io.github.smithjustinn.resources.walkthrough_skip
 import io.github.smithjustinn.resources.walkthrough_title_combos
 import io.github.smithjustinn.resources.walkthrough_title_find_pairs
 import io.github.smithjustinn.resources.walkthrough_title_welcome
+import io.github.smithjustinn.theme.GoldenYellow
 import io.github.smithjustinn.theme.InactiveBackground
-import io.github.smithjustinn.theme.NeonCyan
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -101,9 +101,12 @@ private fun WalkthroughContent(
     ) {
         Text(
             text = stringResource(getTitleRes(step)).uppercase(),
-            style = MaterialTheme.typography.headlineSmall,
+            style =
+                MaterialTheme.typography.headlineSmall.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                ),
             fontWeight = FontWeight.Black,
-            color = NeonCyan,
+            color = GoldenYellow,
             textAlign = TextAlign.Center,
             letterSpacing = 1.sp,
         )
@@ -112,9 +115,12 @@ private fun WalkthroughContent(
 
         Text(
             text = stringResource(getDescriptionRes(step)),
-            style = MaterialTheme.typography.bodyLarge,
+            style =
+                MaterialTheme.typography.bodyLarge.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                ),
             textAlign = TextAlign.Center,
-            color = Color.White.copy(alpha = 0.8f),
+            color = Color.White.copy(alpha = 0.9f),
             lineHeight = 24.sp,
         )
 
@@ -128,8 +134,9 @@ private fun WalkthroughContent(
             TextButton(onClick = onDismiss) {
                 Text(
                     stringResource(Res.string.walkthrough_skip),
-                    color = Color.White.copy(alpha = 0.5f),
+                    color = Color.White.copy(alpha = 0.6f),
                     fontWeight = FontWeight.Bold,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 )
             }
 
@@ -137,7 +144,7 @@ private fun WalkthroughContent(
                 onClick = {
                     if (step < 2) onNext() else onDismiss()
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = NeonCyan),
+                colors = ButtonDefaults.buttonColors(containerColor = GoldenYellow),
                 shape = RoundedCornerShape(12.dp),
             ) {
                 Text(
@@ -149,7 +156,8 @@ private fun WalkthroughContent(
                         stringResource(Res.string.walkthrough_got_it)
                     },
                     fontWeight = FontWeight.Black,
-                    color = Color.White,
+                    color = Color.Black, // Dark text on Gold button
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 )
             }
         }

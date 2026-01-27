@@ -22,8 +22,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.theme.InactiveBackground
-import io.github.smithjustinn.theme.NeonCyan
 
 @Composable
 fun PeekCountdownOverlay(
@@ -46,8 +44,10 @@ fun PeekCountdownOverlay(
             Surface(
                 modifier = Modifier.size(140.dp),
                 shape = CircleShape,
-                color = InactiveBackground.copy(alpha = 0.8f),
-                border = BorderStroke(2.dp, NeonCyan.copy(alpha = 0.5f)),
+                color =
+                    io.github.smithjustinn.theme.MemoryMatchTheme.colors.inactiveBackground
+                        .copy(alpha = 0.9f),
+                border = BorderStroke(4.dp, io.github.smithjustinn.theme.MemoryMatchTheme.colors.goldenYellow),
                 shadowElevation = 16.dp,
             ) {
                 Box(contentAlignment = Alignment.Center) {
@@ -57,7 +57,8 @@ fun PeekCountdownOverlay(
                             MaterialTheme.typography.displayLarge.copy(
                                 fontSize = 80.sp,
                                 fontWeight = FontWeight.Black,
-                                color = NeonCyan,
+                                color = io.github.smithjustinn.theme.MemoryMatchTheme.colors.goldenYellow,
+                                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                             ),
                     )
                 }

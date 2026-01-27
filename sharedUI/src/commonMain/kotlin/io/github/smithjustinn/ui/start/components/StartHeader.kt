@@ -19,8 +19,6 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.app_name
-import io.github.smithjustinn.theme.LightPurple
-import io.github.smithjustinn.theme.SoftBlue
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -47,17 +45,21 @@ fun StartHeader(
                         Brush.verticalGradient(
                             colors =
                                 listOf(
-                                    LightPurple,
-                                    SoftBlue,
+                                    io.github.smithjustinn.theme.GoldenYellow, // Existing gold color
+                                    androidx.compose.ui.graphics
+                                        .Color(0xFFB8860B), // DarkGoldenrod for depth
                                 ),
                         ),
                     textAlign = TextAlign.Center,
                     shadow =
                         Shadow(
-                            color = LightPurple.copy(alpha = 0.4f),
-                            offset = Offset(0f, 0f),
-                            blurRadius = 30f,
+                            color =
+                                androidx.compose.ui.graphics.Color.Black
+                                    .copy(alpha = 0.6f),
+                            offset = Offset(3f, 3f), // Sharp offset for physical depth
+                            blurRadius = 2f, // Reduced blur to remove "glow"
                         ),
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 ),
         )
 
