@@ -13,17 +13,14 @@ data class AppColors(
     val onSurface: Color,
     val error: Color,
     val onError: Color,
-
     // Custom Gameplay Colors
     val tacticalRed: Color,
     val goldenYellow: Color,
     val bonusGreen: Color,
     val softBlue: Color,
-
     // Heat Mode Colors
     val heatBackgroundTop: Color,
     val heatBackgroundBottom: Color,
-
     // Refined Poker Theme Colors
     val feltGreen: Color,
     val feltGreenDark: Color,
@@ -43,15 +40,12 @@ internal val LightAppColors =
         onSurface = GoldenYellow,
         error = TacticalRed,
         onError = Color.White,
-
         tacticalRed = TacticalRed,
         goldenYellow = GoldenYellow,
         bonusGreen = BonusGreen,
         softBlue = SoftBlue,
-
         heatBackgroundTop = HeatBackgroundTop,
         heatBackgroundBottom = HeatBackgroundBottom,
-
         feltGreen = FeltGreenTop,
         feltGreenDark = FeltGreenBottom,
         oakWood = Color(0xFF4E2C1C),
@@ -60,7 +54,8 @@ internal val LightAppColors =
         hudBackground = Color(0xCC000000),
     )
 
-internal val DarkAppColors = LightAppColors.copy(
-    background = Color(0xFF1e3a2f),
-    surface = Color(0xFF2D1409),
-)
+internal val DarkAppColors =
+    LightAppColors.copy(
+        background = Color(0xFF1e3a2f),
+        surface = Color(0xFF2D1409),
+    )

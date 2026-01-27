@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -35,43 +34,46 @@ fun <T> PillSegmentedControl(
     modifier: Modifier = Modifier,
 ) {
     val selectedIndex = items.indexOf(selectedItem)
-    val shape = RoundedCornerShape(50)
+    val shape = RoundedCornerShape(CORNER_PERCENT)
     val colors = PokerTheme.colors
     val spacing = PokerTheme.spacing
 
     BoxWithConstraints(
-        modifier = modifier
-            .height(48.dp)
-            .clip(shape)
-            .background(colors.pillUnselected)
-            .padding(spacing.extraSmall)
+        modifier =
+            modifier
+                .height(48.dp)
+                .clip(shape)
+                .background(colors.pillUnselected)
+                .padding(spacing.extraSmall),
     ) {
         val itemWidth = maxWidth / items.size
-        
+
         val indicatorOffset by animateDpAsState(
             targetValue = itemWidth * selectedIndex,
-            label = "indicatorOffset"
+            label = "indicatorOffset",
         )
 
         // Selected Indicator
         Box(
-            modifier = Modifier
-                .width(itemWidth)
-                .fillMaxHeight()
-                .offset(x = indicatorOffset)
-                .clip(shape)
-                .background(colors.pillSelected)
+            modifier =
+                Modifier
+                    .width(itemWidth)
+                    .fillMaxHeight()
+                    .offset(x = indicatorOffset)
+                    .clip(shape)
+                    .background(colors.pillSelected),
         )
 
         // Labels
         Row(modifier = Modifier.fillMaxSize()) {
             items.forEach { item ->
                 Box(
-                    modifier = Modifier
-                        .width(itemWidth)
-                        .fillMaxHeight()
-                        .clickable { onItemSelected(item) },
-                    contentAlignment = Alignment.Center
+                    modifier =
+                        Modifier
+                            .width(itemWidth)
+                            .fillMaxHeight()
+                            .clickable { onItemSelected(item) },
+                    contentAlignment = Alignment.Center,
                 ) {
                     val isSelected = item == selectedItem
                     Text(
@@ -79,10 +81,12 @@ fun <T> PillSegmentedControl(
                         style = PokerTheme.typography.labelLarge,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                         color = if (isSelected) colors.feltGreenDark else Color.White.copy(alpha = 0.7f),
-                        textAlign = TextAlign.Center
+                        textAlign = TextAlign.Center,
                     )
                 }
             }
         }
     }
 }
+
+private const val CORNER_PERCENT = 50

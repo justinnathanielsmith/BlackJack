@@ -163,12 +163,21 @@ private fun ResultsCardContent(
                 .widthIn(max = 550.dp),
         shape = RoundedCornerShape(24.dp),
         color = PokerTheme.colors.oakWood,
-        border = BorderStroke(2.dp, PokerTheme.colors.goldenYellow.copy(alpha = 0.5f)), // Gold border
+        border =
+            BorderStroke(
+                2.dp,
+                PokerTheme.colors.goldenYellow.copy(alpha = 0.5f),
+            ), // Gold border
         shadowElevation = 16.dp,
     ) {
         val contentPadding = if (isCompactHeight) 12.dp else 24.dp
         val verticalSpacing = if (isCompactHeight) 8.dp else 16.dp
-        val headerColor = if (isWon) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed // Gold for win, Red for loss
+        val headerColor =
+            if (isWon) {
+                PokerTheme.colors.goldenYellow
+            } else {
+                PokerTheme.colors.tacticalRed
+            } // Gold for win, Red for loss
 
         Column(
             modifier =
@@ -179,20 +188,10 @@ private fun ResultsCardContent(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.spacedBy(verticalSpacing),
         ) {
-            Text(
-                text = stringResource(titleRes).uppercase(),
-                style =
-                    if (isCompactHeight) {
-                        MaterialTheme.typography.headlineSmall.copy(fontFamily = androidx.compose.ui.text.font.FontFamily.Serif)
-                    } else {
-                        MaterialTheme.typography.headlineLarge.copy(
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 2.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
-                        )
-                    },
-                color = headerColor,
-                textAlign = TextAlign.Center,
+            ResultsHeader(
+                titleRes = titleRes,
+                isCompactHeight = isCompactHeight,
+                headerColor = headerColor,
             )
 
             if (isCompactHeight) {
@@ -242,10 +241,11 @@ private fun CompactResultsContent(
             onClick = onPlayAgain,
             modifier = Modifier.height(48.dp),
             shape = RoundedCornerShape(12.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = PokerTheme.colors.tacticalRed,
-                contentColor = Color.White
-            ),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = PokerTheme.colors.tacticalRed,
+                    contentColor = Color.White,
+                ),
         ) {
             Text(
                 text = stringResource(Res.string.play_again).uppercase(),
@@ -253,7 +253,7 @@ private fun CompactResultsContent(
                     MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Bold,
                         color = Color.Black,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                     ),
             )
         }
@@ -286,10 +286,11 @@ private fun StandardResultsContent(
                 .fillMaxWidth()
                 .height(56.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = PokerTheme.colors.tacticalRed,
-            contentColor = Color.White
-        ),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = PokerTheme.colors.tacticalRed,
+                contentColor = Color.White,
+            ),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
     ) {
         Text(
@@ -299,7 +300,7 @@ private fun StandardResultsContent(
                     fontWeight = FontWeight.Black,
                     letterSpacing = 1.sp,
                     color = Color.Black,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 ),
         )
     }
@@ -328,14 +329,42 @@ private fun ResultsActionButtons(
             text = "SHARE REPLAY",
             style =
                 if (isCompact) {
-                    MaterialTheme.typography.labelLarge.copy(fontWeight = FontWeight.Bold, fontFamily = androidx.compose.ui.text.font.FontFamily.Serif)
+                    MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    )
                 } else {
                     MaterialTheme.typography.titleMedium.copy(
                         fontWeight = FontWeight.Black,
                         letterSpacing = 1.sp,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                     )
                 },
         )
     }
+}
+
+@Composable
+private fun ResultsHeader(
+    titleRes: org.jetbrains.compose.resources.StringResource,
+    isCompactHeight: Boolean,
+    headerColor: Color,
+) {
+    Text(
+        text = stringResource(titleRes).uppercase(),
+        style =
+            if (isCompactHeight) {
+                MaterialTheme.typography.headlineSmall.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                )
+            } else {
+                MaterialTheme.typography.headlineLarge.copy(
+                    fontWeight = FontWeight.Black,
+                    letterSpacing = 2.sp,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                )
+            },
+        color = headerColor,
+        textAlign = TextAlign.Center,
+    )
 }

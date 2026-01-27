@@ -196,70 +196,102 @@ private fun PokerCardFace(
     getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
 ) {
     // Similar to Classic but using Serif font and slightly different layout
-    val serifTypography = MaterialTheme.typography.labelLarge.copy(
-        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif
-    )
-    
+    val serifTypography =
+        MaterialTheme.typography.labelLarge.copy(
+            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+        )
+
     // Top Left
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    CornerRank(
+        rank = rank,
+        suit = suit,
+        suitColor = suitColor,
+        getFontSize = getFontSize,
+        style = serifTypography,
+        alignment = Alignment.Start,
+    )
+
+    // Center Suit
+    CenterSuitWatermark(
+        suit = suit,
+        suitColor = suitColor,
+        getFontSize = getFontSize,
+        style = serifTypography,
+        rank = rank,
+    )
+
+    // Bottom Right (Rotated)
+    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
+        CornerRank(
+            rank = rank,
+            suit = suit,
+            suitColor = suitColor,
+            getFontSize = getFontSize,
+            style = serifTypography,
+            alignment = Alignment.End,
+            modifier = Modifier.graphicsLayer { rotationZ = FULL_ROTATION },
+        )
+    }
+}
+
+@Composable
+private fun CornerRank(
+    rank: Rank,
+    suit: Suit,
+    suitColor: Color,
+    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    style: androidx.compose.ui.text.TextStyle,
+    alignment: Alignment.Horizontal,
+    modifier: Modifier = Modifier,
+) {
+    Column(
+        horizontalAlignment = alignment,
+        modifier = modifier,
+    ) {
         Text(
             text = rank.symbol,
             color = suitColor,
-            style = serifTypography.copy(
-                fontWeight = FontWeight.Bold,
-                fontSize = getFontSize(FONT_SIZE_MEDIUM),
-            ),
+            style =
+                style.copy(
+                    fontWeight = FontWeight.Bold,
+                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                ),
         )
         Text(
             text = suit.symbol,
             color = suitColor,
-            style = serifTypography.copy(
-                fontSize = getFontSize(FONT_SIZE_SMALL),
-                fontWeight = FontWeight.Normal
-            ),
+            style =
+                style.copy(
+                    fontSize = getFontSize(FONT_SIZE_SMALL),
+                    fontWeight = FontWeight.Normal,
+                ),
         )
     }
+}
 
-    // Center Suit
+@Composable
+private fun CenterSuitWatermark(
+    suit: Suit,
+    suitColor: Color,
+    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    style: androidx.compose.ui.text.TextStyle,
+    rank: Rank,
+) {
     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
         Text(
             text = suit.symbol,
             color = suitColor.copy(alpha = 0.1f), // Very subtle watermark
-            style = serifTypography.copy(fontSize = getFontSize(FONT_SIZE_HUGE)),
+            style = style.copy(fontSize = getFontSize(FONT_SIZE_HUGE)),
         )
 
         Text(
             text = rank.symbol,
             color = suitColor,
-            style = serifTypography.copy(
-                fontWeight = FontWeight.ExtraBold,
-                fontSize = getFontSize(FONT_SIZE_TITLE),
-            ),
+            style =
+                style.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = getFontSize(FONT_SIZE_TITLE),
+                ),
         )
-    }
-
-    // Bottom Right (Rotated)
-    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.BottomEnd) {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.graphicsLayer { rotationZ = FULL_ROTATION },
-        ) {
-            Text(
-                text = rank.symbol,
-                color = suitColor,
-                style = serifTypography.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                ),
-            )
-            Text(
-                text = suit.symbol,
-                color = suitColor,
-                style = serifTypography.copy(
-                    fontSize = getFontSize(FONT_SIZE_SMALL),
-                    fontWeight = FontWeight.Normal
-                ),
-            )
-        }
     }
 }

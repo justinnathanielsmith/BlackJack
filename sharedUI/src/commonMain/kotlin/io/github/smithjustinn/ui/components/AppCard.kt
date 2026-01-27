@@ -5,8 +5,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -30,10 +28,11 @@ fun AppCard(
         modifier = modifier.fillMaxWidth(),
         shape = shapes.medium,
         color = Color.Black.copy(alpha = 0.3f), // Recessed felt look
-        border = BorderStroke(
-            width = 1.dp,
-            color = colors.goldenYellow.copy(alpha = 0.2f), // Brass-like inlay border
-        ),
+        border =
+            BorderStroke(
+                width = 1.dp,
+                color = colors.goldenYellow.copy(alpha = 0.2f), // Brass-like inlay border
+            ),
     ) {
         Column(modifier = Modifier.padding(spacing.medium)) {
             if (title != null) {

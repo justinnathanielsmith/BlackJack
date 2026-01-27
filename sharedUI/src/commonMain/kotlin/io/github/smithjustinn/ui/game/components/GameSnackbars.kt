@@ -40,10 +40,11 @@ import io.github.smithjustinn.domain.models.MatchComment
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.new_high_score
 import io.github.smithjustinn.theme.GoldenYellow
-import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.theme.PokerTheme
+import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
 
+@Composable
 @Composable
 fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
     val infiniteTransition = rememberInfiniteTransition(label = "HighScorePulse")
@@ -78,33 +79,38 @@ fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
                     shape = RoundedCornerShape(12.dp),
                 ),
     ) {
-        Row(
-            modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(12.dp),
-        ) {
-            Icon(
-                imageVector = AppIcons.Trophy,
-                contentDescription = null,
-                modifier = Modifier.size(32.dp),
-                tint = GoldenYellow,
-            )
-            Text(
-                text = stringResource(Res.string.new_high_score).uppercase(),
-                style =
-                    MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
-                fontWeight = FontWeight.Black,
-                color = Color.White,
-            )
-            Icon(
-                imageVector = AppIcons.Trophy,
-                contentDescription = null,
-                modifier = Modifier.size(32.dp),
-                tint = GoldenYellow,
-            )
-        }
+        NewHighScoreContent()
+    }
+}
+
+@Composable
+private fun NewHighScoreContent() {
+    Row(
+        modifier = Modifier.padding(horizontal = 24.dp, vertical = 16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(12.dp),
+    ) {
+        Icon(
+            imageVector = AppIcons.Trophy,
+            contentDescription = null,
+            modifier = Modifier.size(32.dp),
+            tint = GoldenYellow,
+        )
+        Text(
+            text = stringResource(Res.string.new_high_score).uppercase(),
+            style =
+                MaterialTheme.typography.titleLarge.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                ),
+            fontWeight = FontWeight.Black,
+            color = Color.White,
+        )
+        Icon(
+            imageVector = AppIcons.Trophy,
+            contentDescription = null,
+            modifier = Modifier.size(32.dp),
+            tint = GoldenYellow,
+        )
     }
 }
 
@@ -157,45 +163,49 @@ private fun MatchCommentCard(matchComment: MatchComment) {
                     shape = RoundedCornerShape(12.dp),
                 ),
     ) {
-        Row(
-            modifier =
-                Modifier
-                    .padding(horizontal = 20.dp, vertical = 14.dp)
-                    .align(Alignment.CenterHorizontally),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
-        ) {
-            Text(
-                text = "“",
-                style =
-                    MaterialTheme.typography.headlineSmall.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
-                color = GoldenYellow,
-                fontWeight = FontWeight.Bold,
-            )
-            Text(
-                text = commentText,
-                style =
-                    MaterialTheme.typography.titleMedium.copy(
-                        fontStyle = FontStyle.Italic,
-                        lineHeight = 20.sp,
-                        color = Color.White,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center,
-                modifier = Modifier.padding(horizontal = 8.dp),
-            )
-            Text(
-                text = "”",
-                style =
-                    MaterialTheme.typography.headlineSmall.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
-                color = GoldenYellow,
-                fontWeight = FontWeight.Bold,
-            )
-        }
+        MatchCommentContent(commentText)
+    }
+}
+
+@Composable
+private fun MatchCommentContent(commentText: String) {
+    Row(
+        modifier =
+            Modifier
+                .padding(horizontal = 20.dp, vertical = 14.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.Center,
+    ) {
+        Text(
+            text = "“",
+            style =
+                MaterialTheme.typography.headlineSmall.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                ),
+            color = GoldenYellow,
+            fontWeight = FontWeight.Bold,
+        )
+        Text(
+            text = commentText,
+            style =
+                MaterialTheme.typography.titleMedium.copy(
+                    fontStyle = FontStyle.Italic,
+                    lineHeight = 20.sp,
+                    color = Color.White,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                ),
+            fontWeight = FontWeight.Bold,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.padding(horizontal = 8.dp),
+        )
+        Text(
+            text = "”",
+            style =
+                MaterialTheme.typography.headlineSmall.copy(
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                ),
+            color = GoldenYellow,
+            fontWeight = FontWeight.Bold,
+        )
     }
 }

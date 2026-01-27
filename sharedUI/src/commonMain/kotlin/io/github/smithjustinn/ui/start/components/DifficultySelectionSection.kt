@@ -11,7 +11,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
@@ -25,13 +24,13 @@ import io.github.smithjustinn.resources.resume_game
 import io.github.smithjustinn.resources.select_difficulty
 import io.github.smithjustinn.resources.settings
 import io.github.smithjustinn.resources.start
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.components.PillSegmentedControl
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.PokerChip
 import io.github.smithjustinn.ui.start.DifficultyState
-import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -88,9 +87,9 @@ private fun DifficultySelector(
             state.difficulties.forEach { level ->
                 val chipColor =
                     when (level.pairs) {
-                        6 -> PokerTheme.colors.softBlue
-                        8 -> PokerTheme.colors.tacticalRed
-                        10 -> PokerTheme.colors.bonusGreen
+                        PAIRS_EASY -> PokerTheme.colors.softBlue
+                        PAIRS_MEDIUM -> PokerTheme.colors.tacticalRed
+                        PAIRS_HARD -> PokerTheme.colors.bonusGreen
                         else -> Color.Black
                     }
 
@@ -140,65 +139,102 @@ private fun ActionButtons(
         verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.large),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Primary Actions: Start / Resume
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium)
-        ) {
-            PokerButton(
-                text = stringResource(Res.string.start),
-                onClick = onStartGame,
-                modifier = Modifier.fillMaxWidth(),
-            )
+        PrimaryActionButtons(
+            state = state,
+            onStartGame = onStartGame,
+            onResumeGame = onResumeGame,
+        )
 
-            if (state.hasSavedGame) {
-                PokerButton(
-                    text = stringResource(Res.string.resume_game),
-                    onClick = onResumeGame,
-                    modifier = Modifier.fillMaxWidth(),
-                    trailingIcon = AppIcons.ArrowBack,
-                )
-            }
-        }
+        SecondaryActionButtons(
+            state = state,
+            onSettingsClick = onSettingsClick,
+            onStatsClick = onStatsClick,
+            onDailyChallengeClick = onDailyChallengeClick,
+        )
+    }
+}
 
-        // Secondary Actions: Settings, Stats, Daily
-        Column(
+@Composable
+private fun PrimaryActionButtons(
+    state: DifficultyState,
+    onStartGame: () -> Unit,
+    onResumeGame: () -> Unit,
+) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
+    ) {
+        PokerButton(
+            text = stringResource(Res.string.start),
+            onClick = onStartGame,
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small)
-        ) {
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
-            ) {
-                PokerButton(
-                    text = stringResource(Res.string.settings),
-                    onClick = onSettingsClick,
-                    modifier = Modifier.weight(1f),
-                    leadingIcon = AppIcons.Settings,
-                )
-                PokerButton(
-                    text = stringResource(Res.string.leaderboard),
-                    onClick = onStatsClick,
-                    modifier = Modifier.weight(1f),
-                    leadingIcon = AppIcons.Trophy,
-                )
-            }
+        )
 
-            val dailyText =
-                if (state.isDailyChallengeCompleted) {
-                    stringResource(Res.string.daily_challenge_completed)
-                } else {
-                    stringResource(Res.string.daily_challenge)
-                }
-
+        if (state.hasSavedGame) {
             PokerButton(
-                text = dailyText,
-                onClick = onDailyChallengeClick,
+                text = stringResource(Res.string.resume_game),
+                onClick = onResumeGame,
                 modifier = Modifier.fillMaxWidth(),
-                leadingIcon = AppIcons.DateRange,
-                containerColor = if (state.isDailyChallengeCompleted) PokerTheme.colors.oakWood else PokerTheme.colors.tacticalRed,
-                contentColor = if (state.isDailyChallengeCompleted) PokerTheme.colors.goldenYellow else Color.White,
+                trailingIcon = AppIcons.ArrowBack,
             )
         }
     }
 }
+
+@Composable
+private fun SecondaryActionButtons(
+    state: DifficultyState,
+    onSettingsClick: () -> Unit,
+    onStatsClick: () -> Unit,
+    onDailyChallengeClick: () -> Unit,
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
+        ) {
+            PokerButton(
+                text = stringResource(Res.string.settings),
+                onClick = onSettingsClick,
+                modifier = Modifier.weight(1f),
+                leadingIcon = AppIcons.Settings,
+            )
+            PokerButton(
+                text = stringResource(Res.string.leaderboard),
+                onClick = onStatsClick,
+                modifier = Modifier.weight(1f),
+                leadingIcon = AppIcons.Trophy,
+            )
+        }
+
+        val dailyText =
+            if (state.isDailyChallengeCompleted) {
+                stringResource(Res.string.daily_challenge_completed)
+            } else {
+                stringResource(Res.string.daily_challenge)
+            }
+
+        val dailyContainerColor =
+            if (state.isDailyChallengeCompleted) {
+                PokerTheme.colors.oakWood
+            } else {
+                PokerTheme.colors.tacticalRed
+            }
+
+        PokerButton(
+            text = dailyText,
+            onClick = onDailyChallengeClick,
+            modifier = Modifier.fillMaxWidth(),
+            leadingIcon = AppIcons.DateRange,
+            containerColor = dailyContainerColor,
+            contentColor = if (state.isDailyChallengeCompleted) PokerTheme.colors.goldenYellow else Color.White,
+        )
+    }
+}
+
+private const val PAIRS_EASY = 6
+private const val PAIRS_MEDIUM = 8
+private const val PAIRS_HARD = 10

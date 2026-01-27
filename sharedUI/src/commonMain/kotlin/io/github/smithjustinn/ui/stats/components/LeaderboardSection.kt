@@ -123,28 +123,45 @@ private fun LeaderboardRow(
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
             )
         }
 
         Row(
-            modifier = Modifier.weight(0.6f),
+            modifier = Modifier.weight(WEIGHT_0_6),
             horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             StatMiniItem(
                 label = stringResource(Res.string.stats_time_header),
                 value = formatTime(entry.timeSeconds),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
             StatMiniItem(
                 label = stringResource(Res.string.stats_moves_header),
                 value = entry.moves.toString(),
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
     }
 }
+
+private const val WEIGHT_0_6 = 0.6f
+
+private const val RANK_1 = 1
+private const val RANK_2 = 2
+private const val RANK_3 = 3
+private const val BG_ALPHA_1 = 0.2f
+private const val BG_ALPHA_2 = 0.2f
+private const val BG_ALPHA_3 = 0.2f
+private const val BG_ALPHA_DEFAULT = 0.3f
+private const val BORDER_ALPHA_1 = 0.8f
+private const val BORDER_ALPHA_2 = 0.8f
+private const val BORDER_ALPHA_3 = 0.8f
+private const val BORDER_ALPHA_DEFAULT = 0.1f
+private const val TEXT_ALPHA_DEFAULT = 0.6f
+private val ColorSilver = Color(0xFFC0C0C0)
+private val ColorBronze = Color(0xFFCD7F32)
 
 @Composable
 private fun RankBadge(rank: Int) {
@@ -153,20 +170,20 @@ private fun RankBadge(rank: Int) {
         shape = CircleShape,
         color =
             when (rank) {
-                1 -> PokerTheme.colors.goldenYellow.copy(alpha = 0.2f)
-                2 -> Color(0xFFC0C0C0).copy(alpha = 0.2f) // Silver
-                3 -> Color(0xFFCD7F32).copy(alpha = 0.2f) // Bronze
-                else -> Color.Black.copy(alpha = 0.3f)
+                RANK_1 -> PokerTheme.colors.goldenYellow.copy(alpha = BG_ALPHA_1)
+                RANK_2 -> ColorSilver.copy(alpha = BG_ALPHA_2) // Silver
+                RANK_3 -> ColorBronze.copy(alpha = BG_ALPHA_3) // Bronze
+                else -> Color.Black.copy(alpha = BG_ALPHA_DEFAULT)
             },
         border =
             androidx.compose.foundation.BorderStroke(
                 width = 1.dp,
                 color =
                     when (rank) {
-                        1 -> PokerTheme.colors.goldenYellow.copy(alpha = 0.8f)
-                        2 -> Color(0xFFC0C0C0).copy(alpha = 0.8f)
-                        3 -> Color(0xFFCD7F32).copy(alpha = 0.8f)
-                        else -> Color.White.copy(alpha = 0.1f)
+                        RANK_1 -> PokerTheme.colors.goldenYellow.copy(alpha = BORDER_ALPHA_1)
+                        RANK_2 -> ColorSilver.copy(alpha = BORDER_ALPHA_2)
+                        RANK_3 -> ColorBronze.copy(alpha = BORDER_ALPHA_3)
+                        else -> Color.White.copy(alpha = BORDER_ALPHA_DEFAULT)
                     },
             ),
     ) {
@@ -177,10 +194,10 @@ private fun RankBadge(rank: Int) {
                 fontWeight = FontWeight.ExtraBold,
                 color =
                     when (rank) {
-                        1 -> PokerTheme.colors.goldenYellow
-                        2 -> Color(0xFFC0C0C0)
-                        3 -> Color(0xFFCD7F32)
-                        else -> Color.White.copy(alpha = 0.6f)
+                        RANK_1 -> PokerTheme.colors.goldenYellow
+                        RANK_2 -> ColorSilver
+                        RANK_3 -> ColorBronze
+                        else -> Color.White.copy(alpha = TEXT_ALPHA_DEFAULT)
                     },
             )
         }
@@ -195,7 +212,7 @@ private fun StatMiniItem(
 ) {
     Column(
         modifier = modifier,
-        horizontalAlignment = Alignment.End
+        horizontalAlignment = Alignment.End,
     ) {
         Text(
             text = label.uppercase(),
@@ -207,7 +224,7 @@ private fun StatMiniItem(
             fontWeight = FontWeight.ExtraBold,
             letterSpacing = 0.5.sp,
             maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
         )
         Text(
             text = value,
@@ -215,7 +232,7 @@ private fun StatMiniItem(
             fontWeight = FontWeight.Bold,
             color = Color.White,
             maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis
+            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
         )
     }
 }

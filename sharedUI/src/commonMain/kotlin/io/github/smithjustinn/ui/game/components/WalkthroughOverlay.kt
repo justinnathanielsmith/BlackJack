@@ -99,67 +99,81 @@ private fun WalkthroughContent(
         modifier = Modifier.padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(
-            text = stringResource(getTitleRes(step)).uppercase(),
-            style =
-                MaterialTheme.typography.headlineSmall.copy(
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                ),
-            fontWeight = FontWeight.Black,
-            color = GoldenYellow,
-            textAlign = TextAlign.Center,
-            letterSpacing = 1.sp,
-        )
-
-        Spacer(modifier = Modifier.height(16.dp))
-
-        Text(
-            text = stringResource(getDescriptionRes(step)),
-            style =
-                MaterialTheme.typography.bodyLarge.copy(
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                ),
-            textAlign = TextAlign.Center,
-            color = Color.White.copy(alpha = 0.9f),
-            lineHeight = 24.sp,
-        )
+        WalkthroughTexts(step)
 
         Spacer(modifier = Modifier.height(32.dp))
 
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            TextButton(onClick = onDismiss) {
-                Text(
-                    stringResource(Res.string.walkthrough_skip),
-                    color = Color.White.copy(alpha = 0.6f),
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                )
-            }
+        WalkthroughActions(step, onNext, onDismiss)
+    }
+}
 
-            Button(
-                onClick = {
-                    if (step < 2) onNext() else onDismiss()
+@Composable
+private fun WalkthroughTexts(step: Int) {
+    Text(
+        text = stringResource(getTitleRes(step)).uppercase(),
+        style =
+            MaterialTheme.typography.headlineSmall.copy(
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+            ),
+        fontWeight = FontWeight.Black,
+        color = GoldenYellow,
+        textAlign = TextAlign.Center,
+        letterSpacing = 1.sp,
+    )
+
+    Spacer(modifier = Modifier.height(16.dp))
+
+    Text(
+        text = stringResource(getDescriptionRes(step)),
+        style =
+            MaterialTheme.typography.bodyLarge.copy(
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+            ),
+        textAlign = TextAlign.Center,
+        color = Color.White.copy(alpha = 0.9f),
+        lineHeight = 24.sp,
+    )
+}
+
+@Composable
+private fun WalkthroughActions(
+    step: Int,
+    onNext: () -> Unit,
+    onDismiss: () -> Unit,
+) {
+    Row(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        TextButton(onClick = onDismiss) {
+            Text(
+                stringResource(Res.string.walkthrough_skip),
+                color = Color.White.copy(alpha = 0.6f),
+                fontWeight = FontWeight.Bold,
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+            )
+        }
+
+        Button(
+            onClick = {
+                if (step < 2) onNext() else onDismiss()
+            },
+            colors = ButtonDefaults.buttonColors(containerColor = GoldenYellow),
+            shape = RoundedCornerShape(12.dp),
+        ) {
+            Text(
+                if (step <
+                    2
+                ) {
+                    stringResource(Res.string.walkthrough_next)
+                } else {
+                    stringResource(Res.string.walkthrough_got_it)
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = GoldenYellow),
-                shape = RoundedCornerShape(12.dp),
-            ) {
-                Text(
-                    if (step <
-                        2
-                    ) {
-                        stringResource(Res.string.walkthrough_next)
-                    } else {
-                        stringResource(Res.string.walkthrough_got_it)
-                    },
-                    fontWeight = FontWeight.Black,
-                    color = Color.Black, // Dark text on Gold button
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                )
-            }
+                fontWeight = FontWeight.Black,
+                color = Color.Black, // Dark text on Gold button
+                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+            )
         }
     }
 }

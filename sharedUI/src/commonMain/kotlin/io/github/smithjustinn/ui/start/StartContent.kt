@@ -56,56 +56,82 @@ fun StartContent(
                         ),
                 ),
     ) {
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .statusBarsPadding()
-                    .navigationBarsPadding()
-                    .verticalScroll(rememberScrollState())
-                    .padding(horizontal = spacing.large, vertical = spacing.extraLarge)
-                    .widthIn(max = 600.dp)
-                    .align(Alignment.TopCenter),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
-        ) {
-            StartHeader(
-                settings = state.cardSettings,
-            )
+        StartScreenLayout(
+            state = state,
+            onDifficultySelected = { level ->
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onDifficultySelected(level)
+            },
+            onModeSelected = { mode ->
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onModeSelected(mode)
+            },
+            onStartGame = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onStartGame()
+            },
+            onResumeGame = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onResumeGame()
+            },
+            onSettingsClick = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onSettingsClick()
+            },
+            onStatsClick = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onStatsClick()
+            },
+            onDailyChallengeClick = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onDailyChallengeClick()
+            },
+            modifier = Modifier.align(Alignment.TopCenter),
+        )
+    }
+}
 
-            Spacer(modifier = Modifier.height(PokerTheme.spacing.huge))
+@Composable
+private fun StartScreenLayout(
+    state: StartState,
+    onDifficultySelected: (DifficultyLevel) -> Unit,
+    onModeSelected: (GameMode) -> Unit,
+    onStartGame: () -> Unit,
+    onResumeGame: () -> Unit,
+    onSettingsClick: () -> Unit,
+    onStatsClick: () -> Unit,
+    onDailyChallengeClick: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val spacing = PokerTheme.spacing
 
-            DifficultySelectionSection(
-                state = state,
-                onDifficultySelected = { level: DifficultyLevel ->
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onDifficultySelected(level)
-                },
-                onModeSelected = { mode: GameMode ->
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onModeSelected(mode)
-                },
-                onStartGame = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onStartGame()
-                },
-                onResumeGame = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onResumeGame()
-                },
-                onSettingsClick = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onSettingsClick()
-                },
-                onStatsClick = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onStatsClick()
-                },
-                onDailyChallengeClick = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onDailyChallengeClick()
-                },
-            )
-        }
+    Column(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .statusBarsPadding()
+                .navigationBarsPadding()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = spacing.large, vertical = spacing.extraLarge)
+                .widthIn(max = 600.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Top,
+    ) {
+        StartHeader(
+            settings = state.cardSettings,
+        )
+
+        Spacer(modifier = Modifier.height(PokerTheme.spacing.huge))
+
+        DifficultySelectionSection(
+            state = state,
+            onDifficultySelected = onDifficultySelected,
+            onModeSelected = onModeSelected,
+            onStartGame = onStartGame,
+            onResumeGame = onResumeGame,
+            onSettingsClick = onSettingsClick,
+            onStatsClick = onStatsClick,
+            onDailyChallengeClick = onDailyChallengeClick,
+        )
     }
 }

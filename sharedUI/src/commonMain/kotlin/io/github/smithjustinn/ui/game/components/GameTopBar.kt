@@ -56,13 +56,15 @@ fun GameTopBar(
             modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
-                )
-                .padding(
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
+                ).padding(
                     horizontal = if (state.compact) PokerTheme.spacing.medium else PokerTheme.spacing.large,
                     vertical = if (state.compact) PokerTheme.spacing.small else PokerTheme.spacing.medium,
                 ),
-        verticalArrangement = Arrangement.spacedBy(if (state.compact) PokerTheme.spacing.small else PokerTheme.spacing.medium),
+        verticalArrangement =
+            Arrangement.spacedBy(
+                if (state.compact) PokerTheme.spacing.small else PokerTheme.spacing.medium,
+            ),
     ) {
         TopBarMainRow(
             state = state,
@@ -172,7 +174,7 @@ private fun BackButton(
         Box(contentAlignment = Alignment.Center) {
             // Dashed border effect (simplified for icon button)
             androidx.compose.foundation.Canvas(modifier = Modifier.matchParentSize()) {
-                val strokeWidth = size.toPx() * 0.1f
+                val strokeWidth = size.toPx() * STROKE_WIDTH_FACTOR
                 drawCircle(
                     color = Color.White,
                     style =
@@ -180,9 +182,9 @@ private fun BackButton(
                             width = strokeWidth,
                             pathEffect =
                                 androidx.compose.ui.graphics.PathEffect
-                                    .dashPathEffect(floatArrayOf(10f, 10f), 0f),
+                                    .dashPathEffect(floatArrayOf(DASH_ON, DASH_OFF), 0f),
                         ),
-                    radius = this.size.minDimension / 2 * 0.85f,
+                    radius = this.size.minDimension / 2 * RADIUS_FACTOR,
                 )
             }
 
@@ -271,7 +273,7 @@ private fun TimeProgressBar(
                 .fillMaxWidth()
                 .height(if (compact) 4.dp else 8.dp)
                 .clip(CircleShape)
-                .background(Color.Black.copy(alpha = 0.4f)),
+                .background(Color.Black.copy(alpha = BG_ALPHA)),
     ) {
         Box(
             modifier =
@@ -287,11 +289,24 @@ private fun TimeProgressBar(
                     ).clip(CircleShape)
                     .background(
                         if (isLowTime) {
-                            Brush.horizontalGradient(listOf(PokerTheme.colors.tacticalRed, PokerTheme.colors.tacticalRed.copy(alpha = 0.7f)))
+                            Brush.horizontalGradient(
+                                listOf(PokerTheme.colors.tacticalRed, PokerTheme.colors.tacticalRed.copy(alpha = 0.7f)),
+                            )
                         } else {
-                            Brush.horizontalGradient(listOf(PokerTheme.colors.goldenYellow, PokerTheme.colors.goldenYellow.copy(alpha = 0.7f)))
+                            Brush.horizontalGradient(
+                                listOf(
+                                    PokerTheme.colors.goldenYellow,
+                                    PokerTheme.colors.goldenYellow.copy(alpha = 0.7f),
+                                ),
+                            )
                         },
                     ),
         )
     }
 }
+
+private const val STROKE_WIDTH_FACTOR = 0.1f
+private const val DASH_ON = 10f
+private const val DASH_OFF = 10f
+private const val RADIUS_FACTOR = 0.85f
+private const val BG_ALPHA = 0.4f

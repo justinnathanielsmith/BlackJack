@@ -40,61 +40,89 @@ fun ScoreBox(
         color = PokerTheme.colors.oakWood,
         border = BorderStroke(2.dp, PokerTheme.colors.goldenYellow.copy(alpha = 0.6f)), // Gold border
     ) {
-        Column(
-            modifier = Modifier.padding(if (compact) 12.dp else 20.dp),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            Text(
-                text = stringResource(Res.string.final_score_label).uppercase(),
-                style =
-                    if (compact) {
-                        MaterialTheme.typography.labelMedium.copy(
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 1.2.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                        )
-                    } else {
-                        MaterialTheme.typography.labelLarge.copy(
-                            fontWeight = FontWeight.Black,
-                            letterSpacing = 2.sp,
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                        )
-                    },
-                color = PokerTheme.colors.goldenYellow,
-                textAlign = TextAlign.Center,
-            )
+        ScoreContent(
+            score = score,
+            elapsedTimeSeconds = elapsedTimeSeconds,
+            moves = moves,
+            compact = compact,
+        )
+    }
+}
 
-            Text(
-                text = score.toString(),
-                style =
-                    if (compact) {
-                        MaterialTheme.typography.headlineLarge
-                    } else {
-                        MaterialTheme.typography.displayMedium
-                    }.copy(
+@Composable
+private fun ScoreContent(
+    score: Int,
+    elapsedTimeSeconds: Long,
+    moves: Int,
+    compact: Boolean,
+) {
+    Column(
+        modifier = Modifier.padding(if (compact) 12.dp else 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        Text(
+            text = stringResource(Res.string.final_score_label).uppercase(),
+            style =
+                if (compact) {
+                    MaterialTheme.typography.labelMedium.copy(
                         fontWeight = FontWeight.Black,
+                        letterSpacing = 1.2.sp,
                         fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
-                color = Color.White,
-                textAlign = TextAlign.Center,
-            )
+                    )
+                } else {
+                    MaterialTheme.typography.labelLarge.copy(
+                        fontWeight = FontWeight.Black,
+                        letterSpacing = 2.sp,
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    )
+                },
+            color = PokerTheme.colors.goldenYellow,
+            textAlign = TextAlign.Center,
+        )
 
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 16.dp),
-                modifier = Modifier.padding(top = if (compact) 4.dp else 12.dp),
-            ) {
-                StatItem(
-                    label = stringResource(Res.string.time_label, formatTime(elapsedTimeSeconds)),
-                    color = Color.White.copy(alpha = 0.9f),
-                    compact = compact,
-                )
-                StatItem(
-                    label = stringResource(Res.string.moves_label, moves),
-                    color = Color.White.copy(alpha = 0.9f),
-                    compact = compact,
-                )
-            }
-        }
+        Text(
+            text = score.toString(),
+            style =
+                if (compact) {
+                    MaterialTheme.typography.headlineLarge
+                } else {
+                    MaterialTheme.typography.displayMedium
+                }.copy(
+                    fontWeight = FontWeight.Black,
+                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                ),
+            color = Color.White,
+            textAlign = TextAlign.Center,
+        )
+
+        ScoreStatsRow(
+            elapsedTimeSeconds = elapsedTimeSeconds,
+            moves = moves,
+            compact = compact,
+        )
+    }
+}
+
+@Composable
+private fun ScoreStatsRow(
+    elapsedTimeSeconds: Long,
+    moves: Int,
+    compact: Boolean,
+) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(if (compact) 8.dp else 16.dp),
+        modifier = Modifier.padding(top = if (compact) 4.dp else 12.dp),
+    ) {
+        StatItem(
+            label = stringResource(Res.string.time_label, formatTime(elapsedTimeSeconds)),
+            color = Color.White.copy(alpha = 0.9f),
+            compact = compact,
+        )
+        StatItem(
+            label = stringResource(Res.string.moves_label, moves),
+            color = Color.White.copy(alpha = 0.9f),
+            compact = compact,
+        )
     }
 }
 

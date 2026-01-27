@@ -81,6 +81,7 @@ data class GridScreenConfig(
     val isCompactHeight: Boolean,
 )
 
+@Suppress("LongMethod", "VariableNaming", "MagicNumber", "CyclomaticComplexMethod")
 @Composable
 fun GameGrid(
     gridCardState: GridCardState,
@@ -94,34 +95,23 @@ fun GameGrid(
     val feltGreenDark = PokerTheme.colors.feltGreenDark
     val oakWood = PokerTheme.colors.oakWood
 
-
     BoxWithConstraints(
         modifier =
             Modifier
-                .fillMaxSize()
-                .drawBehind {
-                    // Felt Background
-                    drawRect(
-                        brush =
-                            Brush.radialGradient(
-                                colors = listOf(feltGreen, feltGreenDark),
-                                center = center,
-                                radius = size.maxDimension / 1.5f,
-                            ),
-                    )
-
-                    // Wood Border ("Racetrack")
-                    drawRect(
-                        color = oakWood,
-                        style = Stroke(width = 16.dp.toPx()),
-                    )
-                }.windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
-                ).onGloballyPositioned { layoutCoordinates ->
-                    gridPosition = layoutCoordinates.positionInRoot()
-                },
+                .fillMaxSize(),
+        contentAlignment = Alignment.Center,
         contentAlignment = Alignment.Center,
     ) {
+        GridBackground(
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .windowInsetsPadding(
+                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
+                    ).onGloballyPositioned { layoutCoordinates ->
+                        gridPosition = layoutCoordinates.positionInRoot()
+                    },
+        )
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         val isLandscape = screenWidth > screenHeight
@@ -393,3 +383,31 @@ private const val MIN_GRID_COLS_WIDE = 4
 private const val MAX_GRID_COLS_WIDE = 12
 
 private const val CARD_ASPECT_RATIO = 0.75f
+
+@Composable
+private fun GridBackground(modifier: Modifier = Modifier) {
+    val feltGreen = PokerTheme.colors.feltGreen
+    val feltGreenDark = PokerTheme.colors.feltGreenDark
+    val oakWood = PokerTheme.colors.oakWood
+
+    androidx.compose.foundation.layout.Box(
+        modifier =
+            modifier.drawBehind {
+                // Felt Background
+                drawRect(
+                    brush =
+                        Brush.radialGradient(
+                            colors = listOf(feltGreen, feltGreenDark),
+                            center = center,
+                            radius = size.maxDimension / 1.5f,
+                        ),
+                )
+
+                // Wood Border ("Racetrack")
+                drawRect(
+                    color = oakWood,
+                    style = Stroke(width = 16.dp.toPx()),
+                )
+            },
+    )
+}

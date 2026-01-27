@@ -13,7 +13,6 @@ import androidx.compose.animation.scaleIn
 import androidx.compose.animation.scaleOut
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,9 +46,9 @@ fun ComboBadge(
             initialValue = 1f,
             targetValue =
                 if (state.isHeatMode) {
-                    if (compact) 1.08f else 1.15f
+                    if (compact) PULSE_SCALE_HEAT_COMPACT else PULSE_SCALE_HEAT
                 } else {
-                    if (compact) 1.05f else 1.1f
+                    if (compact) PULSE_SCALE_DEFAULT_COMPACT else PULSE_SCALE_DEFAULT
                 },
             animationSpec =
                 infiniteRepeatable(
@@ -82,7 +81,9 @@ private fun ComboBadgeContent(
             else -> colors.goldenYellow // Gold default
         }
     // Chip Shape (Circle or Rounded)
-    val chipShape = androidx.compose.foundation.shape.RoundedCornerShape(50)
+    val chipShape =
+        androidx.compose.foundation.shape
+            .RoundedCornerShape(CORNER_PERCENT)
 
     Surface(
         color = colors.oakWood,
@@ -124,3 +125,8 @@ private fun ComboBadgeContent(
 
 private const val COMBO_ANIMATION_DURATION_MS = 400
 private const val BORDER_WIDTH = 1.5
+private const val PULSE_SCALE_HEAT_COMPACT = 1.08f
+private const val PULSE_SCALE_HEAT = 1.15f
+private const val PULSE_SCALE_DEFAULT_COMPACT = 1.05f
+private const val PULSE_SCALE_DEFAULT = 1.1f
+private const val CORNER_PERCENT = 50

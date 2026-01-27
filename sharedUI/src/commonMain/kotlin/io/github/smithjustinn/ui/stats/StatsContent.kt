@@ -33,9 +33,9 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.high_scores
+import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.ui.stats.components.LeaderboardSection
 import io.github.smithjustinn.ui.stats.components.ModeSelector
 import org.jetbrains.compose.resources.stringResource
@@ -115,7 +115,11 @@ private fun StatsMainContent(
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = PokerTheme.spacing.large, vertical = PokerTheme.spacing.medium),
+                    contentPadding =
+                        PaddingValues(
+                            horizontal = PokerTheme.spacing.large,
+                            vertical = PokerTheme.spacing.medium,
+                        ),
                     verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
                 ) {
                     items(state.difficultyLeaderboards) { (level, entries) ->

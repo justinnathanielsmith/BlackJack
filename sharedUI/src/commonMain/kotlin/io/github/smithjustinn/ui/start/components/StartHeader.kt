@@ -47,7 +47,7 @@ fun StartHeader(
                                 listOf(
                                     io.github.smithjustinn.theme.GoldenYellow, // Existing gold color
                                     androidx.compose.ui.graphics
-                                        .Color(0xFFB8860B), // DarkGoldenrod for depth
+                                        .Color(DARK_GOLDENROD), // DarkGoldenrod for depth
                                 ),
                         ),
                     textAlign = TextAlign.Center,
@@ -55,9 +55,9 @@ fun StartHeader(
                         Shadow(
                             color =
                                 androidx.compose.ui.graphics.Color.Black
-                                    .copy(alpha = 0.6f),
-                            offset = Offset(3f, 3f), // Sharp offset for physical depth
-                            blurRadius = 2f, // Reduced blur to remove "glow"
+                                    .copy(alpha = SHADOW_ALPHA),
+                            offset = Offset(SHADOW_OFFSET, SHADOW_OFFSET), // Sharp offset for physical depth
+                            blurRadius = SHADOW_BLUR, // Reduced blur to remove "glow"
                         ),
                     fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 ),
@@ -71,3 +71,8 @@ fun StartHeader(
         )
     }
 }
+
+private const val SHADOW_ALPHA = 0.6f
+private const val SHADOW_OFFSET = 3f
+private const val SHADOW_BLUR = 2f
+private const val DARK_GOLDENROD = 0xFFB8860B

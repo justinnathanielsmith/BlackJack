@@ -231,28 +231,32 @@ private fun PokerCardBack(baseColor: Color) {
     Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp))) {
         // White Border usually
         drawRect(Color.White)
-        
+
         // Inner Color Area
         val borderSize = 4.dp.toPx()
         drawRoundRect(
             color = baseColor,
             topLeft = Offset(borderSize, borderSize),
-            size = androidx.compose.ui.geometry.Size(size.width - borderSize * 2, size.height - borderSize * 2),
-            cornerRadius = androidx.compose.ui.geometry.CornerRadius(8.dp.toPx())
+            size =
+                androidx.compose.ui.geometry
+                    .Size(size.width - borderSize * 2, size.height - borderSize * 2),
+            cornerRadius =
+                androidx.compose.ui.geometry
+                    .CornerRadius(8.dp.toPx()),
         )
 
         // Diamond Grid Pattern (Classic Casino)
         val step = 10.dp.toPx()
         val patternColor = Color.Black.copy(alpha = 0.15f)
-        
+
         // Clip to inner area
         val innerWidth = size.width - borderSize * 2
         val innerHeight = size.height - borderSize * 2
-        
+
         // We can't clip easily in Canvas dsl without native canvas access or clipPath.
         // Instead we allow drawing over and re-draw border or just draw inside carefully.
         // Drawing inside:
-        
+
         // Draw intersecting lines
         for (i in 0 until ((innerWidth + innerHeight) / step).toInt()) {
             val offset = i * step
@@ -261,27 +265,28 @@ private fun PokerCardBack(baseColor: Color) {
                 color = patternColor,
                 start = Offset(borderSize + offset, borderSize),
                 end = Offset(borderSize, borderSize + offset),
-                strokeWidth = 1.dp.toPx()
+                strokeWidth = 1.dp.toPx(),
             )
             // Diagonal \
-             drawLine(
+            drawLine(
                 color = patternColor,
                 start = Offset(borderSize, innerHeight + borderSize - offset),
                 end = Offset(borderSize + offset, innerHeight + borderSize),
-                strokeWidth = 1.dp.toPx()
+                strokeWidth = 1.dp.toPx(),
             )
         }
-        
+
         // Large Center Emblem (Diamond)
         val centerX = size.width / 2
         val centerY = size.height / 2
-        val diamondPath = Path().apply {
-            moveTo(centerX, centerY - 20.dp.toPx())
-            lineTo(centerX + 15.dp.toPx(), centerY)
-            lineTo(centerX, centerY + 20.dp.toPx())
-            lineTo(centerX - 15.dp.toPx(), centerY)
-            close()
-        }
+        val diamondPath =
+            Path().apply {
+                moveTo(centerX, centerY - 20.dp.toPx())
+                lineTo(centerX + 15.dp.toPx(), centerY)
+                lineTo(centerX, centerY + 20.dp.toPx())
+                lineTo(centerX - 15.dp.toPx(), centerY)
+                close()
+            }
         drawPath(diamondPath, Color.White.copy(alpha = 0.2f))
         drawPath(diamondPath, color = Color.White.copy(alpha = 0.5f), style = Stroke(width = 2.dp.toPx()))
     }
