@@ -40,7 +40,7 @@ import io.github.smithjustinn.resources.walkthrough_title_combos
 import io.github.smithjustinn.resources.walkthrough_title_find_pairs
 import io.github.smithjustinn.resources.walkthrough_title_welcome
 import io.github.smithjustinn.theme.GoldenYellow
-import io.github.smithjustinn.theme.InactiveBackground
+import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 
@@ -81,7 +81,7 @@ private fun WalkthroughDialog(
                 .padding(32.dp)
                 .widthIn(max = 400.dp),
         shape = RoundedCornerShape(24.dp),
-        color = InactiveBackground.copy(alpha = 0.9f),
+        color = PokerTheme.colors.hudBackground.copy(alpha = 0.9f),
         border = BorderStroke(1.dp, Color.White.copy(alpha = 0.2f)),
         shadowElevation = 24.dp,
     ) {

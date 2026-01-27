@@ -22,8 +22,7 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.final_score_label
 import io.github.smithjustinn.resources.moves_label
 import io.github.smithjustinn.resources.time_label
-import io.github.smithjustinn.theme.MemoryMatchTheme
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.utils.formatTime
 import org.jetbrains.compose.resources.stringResource
 
@@ -38,8 +37,8 @@ fun ScoreBox(
     Surface(
         modifier = modifier.fillMaxWidth(),
         shape = RoundedCornerShape(20.dp),
-        color = PokerTheme.OakWood,
-        border = BorderStroke(2.dp, PokerTheme.Gold.copy(alpha = 0.6f)), // Gold border
+        color = PokerTheme.colors.oakWood,
+        border = BorderStroke(2.dp, PokerTheme.colors.goldenYellow.copy(alpha = 0.6f)), // Gold border
     ) {
         Column(
             modifier = Modifier.padding(if (compact) 12.dp else 20.dp),
@@ -61,7 +60,7 @@ fun ScoreBox(
                             fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                         )
                     },
-                color = MemoryMatchTheme.colors.goldenYellow,
+                color = PokerTheme.colors.goldenYellow,
                 textAlign = TextAlign.Center,
             )
 

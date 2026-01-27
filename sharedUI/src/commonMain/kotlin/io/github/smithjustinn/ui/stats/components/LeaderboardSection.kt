@@ -27,9 +27,7 @@ import io.github.smithjustinn.resources.pairs_format
 import io.github.smithjustinn.resources.score_label
 import io.github.smithjustinn.resources.stats_moves_header
 import io.github.smithjustinn.resources.stats_time_header
-import io.github.smithjustinn.theme.Bronze
-import io.github.smithjustinn.theme.GoldenYellow
-import io.github.smithjustinn.theme.Silver
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.utils.formatTime
 import kotlinx.collections.immutable.ImmutableList
@@ -59,7 +57,7 @@ private fun LeaderboardList(
 
         if (entries.isEmpty()) {
             Box(
-                modifier = Modifier.padding(vertical = 32.dp).fillMaxWidth(),
+                modifier = Modifier.padding(vertical = PokerTheme.spacing.extraLarge).fillMaxWidth(),
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
@@ -72,12 +70,12 @@ private fun LeaderboardList(
                 )
             }
         } else {
-            Column(modifier = Modifier.padding(top = 16.dp)) {
+            Column(modifier = Modifier.padding(top = PokerTheme.spacing.medium)) {
                 entries.forEachIndexed { index, entry ->
                     LeaderboardRow(index + 1, entry)
                     if (index < entries.size - 1) {
                         HorizontalDivider(
-                            modifier = Modifier.padding(vertical = 8.dp),
+                            modifier = Modifier.padding(vertical = PokerTheme.spacing.small),
                             color = Color.White.copy(alpha = 0.1f),
                         )
                     }
@@ -96,12 +94,9 @@ private fun LeaderboardInfoRow(level: DifficultyLevel) {
     ) {
         Text(
             text = stringResource(Res.string.pairs_format, level.pairs),
-            style =
-                MaterialTheme.typography.labelMedium.copy(
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                ),
+            style = PokerTheme.typography.labelMedium,
             fontWeight = FontWeight.Bold,
-            color = GoldenYellow.copy(alpha = 0.6f),
+            color = PokerTheme.colors.goldenYellow.copy(alpha = 0.6f),
         )
     }
 }
@@ -115,8 +110,8 @@ private fun LeaderboardRow(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 12.dp),
-        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                .padding(horizontal = PokerTheme.spacing.medium, vertical = PokerTheme.spacing.small),
+        horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
         verticalAlignment = Alignment.CenterVertically,
     ) {
         RankBadge(rank)
@@ -124,10 +119,7 @@ private fun LeaderboardRow(
         Column(modifier = Modifier.weight(1f)) {
             Text(
                 text = stringResource(Res.string.score_label, entry.score),
-                style =
-                    MaterialTheme.typography.bodyLarge.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
+                style = PokerTheme.typography.bodyLarge,
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 maxLines = 1,
@@ -137,7 +129,7 @@ private fun LeaderboardRow(
 
         Row(
             modifier = Modifier.weight(0.6f),
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
             verticalAlignment = Alignment.CenterVertically
         ) {
             StatMiniItem(
@@ -161,9 +153,9 @@ private fun RankBadge(rank: Int) {
         shape = CircleShape,
         color =
             when (rank) {
-                1 -> GoldenYellow.copy(alpha = 0.2f)
-                2 -> Silver.copy(alpha = 0.2f)
-                3 -> Bronze.copy(alpha = 0.2f)
+                1 -> PokerTheme.colors.goldenYellow.copy(alpha = 0.2f)
+                2 -> Color(0xFFC0C0C0).copy(alpha = 0.2f) // Silver
+                3 -> Color(0xFFCD7F32).copy(alpha = 0.2f) // Bronze
                 else -> Color.Black.copy(alpha = 0.3f)
             },
         border =
@@ -171,9 +163,9 @@ private fun RankBadge(rank: Int) {
                 width = 1.dp,
                 color =
                     when (rank) {
-                        1 -> GoldenYellow.copy(alpha = 0.8f)
-                        2 -> Silver.copy(alpha = 0.8f)
-                        3 -> Bronze.copy(alpha = 0.8f)
+                        1 -> PokerTheme.colors.goldenYellow.copy(alpha = 0.8f)
+                        2 -> Color(0xFFC0C0C0).copy(alpha = 0.8f)
+                        3 -> Color(0xFFCD7F32).copy(alpha = 0.8f)
                         else -> Color.White.copy(alpha = 0.1f)
                     },
             ),
@@ -181,16 +173,13 @@ private fun RankBadge(rank: Int) {
         Box(contentAlignment = Alignment.Center) {
             Text(
                 text = rank.toString(),
-                style =
-                    MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
+                style = PokerTheme.typography.labelMedium,
                 fontWeight = FontWeight.ExtraBold,
                 color =
                     when (rank) {
-                        1 -> GoldenYellow
-                        2 -> Silver
-                        3 -> Bronze
+                        1 -> PokerTheme.colors.goldenYellow
+                        2 -> Color(0xFFC0C0C0)
+                        3 -> Color(0xFFCD7F32)
                         else -> Color.White.copy(alpha = 0.6f)
                     },
             )
@@ -214,7 +203,7 @@ private fun StatMiniItem(
                 MaterialTheme.typography.labelSmall.copy(
                     fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 ),
-            color = GoldenYellow.copy(alpha = 0.7f),
+            color = PokerTheme.colors.goldenYellow.copy(alpha = 0.7f),
             fontWeight = FontWeight.ExtraBold,
             letterSpacing = 0.5.sp,
             maxLines = 1,

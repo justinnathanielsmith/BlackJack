@@ -29,7 +29,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.AudioService
-import io.github.smithjustinn.theme.MemoryMatchTheme
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AdaptiveDensity
 import io.github.smithjustinn.ui.game.components.BouncingCardsOverlay
 import io.github.smithjustinn.ui.game.components.ComboBadge
@@ -228,7 +228,7 @@ private fun BoxScope.GameResultsOverlay(
                 .align(Alignment.Center)
                 .widthIn(max = 550.dp)
                 .padding(
-                    vertical = if (useCompactUI) 8.dp else 24.dp,
+                    vertical = if (useCompactUI) PokerTheme.spacing.small else PokerTheme.spacing.large,
                 ),
         mode = state.game.mode,
     )
@@ -236,21 +236,22 @@ private fun BoxScope.GameResultsOverlay(
 
 @Composable
 private fun GameBackground(isHeatMode: Boolean) {
+    val colors = PokerTheme.colors
     val backgroundTopColor by animateColorAsState(
         targetValue =
             if (isHeatMode) {
-                MemoryMatchTheme.colors.heatBackgroundTop
+                colors.heatBackgroundTop
             } else {
-                MemoryMatchTheme.colors.startBackgroundTop
+                colors.feltGreen
             },
         animationSpec = tween(durationMillis = 800),
     )
     val backgroundBottomColor by animateColorAsState(
         targetValue =
             if (isHeatMode) {
-                MemoryMatchTheme.colors.heatBackgroundBottom
+                colors.heatBackgroundBottom
             } else {
-                MemoryMatchTheme.colors.startBackgroundBottom
+                colors.feltGreenDark
             },
         animationSpec = tween(durationMillis = 800),
     )
@@ -376,7 +377,7 @@ private fun BoxScope.GameHUD(
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
-                    .padding(top = 16.dp, end = 24.dp),
+                    .padding(top = PokerTheme.spacing.medium, end = PokerTheme.spacing.large),
             compact = useCompactUI,
         )
     }
@@ -388,10 +389,10 @@ private fun BoxScope.GameHUD(
                 .align(if (useCompactUI) Alignment.TopCenter else Alignment.BottomCenter)
                 .navigationBarsPadding()
                 .padding(
-                    bottom = if (useCompactUI) 0.dp else 32.dp,
-                    top = if (useCompactUI) 8.dp else 0.dp,
-                    start = 16.dp,
-                    end = 16.dp,
+                    bottom = if (useCompactUI) PokerTheme.spacing.none else PokerTheme.spacing.extraLarge,
+                    top = if (useCompactUI) PokerTheme.spacing.small else PokerTheme.spacing.none,
+                    start = PokerTheme.spacing.medium,
+                    end = PokerTheme.spacing.medium,
                 ).widthIn(max = 600.dp),
     )
 }

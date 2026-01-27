@@ -1,6 +1,7 @@
 package io.github.smithjustinn.theme
 
 import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.ui.graphics.Color
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.darkColorScheme
@@ -16,90 +17,47 @@ import androidx.compose.runtime.staticCompositionLocalOf
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = PrimaryLight,
-        onPrimary = OnPrimaryLight,
-        primaryContainer = PrimaryContainerLight,
-        onPrimaryContainer = OnPrimaryContainerLight,
-        secondary = SecondaryLight,
-        onSecondary = OnSecondaryLight,
-        secondaryContainer = SecondaryContainerLight,
-        onSecondaryContainer = OnSecondaryContainerLight,
-        tertiary = TertiaryLight,
-        onTertiary = OnTertiaryLight,
-        tertiaryContainer = TertiaryContainerLight,
-        onTertiaryContainer = OnTertiaryContainerLight,
-        error = ErrorLight,
-        onError = OnErrorLight,
-        errorContainer = ErrorContainerLight,
-        onErrorContainer = OnErrorContainerLight,
-        background = BackgroundLight,
-        onBackground = OnBackgroundLight,
-        surface = SurfaceLight,
-        onSurface = OnSurfaceLight,
-        surfaceVariant = SurfaceVariantLight,
-        onSurfaceVariant = OnSurfaceVariantLight,
-        outline = OutlineLight,
-        outlineVariant = OutlineVariantLight,
-        scrim = ScrimLight,
-        inverseSurface = InverseSurfaceLight,
-        inverseOnSurface = InverseOnSurfaceLight,
-        inversePrimary = InversePrimaryLight,
-        surfaceDim = SurfaceDimLight,
-        surfaceBright = SurfaceBrightLight,
-        surfaceContainerLowest = SurfaceContainerLowestLight,
-        surfaceContainerLow = SurfaceContainerLowLight,
-        surfaceContainer = SurfaceContainerLight,
-        surfaceContainerHigh = SurfaceContainerHighLight,
-        surfaceContainerHighest = SurfaceContainerHighestLight,
+        primary = GoldenYellow,
+        onPrimary = Color.Black,
+        background = FeltGreenTop,
+        onBackground = Color.White,
+        surface = Color(0xFF4E2C1C), // Oak Woodish
+        onSurface = GoldenYellow,
     )
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = PrimaryDark,
-        onPrimary = OnPrimaryDark,
-        primaryContainer = PrimaryContainerDark,
-        onPrimaryContainer = OnPrimaryContainerDark,
-        secondary = SecondaryDark,
-        onSecondary = OnSecondaryDark,
-        secondaryContainer = SecondaryContainerDark,
-        onSecondaryContainer = OnSecondaryContainerDark,
-        tertiary = TertiaryDark,
-        onTertiary = OnTertiaryDark,
-        tertiaryContainer = TertiaryContainerDark,
-        onTertiaryContainer = OnTertiaryContainerDark,
-        error = ErrorDark,
-        onError = OnErrorDark,
-        errorContainer = ErrorContainerDark,
-        onErrorContainer = OnErrorContainerDark,
-        background = BackgroundDark,
-        onBackground = OnBackgroundDark,
-        surface = SurfaceDark,
-        onSurface = OnSurfaceDark,
-        surfaceVariant = SurfaceVariantDark,
-        onSurfaceVariant = OnSurfaceVariantDark,
-        outline = OutlineDark,
-        outlineVariant = OutlineVariantDark,
-        scrim = ScrimDark,
-        inverseSurface = InverseSurfaceDark,
-        inverseOnSurface = InverseOnSurfaceDark,
-        inversePrimary = InversePrimaryDark,
-        surfaceDim = SurfaceDimDark,
-        surfaceBright = SurfaceBrightDark,
-        surfaceContainerLowest = SurfaceContainerLowestDark,
-        surfaceContainerLow = SurfaceContainerLowDark,
-        surfaceContainer = SurfaceContainerDark,
-        surfaceContainerHigh = SurfaceContainerHighDark,
-        surfaceContainerHighest = SurfaceContainerHighestDark,
+        primary = GoldenYellow,
+        onPrimary = Color.Black,
+        background = FeltGreenBottom,
+        onBackground = Color.White,
+        surface = Color(0xFF2D1409), // Darker Oak
+        onSurface = GoldenYellow,
     )
 
 internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(true) }
 internal val LocalAppColors = staticCompositionLocalOf { LightAppColors }
 
-object MemoryMatchTheme {
+object PokerTheme {
     val colors: AppColors
         @Composable
         @ReadOnlyComposable
         get() = LocalAppColors.current
+
+    val spacing: AppSpacing
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalAppSpacing.current
+
+    val shapes: AppShapes
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalAppShapes.current
+
+    val typography: androidx.compose.material3.Typography
+        @Composable
+        @ReadOnlyComposable
+        get() = LocalAppTypography.current
 }
 
 @Composable
@@ -110,15 +68,22 @@ fun AppTheme(
     val systemIsDark = isSystemInDarkTheme()
     val isDarkState = remember(systemIsDark) { mutableStateOf(systemIsDark) }
     val colors = if (isDarkState.value) DarkAppColors else LightAppColors
+    val spacing = AppSpacing()
+    val shapes = AppShapes()
+    val typography = androidx.compose.material3.Typography()
 
     CompositionLocalProvider(
         LocalThemeIsDark provides isDarkState,
         LocalAppColors provides colors,
+        LocalAppSpacing provides spacing,
+        LocalAppShapes provides shapes,
+        LocalAppTypography provides typography,
     ) {
         val isDark by isDarkState
         onThemeChanged(isDark)
         MaterialTheme(
             colorScheme = if (isDark) DarkColorScheme else LightColorScheme,
+            typography = typography,
             content = { Surface(content = content) },
         )
     }

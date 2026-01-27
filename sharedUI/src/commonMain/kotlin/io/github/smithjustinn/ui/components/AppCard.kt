@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.theme.GoldenYellow
+import io.github.smithjustinn.theme.PokerTheme
 
 @Composable
 fun AppCard(
@@ -22,23 +22,27 @@ fun AppCard(
     title: String? = null,
     content: @Composable ColumnScope.() -> Unit,
 ) {
+    val colors = PokerTheme.colors
+    val spacing = PokerTheme.spacing
+    val shapes = PokerTheme.shapes
+
     Surface(
         modifier = modifier.fillMaxWidth(),
-        shape = RoundedCornerShape(12.dp), // Sharper corners for a "wooden" feel
+        shape = shapes.medium,
         color = Color.Black.copy(alpha = 0.3f), // Recessed felt look
         border = BorderStroke(
             width = 1.dp,
-            color = GoldenYellow.copy(alpha = 0.2f), // Brass-like inlay border
+            color = colors.goldenYellow.copy(alpha = 0.2f), // Brass-like inlay border
         ),
     ) {
-        Column(modifier = Modifier.padding(20.dp)) {
+        Column(modifier = Modifier.padding(spacing.medium)) {
             if (title != null) {
                 Text(
                     text = title.uppercase(),
-                    style = MaterialTheme.typography.labelLarge,
-                    color = GoldenYellow,
+                    style = PokerTheme.typography.labelLarge,
+                    color = colors.goldenYellow,
                     fontWeight = FontWeight.ExtraBold,
-                    modifier = Modifier.padding(bottom = 16.dp),
+                    modifier = Modifier.padding(bottom = spacing.medium),
                 )
             }
             content()

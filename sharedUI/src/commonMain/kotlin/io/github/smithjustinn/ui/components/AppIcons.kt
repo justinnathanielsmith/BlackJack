@@ -8,7 +8,7 @@ import androidx.compose.ui.graphics.StrokeJoin
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.path
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.theme.PureBlack
+
 
 @Suppress("ktlint:standard:backing-property-naming", "MagicNumber")
 object AppIcons {
@@ -86,7 +86,7 @@ object AppIcons {
                     viewportWidth = 24.0f,
                     viewportHeight = 24.0f,
                 ).path(
-                    fill = SolidColor(PureBlack),
+                    fill = SolidColor(Color.Black),
                     strokeLineWidth = 0f,
                     strokeLineCap = StrokeCap.Butt,
                     strokeLineJoin = StrokeJoin.Miter,
@@ -157,7 +157,7 @@ object AppIcons {
                     viewportWidth = 24.0f,
                     viewportHeight = 24.0f,
                 ).path(
-                    fill = SolidColor(PureBlack),
+                    fill = SolidColor(Color.Black),
                     strokeLineWidth = 0f,
                     strokeLineCap = StrokeCap.Butt,
                     strokeLineJoin = StrokeJoin.Miter,

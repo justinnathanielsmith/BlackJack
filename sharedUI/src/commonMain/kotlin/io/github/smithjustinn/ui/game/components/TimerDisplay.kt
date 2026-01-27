@@ -33,8 +33,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.theme.MemoryMatchTheme
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.utils.formatTime
 
 private const val COLOR_TRANSITION_DURATION_MS = 500
@@ -98,12 +97,12 @@ private fun animateTimerColor(
 ): Color {
     val targetValue =
         when {
-            showTimeLoss -> MemoryMatchTheme.colors.tacticalRed
-            showTimeGain && isMegaBonus -> MemoryMatchTheme.colors.goldenYellow
-            showTimeGain -> MemoryMatchTheme.colors.bonusGreen
-            isLowTime -> MemoryMatchTheme.colors.tacticalRed
+            showTimeLoss -> PokerTheme.colors.tacticalRed
+            showTimeGain && isMegaBonus -> PokerTheme.colors.goldenYellow
+            showTimeGain -> PokerTheme.colors.bonusGreen
+            isLowTime -> PokerTheme.colors.tacticalRed
             minimal -> Color.White
-            else -> MemoryMatchTheme.colors.goldenYellow
+            else -> PokerTheme.colors.goldenYellow
         }
 
     val color by animateColorAsState(
@@ -181,9 +180,9 @@ private fun MinimalTimerDisplay(
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                 color =
                     if (feedback.isMegaBonus) {
-                        MemoryMatchTheme.colors.goldenYellow
+                        PokerTheme.colors.goldenYellow
                     } else {
-                        MemoryMatchTheme.colors.bonusGreen
+                        PokerTheme.colors.bonusGreen
                     },
                 fontWeight = FontWeight.Black,
                 modifier = Modifier.padding(start = 4.dp),
@@ -201,15 +200,15 @@ private fun StandardTimerDisplay(
 ) {
     Surface(
         shape = RoundedCornerShape(if (visuals.layout == TimerLayout.COMPACT) 16.dp else 24.dp),
-        color = PokerTheme.OakWood,
+        color = PokerTheme.colors.oakWood,
         border =
             BorderStroke(
                 width = 2.dp,
                 color =
                     if (state.isLowTime || feedback.showTimeLoss) {
-                        MemoryMatchTheme.colors.tacticalRed
+                        PokerTheme.colors.tacticalRed
                     } else {
-                        PokerTheme.Gold.copy(alpha = 0.5f)
+                        PokerTheme.colors.goldenYellow.copy(alpha = 0.5f)
                     },
             ),
         modifier = modifier.height(if (visuals.layout == TimerLayout.COMPACT) 36.dp else 44.dp),
@@ -272,7 +271,7 @@ private fun TimeGainIndicator(
                 } else {
                     MaterialTheme.typography.labelLarge
                 },
-            color = if (isMegaBonus) MemoryMatchTheme.colors.goldenYellow else MemoryMatchTheme.colors.bonusGreen,
+            color = if (isMegaBonus) PokerTheme.colors.goldenYellow else PokerTheme.colors.bonusGreen,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(start = 6.dp),
         )
@@ -298,7 +297,7 @@ private fun TimeLossIndicator(
                 } else {
                     MaterialTheme.typography.labelLarge
                 },
-            color = MemoryMatchTheme.colors.tacticalRed,
+            color = PokerTheme.colors.tacticalRed,
             fontWeight = FontWeight.Black,
             modifier = Modifier.padding(start = 6.dp),
         )

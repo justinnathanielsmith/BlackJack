@@ -31,7 +31,7 @@ import io.github.smithjustinn.ui.components.PillSegmentedControl
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.PokerChip
 import io.github.smithjustinn.ui.start.DifficultyState
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 /**
@@ -55,13 +55,13 @@ fun DifficultySelectionSection(
     ) {
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(20.dp),
+            verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
         ) {
             DifficultySelector(state, onDifficultySelected)
             ModeSelector(state, onModeSelected)
         }
 
-        Spacer(modifier = Modifier.height(48.dp))
+        Spacer(modifier = Modifier.height(PokerTheme.spacing.huge))
         // Action Buttons
         ActionButtons(
             state = state,
@@ -88,10 +88,10 @@ private fun DifficultySelector(
             state.difficulties.forEach { level ->
                 val chipColor =
                     when (level.pairs) {
-                        6 -> PokerTheme.ChipBlue
-                        8 -> PokerTheme.ChipRed
-                        10 -> PokerTheme.ChipGreen
-                        else -> PokerTheme.ChipBlack
+                        6 -> PokerTheme.colors.softBlue
+                        8 -> PokerTheme.colors.tacticalRed
+                        10 -> PokerTheme.colors.bonusGreen
+                        else -> Color.Black
                     }
 
                 PokerChip(
@@ -136,14 +136,14 @@ private fun ActionButtons(
     onDailyChallengeClick: () -> Unit,
 ) {
     Column(
-        modifier = Modifier.fillMaxWidth().padding(horizontal = 8.dp),
-        verticalArrangement = Arrangement.spacedBy(24.dp),
+        modifier = Modifier.fillMaxWidth().padding(horizontal = PokerTheme.spacing.small),
+        verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.large),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         // Primary Actions: Start / Resume
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+            verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium)
         ) {
             PokerButton(
                 text = stringResource(Res.string.start),
@@ -164,11 +164,11 @@ private fun ActionButtons(
         // Secondary Actions: Settings, Stats, Daily
         Column(
             modifier = Modifier.fillMaxWidth(),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
+            verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small)
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.spacedBy(12.dp),
+                horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
             ) {
                 PokerButton(
                     text = stringResource(Res.string.settings),
@@ -196,8 +196,8 @@ private fun ActionButtons(
                 onClick = onDailyChallengeClick,
                 modifier = Modifier.fillMaxWidth(),
                 leadingIcon = AppIcons.DateRange,
-                containerColor = if (state.isDailyChallengeCompleted) PokerTheme.OakWood else PokerTheme.ChipRed,
-                contentColor = if (state.isDailyChallengeCompleted) PokerTheme.Gold else Color.White,
+                containerColor = if (state.isDailyChallengeCompleted) PokerTheme.colors.oakWood else PokerTheme.colors.tacticalRed,
+                contentColor = if (state.isDailyChallengeCompleted) PokerTheme.colors.goldenYellow else Color.White,
             )
         }
     }

@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 
 @Composable
 fun <T> PillSegmentedControl(
@@ -36,13 +36,15 @@ fun <T> PillSegmentedControl(
 ) {
     val selectedIndex = items.indexOf(selectedItem)
     val shape = RoundedCornerShape(50)
+    val colors = PokerTheme.colors
+    val spacing = PokerTheme.spacing
 
     BoxWithConstraints(
         modifier = modifier
             .height(48.dp)
             .clip(shape)
-            .background(PokerTheme.PillUnselected)
-            .padding(4.dp)
+            .background(colors.pillUnselected)
+            .padding(spacing.extraSmall)
     ) {
         val itemWidth = maxWidth / items.size
         
@@ -58,7 +60,7 @@ fun <T> PillSegmentedControl(
                 .fillMaxHeight()
                 .offset(x = indicatorOffset)
                 .clip(shape)
-                .background(PokerTheme.PillSelected)
+                .background(colors.pillSelected)
         )
 
         // Labels
@@ -74,9 +76,9 @@ fun <T> PillSegmentedControl(
                     val isSelected = item == selectedItem
                     Text(
                         text = labelProvider(item),
-                        style = MaterialTheme.typography.labelLarge,
+                        style = PokerTheme.typography.labelLarge,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) PokerTheme.FeltGreenDark else Color.White.copy(alpha = 0.7f),
+                        color = if (isSelected) colors.feltGreenDark else Color.White.copy(alpha = 0.7f),
                         textAlign = TextAlign.Center
                     )
                 }

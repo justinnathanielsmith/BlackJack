@@ -34,7 +34,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.CardState
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.ceil
@@ -90,6 +90,11 @@ fun GameGrid(
     val cardLayouts = remember { mutableStateMapOf<Int, CardLayoutInfo>() }
     var gridPosition by remember { mutableStateOf(Offset.Zero) }
 
+    val feltGreen = PokerTheme.colors.feltGreen
+    val feltGreenDark = PokerTheme.colors.feltGreenDark
+    val oakWood = PokerTheme.colors.oakWood
+
+
     BoxWithConstraints(
         modifier =
             Modifier
@@ -99,7 +104,7 @@ fun GameGrid(
                     drawRect(
                         brush =
                             Brush.radialGradient(
-                                colors = listOf(PokerTheme.FeltGreen, PokerTheme.FeltGreenDark),
+                                colors = listOf(feltGreen, feltGreenDark),
                                 center = center,
                                 radius = size.maxDimension / 1.5f,
                             ),
@@ -107,7 +112,7 @@ fun GameGrid(
 
                     // Wood Border ("Racetrack")
                     drawRect(
-                        color = PokerTheme.OakWood,
+                        color = oakWood,
                         style = Stroke(width = 16.dp.toPx()),
                     )
                 }.windowInsetsPadding(

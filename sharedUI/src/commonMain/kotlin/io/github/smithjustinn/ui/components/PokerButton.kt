@@ -22,7 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 
 @Composable
 fun PokerButton(
@@ -31,18 +31,18 @@ fun PokerButton(
     modifier: Modifier = Modifier,
     leadingIcon: ImageVector? = null,
     trailingIcon: ImageVector? = null,
-    containerColor: Color = PokerTheme.OakWood,
-    contentColor: Color = PokerTheme.Gold,
+    containerColor: Color = PokerTheme.colors.oakWood,
+    contentColor: Color = PokerTheme.colors.goldenYellow,
 ) {
     Box(
         modifier =
             modifier
                 .height(56.dp)
-                .shadow(4.dp, RoundedCornerShape(12.dp))
-                .clip(RoundedCornerShape(12.dp))
+                .shadow(PokerTheme.spacing.extraSmall, PokerTheme.shapes.medium)
+                .clip(PokerTheme.shapes.medium)
                 .background(containerColor)
                 .clickable(onClick = onClick)
-                .padding(horizontal = 16.dp),
+                .padding(horizontal = PokerTheme.spacing.medium),
         contentAlignment = Alignment.Center,
     ) {
         Row(
@@ -60,7 +60,7 @@ fun PokerButton(
 
             Text(
                 text = text.uppercase(),
-                style = MaterialTheme.typography.titleMedium,
+                style = PokerTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold,
                 color = contentColor,
                 maxLines = 1,

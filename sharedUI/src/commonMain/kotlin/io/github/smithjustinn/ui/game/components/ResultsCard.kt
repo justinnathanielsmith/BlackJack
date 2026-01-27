@@ -49,9 +49,8 @@ import io.github.smithjustinn.resources.game_complete
 import io.github.smithjustinn.resources.game_over
 import io.github.smithjustinn.resources.play_again
 import io.github.smithjustinn.resources.times_up
-import io.github.smithjustinn.theme.MemoryMatchTheme
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
@@ -163,13 +162,13 @@ private fun ResultsCardContent(
                 .scale(scale)
                 .widthIn(max = 550.dp),
         shape = RoundedCornerShape(24.dp),
-        color = PokerTheme.OakWood,
-        border = BorderStroke(2.dp, PokerTheme.Gold.copy(alpha = 0.5f)), // Gold border
+        color = PokerTheme.colors.oakWood,
+        border = BorderStroke(2.dp, PokerTheme.colors.goldenYellow.copy(alpha = 0.5f)), // Gold border
         shadowElevation = 16.dp,
     ) {
         val contentPadding = if (isCompactHeight) 12.dp else 24.dp
         val verticalSpacing = if (isCompactHeight) 8.dp else 16.dp
-        val headerColor = if (isWon) MemoryMatchTheme.colors.goldenYellow else MemoryMatchTheme.colors.tacticalRed // Gold for win, Red for loss
+        val headerColor = if (isWon) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed // Gold for win, Red for loss
 
         Column(
             modifier =
@@ -244,7 +243,7 @@ private fun CompactResultsContent(
             modifier = Modifier.height(48.dp),
             shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.buttonColors(
-                containerColor = PokerTheme.ChipRed,
+                containerColor = PokerTheme.colors.tacticalRed,
                 contentColor = Color.White
             ),
         ) {
@@ -288,7 +287,7 @@ private fun StandardResultsContent(
                 .height(56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
-            containerColor = PokerTheme.ChipRed,
+            containerColor = PokerTheme.colors.tacticalRed,
             contentColor = Color.White
         ),
         elevation = ButtonDefaults.buttonElevation(defaultElevation = 4.dp),
@@ -320,8 +319,8 @@ private fun ResultsActionButtons(
                 .fillMaxWidth()
                 .height(if (isCompact) 48.dp else 56.dp),
         shape = RoundedCornerShape(12.dp),
-        colors = ButtonDefaults.outlinedButtonColors(contentColor = PokerTheme.Gold),
-        border = BorderStroke(1.dp, PokerTheme.Gold),
+        colors = ButtonDefaults.outlinedButtonColors(contentColor = PokerTheme.colors.goldenYellow),
+        border = BorderStroke(1.dp, PokerTheme.colors.goldenYellow),
     ) {
         Icon(imageVector = AppIcons.Share, contentDescription = null)
         Spacer(modifier = Modifier.width(8.dp))

@@ -27,7 +27,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 
 @Composable
 fun PokerChip(
@@ -42,7 +42,7 @@ fun PokerChip(
     val isPressed by interactionSource.collectIsPressedAsState()
 
     val elevation by animateDpAsState(
-        targetValue = if (isPressed) 2.dp else if (isSelected) 8.dp else 4.dp,
+        targetValue = if (isPressed) PokerTheme.spacing.extraSmall else if (isSelected) PokerTheme.spacing.small else PokerTheme.spacing.extraSmall,
         label = "chipElevation"
     )
     
@@ -102,8 +102,8 @@ fun PokerChip(
         
         Text(
             text = text,
-            style = MaterialTheme.typography.labelMedium,
-            color = if (isSelected) PokerTheme.Gold else Color.White.copy(alpha = 0.7f),
+            style = PokerTheme.typography.labelMedium,
+            color = if (isSelected) PokerTheme.colors.goldenYellow else Color.White.copy(alpha = 0.7f),
             fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
             fontSize = if (isSelected) 14.sp else 12.sp
         )

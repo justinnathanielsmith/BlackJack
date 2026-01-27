@@ -26,8 +26,7 @@ import androidx.compose.ui.zIndex
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
-import io.github.smithjustinn.theme.DarkBlue
-import io.github.smithjustinn.theme.SoftBlue
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.game.components.CardContent
 import io.github.smithjustinn.ui.game.components.CardVisualState
 import io.github.smithjustinn.ui.game.components.PlayingCard
@@ -133,6 +132,7 @@ fun CardPreview(
 
 @Composable
 private fun BackgroundGlow() {
+    val colors = PokerTheme.colors
     Box(
         modifier =
             Modifier
@@ -143,8 +143,8 @@ private fun BackgroundGlow() {
                             Brush.radialGradient(
                                 colors =
                                     listOf(
-                                        SoftBlue.copy(alpha = GLOW_SOFT_BLUE_ALPHA),
-                                        DarkBlue.copy(alpha = GLOW_DARK_BLUE_ALPHA),
+                                        colors.softBlue.copy(alpha = GLOW_SOFT_BLUE_ALPHA),
+                                        colors.softBlue.copy(alpha = GLOW_DARK_BLUE_ALPHA),
                                         Color.Transparent,
                                     ),
                             ),

@@ -33,8 +33,9 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.high_scores
-import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
+import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.ui.stats.components.LeaderboardSection
 import io.github.smithjustinn.ui.stats.components.ModeSelector
 import org.jetbrains.compose.resources.stringResource
@@ -48,6 +49,7 @@ fun StatsContent(
     val graph = LocalAppGraph.current
     val state by component.state.collectAsState()
     val audioService = graph.audioService
+    val colors = PokerTheme.colors
 
     LaunchedEffect(Unit) {
         component.events.collect { event ->
@@ -66,8 +68,8 @@ fun StatsContent(
                         Brush.radialGradient(
                             colors =
                                 listOf(
-                                    io.github.smithjustinn.theme.FeltGreenTop,
-                                    io.github.smithjustinn.theme.FeltGreenBottom,
+                                    colors.feltGreen,
+                                    colors.feltGreenDark,
                                 ),
                             center = androidx.compose.ui.geometry.Offset.Unspecified,
                             radius = 1000f,
@@ -108,13 +110,13 @@ private fun StatsMainContent(
                     modifier =
                         Modifier
                             .fillMaxWidth()
-                            .padding(horizontal = 24.dp, vertical = 12.dp),
+                            .padding(horizontal = PokerTheme.spacing.large, vertical = PokerTheme.spacing.small),
                 )
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
-                    contentPadding = PaddingValues(horizontal = 24.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp),
+                    contentPadding = PaddingValues(horizontal = PokerTheme.spacing.large, vertical = PokerTheme.spacing.medium),
+                    verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
                 ) {
                     items(state.difficultyLeaderboards) { (level, entries) ->
                         LeaderboardSection(level, entries)
@@ -152,7 +154,7 @@ private fun StatsTopBar(
                 Icon(
                     imageVector = AppIcons.ArrowBack,
                     contentDescription = stringResource(Res.string.back_content_description),
-                    tint = io.github.smithjustinn.theme.GoldenYellow,
+                    tint = PokerTheme.colors.goldenYellow,
                 )
             }
         },

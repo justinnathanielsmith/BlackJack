@@ -27,8 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.combo_format
-import io.github.smithjustinn.theme.MemoryMatchTheme
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -74,22 +73,19 @@ private fun ComboBadgeContent(
     pulseScale: Float,
     modifier: Modifier = Modifier,
 ) {
+    val colors = PokerTheme.colors
+    val spacing = PokerTheme.spacing
     val badgeColor =
         when {
-            state.isHeatMode -> MemoryMatchTheme.colors.tacticalRed
-
-            // Casino Red
-            state.isMegaBonus -> MemoryMatchTheme.colors.goldenYellow
-
-            else -> MemoryMatchTheme.colors.goldenYellow // Gold default
+            state.isHeatMode -> colors.tacticalRed
+            state.isMegaBonus -> colors.goldenYellow
+            else -> colors.goldenYellow // Gold default
         }
     // Chip Shape (Circle or Rounded)
-    val chipShape =
-        androidx.compose.foundation.shape
-            .RoundedCornerShape(50)
+    val chipShape = androidx.compose.foundation.shape.RoundedCornerShape(50)
 
     Surface(
-        color = PokerTheme.OakWood,
+        color = colors.oakWood,
         shape = chipShape,
         border = BorderStroke(BORDER_WIDTH.dp, badgeColor),
         modifier =
@@ -98,9 +94,9 @@ private fun ComboBadgeContent(
                 .shadow(
                     elevation =
                         if (state.isHeatMode) {
-                            if (compact) 10.dp else 18.dp
+                            if (compact) spacing.small else spacing.medium
                         } else {
-                            if (compact) 4.dp else 8.dp
+                            if (compact) spacing.extraSmall else spacing.small
                         },
                     shape = chipShape,
                     ambientColor = Color.Black, // Dark shadow
@@ -108,22 +104,18 @@ private fun ComboBadgeContent(
                     clip = false,
                 ),
     ) {
-        // Chip Dashed Ring Effect (Simulated with dashed border or just inner content)
-        // For simplicity, just text.
-
         Text(
             text = stringResource(Res.string.combo_format, state.combo).uppercase(),
             modifier =
                 Modifier.padding(
-                    horizontal = if (compact) 12.dp else 16.dp,
-                    vertical = if (compact) 4.dp else 8.dp,
+                    horizontal = if (compact) spacing.small else spacing.medium,
+                    vertical = if (compact) spacing.extraSmall else spacing.small,
                 ),
             style =
-                MaterialTheme.typography.labelLarge.copy(
+                PokerTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
                     fontSize = if (compact) 12.sp else 16.sp,
                     letterSpacing = 1.sp,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
                 ),
             color = badgeColor,
         )

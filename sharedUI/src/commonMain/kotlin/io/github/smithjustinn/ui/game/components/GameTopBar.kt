@@ -20,7 +20,6 @@ import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.shape.CircleShape
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
@@ -38,10 +37,8 @@ import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.mute_content_description
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.unmute_content_description
-import io.github.smithjustinn.theme.GoldenYellow
-import io.github.smithjustinn.theme.TacticalRed
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -59,12 +56,13 @@ fun GameTopBar(
             modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(
-                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal),
-                ).padding(
-                    horizontal = if (state.compact) 16.dp else 24.dp,
-                    vertical = if (state.compact) 8.dp else 12.dp,
+                    WindowInsets.safeDrawing.only(WindowInsetsSides.Top + WindowInsetsSides.Horizontal)
+                )
+                .padding(
+                    horizontal = if (state.compact) PokerTheme.spacing.medium else PokerTheme.spacing.large,
+                    vertical = if (state.compact) PokerTheme.spacing.small else PokerTheme.spacing.medium,
                 ),
-        verticalArrangement = Arrangement.spacedBy(if (state.compact) 8.dp else 12.dp),
+        verticalArrangement = Arrangement.spacedBy(if (state.compact) PokerTheme.spacing.small else PokerTheme.spacing.medium),
     ) {
         TopBarMainRow(
             state = state,
@@ -167,8 +165,8 @@ private fun BackButton(
     Surface(
         onClick = onClick,
         shape = CircleShape,
-        color = PokerTheme.ChipRed,
-        shadowElevation = 8.dp,
+        color = PokerTheme.colors.tacticalRed,
+        shadowElevation = PokerTheme.spacing.small,
         modifier = modifier.size(size),
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -191,7 +189,7 @@ private fun BackButton(
             Icon(
                 AppIcons.ArrowBack,
                 contentDescription = stringResource(Res.string.back_content_description),
-                tint = PokerTheme.Gold,
+                tint = PokerTheme.colors.goldenYellow,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -206,16 +204,16 @@ private fun RestartButton(
 ) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        color = PokerTheme.OakWood,
-        shadowElevation = 4.dp,
+        shape = PokerTheme.shapes.medium,
+        color = PokerTheme.colors.oakWood,
+        shadowElevation = PokerTheme.spacing.extraSmall,
         modifier = modifier.size(if (compact) 40.dp else 48.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 AppIcons.Restart,
                 contentDescription = stringResource(Res.string.restart_content_description),
-                tint = PokerTheme.Gold,
+                tint = PokerTheme.colors.goldenYellow,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -231,9 +229,9 @@ private fun MuteButton(
 ) {
     Surface(
         onClick = onClick,
-        shape = RoundedCornerShape(12.dp),
-        color = PokerTheme.OakWood,
-        shadowElevation = 4.dp,
+        shape = PokerTheme.shapes.medium,
+        color = PokerTheme.colors.oakWood,
+        shadowElevation = PokerTheme.spacing.extraSmall,
         modifier = modifier.size(if (compact) 40.dp else 48.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
@@ -247,7 +245,7 @@ private fun MuteButton(
                             Res.string.unmute_content_description
                         },
                     ),
-                tint = if (isAudioEnabled) PokerTheme.Gold else TacticalRed,
+                tint = if (isAudioEnabled) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed,
                 modifier = Modifier.size(if (compact) 20.dp else 24.dp),
             )
         }
@@ -281,17 +279,17 @@ private fun TimeProgressBar(
                     .fillMaxWidth(progress)
                     .fillMaxHeight()
                     .shadow(
-                        elevation = if (isLowTime) 0.dp else 12.dp,
+                        elevation = if (isLowTime) PokerTheme.spacing.none else PokerTheme.spacing.medium,
                         shape = CircleShape,
-                        ambientColor = GoldenYellow,
-                        spotColor = GoldenYellow,
+                        ambientColor = PokerTheme.colors.goldenYellow,
+                        spotColor = PokerTheme.colors.goldenYellow,
                         clip = false,
                     ).clip(CircleShape)
                     .background(
                         if (isLowTime) {
-                            Brush.horizontalGradient(listOf(TacticalRed, TacticalRed.copy(alpha = 0.7f)))
+                            Brush.horizontalGradient(listOf(PokerTheme.colors.tacticalRed, PokerTheme.colors.tacticalRed.copy(alpha = 0.7f)))
                         } else {
-                            Brush.horizontalGradient(listOf(GoldenYellow, GoldenYellow.copy(alpha = 0.7f)))
+                            Brush.horizontalGradient(listOf(PokerTheme.colors.goldenYellow, PokerTheme.colors.goldenYellow.copy(alpha = 0.7f)))
                         },
                     ),
         )

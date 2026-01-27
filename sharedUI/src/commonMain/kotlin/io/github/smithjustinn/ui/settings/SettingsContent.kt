@@ -63,7 +63,7 @@ import io.github.smithjustinn.resources.settings_sound_effects
 import io.github.smithjustinn.resources.settings_sound_effects_desc
 import io.github.smithjustinn.resources.settings_symbol_style
 import io.github.smithjustinn.services.AudioService
-import io.github.smithjustinn.theme.InactiveBackground
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.components.PillSegmentedControl
@@ -315,7 +315,7 @@ private fun SettingsResetSection(
                             io.github.smithjustinn.theme.GoldenYellow
                                 .copy(alpha = 0.2f),
                         contentColor = io.github.smithjustinn.theme.GoldenYellow,
-                        disabledContainerColor = InactiveBackground.copy(alpha = 0.5f),
+                        disabledContainerColor = PokerTheme.colors.hudBackground.copy(alpha = 0.5f),
                         disabledContentColor = Color.White.copy(alpha = 0.3f),
                     ),
             ) {
@@ -378,7 +378,7 @@ private fun VolumeSlider(
                 SliderDefaults.colors(
                     thumbColor = Color.White,
                     activeTrackColor = io.github.smithjustinn.theme.GoldenYellow,
-                    inactiveTrackColor = InactiveBackground,
+                    inactiveTrackColor = PokerTheme.colors.hudBackground,
                 ),
         )
         Text(
@@ -424,7 +424,7 @@ private fun SettingsToggle(
                 SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
                     checkedTrackColor = io.github.smithjustinn.theme.GoldenYellow,
-                    uncheckedTrackColor = InactiveBackground,
+                    uncheckedTrackColor = PokerTheme.colors.hudBackground,
                     uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
                     uncheckedBorderColor = Color.Transparent,
                 ),

@@ -21,7 +21,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.domain.models.DifficultyLevel
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.start.components.StartHeader
 
@@ -33,6 +36,8 @@ fun StartContent(
     val state by component.state.collectAsState()
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
+    val colors = PokerTheme.colors
+    val spacing = PokerTheme.spacing
 
     Box(
         modifier =
@@ -43,8 +48,8 @@ fun StartContent(
                         Brush.radialGradient(
                             colors =
                                 listOf(
-                                    io.github.smithjustinn.theme.FeltGreenTop,
-                                    io.github.smithjustinn.theme.FeltGreenBottom,
+                                    colors.feltGreen,
+                                    colors.feltGreenDark,
                                 ),
                             center = androidx.compose.ui.geometry.Offset.Unspecified,
                             radius = 1000f, // Broad spread for the "tabletop" look
@@ -58,7 +63,7 @@ fun StartContent(
                     .statusBarsPadding()
                     .navigationBarsPadding()
                     .verticalScroll(rememberScrollState())
-                    .padding(horizontal = 24.dp, vertical = 32.dp)
+                    .padding(horizontal = spacing.large, vertical = spacing.extraLarge)
                     .widthIn(max = 600.dp)
                     .align(Alignment.TopCenter),
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -68,15 +73,15 @@ fun StartContent(
                 settings = state.cardSettings,
             )
 
-            Spacer(modifier = Modifier.height(48.dp))
+            Spacer(modifier = Modifier.height(PokerTheme.spacing.huge))
 
             DifficultySelectionSection(
                 state = state,
-                onDifficultySelected = { level ->
+                onDifficultySelected = { level: DifficultyLevel ->
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onDifficultySelected(level)
                 },
-                onModeSelected = { mode ->
+                onModeSelected = { mode: GameMode ->
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onModeSelected(mode)
                 },

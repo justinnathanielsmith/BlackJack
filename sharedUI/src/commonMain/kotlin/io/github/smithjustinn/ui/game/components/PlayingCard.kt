@@ -35,13 +35,7 @@ import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
-import io.github.smithjustinn.theme.ClubGreen
-import io.github.smithjustinn.theme.DiamondBlue
-import io.github.smithjustinn.theme.GoldenYellow
-import io.github.smithjustinn.theme.HeartRed
-import io.github.smithjustinn.theme.SpadeBlack
-import io.github.smithjustinn.theme.StartBackgroundTop
-import io.github.smithjustinn.ui.theme.PokerTheme
+import io.github.smithjustinn.theme.PokerTheme
 import kotlin.math.abs
 import kotlin.math.roundToInt
 
@@ -121,7 +115,7 @@ data class CardAnimations(
 fun PlayingCard(
     content: CardContent,
     modifier: Modifier = Modifier,
-    backColor: Color = StartBackgroundTop,
+    backColor: Color = PokerTheme.colors.feltGreen,
     settings: CardDisplaySettings = CardDisplaySettings(),
     onClick: () -> Unit = {},
 ) {
@@ -231,6 +225,7 @@ private fun CardContainer(
     interactions: CardInteractions,
     content: @Composable () -> Unit,
 ) {
+    val glowColor = PokerTheme.colors.goldenYellow
     Box(
         modifier =
             modifier
@@ -254,12 +249,12 @@ private fun CardContainer(
                         },
                     shape = RoundedCornerShape(12.dp),
                     clip = false,
-                    ambientColor = if (visuals.visualState.isRecentlyMatched) GoldenYellow else Color.Black,
-                    spotColor = if (visuals.visualState.isRecentlyMatched) GoldenYellow else Color.Black,
+                    ambientColor = if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black,
+                    spotColor = if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black,
                 ).drawBehind {
                     if (visuals.visualState.isRecentlyMatched) {
                         drawCircle(
-                            color = GoldenYellow.copy(alpha = visuals.matchedGlowAlpha),
+                            color = glowColor.copy(alpha = visuals.matchedGlowAlpha),
                             radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
                             center = center,
                         )
@@ -291,8 +286,8 @@ private fun getCardBorder(
 ): BorderStroke =
     if (rotation <= HALF_ROTATION) {
         when {
-            visualState.isRecentlyMatched -> BorderStroke(2.dp, GoldenYellow)
-            visualState.isMatched -> BorderStroke(1.dp, GoldenYellow.copy(alpha = MEDIUM_ALPHA))
+            visualState.isRecentlyMatched -> BorderStroke(2.dp, PokerTheme.colors.goldenYellow)
+            visualState.isMatched -> BorderStroke(1.dp, PokerTheme.colors.goldenYellow.copy(alpha = MEDIUM_ALPHA))
             visualState.isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
             else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
         }
@@ -305,6 +300,7 @@ private fun getCardBorder(
         )
     }
 
+@Composable
 private fun calculateSuitColor(
     suit: Suit,
     areSuitsMultiColored: Boolean,
@@ -312,14 +308,14 @@ private fun calculateSuitColor(
 ): Color =
     if (theme == CardSymbolTheme.POKER) {
         // Strict Poker Colors
-        if (suit.isRed) PokerTheme.CardRed else PokerTheme.CardBlack
+        if (suit.isRed) PokerTheme.colors.tacticalRed else Color.Black
     } else if (areSuitsMultiColored) {
         when (suit) {
-            Suit.Hearts -> HeartRed
-            Suit.Diamonds -> DiamondBlue
-            Suit.Clubs -> ClubGreen
-            Suit.Spades -> SpadeBlack
+            Suit.Hearts -> PokerTheme.colors.tacticalRed
+            Suit.Diamonds -> PokerTheme.colors.softBlue
+            Suit.Clubs -> PokerTheme.colors.bonusGreen
+            Suit.Spades -> Color.Black
         }
     } else {
-        if (suit.isRed) HeartRed else SpadeBlack
+        if (suit.isRed) PokerTheme.colors.tacticalRed else Color.Black
     }
