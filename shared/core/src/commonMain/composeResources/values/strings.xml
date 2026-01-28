@@ -30,7 +30,7 @@
     <string name="game_over">Game Over</string>
     <string name="times_up">"Time's Up!"</string>
 
-    <string name="difficulty_toddler">Toddler Mode</string>
+    <string name="difficulty_toddler">The Tourist</string>
     <string name="difficulty_casual">Casual Player</string>
     <string name="difficulty_master">Memory Master</string>
     <string name="difficulty_shark">Card Shark</string>
