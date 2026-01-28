@@ -16,4 +16,6 @@ interface GameComponent {
     fun onToggleAudio()
 
     fun onWalkthroughAction(isComplete: Boolean)
+
+    fun onDoubleDown()
 }

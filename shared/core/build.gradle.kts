@@ -31,6 +31,9 @@ kotlin {
             implementation(libs.compose.resources)
             api(libs.koin.core)
         }
+        commonTest.dependencies {
+            implementation(kotlin("test"))
+        }
     }
 }
 

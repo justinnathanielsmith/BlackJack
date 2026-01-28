@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.game
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.smithjustinn.di.AppGraph
+import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
@@ -132,6 +133,13 @@ class DefaultGameComponent(
                         it.copy(
                             bestScore = stats?.bestScore ?: 0,
                             bestTimeSeconds = stats?.bestTimeSeconds ?: 0,
+                            // Reset transient game state
+                            isHeatMode = false,
+                            isMegaBonus = false,
+                            isNewHighScore = false,
+                            showComboExplosion = false,
+                            showTimeGain = false,
+                            showTimeLoss = false,
                         )
                     }
                 }
@@ -289,6 +297,22 @@ class DefaultGameComponent(
             }
         } else {
             _state.update { it.copy(walkthroughStep = it.walkthroughStep + 1) }
+        }
+    }
+
+    override fun onDoubleDown() {
+        if (!_state.value.isHeatMode) return
+
+        val currentState = _state.value
+        val newState =
+            MemoryGameLogic
+                .activateDoubleDown(currentState.game)
+
+        if (newState.isDoubleDownActive) {
+            _state.update { it.copy(game = newState) }
+            _events.tryEmit(GameUiEvent.VibrateHeat)
+            // Reveal cards for 0.5s
+            timerHandler.peekCards(currentState.game.mode, GameConstants.DOUBLE_DOWN_DURATION)
         }
     }
 }

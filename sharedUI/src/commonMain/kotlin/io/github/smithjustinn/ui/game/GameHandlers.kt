@@ -15,6 +15,7 @@ import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 internal object GameConstants {
+    const val DOUBLE_DOWN_DURATION = 1
     const val MILLIS_IN_DAY = 86400000L
     const val SETTINGS_COLLECTION_DELAY = 50L
     const val PEEK_DURATION_SECONDS = 3
@@ -77,12 +78,14 @@ internal class GameTimerHandler(
         timerJob = null
     }
 
-    fun peekCards(mode: GameMode) {
+    fun peekCards(
+        mode: GameMode,
+        peekDuration: Int = GameConstants.PEEK_DURATION_SECONDS,
+    ) {
         peekJob?.cancel()
         peekJob =
             scope.launch {
                 stopTimer()
-                val peekDuration = GameConstants.PEEK_DURATION_SECONDS
                 state.update { it.copy(isPeeking = true, peekCountdown = peekDuration) }
 
                 for (i in peekDuration downTo 1) {

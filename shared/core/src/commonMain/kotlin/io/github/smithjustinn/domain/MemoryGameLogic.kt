@@ -143,7 +143,8 @@ object MemoryGameLogic {
         // Quadratic Scoring: Rewards high combos significantly more
         // Example: 1x=20, 2x=420, 3x=920, 4x=1620
         val comboFactor = state.comboMultiplier * state.comboMultiplier
-        val pointsEarned = config.baseMatchPoints + comboFactor * config.comboBonusPoints
+        val basePoints = config.baseMatchPoints + comboFactor * config.comboBonusPoints
+        val pointsEarned = if (state.isDoubleDownActive) basePoints * 2 else basePoints
 
         val isWon = newCards.all { it.isMatched }
         val matchesFound = newCards.count { it.isMatched } / 2
@@ -158,16 +159,18 @@ object MemoryGameLogic {
                 isGameOver = isWon,
                 moves = moves,
                 score = state.score + pointsEarned,
-                comboMultiplier = state.comboMultiplier + 1,
+                comboMultiplier = if (state.isDoubleDownActive) 1 else state.comboMultiplier + 1,
+                isDoubleDownActive = false,
                 matchComment = comment,
                 lastMatchedIds = persistentListOf(first.id, second.id),
             )
 
-        val event = when {
-            isWon -> GameDomainEvent.GameWon
-            state.comboMultiplier > config.theNutsThreshold -> GameDomainEvent.TheNutsAchieved
-            else -> GameDomainEvent.MatchSuccess
-        }
+        val event =
+            when {
+                isWon -> GameDomainEvent.GameWon
+                state.comboMultiplier > config.theNutsThreshold -> GameDomainEvent.TheNutsAchieved
+                else -> GameDomainEvent.MatchSuccess
+            }
 
         return newState to event
     }
@@ -180,7 +183,11 @@ object MemoryGameLogic {
         val newState =
             state.copy(
                 moves = state.moves + 1,
-                comboMultiplier = 1,
+                comboMultiplier = 0,
+                score =
+                    (state.score - if (state.isDoubleDownActive) state.config.doubleDownPenalty else 0)
+                        .coerceAtLeast(0),
+                isDoubleDownActive = false,
                 cards =
                     state.cards
                         .map { card ->
@@ -318,9 +325,16 @@ object MemoryGameLogic {
     fun calculateTimeGain(comboMultiplier: Int): Int {
         val baseGain = BASE_TIME_GAIN
         // Steeper time reward: +2s per combo level instead of +1s
-        val comboBonus = (comboMultiplier - 1) * 2 
+        val comboBonus = (comboMultiplier - 1) * 2
         return baseGain + comboBonus
     }
+
+    fun activateDoubleDown(state: MemoryGameState): MemoryGameState =
+        if (state.comboMultiplier >= state.config.heatModeThreshold && !state.isDoubleDownActive) {
+            state.copy(isDoubleDownActive = true)
+        } else {
+            state
+        }
 
     private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
     private const val DIFF_LEVEL_6 = 6

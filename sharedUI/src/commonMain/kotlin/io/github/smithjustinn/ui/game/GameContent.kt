@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -72,19 +75,19 @@ fun GameContent(
     GameEventHandler(
         component = component,
         onTheNuts = {
-             // Re-use steam/shake effect for The Nuts
-             showSteam = true
-             scope.launch {
-               shakeOffset.animateTo(20f, spring(stiffness = Spring.StiffnessHigh))
-               shakeOffset.animateTo(-20f, spring(stiffness = Spring.StiffnessHigh))
-               shakeOffset.animateTo(10f, spring(stiffness = Spring.StiffnessHigh))
-               shakeOffset.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
-             }
-             scope.launch {
-                 delay(1200)
-                 showSteam = false
-             }
-        }
+            // Re-use steam/shake effect for The Nuts
+            showSteam = true
+            scope.launch {
+                shakeOffset.animateTo(20f, spring(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(-20f, spring(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(10f, spring(stiffness = Spring.StiffnessHigh))
+                shakeOffset.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+            }
+            scope.launch {
+                delay(1200)
+                showSteam = false
+            }
+        },
     )
 
     AdaptiveDensity {
@@ -93,11 +96,11 @@ fun GameContent(
                 // LOST HEAT MODE -> SHAKE + STEAM
                 showSteam = true
                 launch {
-                   // Quick double shake
-                   shakeOffset.animateTo(20f, spring(stiffness = Spring.StiffnessHigh))
-                   shakeOffset.animateTo(-20f, spring(stiffness = Spring.StiffnessHigh))
-                   shakeOffset.animateTo(10f, spring(stiffness = Spring.StiffnessHigh))
-                   shakeOffset.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+                    // Quick double shake
+                    shakeOffset.animateTo(20f, spring(stiffness = Spring.StiffnessHigh))
+                    shakeOffset.animateTo(-20f, spring(stiffness = Spring.StiffnessHigh))
+                    shakeOffset.animateTo(10f, spring(stiffness = Spring.StiffnessHigh))
+                    shakeOffset.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
                 }
                 launch {
                     delay(1200) // Duration of steam effect
@@ -108,11 +111,12 @@ fun GameContent(
         }
 
         BoxWithConstraints(
-            modifier = modifier
-                .fillMaxSize()
-                .graphicsLayer {
-                    translationX = shakeOffset.value
-                }
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .graphicsLayer {
+                        translationX = shakeOffset.value
+                    },
         ) {
             val isLandscape = maxWidth > maxHeight
             val isCompactHeight = maxHeight < 500.dp
@@ -125,10 +129,10 @@ fun GameContent(
                     component = component,
                     useCompactUI = useCompactUI,
                 )
-                
+
                 // Embers overlay - Foreground
                 ParticleEmbers(isHeatMode = state.isHeatMode)
-                
+
                 // Steam Cool Down Effect
                 SteamEffect(isVisible = showSteam)
             }
@@ -427,7 +431,11 @@ private fun GameMainContent(
             scorePositionInRoot = scorePosition,
         )
 
-        GameHUD(state = state, useCompactUI = useCompactUI)
+        GameHUD(
+            state = state,
+            useCompactUI = useCompactUI,
+            onDoubleDown = { component.onDoubleDown() },
+        )
 
         GameOverlays(
             state = state,
@@ -441,6 +449,7 @@ private fun GameMainContent(
 private fun BoxScope.GameHUD(
     state: GameUIState,
     useCompactUI: Boolean,
+    onDoubleDown: () -> Unit,
 ) {
     if (state.game.comboMultiplier > 1) {
         ComboBadge(
@@ -457,6 +466,33 @@ private fun BoxScope.GameHUD(
                     .padding(top = PokerTheme.spacing.medium, end = PokerTheme.spacing.large),
             compact = useCompactUI,
         )
+    }
+
+    // Double or Nothing Button - Only in Heat Mode and not already active
+    if (state.isHeatMode && !state.game.isDoubleDownActive && !state.game.isGameOver) {
+        Button(
+            onClick = onDoubleDown,
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = PokerTheme.colors.tacticalRed,
+                    contentColor = PokerTheme.colors.goldenYellow,
+                ),
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 100.dp, end = 16.dp),
+            elevation =
+                ButtonDefaults.buttonElevation(
+                    defaultElevation = 6.dp,
+                    pressedElevation = 2.dp,
+                ),
+        ) {
+            Text(
+                text = "DOUBLE OR NOTHING",
+                style = PokerTheme.typography.labelMedium,
+                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            )
+        }
     }
 
     DealerSpeechBubble(
