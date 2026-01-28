@@ -149,7 +149,7 @@ object MemoryGameLogic {
         val matchesFound = newCards.count { it.isMatched } / 2
         val moves = state.moves + 1
 
-        val comment = generateMatchComment(moves, matchesFound, state.pairCount, state.comboMultiplier)
+        val comment = generateMatchComment(moves, matchesFound, state.pairCount, state.comboMultiplier, config)
 
         val newState =
             state.copy(
@@ -244,15 +244,16 @@ object MemoryGameLogic {
         matchesFound: Int,
         totalPairs: Int,
         combo: Int,
+        config: ScoringConfig,
     ): MatchComment {
         if (matchesFound == totalPairs) return MatchComment(Res.string.comment_perfect)
 
         return when {
-            combo > INCREDIBLE_COMBO_THRESHOLD -> {
+            combo > config.theNutsThreshold -> {
                 MatchComment(Res.string.comment_the_nuts, persistentListOf(combo))
             }
 
-            combo > NICE_COMBO_THRESHOLD -> {
+            combo > config.highRollerThreshold -> {
                 MatchComment(Res.string.comment_high_roller, persistentListOf(combo))
             }
 
@@ -316,8 +317,6 @@ object MemoryGameLogic {
     }
 
     private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
-    private const val INCREDIBLE_COMBO_THRESHOLD = 3
-    private const val NICE_COMBO_THRESHOLD = 1
     private const val DIFF_LEVEL_6 = 6
     private const val DIFF_LEVEL_8 = 8
     private const val DIFF_LEVEL_10 = 10
