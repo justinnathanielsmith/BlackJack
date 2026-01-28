@@ -5,6 +5,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
@@ -29,6 +30,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardDisplaySettings
@@ -97,6 +99,8 @@ data class CardContainerVisuals(
     val rotation: Float,
     val scale: Float,
     val matchedGlowAlpha: Float,
+    val shadowElevation: Dp,
+    val shadowYOffset: Dp,
 )
 
 data class CardInteractions(
@@ -113,6 +117,8 @@ data class CardAnimations(
     val muckTranslationY: Float,
     val muckRotation: Float,
     val muckScale: Float,
+    val shadowElevation: Dp,
+    val shadowYOffset: Dp,
 )
 
 @Composable
@@ -146,6 +152,8 @@ fun PlayingCard(
                 rotation = animations.rotation,
                 scale = if (content.visualState.isMatched) animations.muckScale else animations.scale,
                 matchedGlowAlpha = animations.matchedGlowAlpha,
+                shadowElevation = animations.shadowElevation,
+                shadowYOffset = animations.shadowYOffset,
             ),
         muckTranslationX = animations.muckTranslationX,
         muckTranslationY = animations.muckTranslationY,
@@ -247,6 +255,26 @@ private fun rememberCardAnimations(
         label = "muckRotation",
     )
 
+    val targetElevation =
+        when {
+            content.visualState.isRecentlyMatched -> 12.dp
+            content.visualState.isMatched -> 0.dp
+            content.visualState.isFaceUp || isHovered -> 16.dp
+            else -> 2.dp
+        }
+
+    val shadowElevation by animateDpAsState(
+        targetValue = targetElevation,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "shadowElevation",
+    )
+
+    val shadowYOffset by animateDpAsState(
+        targetValue = (targetElevation.value / 3).dp,
+        animationSpec = spring(stiffness = Spring.StiffnessLow),
+        label = "shadowYOffset",
+    )
+
     return CardAnimations(
         rotation = rotation,
         scale = scale,
@@ -256,6 +284,8 @@ private fun rememberCardAnimations(
         muckTranslationY = muckTranslationY,
         muckRotation = muckRotation,
         muckScale = scale,
+        shadowElevation = shadowElevation,
+        shadowYOffset = shadowYOffset,
     )
 }
 
@@ -285,22 +315,7 @@ private fun CardContainer(
                     scaleY = visuals.scale
                     cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
                     alpha = if (visuals.visualState.isMatched) HIGH_ALPHA else 1f
-                }.shadow(
-                    elevation =
-                        if (visuals.visualState.isRecentlyMatched) {
-                            10.dp
-                        } else if (visuals.visualState.isMatched) {
-                            0.dp // On the table muck pile
-                        } else if (visuals.visualState.isFaceUp) {
-                            12.dp // Lifted up when viewed
-                        } else {
-                            4.dp // Resting state
-                        },
-                    shape = RoundedCornerShape(12.dp),
-                    clip = false,
-                    ambientColor = if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black,
-                    spotColor = if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black,
-                ).drawBehind {
+                }.drawBehind {
                     if (visuals.visualState.isRecentlyMatched) {
                         drawCircle(
                             color = glowColor.copy(alpha = visuals.matchedGlowAlpha),
@@ -310,6 +325,24 @@ private fun CardContainer(
                     }
                 },
     ) {
+        // Dynamic Shadow Layer
+        if (visuals.shadowElevation > 0.dp) {
+            Box(
+                modifier =
+                    Modifier
+                        .fillMaxSize()
+                        .graphicsLayer {
+                            translationY = visuals.shadowYOffset.toPx()
+                        }.shadow(
+                            elevation = visuals.shadowElevation,
+                            shape = RoundedCornerShape(12.dp),
+                            clip = false,
+                            ambientColor = (if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black).copy(alpha = 0.2f),
+                            spotColor = (if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black).copy(alpha = 0.4f),
+                        ),
+            )
+        }
+
         Card(
             onClick = interactions.onClick,
             interactionSource = interactions.interactionSource,
