@@ -14,7 +14,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -33,6 +33,7 @@ import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.github.smithjustinn.domain.models.CardDisplaySettings
@@ -138,6 +139,8 @@ fun GameGrid(
         GridContent(
             gridCardState = gridCardState,
             layoutConfig = layoutConfig,
+            screenHeight = screenHeight,
+            gridPosition = gridPosition,
             settings = settings,
             onCardClick = onCardClick,
             cardLayouts = cardLayouts,
@@ -156,10 +159,13 @@ fun GameGrid(
 private fun GridContent(
     gridCardState: GridCardState,
     layoutConfig: GridLayoutConfig,
+    screenHeight: androidx.compose.ui.unit.Dp,
+    gridPosition: Offset,
     settings: GridSettings,
     onCardClick: (Int) -> Unit,
     cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
 ) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
     LazyVerticalGrid(
         columns = layoutConfig.metrics.cells,
         contentPadding =
@@ -176,7 +182,33 @@ private fun GridContent(
                 .fillMaxHeight()
                 .widthIn(max = layoutConfig.metrics.maxWidth),
     ) {
-        items(gridCardState.cards, key = { it.id }) { card ->
+        itemsIndexed(gridCardState.cards, key = { _, card -> card.id }) { index, card ->
+            val layoutInfo = cardLayouts[card.id]
+            
+            // Calculate fan-out effect (player's hand)
+            val totalCards = gridCardState.cards.size
+            val fanAngleMax = 30f // Total fan spread angle
+            val fanSpreadMax = 120f // Horizontal spread distance
+            val relativeIndex = (index.toFloat() / (totalCards - 1).coerceAtLeast(1)) - 0.5f // -0.5 to 0.5
+            
+            val fanRotation = relativeIndex * fanAngleMax
+            val fanSpreadX = relativeIndex * fanSpreadMax
+            
+            val muckTarget =
+                with(density) {
+                    Offset(
+                        (layoutConfig.metrics.maxWidth.toPx() / 2) + fanSpreadX.dp.toPx(),
+                        screenHeight.toPx() - 20.dp.toPx(),
+                    )
+                }
+            
+            val muckTargetOffset = layoutInfo?.let { info ->
+                IntOffset(
+                    (muckTarget.x - (info.position.x - gridPosition.x) - info.size.width / 2).toInt(),
+                    (muckTarget.y - (info.position.y - gridPosition.y) - info.size.height / 2).toInt()
+                )
+            } ?: IntOffset(0, 1000)
+
             PlayingCard(
                 content =
                     CardContent(
@@ -185,11 +217,14 @@ private fun GridContent(
                         visualState =
                             CardVisualState(
                                 isFaceUp = card.isFaceUp || gridCardState.isPeeking,
+                                isMatched = card.isMatched,
                                 isRecentlyMatched = gridCardState.lastMatchedIds.contains(card.id),
                                 isError = card.isError,
                             ),
                     ),
                 settings = settings.displaySettings,
+                muckTargetOffset = muckTargetOffset,
+                muckTargetRotation = fanRotation,
                 onClick = { onCardClick(card.id) },
                 modifier =
                     Modifier.onGloballyPositioned { layoutCoordinates ->

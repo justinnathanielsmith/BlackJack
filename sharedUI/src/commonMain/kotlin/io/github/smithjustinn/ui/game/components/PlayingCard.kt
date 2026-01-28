@@ -109,6 +109,10 @@ data class CardAnimations(
     val scale: Float,
     val shakeOffset: Float,
     val matchedGlowAlpha: Float,
+    val muckTranslationX: Float,
+    val muckTranslationY: Float,
+    val muckRotation: Float,
+    val muckScale: Float,
 )
 
 @Composable
@@ -117,11 +121,21 @@ fun PlayingCard(
     modifier: Modifier = Modifier,
     backColor: Color = PokerTheme.colors.feltGreen,
     settings: CardDisplaySettings = CardDisplaySettings(),
+    muckTargetOffset: IntOffset = IntOffset(0, 1000), // Default to flying off bottom
+    muckTargetRotation: Float = 15f,
+    isMuckingEnabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
-    val animations = rememberCardAnimations(content, isHovered)
+    val animations =
+        rememberCardAnimations(
+            content = content,
+            isHovered = isHovered,
+            muckTargetOffset = muckTargetOffset,
+            muckTargetRotation = muckTargetRotation,
+            isMuckingEnabled = isMuckingEnabled,
+        )
     val suitColor = calculateSuitColor(content.suit, settings.areSuitsMultiColored, settings.symbolTheme)
 
     CardContainer(
@@ -130,9 +144,12 @@ fun PlayingCard(
             CardContainerVisuals(
                 visualState = content.visualState,
                 rotation = animations.rotation,
-                scale = animations.scale,
+                scale = if (content.visualState.isMatched) animations.muckScale else animations.scale,
                 matchedGlowAlpha = animations.matchedGlowAlpha,
             ),
+        muckTranslationX = animations.muckTranslationX,
+        muckTranslationY = animations.muckTranslationY,
+        muckRotation = animations.muckRotation,
         backColor = backColor,
         interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
     ) {
@@ -170,6 +187,9 @@ private fun CardContentSelectors(
 private fun rememberCardAnimations(
     content: CardContent,
     isHovered: Boolean,
+    muckTargetOffset: IntOffset,
+    muckTargetRotation: Float,
+    isMuckingEnabled: Boolean,
 ): CardAnimations {
     val rotation by animateFloatAsState(
         targetValue = if (content.visualState.isFaceUp) 0f else FULL_ROTATION,
@@ -179,10 +199,10 @@ private fun rememberCardAnimations(
 
     val scale by animateFloatAsState(
         targetValue =
-            if (content.visualState.isRecentlyMatched || (isHovered && !content.visualState.isFaceUp)) {
-                1.05f
-            } else {
-                1f
+            when {
+                content.visualState.isMatched -> 0.4f
+                content.visualState.isRecentlyMatched || (isHovered && !content.visualState.isFaceUp) -> 1.05f
+                else -> 1f
             },
         animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
         label = "pulse",
@@ -209,11 +229,33 @@ private fun rememberCardAnimations(
         label = "matchedGlow",
     )
 
+    val muckTranslationX by animateFloatAsState(
+        targetValue = if (isMuckingEnabled && content.visualState.isMatched) muckTargetOffset.x.toFloat() else 0f,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "muckTranslationX",
+    )
+
+    val muckTranslationY by animateFloatAsState(
+        targetValue = if (isMuckingEnabled && content.visualState.isMatched) muckTargetOffset.y.toFloat() else 0f,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "muckTranslationY",
+    )
+
+    val muckRotation by animateFloatAsState(
+        targetValue = if (isMuckingEnabled && content.visualState.isMatched) muckTargetRotation else 0f,
+        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
+        label = "muckRotation",
+    )
+
     return CardAnimations(
         rotation = rotation,
         scale = scale,
         shakeOffset = shakeOffset.value,
         matchedGlowAlpha = matchedGlowAlpha,
+        muckTranslationX = muckTranslationX,
+        muckTranslationY = muckTranslationY,
+        muckRotation = muckRotation,
+        muckScale = scale,
     )
 }
 
@@ -221,6 +263,9 @@ private fun rememberCardAnimations(
 private fun CardContainer(
     modifier: Modifier = Modifier,
     visuals: CardContainerVisuals,
+    muckTranslationX: Float = 0f,
+    muckTranslationY: Float = 0f,
+    muckRotation: Float = 0f,
     backColor: Color,
     interactions: CardInteractions,
     content: @Composable () -> Unit,
@@ -232,18 +277,22 @@ private fun CardContainer(
                 .widthIn(min = 60.dp)
                 .aspectRatio(CARD_ASPECT_RATIO)
                 .graphicsLayer {
+                    translationX = muckTranslationX
+                    translationY = muckTranslationY
+                    rotationZ = muckRotation
                     rotationY = visuals.rotation
                     scaleX = visuals.scale
                     scaleY = visuals.scale
                     cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
+                    alpha = if (visuals.visualState.isMatched) HIGH_ALPHA else 1f
                 }.shadow(
                     elevation =
                         if (visuals.visualState.isRecentlyMatched) {
                             10.dp
-                        } else if (visuals.visualState.isFaceUp && !visuals.visualState.isMatched) {
-                            12.dp // Lifted up when viewed
                         } else if (visuals.visualState.isMatched) {
-                            2.dp
+                            0.dp // On the table muck pile
+                        } else if (visuals.visualState.isFaceUp) {
+                            12.dp // Lifted up when viewed
                         } else {
                             4.dp // Resting state
                         },

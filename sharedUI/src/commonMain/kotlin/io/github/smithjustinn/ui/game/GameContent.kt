@@ -31,7 +31,7 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AdaptiveDensity
-import io.github.smithjustinn.ui.game.components.BouncingCardsOverlay
+import io.github.smithjustinn.ui.game.components.CardFountainOverlay
 import io.github.smithjustinn.ui.game.components.ComboBadge
 import io.github.smithjustinn.ui.game.components.ComboBadgeState
 import io.github.smithjustinn.ui.game.components.ConfettiEffect
@@ -171,7 +171,7 @@ private fun GameGameOverOverlay(
 
 @Composable
 private fun BoxScope.GameWonOverlay(state: GameUIState) {
-    BouncingCardsOverlay(
+    CardFountainOverlay(
         cards = state.game.cards,
         settings = state.cardSettings,
     )

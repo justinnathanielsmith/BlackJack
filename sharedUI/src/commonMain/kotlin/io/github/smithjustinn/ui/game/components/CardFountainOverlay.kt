@@ -112,12 +112,12 @@ private class CelebrationCard(
 }
 
 /**
- * A "surprise" celebration overlay that replaces the old bouncing cards with a
- * dynamic "Card Fountain" explosion. Cards shoot up from the bottom center
- * in a staggered sequence, creating a jackpot-like effect.
+ * A dynamic "Card Fountain" explosion overlay for game celebration.
+ * Cards shoot up from the bottom center in a staggered sequence,
+ * creating a jackpot-like effect.
  */
 @Composable
-fun BouncingCardsOverlay(
+fun CardFountainOverlay(
     cards: List<CardState>,
     modifier: Modifier = Modifier,
     settings: CardDisplaySettings = CardDisplaySettings(),
@@ -206,6 +206,7 @@ private fun CelebrationCardsLayer(
                                 ),
                         ),
                     settings = settings,
+                    isMuckingEnabled = false,
                     modifier =
                         Modifier
                             .size(BOUNCING_CARD_WIDTH, BASE_CARD_HEIGHT)
