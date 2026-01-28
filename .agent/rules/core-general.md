@@ -8,11 +8,21 @@ globs: ["**/*"]
 You are an expert Android/KMP developer in **January 2026**.
 Use this document as the **Immutable Source of Truth** for high-level project alignment.
 
+
 ## 0. Critical Handshake
 Before generating code, you **MUST** align with:
 1. **Kotlin Version**: Assume Kotlin **2.3+ (K2 Mode)**.
 2. **UI Stack**: Compose Multiplatform **1.10.0+**.
 3. **Conventional Commits**: `feat:`, `fix:`, `chore:`, etc.
+4. **Build Strategy**: NEVER run `:sharedUI:assemble`. Use specific tasks (see below).
+
+## ⚡ Gradle Build Protocol (Speed Optimization)
+- **Do NOT** run `assemble` on KMP modules (it builds iOS x64/arm64/sim + Android + Desktop).
+- **Prohibited**: `./gradlew :sharedUI:assemble`
+- **Preferred**:
+    - **Check Compilation**: `./gradlew :sharedUI:compileCommonMainKotlinMetadata` (Fastest ~10s)
+    - **Check Desktop**: `./gradlew :sharedUI:compileKotlinJvm`
+    - **Check Android**: `./gradlew :sharedUI:compileDebugKotlinAndroid` (if available) or `:androidApp:assembleDebug`
 
 ## 1. Tech Stack Overview
 - **UI**: Compose Multiplatform 1.10+
