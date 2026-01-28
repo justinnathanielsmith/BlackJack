@@ -164,18 +164,32 @@ private fun PrimaryActionButtons(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
     ) {
-        PokerButton(
-            text = stringResource(Res.string.start),
-            onClick = onStartGame,
-            modifier = Modifier.fillMaxWidth(),
-        )
+        val hasSavedGame = state.hasSavedGame
 
-        if (state.hasSavedGame) {
+        if (hasSavedGame) {
             PokerButton(
                 text = stringResource(Res.string.resume_game),
                 onClick = onResumeGame,
                 modifier = Modifier.fillMaxWidth(),
                 trailingIcon = AppIcons.ArrowBack,
+                isPrimary = true,
+                isPulsing = true,
+            )
+
+            PokerButton(
+                text = stringResource(Res.string.start),
+                onClick = onStartGame,
+                modifier = Modifier.fillMaxWidth(),
+                isPrimary = false,
+                isPulsing = false,
+            )
+        } else {
+            PokerButton(
+                text = stringResource(Res.string.start),
+                onClick = onStartGame,
+                modifier = Modifier.fillMaxWidth(),
+                isPrimary = true,
+                isPulsing = true,
             )
         }
     }

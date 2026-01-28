@@ -25,6 +25,7 @@ import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.PokerTheme
+import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.start.components.StartHeader
 
@@ -52,7 +53,7 @@ fun StartContent(
                                     colors.feltGreenDark,
                                 ),
                             center = androidx.compose.ui.geometry.Offset.Unspecified,
-                            radius = 1000f, // Broad spread for the "tabletop" look
+                            radius = Float.POSITIVE_INFINITY, // Smoother radial falloff
                         ),
                 ),
     ) {
@@ -111,27 +112,36 @@ private fun StartScreenLayout(
                 .fillMaxSize()
                 .statusBarsPadding()
                 .navigationBarsPadding()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = spacing.large, vertical = spacing.extraLarge)
-                .widthIn(max = 600.dp),
+                .padding(horizontal = spacing.large),
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top,
     ) {
+        Spacer(modifier = Modifier.weight(0.5f))
+
         StartHeader(
             settings = state.cardSettings,
+            modifier = Modifier.padding(bottom = spacing.large),
         )
 
-        Spacer(modifier = Modifier.height(PokerTheme.spacing.huge))
+        Spacer(modifier = Modifier.weight(0.3f))
 
-        DifficultySelectionSection(
-            state = state,
-            onDifficultySelected = onDifficultySelected,
-            onModeSelected = onModeSelected,
-            onStartGame = onStartGame,
-            onResumeGame = onResumeGame,
-            onSettingsClick = onSettingsClick,
-            onStatsClick = onStatsClick,
-            onDailyChallengeClick = onDailyChallengeClick,
-        )
+        // Dealer's Tray Container
+        AppCard(
+            modifier = Modifier.widthIn(max = 600.dp),
+        ) {
+            DifficultySelectionSection(
+                state = state,
+                onDifficultySelected = onDifficultySelected,
+                onModeSelected = onModeSelected,
+                onStartGame = onStartGame,
+                onResumeGame = onResumeGame,
+                onSettingsClick = onSettingsClick,
+                onStatsClick = onStatsClick,
+                onDailyChallengeClick = onDailyChallengeClick,
+            )
+        }
+
+        Spacer(modifier = Modifier.weight(0.5f))
+
+        Spacer(modifier = Modifier.height(spacing.large))
     }
 }
