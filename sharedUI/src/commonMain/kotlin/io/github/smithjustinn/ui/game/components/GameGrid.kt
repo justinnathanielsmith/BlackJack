@@ -1,6 +1,7 @@
 package io.github.smithjustinn.ui.game.components
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -27,6 +28,8 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -38,6 +41,7 @@ import io.github.smithjustinn.theme.PokerTheme
 import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.ceil
+import kotlin.random.Random
 
 private data class CardLayoutInfo(
     val position: Offset,
@@ -90,10 +94,6 @@ fun GameGrid(
 ) {
     val cardLayouts = remember { mutableStateMapOf<Int, CardLayoutInfo>() }
     var gridPosition by remember { mutableStateOf(Offset.Zero) }
-
-    val feltGreen = PokerTheme.colors.feltGreen
-    val feltGreenDark = PokerTheme.colors.feltGreenDark
-    val oakWood = PokerTheme.colors.oakWood
 
     BoxWithConstraints(
         modifier =
@@ -385,27 +385,63 @@ private const val CARD_ASPECT_RATIO = 0.75f
 
 @Composable
 private fun GridBackground(modifier: Modifier = Modifier) {
-    val feltGreen = PokerTheme.colors.feltGreen
-    val feltGreenDark = PokerTheme.colors.feltGreenDark
-    val oakWood = PokerTheme.colors.oakWood
+    val colors = PokerTheme.colors
+    val spacing = PokerTheme.spacing
 
-    androidx.compose.foundation.layout.Box(
+    Box(
         modifier =
             modifier.drawBehind {
-                // Felt Background
+                // 1. Intense Felt with "Spotlight" lighting
                 drawRect(
                     brush =
                         Brush.radialGradient(
-                            colors = listOf(feltGreen, feltGreenDark),
-                            center = center,
-                            radius = size.maxDimension / 1.5f,
+                            0.0f to colors.feltGreen,
+                            0.8f to colors.feltGreen, // Sustained center color
+                            1.0f to colors.feltGreenDark, // Sharper falloff
+                            center = center.copy(y = 0f),
+                            radius = size.maxDimension * 1.2f,
                         ),
                 )
 
-                // Wood Border ("Racetrack")
+                // 2. Tactile Felt Texture using drawPoints for better visibility
+                val random = Random(42)
+                val points =
+                    List(1000) {
+                        Offset(random.nextFloat() * size.width, random.nextFloat() * size.height)
+                    }
+                drawPoints(
+                    points = points,
+                    pointMode = PointMode.Points,
+                    color = Color.Black.copy(alpha = 0.15f),
+                    strokeWidth = 2f,
+                )
+
+                // 3. Wood Border with Pronounced Bevel Effect
+                val strokeWidth = spacing.medium.toPx()
+                val bevelWidth = spacing.extraSmall.toPx()
+
+                // Outer Shadow (Ambient Occlusion)
                 drawRect(
-                    color = oakWood,
-                    style = Stroke(width = 16.dp.toPx()),
+                    color = Color.Black.copy(alpha = 0.4f),
+                    style = Stroke(width = strokeWidth + bevelWidth),
+                )
+
+                // The Wood ("Racetrack")
+                drawRect(
+                    color = colors.oakWood,
+                    style = Stroke(width = strokeWidth),
+                )
+
+                // Inner Highlight (Direct Reflection)
+                drawRect(
+                    color = Color.White.copy(alpha = 0.2f),
+                    style = Stroke(width = 2.dp.toPx()),
+                    topLeft = Offset(strokeWidth / 2, strokeWidth / 2),
+                    size =
+                        size.copy(
+                            width = (size.width - strokeWidth).coerceAtLeast(0f),
+                            height = (size.height - strokeWidth).coerceAtLeast(0f),
+                        ),
                 )
             },
     )
