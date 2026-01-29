@@ -100,18 +100,19 @@ object MemoryGameLogic {
                     )
 
                 val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
-                if (activeCards.size == 1) {
-                    newState to GameDomainEvent.CardFlipped
-                } else {
-                    checkForMatch(newState)
+                when (activeCards.size) {
+                    1 -> newState to GameDomainEvent.CardFlipped
+                    2 -> checkForMatch(newState, activeCards)
+                    else -> newState to null
                 }
             }
         }
     }
 
-    private fun checkForMatch(state: MemoryGameState): Pair<MemoryGameState, GameDomainEvent?> {
-        val activeCards = state.cards.filter { it.isFaceUp && !it.isMatched }
-
+    private fun checkForMatch(
+        state: MemoryGameState,
+        activeCards: List<CardState>,
+    ): Pair<MemoryGameState, GameDomainEvent?> {
         if (activeCards.size != 2) return state to null
 
         val first = activeCards[0]
@@ -146,8 +147,8 @@ object MemoryGameLogic {
         val matchPoints = matchBasePoints + matchComboBonus
         val pointsEarned = matchPoints
 
-        val isWon = newCards.all { it.isMatched }
         val matchesFound = newCards.count { it.isMatched } / 2
+        val isWon = matchesFound == state.pairCount
         val moves = state.moves + 1
 
         val comment = generateMatchComment(moves, matchesFound, state.pairCount, state.comboMultiplier, config)
