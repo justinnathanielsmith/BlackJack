@@ -19,16 +19,21 @@ import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
 
-data class FlyingPoint(
-    val id: Long,
-    val startPos: Offset,
-    val targetPos: Offset,
-    val startTime: kotlin.time.TimeMark,
-    val duration: kotlin.time.Duration,
-    val color: Color,
-    val size: Float,
-    val delay: kotlin.time.Duration,
-)
+private const val PARTICLES_PER_MATCH = 12
+private const val BASE_DURATION_MS = 600
+private const val RANDOM_DURATION_MS = 600
+private const val DELAY_FACTOR_MS = 30
+private const val RANDOM_DELAY_MS = 150
+private const val BASE_SIZE = 8f
+private const val RANDOM_SIZE = 8f
+private const val WOBBLE_X_DP = 60
+private const val WOBBLE_Y_DP = 30
+private const val FADE_THRESHOLD = 0.8f
+private const val SCALE_THRESHOLD_START = 0.2f
+private const val SCALE_THRESHOLD_END = 0.8f
+private const val MULTIPLIER_5 = 5f
+private const val GLOW_ALPHA = 0.3f
+private const val GLOW_RADIUS_FACTOR = 1.5f
 
 @Composable
 fun ScoreFlyingEffect(
@@ -36,7 +41,7 @@ fun ScoreFlyingEffect(
     targetPosition: Offset,
     modifier: Modifier = Modifier,
 ) {
-    var points by remember { mutableStateOf(listListOf<FlyingPoint>()) }
+    var points by remember { mutableStateOf(emptyList<FlyingPoint>()) }
     val timeSource = TimeSource.Monotonic
 
     // Trigger points when matchPositions changes and is not empty
@@ -45,25 +50,7 @@ fun ScoreFlyingEffect(
             val now = timeSource.markNow()
             val newPoints =
                 matchPositions.flatMap { pos ->
-                    List(12) { i ->
-                        // Increased count
-                        FlyingPoint(
-                            id = Random.nextLong(),
-                            startPos = pos,
-                            targetPos = targetPosition,
-                            startTime = now,
-                            duration = (600 + Random.nextInt(600)).milliseconds, // Slightly faster/varied
-                            color =
-                                listOf(
-                                    Color(0xFFFFD700), // Gold
-                                    Color(0xFFB5A642), // Brass
-                                    Color.White,
-                                    Color(0xFFFDE68A), // Pale Gold
-                                ).random(),
-                            size = 8f + Random.nextFloat() * 8f, // Increased size
-                            delay = (i * 30 + Random.nextInt(150)).milliseconds,
-                        )
-                    }
+                    generateParticles(pos, targetPosition, now)
                 }
             points = points + newPoints
         }
@@ -96,48 +83,81 @@ fun ScoreFlyingEffect(
         frameTick // trigger redraw
 
         points.forEach { point ->
-            val elapsedSinceStart = point.startTime.elapsedNow()
-            val activeTime = elapsedSinceStart - point.delay
-
-            if (activeTime.isPositive()) {
-                val progress = (activeTime / point.duration).coerceIn(0.0, 1.0).toFloat()
-                val easedProgress = CubicBezierEasing(0.2f, 0.0f, 0.2f, 1f).transform(progress)
-
-                // More pronounced arc/wobble
-                val sideVelocity = if (point.id % 2 == 0L) 1f else -1f
-                val wobbleX = sideVelocity * kotlin.math.sin(progress * kotlin.math.PI).toFloat() * 60.dp.toPx()
-                val wobbleY = -kotlin.math.sin(progress * kotlin.math.PI).toFloat() * 30.dp.toPx() // Slight upward arc
-
-                val currentX = point.startPos.x + (point.targetPos.x - point.startPos.x) * easedProgress + wobbleX
-                val currentY = point.startPos.y + (point.targetPos.y - point.startPos.y) * easedProgress + wobbleY
-
-                val alpha = if (progress > 0.8f) (1f - progress) * 5f else 1f
-                val scale =
-                    if (progress < 0.2f) {
-                        progress * 5f
-                    } else if (progress > 0.8f) {
-                        (1f - progress) * 5f
-                    } else {
-                        1f
-                    }
-
-                // Draw a simple glow/trail
-                drawCircle(
-                    color = point.color.copy(alpha = (alpha * 0.3f).coerceIn(0f, 1f)),
-                    center = Offset(currentX, currentY),
-                    radius = point.size * scale * 1.5f,
-                )
-
-                // The particle itself (looks like a gold coin/spark)
-                drawCircle(
-                    color = point.color.copy(alpha = alpha.coerceIn(0f, 1f)),
-                    center = Offset(currentX, currentY),
-                    radius = point.size * scale / 2,
-                )
-            }
+            drawParticle(point)
         }
     }
 }
 
-// Helper to avoid issues with basic list addition in state
-private fun <T> listListOf(vararg elements: T): List<T> = listOf(*elements)
+private const val GOLD_COLOR = 0xFFFFD700
+private const val BRASS_COLOR = 0xFFB5A642
+private const val PALE_GOLD_COLOR = 0xFFFDE68A
+private const val EASING_X1 = 0.2f
+private const val EASING_Y1 = 0.0f
+private const val EASING_X2 = 0.2f
+private const val EASING_Y2 = 1.0f
+
+private fun generateParticles(
+    startPos: Offset,
+    targetPos: Offset,
+    now: TimeSource.Monotonic.ValueTimeMark,
+): List<FlyingPoint> =
+    List(PARTICLES_PER_MATCH) { i ->
+        FlyingPoint(
+            id = Random.nextLong(),
+            startPos = startPos,
+            targetPos = targetPos,
+            startTime = now,
+            duration = (BASE_DURATION_MS + Random.nextInt(RANDOM_DURATION_MS)).milliseconds,
+            color =
+                listOf(
+                    Color(GOLD_COLOR),
+                    Color(BRASS_COLOR),
+                    Color.White,
+                    Color(PALE_GOLD_COLOR),
+                ).random(),
+            size = BASE_SIZE + Random.nextFloat() * RANDOM_SIZE,
+            delay = (i * DELAY_FACTOR_MS + Random.nextInt(RANDOM_DELAY_MS)).milliseconds,
+        )
+    }
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawParticle(point: FlyingPoint) {
+    val elapsedSinceStart = point.startTime.elapsedNow()
+    val activeTime = elapsedSinceStart - point.delay
+
+    if (activeTime.isPositive()) {
+        val progress = (activeTime / point.duration).coerceIn(0.0, 1.0).toFloat()
+        val easedProgress = CubicBezierEasing(EASING_X1, EASING_Y1, EASING_X2, EASING_Y2).transform(progress)
+
+        // More pronounced arc/wobble
+        val sideVelocity = if (point.id % 2 == 0L) 1f else -1f
+        val wobbleX = sideVelocity * kotlin.math.sin(progress * kotlin.math.PI).toFloat() * WOBBLE_X_DP.dp.toPx()
+        val wobbleY = -kotlin.math.sin(progress * kotlin.math.PI).toFloat() * WOBBLE_Y_DP.dp.toPx()
+
+        val currentX = point.startPos.x + (point.targetPos.x - point.startPos.x) * easedProgress + wobbleX
+        val currentY = point.startPos.y + (point.targetPos.y - point.startPos.y) * easedProgress + wobbleY
+
+        val alpha = if (progress > FADE_THRESHOLD) (1f - progress) * MULTIPLIER_5 else 1f
+        val scale = calculateScale(progress)
+
+        // Draw a simple glow/trail
+        drawCircle(
+            color = point.color.copy(alpha = (alpha * GLOW_ALPHA).coerceIn(0f, 1f)),
+            center = Offset(currentX, currentY),
+            radius = point.size * scale * GLOW_RADIUS_FACTOR,
+        )
+
+        // The particle itself (looks like a gold coin/spark)
+        drawCircle(
+            color = point.color.copy(alpha = alpha.coerceIn(0f, 1f)),
+            center = Offset(currentX, currentY),
+            radius = point.size * scale / 2,
+        )
+    }
+}
+
+private fun calculateScale(progress: Float): Float =
+    when {
+        progress < SCALE_THRESHOLD_START -> progress * MULTIPLIER_5
+        progress > SCALE_THRESHOLD_END -> (1f - progress) * MULTIPLIER_5
+        else -> 1f
+    }

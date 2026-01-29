@@ -34,6 +34,30 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.theme.PokerTheme
 
+private const val COMBO_ANIMATION_DURATION_MS = 400
+private const val PULSE_SCALE_HEAT_COMPACT = 1.08f
+private const val PULSE_SCALE_HEAT = 1.15f
+private const val PULSE_SCALE_DEFAULT_COMPACT = 1.05f
+private const val PULSE_SCALE_DEFAULT = 1.1f
+
+private const val CHIP_SIZE_COMPACT = 32
+private const val CHIP_SIZE_NORMAL = 48
+private const val STACK_OFFSET_COMPACT = 2
+private const val STACK_OFFSET_NORMAL = 4
+private const val MAX_CHIPS_IN_STACK = 5
+private const val CHIP_RING_ALPHA = 0.9f
+private const val CHIP_RING_RADIUS_FACTOR = 0.85f
+private const val CHIP_RING_WIDTH_FACTOR = 0.15f
+private const val CHIP_INNER_ALPHA = 0.4f
+private const val CHIP_INNER_RADIUS_FACTOR = 0.6f
+private const val CHIP_SHADOW_ALPHA = 0.5f
+private const val CHIP_DASH_ON = 20f
+private const val CHIP_DASH_OFF = 20f
+private const val CHIP_FONT_SIZE_COMPACT = 10
+private const val CHIP_FONT_SIZE_NORMAL = 14
+
+
+
 @Composable
 fun ComboBadge(
     state: ComboBadgeState,
@@ -49,17 +73,15 @@ fun ComboBadge(
     ) {
         val comboPulseScale by infiniteTransition.animateFloat(
             initialValue = 1f,
-            targetValue =
-                if (state.isHeatMode) {
-                    if (compact) PULSE_SCALE_HEAT_COMPACT else PULSE_SCALE_HEAT
-                } else {
-                    if (compact) PULSE_SCALE_DEFAULT_COMPACT else PULSE_SCALE_DEFAULT
-                },
-            animationSpec =
-                infiniteRepeatable(
-                    animation = tween(COMBO_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse,
-                ),
+            targetValue = when {
+                state.isHeatMode -> if (compact) PULSE_SCALE_HEAT_COMPACT else PULSE_SCALE_HEAT
+                else -> if (compact) PULSE_SCALE_DEFAULT_COMPACT else PULSE_SCALE_DEFAULT
+            },
+            animationSpec = infiniteRepeatable(
+                animation = tween(COMBO_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
+                repeatMode = RepeatMode.Reverse,
+            ),
+            label = "comboPulse",
         )
 
         ComboBadgeContent(
@@ -85,11 +107,11 @@ private fun ComboBadgeContent(
             else -> colors.goldenYellow
         }
 
-    val chipSize = if (compact) 32.dp else 48.dp
-    val stackOffset = if (compact) 2.dp else 4.dp
-    val maxChips = 5
+    val chipSize = if (compact) CHIP_SIZE_COMPACT.dp else CHIP_SIZE_NORMAL.dp
+    val stackOffset = if (compact) STACK_OFFSET_COMPACT.dp else STACK_OFFSET_NORMAL.dp
+
     // Show at most 5 chips in the stack, but at least 1 for the combo itself
-    val chipCount = (state.combo - 1).coerceIn(1, maxChips)
+    val chipCount = (state.combo - 1).coerceIn(1, MAX_CHIPS_IN_STACK)
 
     Box(
         modifier = modifier.scale(pulseScale),
@@ -101,45 +123,39 @@ private fun ComboBadgeContent(
             ChipVisual(
                 color = badgeColor,
                 chipSize = chipSize,
-                modifier =
-                    Modifier
-                        .padding(bottom = yOffset.coerceAtLeast(0.dp))
-                        .shadow(
-                            elevation = (index + 1).dp,
-                            shape = CircleShape,
-                            ambientColor = Color.Black.copy(alpha = 0.5f),
-                            spotColor = Color.Black.copy(alpha = 0.5f),
-                        ),
+                modifier = Modifier
+                    .padding(bottom = yOffset.coerceAtLeast(0.dp))
+                    .shadow(
+                        elevation = (index + 1).dp,
+                        shape = CircleShape,
+                        ambientColor = Color.Black.copy(alpha = CHIP_SHADOW_ALPHA),
+                        spotColor = Color.Black.copy(alpha = CHIP_SHADOW_ALPHA),
+                    ),
             )
         }
 
         // Top Chip with Text
         Box(
             contentAlignment = Alignment.Center,
-            modifier =
-                Modifier
-                    .padding(bottom = (stackOffset * (chipCount - 1)).coerceAtLeast(0.dp)),
+            modifier = Modifier.padding(bottom = (stackOffset * (chipCount - 1)).coerceAtLeast(0.dp)),
         ) {
             ChipVisual(
                 color = badgeColor,
                 chipSize = chipSize,
-                modifier =
-                    Modifier.shadow(
-                        elevation = (chipCount + 1).dp,
-                        shape = CircleShape,
-                        ambientColor = Color.Black,
-                        spotColor = Color.Black,
-                    ),
+                modifier = Modifier.shadow(
+                    elevation = (chipCount + 1).dp,
+                    shape = CircleShape,
+                    ambientColor = Color.Black,
+                    spotColor = Color.Black,
+                ),
             )
 
             Text(
                 text = "${state.combo}x",
-                style =
-                    PokerTheme.typography.labelLarge.copy(
-                        fontWeight = FontWeight.Black,
-                        fontSize = if (compact) 10.sp else 14.sp,
-                        letterSpacing = 0.sp,
-                    ),
+                style = PokerTheme.typography.labelLarge.copy(
+                    fontWeight = FontWeight.Black,
+                    fontSize = if (compact) CHIP_FONT_SIZE_COMPACT.sp else CHIP_FONT_SIZE_NORMAL.sp,
+                ),
                 color = Color.White,
             )
         }
@@ -163,34 +179,26 @@ private fun ChipVisual(
             radius = radius,
         )
 
-        // 2. Dashed Ring (White spots) - Reusing logic from PokerChip.kt but simplified
+        // 2. Dashed Ring (White spots)
         drawCircle(
-            color = Color.White.copy(alpha = 0.9f),
+            color = Color.White.copy(alpha = CHIP_RING_ALPHA),
             center = center,
-            radius = radius * 0.85f,
-            style =
-                Stroke(
-                    width = radius * 0.15f,
-                    pathEffect =
-                        PathEffect.dashPathEffect(
-                            intervals = floatArrayOf(20f, 20f),
-                            phase = 0f,
-                        ),
+            radius = radius * CHIP_RING_RADIUS_FACTOR,
+            style = Stroke(
+                width = radius * CHIP_RING_WIDTH_FACTOR,
+                pathEffect = PathEffect.dashPathEffect(
+                    intervals = floatArrayOf(CHIP_DASH_ON, CHIP_DASH_OFF),
+                    phase = 0f,
                 ),
+            ),
         )
 
         // 3. Inner Circle border
         drawCircle(
-            color = Color.White.copy(alpha = 0.4f),
+            color = Color.White.copy(alpha = CHIP_INNER_ALPHA),
             center = center,
-            radius = radius * 0.6f,
+            radius = radius * CHIP_INNER_RADIUS_FACTOR,
             style = Stroke(width = 1.dp.toPx()),
         )
     }
 }
-
-private const val COMBO_ANIMATION_DURATION_MS = 400
-private const val PULSE_SCALE_HEAT_COMPACT = 1.08f
-private const val PULSE_SCALE_HEAT = 1.15f
-private const val PULSE_SCALE_DEFAULT_COMPACT = 1.05f
-private const val PULSE_SCALE_DEFAULT = 1.1f

@@ -116,8 +116,8 @@ fun GameGrid(
         val screenWidth = maxWidth
         val screenHeight = maxHeight
         val isLandscape = screenWidth > screenHeight
-        val isCompactHeight = screenHeight < 500.dp
-        val isWide = screenWidth > 800.dp
+        val isCompactHeight = screenHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
+        val isWide = screenWidth > WIDE_WIDTH_THRESHOLD_DP.dp
 
         val screenConfig =
             GridScreenConfig(
@@ -189,6 +189,11 @@ private fun ScoreFlyingGridEffect(
     }
 }
 
+private const val FAN_ANGLE_MAX = 30f // Total fan spread angle
+private const val FAN_SPREAD_MAX = 120f // Horizontal spread distance
+private const val MUCK_BOTTOM_OFFSET_DP = 20
+private const val MUCK_TARGET_FALLBACK_Y = 1000
+
 @Composable
 private fun GridContent(
     gridCardState: GridCardState,
@@ -199,7 +204,6 @@ private fun GridContent(
     onCardClick: (Int) -> Unit,
     cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
 ) {
-    val density = androidx.compose.ui.platform.LocalDensity.current
     LazyVerticalGrid(
         columns = layoutConfig.metrics.cells,
         contentPadding =
@@ -217,61 +221,86 @@ private fun GridContent(
                 .widthIn(max = layoutConfig.metrics.maxWidth),
     ) {
         itemsIndexed(gridCardState.cards, key = { _, card -> card.id }) { index, card ->
-            val layoutInfo = cardLayouts[card.id]
-
-            // Calculate fan-out effect (player's hand)
-            val totalCards = gridCardState.cards.size
-            val fanAngleMax = 30f // Total fan spread angle
-            val fanSpreadMax = 120f // Horizontal spread distance
-            val relativeIndex = (index.toFloat() / (totalCards - 1).coerceAtLeast(1)) - 0.5f // -0.5 to 0.5
-
-            val fanRotation = relativeIndex * fanAngleMax
-            val fanSpreadX = relativeIndex * fanSpreadMax
-
-            val muckTarget =
-                with(density) {
-                    Offset(
-                        (layoutConfig.metrics.maxWidth.toPx() / 2) + fanSpreadX.dp.toPx(),
-                        screenHeight.toPx() - 20.dp.toPx(),
-                    )
-                }
-
-            val muckTargetOffset =
-                layoutInfo?.let { info ->
-                    IntOffset(
-                        (muckTarget.x - (info.position.x - gridPosition.x) - info.size.width / 2).toInt(),
-                        (muckTarget.y - (info.position.y - gridPosition.y) - info.size.height / 2).toInt(),
-                    )
-                } ?: IntOffset(0, 1000)
-
-            PlayingCard(
-                content =
-                    CardContent(
-                        suit = card.suit,
-                        rank = card.rank,
-                        visualState =
-                            CardVisualState(
-                                isFaceUp = card.isFaceUp || gridCardState.isPeeking,
-                                isMatched = card.isMatched,
-                                isRecentlyMatched = gridCardState.lastMatchedIds.contains(card.id),
-                                isError = card.isError,
-                            ),
-                    ),
-                settings = settings.displaySettings,
-                muckTargetOffset = muckTargetOffset,
-                muckTargetRotation = fanRotation,
-                onClick = { onCardClick(card.id) },
-                modifier =
-                    Modifier.onGloballyPositioned { layoutCoordinates ->
-                        cardLayouts[card.id] =
-                            CardLayoutInfo(
-                                position = layoutCoordinates.positionInRoot(),
-                                size = layoutCoordinates.size.toSize(),
-                            )
-                    },
+            GridItem(
+                index = index,
+                totalCards = gridCardState.cards.size,
+                card = card,
+                isPeeking = gridCardState.isPeeking,
+                lastMatchedIds = gridCardState.lastMatchedIds,
+                displaySettings = settings.displaySettings,
+                maxWidth = layoutConfig.metrics.maxWidth,
+                screenHeight = screenHeight,
+                gridPosition = gridPosition,
+                cardLayouts = cardLayouts,
+                onCardClick = onCardClick,
             )
         }
     }
+}
+
+@Composable
+private fun GridItem(
+    index: Int,
+    totalCards: Int,
+    card: CardState,
+    isPeeking: Boolean,
+    lastMatchedIds: kotlinx.collections.immutable.ImmutableList<Int>,
+    displaySettings: CardDisplaySettings,
+    maxWidth: androidx.compose.ui.unit.Dp,
+    screenHeight: androidx.compose.ui.unit.Dp,
+    gridPosition: Offset,
+    cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
+    onCardClick: (Int) -> Unit,
+) {
+    val density = androidx.compose.ui.platform.LocalDensity.current
+    val layoutInfo = cardLayouts[card.id]
+
+    // Calculate fan-out effect (player's hand)
+    val relativeIndex = (index.toFloat() / (totalCards - 1).coerceAtLeast(1)) - CENTER_OFFSET_FRACTION // -0.5 to 0.5
+    val fanRotation = relativeIndex * FAN_ANGLE_MAX
+    val fanSpreadX = relativeIndex * FAN_SPREAD_MAX
+
+    val muckTargetOffset =
+        with(density) {
+            val muckTarget =
+                Offset(
+                    (maxWidth.toPx() / 2) + fanSpreadX.dp.toPx(),
+                    screenHeight.toPx() - MUCK_BOTTOM_OFFSET_DP.dp.toPx(),
+                )
+            layoutInfo?.let { info ->
+                IntOffset(
+                    (muckTarget.x - (info.position.x - gridPosition.x) - info.size.width / 2).toInt(),
+                    (muckTarget.y - (info.position.y - gridPosition.y) - info.size.height / 2).toInt(),
+                )
+            } ?: IntOffset(0, MUCK_TARGET_FALLBACK_Y)
+        }
+
+    PlayingCard(
+        content =
+            CardContent(
+                suit = card.suit,
+                rank = card.rank,
+                visualState =
+                    CardVisualState(
+                        isFaceUp = card.isFaceUp || isPeeking,
+                        isMatched = card.isMatched,
+                        isRecentlyMatched = lastMatchedIds.contains(card.id),
+                        isError = card.isError,
+                    ),
+            ),
+        settings = displaySettings,
+        muckTargetOffset = muckTargetOffset,
+        muckTargetRotation = fanRotation,
+        onClick = { onCardClick(card.id) },
+        modifier =
+            Modifier.onGloballyPositioned { layoutCoordinates ->
+                cardLayouts[card.id] =
+                    CardLayoutInfo(
+                        position = layoutCoordinates.positionInRoot(),
+                        size = layoutCoordinates.size.toSize(),
+                    )
+            },
+    )
 }
 
 @Composable
@@ -439,6 +468,9 @@ private const val SMALL_GRID_THRESHOLD = 12
 private const val MEDIUM_GRID_THRESHOLD = 20
 private const val LARGE_GRID_THRESHOLD = 24
 
+private const val COMPACT_HEIGHT_THRESHOLD_DP = 500
+private const val WIDE_WIDTH_THRESHOLD_DP = 800
+
 private const val COMPACT_LANDSCAPE_COLS_SMALL = 6
 private const val COMPACT_LANDSCAPE_COLS_MEDIUM = 7
 private const val COMPACT_LANDSCAPE_COLS_LARGE = 8
@@ -452,6 +484,16 @@ private const val MIN_GRID_COLS_WIDE = 4
 private const val MAX_GRID_COLS_WIDE = 12
 
 private const val CARD_ASPECT_RATIO = 0.75f
+private const val CENTER_OFFSET_FRACTION = 0.5f
+private const val ROTATION_180_DEGREES = 180f
+private const val FELT_RADIAL_CENTER_FRACTION = 0.0f
+private const val FELT_RADIAL_CENTER_FOCUS_FRACTION = 0.8f
+private const val FELT_RADIAL_RADIUS_MULTIPLIER = 1.2f
+private const val FELT_TEXTURE_SEED = 42
+private const val FELT_TEXTURE_POINT_COUNT = 1000
+private const val FELT_TEXTURE_ALPHA = 0.15f
+private const val WOOD_BORDER_ALPHA = 0.4f
+private const val WOOD_HIGHLIGHT_ALPHA = 0.2f
 
 @Composable
 private fun GridBackground(modifier: Modifier = Modifier) {
@@ -465,24 +507,24 @@ private fun GridBackground(modifier: Modifier = Modifier) {
                 drawRect(
                     brush =
                         Brush.radialGradient(
-                            0.0f to colors.feltGreen,
-                            0.8f to colors.feltGreen, // Sustained center color
+                            FELT_RADIAL_CENTER_FRACTION to colors.feltGreen,
+                            FELT_RADIAL_CENTER_FOCUS_FRACTION to colors.feltGreen, // Sustained center color
                             1.0f to colors.feltGreenDark, // Sharper falloff
                             center = center.copy(y = 0f),
-                            radius = size.maxDimension * 1.2f,
+                            radius = size.maxDimension * FELT_RADIAL_RADIUS_MULTIPLIER,
                         ),
                 )
 
                 // 2. Tactile Felt Texture using drawPoints for better visibility
-                val random = Random(42)
+                val random = Random(FELT_TEXTURE_SEED)
                 val points =
-                    List(1000) {
+                    List(FELT_TEXTURE_POINT_COUNT) {
                         Offset(random.nextFloat() * size.width, random.nextFloat() * size.height)
                     }
                 drawPoints(
                     points = points,
                     pointMode = PointMode.Points,
-                    color = Color.Black.copy(alpha = 0.15f),
+                    color = Color.Black.copy(alpha = FELT_TEXTURE_ALPHA),
                     strokeWidth = 2f,
                 )
 
@@ -492,7 +534,7 @@ private fun GridBackground(modifier: Modifier = Modifier) {
 
                 // Outer Shadow (Ambient Occlusion)
                 drawRect(
-                    color = Color.Black.copy(alpha = 0.4f),
+                    color = Color.Black.copy(alpha = WOOD_BORDER_ALPHA),
                     style = Stroke(width = strokeWidth + bevelWidth),
                 )
 
@@ -504,7 +546,7 @@ private fun GridBackground(modifier: Modifier = Modifier) {
 
                 // Inner Highlight (Direct Reflection)
                 drawRect(
-                    color = Color.White.copy(alpha = 0.2f),
+                    color = Color.White.copy(alpha = WOOD_HIGHLIGHT_ALPHA),
                     style = Stroke(width = 2.dp.toPx()),
                     topLeft = Offset(strokeWidth / 2, strokeWidth / 2),
                     size =

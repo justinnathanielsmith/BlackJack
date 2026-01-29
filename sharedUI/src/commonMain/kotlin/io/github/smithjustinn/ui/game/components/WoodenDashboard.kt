@@ -19,7 +19,24 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.theme.AppColors
 import io.github.smithjustinn.theme.PokerTheme
+
+private const val GLOW_ALPHA_INITIAL = 0.5f
+private const val GLOW_ALPHA_TARGET = 1.0f
+private const val GLOW_DURATION_MS = 800
+private const val GLOW_HEIGHT_FACTOR = 0.8f
+private const val GLOW_RIM_ALPHA_FACTOR = 0.8f
+private const val BEVEL_ALPHA = 0.15f
+private const val SHADOW_ALPHA = 0.3f
+private const val GRAIN_ALPHA = 0.05f
+private const val GRAIN_POS_1 = 0.3f
+private const val GRAIN_POS_2 = 0.7f
+private const val GLOW_SECONDARY_ALPHA = 0.2f
+private const val GLOW_RIM_STROKE_WIDTH = 4
+private const val BEVEL_STROKE_WIDTH = 2
+private const val SHADOW_STROKE_WIDTH = 4
+private const val GRAIN_STROKE_WIDTH = 1
 
 @Composable
 fun WoodenDashboard(
@@ -30,15 +47,16 @@ fun WoodenDashboard(
     val colors = PokerTheme.colors
     val spacing = PokerTheme.spacing
 
-    val infiniteTransition = rememberInfiniteTransition()
+    val infiniteTransition = rememberInfiniteTransition(label = "woodenDashboard")
     val glowAlpha by infiniteTransition.animateFloat(
-        initialValue = 0.5f, // Higher min opacity
-        targetValue = 1.0f, // Max opacity
+        initialValue = GLOW_ALPHA_INITIAL,
+        targetValue = GLOW_ALPHA_TARGET,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(800, easing = LinearEasing), // Faster pulse
+                animation = tween(GLOW_DURATION_MS, easing = LinearEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
+        label = "glowAlpha",
     )
 
     Box(
@@ -47,73 +65,84 @@ fun WoodenDashboard(
                 .fillMaxWidth()
                 .background(colors.oakWood)
                 .drawBehind {
-                    // Heat Mode Glow
                     if (isHeatMode) {
-                        drawRect(
-                            brush =
-                                Brush.verticalGradient(
-                                    colors =
-                                        listOf(
-                                            colors.tacticalRed.copy(alpha = glowAlpha),
-                                            colors.tacticalRed.copy(alpha = 0.2f),
-                                            Color.Transparent,
-                                        ),
-                                    startY = 0f,
-                                    endY = size.height * 0.8f, // Covers more height
-                                ),
-                            blendMode = BlendMode.Screen, // Screen allows for a nice additive glow effect
-                        )
-
-                        // Extra bottom rim glow
-                        drawLine(
-                            brush =
-                                Brush.horizontalGradient(
-                                    colors =
-                                        listOf(
-                                            Color.Transparent,
-                                            colors.goldenYellow.copy(alpha = glowAlpha * 0.8f),
-                                            Color.Transparent,
-                                        ),
-                                ),
-                            start = Offset(0f, size.height),
-                            end = Offset(size.width, size.height),
-                            strokeWidth = 4.dp.toPx(),
-                        )
+                        drawHeatModeGlow(colors, glowAlpha)
                     }
 
-                    // Outer Bevel (Bottom Highlight)
-                    drawLine(
-                        color = Color.White.copy(alpha = 0.15f),
-                        start = Offset(0f, size.height),
-                        end = Offset(size.width, size.height),
-                        strokeWidth = 2.dp.toPx(),
-                    )
-
-                    // Inner Shadow (Top)
-                    drawLine(
-                        color = Color.Black.copy(alpha = 0.3f),
-                        start = Offset(0f, 0f),
-                        end = Offset(size.width, 0f),
-                        strokeWidth = 4.dp.toPx(),
-                    )
-
-                    // Grain accents (Subtle horizontal lines)
-                    val grainColor = Color.Black.copy(alpha = 0.05f)
-                    val grainWidth = 1.dp.toPx()
-                    drawLine(
-                        grainColor,
-                        Offset(0f, size.height * 0.3f),
-                        Offset(size.width, size.height * 0.3f),
-                        grainWidth,
-                    )
-                    drawLine(
-                        grainColor,
-                        Offset(0f, size.height * 0.7f),
-                        Offset(size.width, size.height * 0.7f),
-                        grainWidth,
-                    )
+                    drawBevels()
+                    drawGrainAccents()
                 }.padding(vertical = spacing.small),
     ) {
         content()
     }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawHeatModeGlow(
+    colors: io.github.smithjustinn.theme.AppColors,
+    glowAlpha: Float,
+) {
+    drawRect(
+        brush =
+            Brush.verticalGradient(
+                colors =
+                    listOf(
+                        colors.tacticalRed.copy(alpha = glowAlpha),
+                        colors.tacticalRed.copy(alpha = GLOW_SECONDARY_ALPHA),
+                        Color.Transparent,
+                    ),
+                startY = 0f,
+                endY = size.height * GLOW_HEIGHT_FACTOR,
+            ),
+        blendMode = BlendMode.Screen,
+    )
+
+    drawLine(
+        brush =
+            Brush.horizontalGradient(
+                colors =
+                    listOf(
+                        Color.Transparent,
+                        colors.goldenYellow.copy(alpha = glowAlpha * GLOW_RIM_ALPHA_FACTOR),
+                        Color.Transparent,
+                    ),
+            ),
+        start = Offset(0f, size.height),
+        end = Offset(size.width, size.height),
+        strokeWidth = GLOW_RIM_STROKE_WIDTH.dp.toPx(),
+    )
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawBevels() {
+    // Outer Bevel (Bottom Highlight)
+    drawLine(
+        color = Color.White.copy(alpha = BEVEL_ALPHA),
+        start = Offset(0f, size.height),
+        end = Offset(size.width, size.height),
+        strokeWidth = BEVEL_STROKE_WIDTH.dp.toPx(),
+    )
+
+    // Inner Shadow (Top)
+    drawLine(
+        color = Color.Black.copy(alpha = SHADOW_ALPHA),
+        start = Offset(0f, 0f),
+        end = Offset(size.width, 0f),
+        strokeWidth = SHADOW_STROKE_WIDTH.dp.toPx(),
+    )
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawGrainAccents() {
+    val grainColor = Color.Black.copy(alpha = GRAIN_ALPHA)
+    val grainWidth = GRAIN_STROKE_WIDTH.dp.toPx()
+    drawLine(
+        grainColor,
+        Offset(0f, size.height * GRAIN_POS_1),
+        Offset(size.width, size.height * GRAIN_POS_1),
+        grainWidth,
+    )
+    drawLine(
+        grainColor,
+        Offset(0f, size.height * GRAIN_POS_2),
+        Offset(size.width, size.height * GRAIN_POS_2),
+        grainWidth,
+    )
 }

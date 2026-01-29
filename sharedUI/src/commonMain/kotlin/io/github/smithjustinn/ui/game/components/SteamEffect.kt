@@ -12,6 +12,17 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import kotlin.random.Random
 
+private const val INITIAL_Y_OFFSET = 100f
+private const val MAX_LIFE_BASE = 30f
+private const val MAX_LIFE_RANDOM = 60f
+private const val INITIAL_ALPHA_BASE = 0.2f
+private const val INITIAL_ALPHA_RANDOM = 0.4f
+private const val FADE_SPEED = 0.015f
+private const val SIZE_BASE = 10f
+private const val SIZE_RANDOM = 20f
+private const val SPEED_BASE = 4f
+private const val SPEED_RANDOM = 8f
+
 private class SteamParticle(
     val size: Float,
     val speed: Float,
@@ -27,16 +38,16 @@ private class SteamParticle(
         height: Float,
     ) {
         x = Random.nextFloat() * width
-        y = height + Random.nextFloat() * 100f // Start below
+        y = height + Random.nextFloat() * INITIAL_Y_OFFSET
         life = 0f
-        maxLife = Random.nextFloat() * 60f + 30f // Short burst
-        alpha = Random.nextFloat() * 0.4f + 0.2f
+        maxLife = Random.nextFloat() * MAX_LIFE_RANDOM + MAX_LIFE_BASE
+        alpha = Random.nextFloat() * INITIAL_ALPHA_RANDOM + INITIAL_ALPHA_BASE
     }
 
     fun update() {
         y -= speed
         life += 1f
-        alpha -= 0.015f // Fade out fast
+        alpha -= FADE_SPEED
     }
 }
 
@@ -52,8 +63,8 @@ fun SteamEffect(
         remember {
             List(particleCount) {
                 SteamParticle(
-                    size = Random.nextFloat() * 20f + 10f, // Large puffs
-                    speed = Random.nextFloat() * 8f + 4f, // Fast rising
+                    size = Random.nextFloat() * SIZE_RANDOM + SIZE_BASE,
+                    speed = Random.nextFloat() * SPEED_RANDOM + SPEED_BASE,
                 )
             }
         }

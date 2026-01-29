@@ -1,10 +1,8 @@
 package io.github.smithjustinn.ui.game.components
 
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -24,30 +22,23 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.Path
-import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
@@ -66,15 +57,21 @@ import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
-private const val HIGH_SCORE_THRESHOLD = 100
-private const val HIGH_SCORE_STEP = 10
-private const val LOW_SCORE_STEP = 1
 private const val INITIAL_SCALE = 0.8f
 
 // Receipt Colors
 private val ReceiptPaperColor = Color(0xFFFDFBF7)
 private val ReceiptInkColor = Color(0xFF2B2B2B)
 private val ReceiptAccentColor = Color(0xFF8B0000) // Dark Red for key elements
+
+private const val SCORE_TICK_DURATION_MS = 1500
+private const val COMPACT_HEIGHT_THRESHOLD_DP = 450
+private const val BARCODE_BAR_COUNT = 40
+private const val BARCODE_THICKNESS_MODULO = 3
+private const val BARCODE_THICKNESS_FACTOR_1 = 2
+private const val BARCODE_THICKNESS_FACTOR_2 = 2
+private const val BARCODE_SPACING_FACTOR = 2.5f
+private const val BARCODE_WIDTH_FRACTION = 0.8f
 
 @Composable
 fun ResultsCard(
@@ -106,61 +103,67 @@ fun ResultsCard(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
-        val isCompactHeight = maxHeight < 450.dp
+        val isCompactHeight = maxHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
 
-        Box(
-            modifier =
-                Modifier
-                    .scale(scale)
-                    .widthIn(max = 400.dp) // Receipt width
-                    .shadow(elevation = 16.dp, shape = RoundedCornerShape(2.dp))
-                    .clip(RoundedCornerShape(2.dp))
-                    .background(ReceiptPaperColor),
-        ) {
+        ResultsCardContent(
+            scale = scale,
+            isCompactHeight = isCompactHeight,
+            lastMatchedScore = animatedScore.value.roundToInt(),
+            titleRes = titleRes,
+            isWon = isWon,
+            scoreBreakdown = scoreBreakdown,
+            moves = moves,
+            elapsedTimeSeconds = elapsedTimeSeconds,
+            onPlayAgain = onPlayAgain,
+            onShareReplay = onShareReplay,
+        )
+    }
+}
+
+@Composable
+private fun ResultsCardContent(
+    scale: Float,
+    isCompactHeight: Boolean,
+    lastMatchedScore: Int,
+    titleRes: org.jetbrains.compose.resources.StringResource,
+    isWon: Boolean,
+    scoreBreakdown: ScoreBreakdown,
+    moves: Int,
+    elapsedTimeSeconds: Long,
+    onPlayAgain: () -> Unit,
+    onShareReplay: () -> Unit,
+) {
+    Box(
+        modifier =
+            Modifier
+                .scale(scale)
+                .widthIn(max = 400.dp) // Receipt width
+                .shadow(elevation = 16.dp, shape = RoundedCornerShape(2.dp))
+                .clip(RoundedCornerShape(2.dp))
+                .background(ReceiptPaperColor),
+    ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+            ReceiptEdge(color = ReceiptPaperColor, isTop = true)
+
             Column(
                 modifier =
                     Modifier
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .padding(horizontal = 24.dp)
+                        .padding(top = 8.dp, bottom = 24.dp)
+                        .then(if (isCompactHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // Zigzag Top
-                ReceiptEdge(color = ReceiptPaperColor, isTop = true)
-
-                Column(
-                    modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(horizontal = 24.dp)
-                            .padding(top = 8.dp, bottom = 24.dp)
-                            .then(if (isCompactHeight) Modifier.verticalScroll(rememberScrollState()) else Modifier),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
-                    // Casino Header
-                    CasinoHeader(titleRes, isWon)
-
-                    // Divider
-                    ReceiptDivider()
-
-                    // Detailed Payout List
-                    PayoutSection(
-                        scoreBreakdown = scoreBreakdown,
-                        moves = moves,
-                        elapsedTimeSeconds = elapsedTimeSeconds,
-                    )
-
-                    // Divider
-                    ReceiptDivider()
-
-                    // Total
-                    TotalPayout(animatedScore.value.roundToInt())
-
-                    // Barcode / Footer
-                    ReceiptFooter(onPlayAgain, onShareReplay)
-                }
-
-                // Zigzag Bottom
-                ReceiptEdge(color = ReceiptPaperColor, isTop = false)
+                CasinoHeader(titleRes, isWon)
+                ReceiptDivider()
+                PayoutSection(scoreBreakdown, moves, elapsedTimeSeconds)
+                ReceiptDivider()
+                TotalPayout(lastMatchedScore)
+                ReceiptFooter(onPlayAgain, onShareReplay)
             }
+
+            ReceiptEdge(color = ReceiptPaperColor, isTop = false)
         }
     }
 }
@@ -249,37 +252,6 @@ private fun PayoutSection(
 }
 
 @Composable
-private fun PayoutRow(
-    label: String,
-    amount: Int,
-) {
-    Row(
-        modifier = Modifier.fillMaxWidth(),
-        horizontalArrangement = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        Text(
-            text = label.uppercase(),
-            style =
-                MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Medium,
-                ),
-            color = ReceiptInkColor,
-        )
-        Text(
-            text = "+$amount",
-            style =
-                MaterialTheme.typography.bodyMedium.copy(
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold,
-                ),
-            color = ReceiptInkColor,
-        )
-    }
-}
-
-@Composable
 private fun TotalPayout(animatedScore: Int) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -317,160 +289,87 @@ private fun ReceiptFooter(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        // Barcode Simulation
-        Box(
-            modifier =
-                Modifier
-                    .height(30.dp)
-                    .fillMaxWidth(0.8f),
-        ) {
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                val barWidth = size.width / 40
-                var x = 0f
-                while (x < size.width) {
-                    val thickness = if ((x / barWidth).toInt() % 3 == 0) barWidth * 2 else barWidth / 2
-                    if (kotlin.random.Random.nextBoolean()) {
-                        drawRect(
-                            color = ReceiptInkColor,
-                            topLeft = Offset(x, 0f),
-                            size = Size(thickness, size.height),
-                        )
-                    }
-                    x += barWidth * 2.5f
-                }
-            }
-        }
-
+        BarcodeSimulation()
         Spacer(modifier = Modifier.height(4.dp))
+        ResultsActions(onPlayAgain, onShareReplay)
+    }
+}
 
-        Button(
-            onClick = onPlayAgain,
-            modifier = Modifier.fillMaxWidth(),
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = ReceiptInkColor,
-                    contentColor = Color.White,
-                ),
-            shape = RoundedCornerShape(2.dp), // Sharp corners for receipt feel
-        ) {
-            Text(
-                text = stringResource(Res.string.play_again).uppercase(),
-                style =
-                    MaterialTheme.typography.labelLarge.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                    ),
-            )
-        }
-
-        OutlinedButton(
-            onClick = onShareReplay,
-            modifier = Modifier.fillMaxWidth(),
-            colors =
-                ButtonDefaults.outlinedButtonColors(
-                    contentColor = ReceiptInkColor,
-                ),
-            border = androidx.compose.foundation.BorderStroke(1.dp, ReceiptInkColor),
-            shape = RoundedCornerShape(2.dp),
-        ) {
-            Text(
-                text = "SHARE RECEIPT",
-                style =
-                    MaterialTheme.typography.labelLarge.copy(
-                        fontFamily = FontFamily.Monospace,
-                        fontWeight = FontWeight.Bold,
-                    ),
-            )
+@Composable
+private fun BarcodeSimulation() {
+    Box(
+        modifier =
+            Modifier
+                .height(30.dp)
+                .fillMaxWidth(BARCODE_WIDTH_FRACTION),
+    ) {
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val barWidth = size.width / BARCODE_BAR_COUNT
+            var x = 0f
+            while (x < size.width) {
+                val thickness =
+                    if ((x / barWidth).toInt() % BARCODE_THICKNESS_MODULO == 0) {
+                        barWidth * BARCODE_THICKNESS_FACTOR_1
+                    } else {
+                        barWidth / BARCODE_THICKNESS_FACTOR_2
+                    }
+                if (kotlin.random.Random.nextBoolean()) {
+                    drawRect(
+                        color = ReceiptInkColor,
+                        topLeft = Offset(x, 0f),
+                        size = Size(thickness, size.height),
+                    )
+                }
+                x += barWidth * BARCODE_SPACING_FACTOR
+            }
         }
     }
 }
 
 @Composable
-private fun ReceiptDivider() {
-    HorizontalDivider(
-        modifier = Modifier.padding(vertical = 4.dp),
-        thickness = 1.dp,
-        color = ReceiptInkColor,
-    )
-}
-
-@Composable
-private fun ReceiptDottedLine() {
-    Canvas(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(2.dp)
-                .padding(vertical = 8.dp),
+private fun ResultsActions(
+    onPlayAgain: () -> Unit,
+    onShareReplay: () -> Unit,
+) {
+    Button(
+        onClick = onPlayAgain,
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = ReceiptInkColor,
+                contentColor = Color.White,
+            ),
+        shape = RoundedCornerShape(2.dp),
     ) {
-        drawLine(
-            color = ReceiptInkColor.copy(alpha = 0.5f),
-            start = Offset(0f, 0f),
-            end = Offset(size.width, 0f),
-            pathEffect = PathEffect.dashPathEffect(floatArrayOf(10f, 10f), 0f),
-            strokeWidth = 2.dp.toPx(),
+        Text(
+            text = stringResource(Res.string.play_again).uppercase(),
+            style =
+                MaterialTheme.typography.labelLarge.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                ),
         )
     }
-}
 
-@Composable
-private fun ReceiptEdge(
-    color: Color,
-    isTop: Boolean,
-) {
-    val height = 12.dp
-    Canvas(
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(height)
-                .let { if (isTop) it.rotate(180f) else it },
+    OutlinedButton(
+        onClick = onShareReplay,
+        modifier = Modifier.fillMaxWidth(),
+        colors =
+            ButtonDefaults.outlinedButtonColors(
+                contentColor = ReceiptInkColor,
+            ),
+        border = androidx.compose.foundation.BorderStroke(1.dp, ReceiptInkColor),
+        shape = RoundedCornerShape(2.dp),
     ) {
-        val width = size.width
-        val triangleCount = 20
-        val triangleWidth = width / triangleCount
-        val path =
-            Path().apply {
-                moveTo(0f, 0f)
-                for (i in 0 until triangleCount) {
-                    lineTo(i * triangleWidth + triangleWidth / 2, size.height)
-                    lineTo((i + 1) * triangleWidth, 0f)
-                }
-                close()
-            }
-        drawPath(path, color = color)
+        Text(
+            text = "SHARE RECEIPT",
+            style =
+                MaterialTheme.typography.labelLarge.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                ),
+        )
     }
-}
-
-private fun formatTime(seconds: Long): String {
-    val m = seconds / 60
-    val s = seconds % 60
-    return "${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}"
-}
-
-@Composable
-private fun rememberAnimatedScore(
-    score: Int,
-    onScoreTick: () -> Unit,
-): androidx.compose.runtime.State<Float> {
-    val animatedScore = remember { Animatable(0f) }
-    var lastRoundedScore by remember { mutableStateOf(0) }
-    val scoreTickHandler by rememberUpdatedState(onScoreTick)
-
-    LaunchedEffect(score) {
-        animatedScore.animateTo(
-            targetValue = score.toFloat(),
-            animationSpec = tween(durationMillis = 1500, easing = FastOutSlowInEasing),
-        ) {
-            val currentRounded = value.roundToInt()
-            val step = if (score > HIGH_SCORE_THRESHOLD) HIGH_SCORE_STEP else LOW_SCORE_STEP
-            if (currentRounded != lastRoundedScore && (currentRounded % step == 0 || currentRounded == score)) {
-                scoreTickHandler()
-                lastRoundedScore = currentRounded
-            }
-        }
-    }
-    return remember(animatedScore) { derivedStateOf { animatedScore.value } }
 }
 
 @Composable

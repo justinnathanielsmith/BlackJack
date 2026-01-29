@@ -286,6 +286,63 @@ object MemoryGameLogic {
         )
     }
 
+    private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
+    private const val DIFF_LEVEL_6 = 6
+    private const val DIFF_LEVEL_8 = 8
+    private const val DIFF_LEVEL_10 = 10
+    private const val DIFF_LEVEL_12 = 12
+    private const val INITIAL_TIME_6 = 25L
+    private const val INITIAL_TIME_8 = 35L
+    private const val INITIAL_TIME_10 = 45L
+    private const val INITIAL_TIME_12 = 55L
+    private const val TIME_PER_PAIR_FALLBACK = 4
+    private const val BASE_TIME_GAIN = 3
+    private const val COMBO_TIME_BONUS_MULTIPLIER = 2
+    const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
+    private const val MOVES_PER_MATCH_THRESHOLD = 2
+    private const val POT_ODDS_DIVISOR = 2
+    private const val ONE_MORE_REMAINING = 1
+    const val TIME_PENALTY_MISMATCH = 2L
+
+    /**
+     * Calculates the initial time for Time Attack mode based on the pair count.
+     */
+    fun calculateInitialTime(pairCount: Int): Long {
+        return when (pairCount) {
+            DIFF_LEVEL_6 -> INITIAL_TIME_6
+            DIFF_LEVEL_8 -> INITIAL_TIME_8
+            DIFF_LEVEL_10 -> INITIAL_TIME_10
+            DIFF_LEVEL_12 -> INITIAL_TIME_12
+            else -> (pairCount * TIME_PER_PAIR_FALLBACK).toLong()
+        }
+    }
+
+    /**
+     * Logic for calculating time gain based on combo.
+     */
+    fun calculateTimeGain(comboMultiplier: Int): Int {
+        val baseGain = BASE_TIME_GAIN
+        val comboBonus = (comboMultiplier - 1) * COMBO_TIME_BONUS_MULTIPLIER
+        return baseGain + comboBonus
+    }
+
+    /**
+     * Activates Double Down if requirements are met.
+     */
+    fun activateDoubleDown(state: MemoryGameState): MemoryGameState {
+        val unmatchedPairs = state.cards.count { !it.isMatched } / 2
+        val isEligible =
+            state.comboMultiplier >= state.config.heatModeThreshold &&
+                !state.isDoubleDownActive &&
+                unmatchedPairs >= MIN_PAIRS_FOR_DOUBLE_DOWN
+
+        return if (isEligible) {
+            state.copy(isDoubleDownActive = true)
+        } else {
+            state
+        }
+    }
+
     private fun generateMatchComment(
         moves: Int,
         matchesFound: Int,
@@ -308,15 +365,15 @@ object MemoryGameLogic {
                 MatchComment(Res.string.comment_all_in)
             }
 
-            matchesFound == totalPairs / 2 -> {
+            matchesFound == totalPairs / POT_ODDS_DIVISOR -> {
                 MatchComment(Res.string.comment_pot_odds)
             }
 
-            moves <= matchesFound * 2 -> {
+            moves <= matchesFound * MOVES_PER_MATCH_THRESHOLD -> {
                 MatchComment(Res.string.comment_photographic)
             }
 
-            matchesFound == totalPairs - 1 -> {
+            matchesFound == totalPairs - ONE_MORE_REMAINING -> {
                 MatchComment(Res.string.comment_one_more)
             }
 
@@ -329,64 +386,11 @@ object MemoryGameLogic {
                         Res.string.comment_eagle_eyes,
                         Res.string.comment_sharp,
                         Res.string.comment_on_a_roll,
-                        Res.string.comment_full_house, // Poker Term
-                        Res.string.comment_bad_beat, // Poker Term (Irony)
+                        Res.string.comment_full_house,
+                        Res.string.comment_bad_beat,
                     ).random()
                 MatchComment(randomRes)
             }
         }
     }
-
-    // --- Time Attack Logic ---
-
-    fun calculateInitialTime(pairCount: Int): Long =
-        when (pairCount) {
-            DIFF_LEVEL_6 -> INITIAL_TIME_6
-
-            // Tourist
-            DIFF_LEVEL_8 -> INITIAL_TIME_8
-
-            // Casual
-            DIFF_LEVEL_10 -> INITIAL_TIME_10
-
-            // Master
-            DIFF_LEVEL_12 -> INITIAL_TIME_12
-
-            // Shark
-            else -> (pairCount * TIME_PER_PAIR_FALLBACK).toLong()
-        }
-
-    fun calculateTimeGain(comboMultiplier: Int): Int {
-        val baseGain = BASE_TIME_GAIN
-        // Steeper time reward: +2s per combo level instead of +1s
-        val comboBonus = (comboMultiplier - 1) * 2
-        return baseGain + comboBonus
-    }
-
-    fun activateDoubleDown(state: MemoryGameState): MemoryGameState {
-        val unmatchedPairs = state.cards.count { !it.isMatched } / 2
-        // Restriction: Must have at least 3 pairs remaining to activate
-        return if (
-            state.comboMultiplier >= state.config.heatModeThreshold &&
-            !state.isDoubleDownActive &&
-            unmatchedPairs >= 3
-        ) {
-            state.copy(isDoubleDownActive = true)
-        } else {
-            state
-        }
-    }
-
-    private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
-    private const val DIFF_LEVEL_6 = 6
-    private const val DIFF_LEVEL_8 = 8
-    private const val DIFF_LEVEL_10 = 10
-    private const val DIFF_LEVEL_12 = 12
-    private const val INITIAL_TIME_6 = 25L
-    private const val INITIAL_TIME_8 = 35L
-    private const val INITIAL_TIME_10 = 45L
-    private const val INITIAL_TIME_12 = 55L
-    private const val TIME_PER_PAIR_FALLBACK = 4
-    private const val BASE_TIME_GAIN = 3
-    const val TIME_PENALTY_MISMATCH = 2L
 }

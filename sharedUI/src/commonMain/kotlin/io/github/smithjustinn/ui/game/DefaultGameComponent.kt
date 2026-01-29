@@ -305,11 +305,9 @@ class DefaultGameComponent(
 
         val currentState = _state.value
         val unmatchedPairs = currentState.game.cards.count { !it.isMatched } / 2
-        if (unmatchedPairs < 3) return
+        if (unmatchedPairs < MemoryGameLogic.MIN_PAIRS_FOR_DOUBLE_DOWN) return
 
-        val newState =
-            MemoryGameLogic
-                .activateDoubleDown(currentState.game)
+        val newState = MemoryGameLogic.activateDoubleDown(currentState.game)
 
         if (newState.isDoubleDownActive &&
             !currentState.game.isDoubleDownActive &&
@@ -317,7 +315,7 @@ class DefaultGameComponent(
         ) {
             _state.update { it.copy(game = newState, hasUsedDoubleDownPeek = true) }
             _events.tryEmit(GameUiEvent.VibrateHeat)
-            // Reveal cards for 0.5s only on initial activation
+            // Reveal cards only on initial activation
             timerHandler.peekCards(currentState.game.mode, GameConstants.DOUBLE_DOWN_DURATION)
         } else if (newState.isDoubleDownActive) {
             // Just update state if double down is active but peek already used (or re-activating)

@@ -9,7 +9,6 @@ import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Box
@@ -20,25 +19,21 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardDisplaySettings
-import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.PokerTheme
-import kotlin.math.abs
 import kotlin.math.roundToInt
 
 // Animation durations (milliseconds)
@@ -49,13 +44,14 @@ private const val GLOW_ANIMATION_DURATION_MS = 1000
 // Animation values
 private const val SHAKE_OFFSET_PX = 10f
 private const val CAMERA_DISTANCE_MULTIPLIER = 15f
+private const val MUCK_TARGET_Y_FALLBACK = 1500
 
 // Rotation angles (degrees)
 internal const val HALF_ROTATION = 90f
 internal const val FULL_ROTATION = 180f
 
 // Alpha values for transparency
-private const val RIM_LIGHT_THRESHOLD = 0.1f
+
 internal const val VERY_LOW_ALPHA = 0.15f
 internal const val LOW_ALPHA = 0.2f
 internal const val SUBTLE_ALPHA = 0.3f
@@ -77,7 +73,6 @@ internal const val BASE_CARD_WIDTH = 80f
 // Size ratios and scaling
 private const val CARD_ASPECT_RATIO = 0.75f
 private const val GLOW_SIZE_MULTIPLIER = 0.75f
-private const val BORDER_SIZE_MULTIPLIER = 2f
 internal const val HALF_DIVISOR = 2
 private const val SHAKE_REPEAT_COUNT = 3
 
@@ -127,7 +122,7 @@ fun PlayingCard(
     modifier: Modifier = Modifier,
     backColor: Color = PokerTheme.colors.feltGreen,
     settings: CardDisplaySettings = CardDisplaySettings(),
-    muckTargetOffset: IntOffset = IntOffset(0, 1000), // Default to flying off bottom
+    muckTargetOffset: IntOffset = IntOffset(0, MUCK_TARGET_Y_FALLBACK), // Default to flying off bottom
     muckTargetRotation: Float = 15f,
     isMuckingEnabled: Boolean = true,
     onClick: () -> Unit = {},
@@ -191,6 +186,17 @@ private fun CardContentSelectors(
     }
 }
 
+
+private const val MATCHED_SCALE = 0.4f
+private const val PULSE_SCALE = 1.05f
+private const val DEFAULT_SCALE = 1f
+private const val MUCK_DURATION_MS = 600
+private const val ELEVATION_RECENTLY_MATCHED = 12
+private const val ELEVATION_MATCHED = 0
+private const val ELEVATION_HOVERED = 16
+private const val ELEVATION_DEFAULT = 2
+private const val SHADOW_OFFSET_DIVISOR = 3
+
 @Composable
 private fun rememberCardAnimations(
     content: CardContent,
@@ -199,26 +205,71 @@ private fun rememberCardAnimations(
     muckTargetRotation: Float,
     isMuckingEnabled: Boolean,
 ): CardAnimations {
-    val rotation by animateFloatAsState(
-        targetValue = if (content.visualState.isFaceUp) 0f else FULL_ROTATION,
+    val rotation by rememberFlipAnimation(content.visualState.isFaceUp)
+    val scale by rememberPulseAnimation(content.visualState, isHovered)
+    val shakeOffset = rememberShakeAnimation(content.visualState.isError)
+    val matchedGlowAlpha by rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)
+
+    val muckTranslationX by rememberMuckAnimation(
+        isMuckingEnabled && content.visualState.isMatched,
+        muckTargetOffset.x.toFloat(),
+        "muckTranslationX",
+    )
+    val muckTranslationY by rememberMuckAnimation(
+        isMuckingEnabled && content.visualState.isMatched,
+        muckTargetOffset.y.toFloat(),
+        "muckTranslationY",
+    )
+    val muckRotation by rememberMuckAnimation(
+        isMuckingEnabled && content.visualState.isMatched,
+        muckTargetRotation,
+        "muckRotation",
+    )
+
+    val shadowAnim = rememberShadowAnimation(content.visualState, isHovered)
+
+    return CardAnimations(
+        rotation = rotation,
+        scale = scale,
+        shakeOffset = shakeOffset,
+        matchedGlowAlpha = matchedGlowAlpha,
+        muckTranslationX = muckTranslationX,
+        muckTranslationY = muckTranslationY,
+        muckRotation = muckRotation,
+        muckScale = scale,
+        shadowElevation = shadowAnim.first,
+        shadowYOffset = shadowAnim.second,
+    )
+}
+
+@Composable
+private fun rememberFlipAnimation(isFaceUp: Boolean) =
+    animateFloatAsState(
+        targetValue = if (isFaceUp) 0f else FULL_ROTATION,
         animationSpec = tween(durationMillis = FLIP_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
         label = "cardFlip",
     )
 
-    val scale by animateFloatAsState(
-        targetValue =
-            when {
-                content.visualState.isMatched -> 0.4f
-                content.visualState.isRecentlyMatched || (isHovered && !content.visualState.isFaceUp) -> 1.05f
-                else -> 1f
-            },
-        animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-        label = "pulse",
-    )
+@Composable
+private fun rememberPulseAnimation(
+    visualState: CardVisualState,
+    isHovered: Boolean,
+) = animateFloatAsState(
+    targetValue =
+        when {
+            visualState.isMatched -> MATCHED_SCALE
+            visualState.isRecentlyMatched || (isHovered && !visualState.isFaceUp) -> PULSE_SCALE
+            else -> DEFAULT_SCALE
+        },
+    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
+    label = "pulse",
+)
 
+@Composable
+private fun rememberShakeAnimation(isError: Boolean): Float {
     val shakeOffset = remember { Animatable(0f) }
-    LaunchedEffect(content.visualState.isError) {
-        if (content.visualState.isError) {
+    LaunchedEffect(isError) {
+        if (isError) {
             repeat(SHAKE_REPEAT_COUNT) {
                 shakeOffset.animateTo(SHAKE_OFFSET_PX, tween(SHAKE_ANIMATION_DURATION_MS))
                 shakeOffset.animateTo(-SHAKE_OFFSET_PX, tween(SHAKE_ANIMATION_DURATION_MS))
@@ -226,9 +277,13 @@ private fun rememberCardAnimations(
             shakeOffset.animateTo(0f, tween(SHAKE_ANIMATION_DURATION_MS))
         }
     }
+    return shakeOffset.value
+}
 
-    val matchedGlowAlpha by animateFloatAsState(
-        targetValue = if (content.visualState.isRecentlyMatched) SUBTLE_ALPHA else 0f,
+@Composable
+private fun rememberMatchedGlowAnimation(isRecentlyMatched: Boolean) =
+    animateFloatAsState(
+        targetValue = if (isRecentlyMatched) SUBTLE_ALPHA else 0f,
         animationSpec =
             infiniteRepeatable(
                 animation = tween(GLOW_ANIMATION_DURATION_MS),
@@ -237,30 +292,28 @@ private fun rememberCardAnimations(
         label = "matchedGlow",
     )
 
-    val muckTranslationX by animateFloatAsState(
-        targetValue = if (isMuckingEnabled && content.visualState.isMatched) muckTargetOffset.x.toFloat() else 0f,
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
-        label = "muckTranslationX",
-    )
+@Composable
+private fun rememberMuckAnimation(
+    isActive: Boolean,
+    target: Float,
+    label: String,
+) = animateFloatAsState(
+    targetValue = if (isActive) target else 0f,
+    animationSpec = tween(durationMillis = MUCK_DURATION_MS, easing = FastOutSlowInEasing),
+    label = label,
+)
 
-    val muckTranslationY by animateFloatAsState(
-        targetValue = if (isMuckingEnabled && content.visualState.isMatched) muckTargetOffset.y.toFloat() else 0f,
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
-        label = "muckTranslationY",
-    )
-
-    val muckRotation by animateFloatAsState(
-        targetValue = if (isMuckingEnabled && content.visualState.isMatched) muckTargetRotation else 0f,
-        animationSpec = tween(durationMillis = 600, easing = FastOutSlowInEasing),
-        label = "muckRotation",
-    )
-
+@Composable
+private fun rememberShadowAnimation(
+    visualState: CardVisualState,
+    isHovered: Boolean,
+): Pair<Dp, Dp> {
     val targetElevation =
         when {
-            content.visualState.isRecentlyMatched -> 12.dp
-            content.visualState.isMatched -> 0.dp
-            content.visualState.isFaceUp || isHovered -> 16.dp
-            else -> 2.dp
+            visualState.isRecentlyMatched -> ELEVATION_RECENTLY_MATCHED.dp
+            visualState.isMatched -> ELEVATION_MATCHED.dp
+            visualState.isFaceUp || isHovered -> ELEVATION_HOVERED.dp
+            else -> ELEVATION_DEFAULT.dp
         }
 
     val shadowElevation by animateDpAsState(
@@ -270,23 +323,12 @@ private fun rememberCardAnimations(
     )
 
     val shadowYOffset by animateDpAsState(
-        targetValue = (targetElevation.value / 3).dp,
+        targetValue = (targetElevation.value / SHADOW_OFFSET_DIVISOR).dp,
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "shadowYOffset",
     )
 
-    return CardAnimations(
-        rotation = rotation,
-        scale = scale,
-        shakeOffset = shakeOffset.value,
-        matchedGlowAlpha = matchedGlowAlpha,
-        muckTranslationX = muckTranslationX,
-        muckTranslationY = muckTranslationY,
-        muckRotation = muckRotation,
-        muckScale = scale,
-        shadowElevation = shadowElevation,
-        shadowYOffset = shadowYOffset,
-    )
+    return shadowElevation to shadowYOffset
 }
 
 @Composable
@@ -325,29 +367,11 @@ private fun CardContainer(
                     }
                 },
     ) {
-        // Dynamic Shadow Layer
-        if (visuals.shadowElevation > 0.dp) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .graphicsLayer {
-                            translationY = visuals.shadowYOffset.toPx()
-                        }.shadow(
-                            elevation = visuals.shadowElevation,
-                            shape = RoundedCornerShape(12.dp),
-                            clip = false,
-                            ambientColor =
-                                (if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black).copy(
-                                    alpha = 0.2f,
-                                ),
-                            spotColor =
-                                (if (visuals.visualState.isRecentlyMatched) glowColor else Color.Black).copy(
-                                    alpha = 0.4f,
-                                ),
-                        ),
-            )
-        }
+        CardShadowLayer(
+            elevation = visuals.shadowElevation,
+            yOffset = visuals.shadowYOffset,
+            isRecentlyMatched = visuals.visualState.isRecentlyMatched,
+        )
 
         Card(
             onClick = interactions.onClick,
@@ -366,44 +390,3 @@ private fun CardContainer(
         }
     }
 }
-
-@Composable
-private fun getCardBorder(
-    rotation: Float,
-    visualState: CardVisualState,
-): BorderStroke =
-    if (rotation <= HALF_ROTATION) {
-        when {
-            visualState.isRecentlyMatched -> BorderStroke(2.dp, PokerTheme.colors.goldenYellow)
-            visualState.isMatched -> BorderStroke(1.dp, PokerTheme.colors.goldenYellow.copy(alpha = MEDIUM_ALPHA))
-            visualState.isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
-            else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
-        }
-    } else {
-        val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
-        val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
-        BorderStroke(
-            width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp),
-            color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA),
-        )
-    }
-
-@Composable
-private fun calculateSuitColor(
-    suit: Suit,
-    areSuitsMultiColored: Boolean,
-    theme: CardSymbolTheme,
-): Color =
-    if (theme == CardSymbolTheme.POKER) {
-        // Strict Poker Colors
-        if (suit.isRed) PokerTheme.colors.tacticalRed else Color.Black
-    } else if (areSuitsMultiColored) {
-        when (suit) {
-            Suit.Hearts -> PokerTheme.colors.tacticalRed
-            Suit.Diamonds -> PokerTheme.colors.softBlue
-            Suit.Clubs -> PokerTheme.colors.bonusGreen
-            Suit.Spades -> Color.Black
-        }
-    } else {
-        if (suit.isRed) PokerTheme.colors.tacticalRed else Color.Black
-    }

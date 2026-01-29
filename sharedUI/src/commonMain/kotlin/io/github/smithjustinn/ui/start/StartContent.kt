@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.start
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -96,6 +97,16 @@ fun StartContent(
     }
 }
 
+private const val MEDALLION_SIZE_DP = 48
+private const val MEDALLION_ICON_SIZE_DP = 24
+private const val MEDALLION_BORDER_WIDTH_DP = 1
+private const val MEDALLION_BORDER_ALPHA = 0.5f
+private const val MEDALLION_BG_ALPHA = 0.4f
+private const val START_HEADER_SPACER_HEIGHT_DP = 64
+private const val DEALER_TRAY_MAX_WIDTH_DP = 600
+private const val MAIN_CONTENT_BOTTOM_SPACER_WEIGHT = 0.5f
+private const val RADIAL_FALLOFF_RADIUS = Float.POSITIVE_INFINITY
+
 @Composable
 private fun StartScreenLayout(
     state: DifficultyState,
@@ -117,82 +128,116 @@ private fun StartScreenLayout(
                 .statusBarsPadding()
                 .navigationBarsPadding(),
     ) {
-        // Top Start Action Row (Daily Challenge)
-        Row(
-            modifier =
-                Modifier
-                    .align(Alignment.TopStart)
-                    .padding(spacing.medium),
+        StartTopActions(
+            state = state,
+            onDailyChallengeClick = onDailyChallengeClick,
+            onStatsClick = onStatsClick,
+            onSettingsClick = onSettingsClick,
+        )
+
+        StartMainContent(
+            state = state,
+            onDifficultySelected = onDifficultySelected,
+            onModeSelected = onModeSelected,
+            onStartGame = onStartGame,
+            onResumeGame = onResumeGame,
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.StartTopActions(
+    state: DifficultyState,
+    onDailyChallengeClick: () -> Unit,
+    onStatsClick: () -> Unit,
+    onSettingsClick: () -> Unit,
+) {
+    val spacing = PokerTheme.spacing
+
+    // Top Start Action Row (Daily Challenge)
+    Row(
+        modifier =
+            Modifier
+                .align(Alignment.TopStart)
+                .padding(spacing.medium),
+    ) {
+        MedallionIcon(
+            icon = AppIcons.DateRange,
+            onClick = onDailyChallengeClick,
+            backgroundColor =
+                if (state.isDailyChallengeCompleted) {
+                    PokerTheme.colors.oakWood
+                } else {
+                    Color.Black.copy(alpha = MEDALLION_BG_ALPHA)
+                },
+            tint = if (state.isDailyChallengeCompleted) PokerTheme.colors.goldenYellow else Color.White,
+        )
+    }
+
+    // Top End Action Row
+    Row(
+        modifier =
+            Modifier
+                .align(Alignment.TopEnd)
+                .padding(spacing.medium),
+        horizontalArrangement = Arrangement.spacedBy(spacing.small),
+    ) {
+        MedallionIcon(
+            icon = AppIcons.Trophy,
+            onClick = onStatsClick,
+        )
+        MedallionIcon(
+            icon = AppIcons.Settings,
+            onClick = onSettingsClick,
+        )
+    }
+}
+
+@Composable
+private fun BoxScope.StartMainContent(
+    state: DifficultyState,
+    onDifficultySelected: (DifficultyLevel) -> Unit,
+    onModeSelected: (GameMode) -> Unit,
+    onStartGame: () -> Unit,
+    onResumeGame: () -> Unit,
+) {
+    val spacing = PokerTheme.spacing
+
+    Column(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .padding(horizontal = spacing.large),
+        horizontalAlignment = Alignment.CenterHorizontally,
+    ) {
+        // Clear the TopActionRow height
+        Spacer(modifier = Modifier.height(START_HEADER_SPACER_HEIGHT_DP.dp))
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        StartHeader(
+            settings = state.cardSettings,
+            modifier = Modifier.padding(bottom = spacing.large),
+        )
+
+        Spacer(modifier = Modifier.weight(MAIN_CONTENT_BOTTOM_SPACER_WEIGHT))
+
+        // Dealer's Tray Container
+        AppCard(
+            modifier = Modifier.widthIn(max = DEALER_TRAY_MAX_WIDTH_DP.dp),
         ) {
-            MedallionIcon(
-                icon = AppIcons.DateRange,
-                onClick = onDailyChallengeClick,
-                backgroundColor =
-                    if (state.isDailyChallengeCompleted) {
-                        PokerTheme.colors.oakWood
-                    } else {
-                        Color.Black.copy(
-                            alpha = 0.4f,
-                        )
-                    },
-                tint = if (state.isDailyChallengeCompleted) PokerTheme.colors.goldenYellow else Color.White,
+            DifficultySelectionSection(
+                state = state,
+                onDifficultySelected = onDifficultySelected,
+                onModeSelected = onModeSelected,
+                onStartGame = onStartGame,
+                onResumeGame = onResumeGame,
             )
         }
 
-        // Top End Action Row
-        Row(
-            modifier =
-                Modifier
-                    .align(Alignment.TopEnd)
-                    .padding(spacing.medium),
-            horizontalArrangement = Arrangement.spacedBy(spacing.small),
-        ) {
-            MedallionIcon(
-                icon = AppIcons.Trophy,
-                onClick = onStatsClick,
-            )
-            MedallionIcon(
-                icon = AppIcons.Settings,
-                onClick = onSettingsClick,
-            )
-        }
+        Spacer(modifier = Modifier.weight(1f))
 
-        Column(
-            modifier =
-                Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = spacing.large),
-            horizontalAlignment = Alignment.CenterHorizontally,
-        ) {
-            // Clear the TopActionRow height (48dp medallion + medium padding)
-            Spacer(modifier = Modifier.height(64.dp))
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            StartHeader(
-                settings = state.cardSettings,
-                modifier = Modifier.padding(bottom = spacing.large),
-            )
-
-            Spacer(modifier = Modifier.weight(0.5f))
-
-            // Dealer's Tray Container
-            AppCard(
-                modifier = Modifier.widthIn(max = 601.dp),
-            ) {
-                DifficultySelectionSection(
-                    state = state,
-                    onDifficultySelected = onDifficultySelected,
-                    onModeSelected = onModeSelected,
-                    onStartGame = onStartGame,
-                    onResumeGame = onResumeGame,
-                )
-            }
-
-            Spacer(modifier = Modifier.weight(1f))
-
-            Spacer(modifier = Modifier.height(spacing.large))
-        }
+        Spacer(modifier = Modifier.height(spacing.large))
     }
 }
 
@@ -201,7 +246,7 @@ private fun MedallionIcon(
     icon: androidx.compose.ui.graphics.vector.ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    backgroundColor: Color = Color.Black.copy(alpha = 0.4f),
+    backgroundColor: Color = Color.Black.copy(alpha = MEDALLION_BG_ALPHA),
     tint: Color = PokerTheme.colors.goldenYellow,
 ) {
     val colors = PokerTheme.colors
@@ -210,15 +255,19 @@ private fun MedallionIcon(
         onClick = onClick,
         shape = CircleShape,
         color = backgroundColor,
-        border = androidx.compose.foundation.BorderStroke(1.dp, colors.goldenYellow.copy(alpha = 0.5f)),
-        modifier = modifier.size(48.dp),
+        border =
+            androidx.compose.foundation.BorderStroke(
+                MEDALLION_BORDER_WIDTH_DP.dp,
+                colors.goldenYellow.copy(alpha = MEDALLION_BORDER_ALPHA),
+            ),
+        modifier = modifier.size(MEDALLION_SIZE_DP.dp),
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
                 contentDescription = null,
                 tint = tint,
-                modifier = Modifier.size(24.dp),
+                modifier = Modifier.size(MEDALLION_ICON_SIZE_DP.dp),
             )
         }
     }

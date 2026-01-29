@@ -1,12 +1,7 @@
 package io.github.smithjustinn.ui.game
 
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.spring
-import androidx.compose.animation.core.tween
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.BoxWithConstraints
@@ -31,34 +26,40 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalClipboardManager
-import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AdaptiveDensity
-import io.github.smithjustinn.ui.game.components.CardFountainOverlay
 import io.github.smithjustinn.ui.game.components.ComboBadge
 import io.github.smithjustinn.ui.game.components.ComboBadgeState
-import io.github.smithjustinn.ui.game.components.ConfettiEffect
 import io.github.smithjustinn.ui.game.components.DealerSpeechBubble
 import io.github.smithjustinn.ui.game.components.GameGrid
 import io.github.smithjustinn.ui.game.components.GameTopBar
 import io.github.smithjustinn.ui.game.components.GameTopBarState
 import io.github.smithjustinn.ui.game.components.GridCardState
 import io.github.smithjustinn.ui.game.components.GridSettings
-import io.github.smithjustinn.ui.game.components.NewHighScoreSnackbar
 import io.github.smithjustinn.ui.game.components.ParticleEmbers
 import io.github.smithjustinn.ui.game.components.PeekCountdownOverlay
-import io.github.smithjustinn.ui.game.components.ResultsCard
 import io.github.smithjustinn.ui.game.components.SteamEffect
 import io.github.smithjustinn.ui.game.components.WalkthroughOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+private const val SHAKE_MAX_OFFSET = 20f
+private const val SHAKE_MID_OFFSET = 10f
+private const val SHAKE_RESET_OFFSET = 0f
+private const val STEAM_DURATION_MS = 1200
+private const val HEAT_TRANSITION_DURATION_MS = 800
+private const val COMPACT_HEIGHT_THRESHOLD_DP = 500
+private const val SNACKBAR_TOP_PADDING_DP = 16
+private const val SNACKBAR_MAX_WIDTH_DP = 500
+private const val RESULTS_MAX_WIDTH_DP = 550
+private const val DOUBLE_DOWN_BOTTOM_PADDING_DP = 100
+private const val SPEECH_BUBBLE_TOP_PADDING_DP = 80
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -67,76 +68,78 @@ fun GameContent(
     modifier: Modifier = Modifier,
 ) {
     val state by component.state.collectAsState()
-
     val scope = rememberCoroutineScope()
-    val shakeOffset = remember { Animatable(0f) }
+    val shakeOffset = remember { Animatable(SHAKE_RESET_OFFSET) }
     var showSteam by remember { mutableStateOf(false) }
-    var lastHeatMode by remember { mutableStateOf(state.isHeatMode) }
 
     GameEventHandler(
         component = component,
         onTheNuts = {
-            // Re-use steam/shake effect for The Nuts
             showSteam = true
             scope.launch {
-                shakeOffset.animateTo(20f, spring(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(-20f, spring(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(10f, spring(stiffness = Spring.StiffnessHigh))
-                shakeOffset.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
+                runShakeAnimation(shakeOffset)
             }
             scope.launch {
-                delay(1200)
+                delay(STEAM_DURATION_MS.toLong())
                 showSteam = false
             }
         },
     )
 
     AdaptiveDensity {
-        LaunchedEffect(state.isHeatMode) {
-            if (lastHeatMode && !state.isHeatMode) {
-                // LOST HEAT MODE -> SHAKE + STEAM
+        HeatModeTransitionHandler(
+            isHeatMode = state.isHeatMode,
+            onHeatLost = {
                 showSteam = true
-                launch {
-                    // Quick double shake
-                    shakeOffset.animateTo(20f, spring(stiffness = Spring.StiffnessHigh))
-                    shakeOffset.animateTo(-20f, spring(stiffness = Spring.StiffnessHigh))
-                    shakeOffset.animateTo(10f, spring(stiffness = Spring.StiffnessHigh))
-                    shakeOffset.animateTo(0f, spring(stiffness = Spring.StiffnessMedium))
-                }
-                launch {
-                    delay(1200) // Duration of steam effect
+                scope.launch { runShakeAnimation(shakeOffset) }
+                scope.launch {
+                    delay(STEAM_DURATION_MS.toLong())
                     showSteam = false
                 }
-            }
-            lastHeatMode = state.isHeatMode
-        }
+            },
+        )
 
-        BoxWithConstraints(
-            modifier =
-                modifier
-                    .fillMaxSize()
-                    .graphicsLayer {
-                        translationX = shakeOffset.value
-                    },
-        ) {
-            val isLandscape = maxWidth > maxHeight
-            val isCompactHeight = maxHeight < 500.dp
-            val useCompactUI = isLandscape && isCompactHeight
+        GameMainScreenWrapper(
+            state = state,
+            component = component,
+            shakeOffset = shakeOffset.value,
+            showSteam = showSteam,
+            modifier = modifier,
+        )
+    }
+}
 
-            Box(modifier = Modifier.fillMaxSize()) {
-                GameBackground(isHeatMode = state.isHeatMode)
-                GameMainScreen(
-                    state = state,
-                    component = component,
-                    useCompactUI = useCompactUI,
-                )
+@Composable
+private fun GameMainScreenWrapper(
+    state: GameUIState,
+    component: GameComponent,
+    shakeOffset: Float,
+    showSteam: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    BoxWithConstraints(
+        modifier =
+            modifier
+                .fillMaxSize()
+                .graphicsLayer { translationX = shakeOffset },
+    ) {
+        val isLandscape = maxWidth > maxHeight
+        val isCompactHeight = maxHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
+        val useCompactUI = isLandscape && isCompactHeight
 
-                // Embers overlay - Foreground
-                ParticleEmbers(isHeatMode = state.isHeatMode)
+        Box(modifier = Modifier.fillMaxSize()) {
+            GameBackground(isHeatMode = state.isHeatMode)
+            GameMainScreen(
+                state = state,
+                component = component,
+                useCompactUI = useCompactUI,
+            )
 
-                // Steam Cool Down Effect
-                SteamEffect(isVisible = showSteam)
-            }
+            // Embers overlay - Foreground
+            ParticleEmbers(isHeatMode = state.isHeatMode)
+
+            // Steam Cool Down Effect
+            SteamEffect(isVisible = showSteam)
         }
     }
 }
@@ -221,130 +224,6 @@ private fun GameEventHandler(
 }
 
 @Composable
-private fun GameGameOverOverlay(
-    state: GameUIState,
-    component: GameComponent,
-    useCompactUI: Boolean,
-) {
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(Color.Black.copy(alpha = 0.4f)),
-    ) {
-        if (state.game.isGameWon) {
-            GameWonOverlay(state)
-        }
-
-        GameResultsOverlay(
-            state = state,
-            component = component,
-            useCompactUI = useCompactUI,
-        )
-    }
-}
-
-@Composable
-private fun BoxScope.GameWonOverlay(state: GameUIState) {
-    CardFountainOverlay(
-        cards = state.game.cards,
-        settings = state.cardSettings,
-    )
-    ConfettiEffect()
-
-    if (state.isNewHighScore) {
-        NewHighScoreSnackbar(
-            modifier =
-                Modifier
-                    .align(Alignment.TopCenter)
-                    .padding(top = 16.dp, start = 16.dp, end = 16.dp)
-                    .widthIn(max = 500.dp),
-        )
-    }
-}
-
-@Composable
-private fun BoxScope.GameResultsOverlay(
-    state: GameUIState,
-    component: GameComponent,
-    useCompactUI: Boolean,
-) {
-    val graph = LocalAppGraph.current
-    val audioService = graph.audioService
-    val hapticsService = graph.hapticsService
-    val clipboardManager = LocalClipboardManager.current
-    val scope = rememberCoroutineScope()
-
-    ResultsCard(
-        isWon = state.game.isGameWon,
-        isBusted = state.game.isBusted,
-        score = state.game.score,
-        moves = state.game.moves,
-        elapsedTimeSeconds = state.elapsedTimeSeconds,
-        scoreBreakdown = state.game.scoreBreakdown,
-        onPlayAgain = {
-            audioService.playEffect(AudioService.SoundEffect.CLICK)
-            component.onRestart()
-            audioService.startMusic()
-        },
-        onShareReplay = {
-            audioService.playEffect(AudioService.SoundEffect.CLICK)
-            val seed = state.game.seed ?: 0L
-            val link =
-                "memorymatch://game?mode=${state.game.mode}" +
-                    "&pairs=${state.game.pairCount}&seed=$seed"
-            scope.launch {
-                clipboardManager.setText(AnnotatedString(link))
-            }
-            hapticsService.vibrateMatch()
-        },
-        onScoreTick = { hapticsService.vibrateTick() },
-        modifier =
-            Modifier
-                .align(Alignment.Center)
-                .widthIn(max = 550.dp)
-                .padding(
-                    vertical = if (useCompactUI) PokerTheme.spacing.small else PokerTheme.spacing.large,
-                ),
-        mode = state.game.mode,
-    )
-}
-
-@Composable
-private fun GameBackground(isHeatMode: Boolean) {
-    val colors = PokerTheme.colors
-    val backgroundTopColor by animateColorAsState(
-        targetValue =
-            if (isHeatMode) {
-                colors.heatBackgroundTop
-            } else {
-                colors.feltGreen
-            },
-        animationSpec = tween(durationMillis = 800),
-    )
-    val backgroundBottomColor by animateColorAsState(
-        targetValue =
-            if (isHeatMode) {
-                colors.heatBackgroundBottom
-            } else {
-                colors.feltGreenDark
-            },
-        animationSpec = tween(durationMillis = 800),
-    )
-
-    Box(
-        modifier =
-            Modifier
-                .fillMaxSize()
-                .background(
-                    Brush.verticalGradient(
-                        colors = listOf(backgroundTopColor, backgroundBottomColor),
-                    ),
-                ),
-    )
-}
-
-@Composable
 private fun GameMainScreen(
     state: GameUIState,
     component: GameComponent,
@@ -352,7 +231,6 @@ private fun GameMainScreen(
 ) {
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
-    // Using fully qualified name to avoid import conflicts, standard Compose Offset
     var scorePosition by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
 
     Scaffold(
@@ -374,10 +252,10 @@ private fun GameMainScreen(
                         compact = useCompactUI,
                         isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
                         isLowTime =
-                            state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
+                            state.game.mode == GameMode.TIME_ATTACK &&
                                 state.elapsedTimeSeconds <= GameTopBarState.LOW_TIME_THRESHOLD_SEC,
                         isCriticalTime =
-                            state.game.mode == io.github.smithjustinn.domain.models.GameMode.TIME_ATTACK &&
+                            state.game.mode == GameMode.TIME_ATTACK &&
                                 state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
                         score = state.game.score,
                         isHeatMode = state.isHeatMode,
@@ -462,7 +340,7 @@ private fun BoxScope.GameHUD(
                     isMegaBonus = state.isMegaBonus,
                     isHeatMode = state.isHeatMode,
                 ),
-            infiniteTransition = rememberInfiniteTransition(),
+            infiniteTransition = rememberInfiniteTransition(label = "comboBadge"),
             modifier =
                 Modifier
                     .align(Alignment.TopEnd)
@@ -471,31 +349,8 @@ private fun BoxScope.GameHUD(
         )
     }
 
-    // Double or Nothing Button - Only in Heat Mode and not already active
     if (state.isHeatMode && !state.game.isDoubleDownActive && !state.game.isGameOver) {
-        Button(
-            onClick = onDoubleDown,
-            colors =
-                ButtonDefaults.buttonColors(
-                    containerColor = PokerTheme.colors.tacticalRed,
-                    contentColor = PokerTheme.colors.goldenYellow,
-                ),
-            modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 100.dp, end = 16.dp),
-            elevation =
-                ButtonDefaults.buttonElevation(
-                    defaultElevation = 6.dp,
-                    pressedElevation = 2.dp,
-                ),
-        ) {
-            Text(
-                text = "DOUBLE OR NOTHING",
-                style = PokerTheme.typography.labelMedium,
-                fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-            )
-        }
+        DoubleDownButton(onDoubleDown)
     }
 
     DealerSpeechBubble(
@@ -503,9 +358,36 @@ private fun BoxScope.GameHUD(
         modifier =
             Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = 80.dp) // Below TopBar approximately
+                .padding(top = SPEECH_BUBBLE_TOP_PADDING_DP.dp)
                 .widthIn(max = 600.dp),
     )
+}
+
+@Composable
+private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
+    Button(
+        onClick = onDoubleDown,
+        colors =
+            ButtonDefaults.buttonColors(
+                containerColor = PokerTheme.colors.tacticalRed,
+                contentColor = PokerTheme.colors.goldenYellow,
+            ),
+        modifier =
+            Modifier
+                .align(Alignment.BottomEnd)
+                .padding(bottom = DOUBLE_DOWN_BOTTOM_PADDING_DP.dp, end = 16.dp),
+        elevation =
+            ButtonDefaults.buttonElevation(
+                defaultElevation = 6.dp,
+                pressedElevation = 2.dp,
+            ),
+    ) {
+        Text(
+            text = "DOUBLE OR NOTHING",
+            style = PokerTheme.typography.labelMedium,
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+        )
+    }
 }
 
 @Composable
