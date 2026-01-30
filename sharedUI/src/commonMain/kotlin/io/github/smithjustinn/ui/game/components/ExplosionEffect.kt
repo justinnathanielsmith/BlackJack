@@ -36,7 +36,7 @@ fun ExplosionEffect(
     particleCount: Int = 30,
     colors: List<Color> =
         listOf(
-            io.github.smithjustinn.theme.GoldenYellow,
+            io.github.smithjustinn.theme.ModernGold,
             io.github.smithjustinn.theme.TacticalRed,
             Color.Black,
             Color.White,

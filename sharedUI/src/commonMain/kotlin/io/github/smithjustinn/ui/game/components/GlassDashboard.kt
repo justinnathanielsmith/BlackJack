@@ -46,7 +46,8 @@ fun GlassDashboard(
                     Brush.linearGradient(
                         colors =
                             listOf(
-                                colors.glassWhite.copy(alpha = 0.4f), // Highlight (boosted slightly from base 10% for visibility)
+                                // Highlight (boosted slightly from base 10% for visibility)
+                                colors.glassWhite.copy(alpha = 0.4f),
                                 colors.glassWhite.copy(alpha = 0.05f), // Shadow
                             ),
                         start = Offset(0f, 0f),

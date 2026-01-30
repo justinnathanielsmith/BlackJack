@@ -1,6 +1,5 @@
 package io.github.smithjustinn.ui.settings
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,7 +35,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -63,10 +61,12 @@ import io.github.smithjustinn.resources.settings_sound_effects
 import io.github.smithjustinn.resources.settings_sound_effects_desc
 import io.github.smithjustinn.resources.settings_symbol_style
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.components.PillSegmentedControl
+import io.github.smithjustinn.ui.components.pokerBackground
 import org.jetbrains.compose.resources.stringResource
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -91,18 +91,7 @@ fun SettingsContent(
         modifier =
             modifier
                 .fillMaxSize()
-                .background(
-                    brush =
-                        Brush.radialGradient(
-                            colors =
-                                listOf(
-                                    io.github.smithjustinn.theme.FeltGreenTop,
-                                    io.github.smithjustinn.theme.FeltGreenBottom,
-                                ),
-                            center = androidx.compose.ui.geometry.Offset.Unspecified,
-                            radius = 1000f, // Broad spread for the "tabletop" look
-                        ),
-                ),
+                .pokerBackground(),
     ) {
         Scaffold(
             containerColor = Color.Transparent,
@@ -155,7 +144,7 @@ private fun SettingsTopBar(
                 Icon(
                     imageVector = AppIcons.ArrowBack,
                     contentDescription = stringResource(Res.string.back_content_description),
-                    tint = io.github.smithjustinn.theme.GoldenYellow,
+                    tint = io.github.smithjustinn.theme.ModernGold,
                 )
             }
         },
@@ -312,9 +301,9 @@ private fun SettingsResetSection(
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
-                            io.github.smithjustinn.theme.GoldenYellow
+                            io.github.smithjustinn.theme.ModernGold
                                 .copy(alpha = 0.2f),
-                        contentColor = io.github.smithjustinn.theme.GoldenYellow,
+                        contentColor = io.github.smithjustinn.theme.ModernGold,
                         disabledContainerColor = PokerTheme.colors.hudBackground.copy(alpha = 0.5f),
                         disabledContentColor = Color.White.copy(alpha = 0.3f),
                     ),
@@ -367,7 +356,7 @@ private fun VolumeSlider(
         Icon(
             imageVector = AppIcons.VolumeUp,
             contentDescription = null,
-            tint = io.github.smithjustinn.theme.GoldenYellow,
+            tint = io.github.smithjustinn.theme.ModernGold,
             modifier = Modifier.size(18.dp),
         )
         Slider(
@@ -377,7 +366,7 @@ private fun VolumeSlider(
             colors =
                 SliderDefaults.colors(
                     thumbColor = Color.White,
-                    activeTrackColor = io.github.smithjustinn.theme.GoldenYellow,
+                    activeTrackColor = io.github.smithjustinn.theme.ModernGold,
                     inactiveTrackColor = PokerTheme.colors.hudBackground,
                 ),
         )
@@ -423,7 +412,7 @@ private fun SettingsToggle(
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
-                    checkedTrackColor = io.github.smithjustinn.theme.GoldenYellow,
+                    checkedTrackColor = io.github.smithjustinn.theme.ModernGold,
                     uncheckedTrackColor = PokerTheme.colors.hudBackground,
                     uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
                     uncheckedBorderColor = Color.Transparent,

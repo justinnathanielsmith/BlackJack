@@ -61,7 +61,7 @@ fun ConfettiEffect(
             io.github.smithjustinn.theme.BonusGreen,
             Color.Black,
             io.github.smithjustinn.theme.SoftBlue, // Chip Blue
-            io.github.smithjustinn.theme.GoldenYellow,
+            io.github.smithjustinn.theme.ModernGold,
         ),
 ) {
     val particles = remember { mutableStateListOf<Particle>() }

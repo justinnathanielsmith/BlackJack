@@ -24,7 +24,7 @@ import androidx.compose.ui.graphics.drawscope.rotate
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardBackTheme
-import io.github.smithjustinn.theme.GoldenYellow
+import io.github.smithjustinn.theme.ModernGold
 import kotlin.math.abs
 
 // Animation durations (milliseconds)
@@ -96,7 +96,7 @@ internal fun ShimmerEffect() {
             colors =
                 listOf(
                     Color.White.copy(alpha = 0.0f),
-                    GoldenYellow.copy(alpha = MEDIUM_ALPHA),
+                    ModernGold.copy(alpha = MEDIUM_ALPHA),
                     Color.White.copy(alpha = 0.0f),
                 ),
             start = Offset(translateAnim - SHIMMER_OFFSET, translateAnim - SHIMMER_OFFSET),

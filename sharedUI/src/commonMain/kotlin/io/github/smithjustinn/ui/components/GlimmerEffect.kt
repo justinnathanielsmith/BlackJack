@@ -13,7 +13,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.TileMode
 import io.github.smithjustinn.theme.Brass
 import io.github.smithjustinn.theme.Bronze
-import io.github.smithjustinn.theme.GoldenYellow
+import io.github.smithjustinn.theme.ModernGold
 
 // Increased duration for a slower, more subtle effect
 private const val SHIMMER_DURATION_MS = 4000
@@ -25,11 +25,11 @@ fun rememberGlimmerBrush(): Brush {
     val shimmerColors =
         listOf(
             Bronze,
-            GoldenYellow,
+            ModernGold,
             Bronze,
             Brass,
             Bronze,
-            GoldenYellow,
+            ModernGold,
             Bronze,
             Brass,
             Bronze,

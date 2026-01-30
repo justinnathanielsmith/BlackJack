@@ -39,7 +39,7 @@ import io.github.smithjustinn.resources.walkthrough_skip
 import io.github.smithjustinn.resources.walkthrough_title_combos
 import io.github.smithjustinn.resources.walkthrough_title_find_pairs
 import io.github.smithjustinn.resources.walkthrough_title_welcome
-import io.github.smithjustinn.theme.GoldenYellow
+import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -116,7 +116,7 @@ private fun WalkthroughTexts(step: Int) {
                 fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
             ),
         fontWeight = FontWeight.Black,
-        color = GoldenYellow,
+        color = ModernGold,
         textAlign = TextAlign.Center,
         letterSpacing = 1.sp,
     )
@@ -159,7 +159,7 @@ private fun WalkthroughActions(
             onClick = {
                 if (step < 2) onNext() else onDismiss()
             },
-            colors = ButtonDefaults.buttonColors(containerColor = GoldenYellow),
+            colors = ButtonDefaults.buttonColors(containerColor = ModernGold),
             shape = RoundedCornerShape(12.dp),
         ) {
             Text(

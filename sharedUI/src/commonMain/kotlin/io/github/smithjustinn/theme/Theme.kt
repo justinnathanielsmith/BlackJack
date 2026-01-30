@@ -17,22 +17,22 @@ import androidx.compose.ui.graphics.Color
 
 private val LightColorScheme =
     lightColorScheme(
-        primary = GoldenYellow,
+        primary = ModernGold,
         onPrimary = Color.Black,
-        background = FeltGreenTop,
+        background = EmeraldGreenTop,
         onBackground = Color.White,
         surface = Color(0xFF4E2C1C), // Oak Woodish
-        onSurface = GoldenYellow,
+        onSurface = ModernGold,
     )
 
 private val DarkColorScheme =
     darkColorScheme(
-        primary = GoldenYellow,
+        primary = ModernGold,
         onPrimary = Color.Black,
-        background = FeltGreenBottom,
+        background = EmeraldGreenDark,
         onBackground = Color.White,
         surface = Color(0xFF2D1409), // Darker Oak
-        onSurface = GoldenYellow,
+        onSurface = ModernGold,
     )
 
 internal val LocalThemeIsDark = compositionLocalOf { mutableStateOf(true) }

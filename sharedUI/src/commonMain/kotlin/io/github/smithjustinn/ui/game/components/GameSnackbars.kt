@@ -28,7 +28,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.new_high_score
-import io.github.smithjustinn.theme.GoldenYellow
+import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
@@ -62,7 +62,7 @@ fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
                     width = 2.dp,
                     brush =
                         Brush.linearGradient(
-                            listOf(GoldenYellow, GoldenYellow.copy(alpha = 0.5f), GoldenYellow),
+                            listOf(ModernGold, ModernGold.copy(alpha = 0.5f), ModernGold),
                         ),
                     shape = RoundedCornerShape(12.dp),
                 ),
@@ -82,7 +82,7 @@ private fun NewHighScoreContent() {
             imageVector = AppIcons.Trophy,
             contentDescription = null,
             modifier = Modifier.size(32.dp),
-            tint = GoldenYellow,
+            tint = ModernGold,
         )
         Text(
             text = stringResource(Res.string.new_high_score).uppercase(),
@@ -97,7 +97,7 @@ private fun NewHighScoreContent() {
             imageVector = AppIcons.Trophy,
             contentDescription = null,
             modifier = Modifier.size(32.dp),
-            tint = GoldenYellow,
+            tint = ModernGold,
         )
     }
 }

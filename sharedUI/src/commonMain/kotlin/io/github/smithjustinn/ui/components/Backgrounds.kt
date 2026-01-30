@@ -15,15 +15,17 @@ import io.github.smithjustinn.theme.PokerTheme
 fun Modifier.pokerBackground(): Modifier {
     val colors = PokerTheme.colors
     return this.background(
-        brush = Brush.radialGradient(
-            colors = listOf(
-                colors.feltGreenCenter,
-                colors.feltGreenTop,
-                colors.feltGreen,
-                colors.feltGreenDark,
+        brush =
+            Brush.radialGradient(
+                colors =
+                    listOf(
+                        colors.feltGreenCenter,
+                        colors.feltGreenTop,
+                        colors.feltGreen,
+                        colors.feltGreenDark,
+                    ),
+                center = Offset.Unspecified,
+                radius = Float.POSITIVE_INFINITY,
             ),
-            center = Offset.Unspecified,
-            radius = Float.POSITIVE_INFINITY,
-        )
     )
 }

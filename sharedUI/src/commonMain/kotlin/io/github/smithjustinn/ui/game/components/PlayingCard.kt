@@ -71,7 +71,7 @@ internal const val FONT_SIZE_HUGE = 60f
 internal const val BASE_CARD_WIDTH = 80f
 
 // Size ratios and scaling
-private const val CARD_ASPECT_RATIO = 0.75f
+// CARD_ASPECT_RATIO is now shared from GameGridMetrics.kt
 private const val GLOW_SIZE_MULTIPLIER = 0.75f
 internal const val HALF_DIVISOR = 2
 private const val SHAKE_REPEAT_COUNT = 3

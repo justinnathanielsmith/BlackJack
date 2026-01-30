@@ -39,26 +39,26 @@ data class AppColors(
 
 internal val LightAppColors =
     AppColors(
-        primary = LuxuryGold,
+        primary = ModernGold,
         onPrimary = Color.Black,
-        background = DeepFeltGreen,
+        background = EmeraldGreen,
         onBackground = Color.White,
         surface = CasinoBlack,
-        onSurface = LuxuryGold,
+        onSurface = ModernGold,
         error = TacticalRed,
         onError = Color.White,
         tacticalRed = TacticalRed,
-        goldenYellow = LuxuryGold,
+        goldenYellow = ModernGold,
         bonusGreen = BonusGreen,
         softBlue = SoftBlue,
         heatBackgroundTop = HeatBackgroundTop,
         heatBackgroundBottom = HeatBackgroundBottom,
-        feltGreen = DeepFeltGreen,
-        feltGreenDark = DeepFeltGreenDark,
-        feltGreenCenter = FeltGreenCenter,
-        feltGreenTop = FeltGreenTop,
-        oakWood = CasinoBlack, // Retaining variable name but mapping to black for now
-        pillSelected = LuxuryGold,
+        feltGreen = EmeraldGreen,
+        feltGreenDark = EmeraldGreenDark,
+        feltGreenCenter = EmeraldGreenCenter,
+        feltGreenTop = EmeraldGreenTop,
+        oakWood = CasinoBlack,
+        pillSelected = ModernGold,
         pillUnselected = GlassBlack,
         hudBackground = GlassBlack,
         brass = Brass,
@@ -70,6 +70,10 @@ internal val LightAppColors =
 
 internal val DarkAppColors =
     LightAppColors.copy(
-        background = Color(0xFF1e3a2f),
-        surface = Color(0xFF2D1409),
+        background = DeepFeltGreen,
+        feltGreen = DeepFeltGreen,
+        feltGreenDark = DeepFeltGreenDark,
+        feltGreenCenter = EmeraldGreen, // Still somewhat vibrant in center
+        feltGreenTop = DeepFeltGreen,
+        surface = Color(0xFF0A0503), // Almost black but warm
     )

@@ -3,7 +3,6 @@ package io.github.smithjustinn.ui.splash
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -22,8 +21,6 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -31,9 +28,6 @@ import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.splash_dealing_cards
 import io.github.smithjustinn.resources.splash_title
-import io.github.smithjustinn.theme.FeltGreenBottom
-import io.github.smithjustinn.theme.FeltGreenTop
-import io.github.smithjustinn.theme.GoldenYellow
 import io.github.smithjustinn.ui.components.GlimmerText
 import io.github.smithjustinn.ui.components.pokerBackground
 import io.github.smithjustinn.ui.components.rememberGlimmerBrush

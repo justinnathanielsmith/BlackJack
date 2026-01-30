@@ -1,12 +1,6 @@
 package io.github.smithjustinn.ui.game.components
 
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.WindowInsets
@@ -17,7 +11,6 @@ import androidx.compose.foundation.layout.only
 import androidx.compose.foundation.layout.safeDrawing
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
-import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.runtime.Composable
@@ -29,14 +22,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshots.SnapshotStateMap
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
-import androidx.compose.ui.graphics.Brush
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.PointMode
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.unit.IntOffset
@@ -44,57 +31,15 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.CardState
-import io.github.smithjustinn.theme.PokerTheme
 import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
-import kotlin.math.ceil
-import kotlin.random.Random
 
 private data class CardLayoutInfo(
     val position: Offset,
     val size: Size,
 )
 
-private data class GridMetrics(
-    val cells: GridCells,
-    val maxWidth: androidx.compose.ui.unit.Dp,
-)
-
-private data class GridSpacing(
-    val horizontalPadding: androidx.compose.ui.unit.Dp,
-    val topPadding: androidx.compose.ui.unit.Dp,
-    val bottomPadding: androidx.compose.ui.unit.Dp,
-    val verticalSpacing: androidx.compose.ui.unit.Dp,
-    val horizontalSpacing: androidx.compose.ui.unit.Dp,
-)
-
-private data class GridLayoutConfig(
-    val metrics: GridMetrics,
-    val spacing: GridSpacing,
-)
-
-data class GridCardState(
-    val cards: ImmutableList<CardState>,
-    val lastMatchedIds: ImmutableList<Int> = persistentListOf(),
-    val isPeeking: Boolean = false,
-)
-
-data class GridSettings(
-    val displaySettings: CardDisplaySettings = CardDisplaySettings(),
-    val showComboExplosion: Boolean = false,
-)
-
-data class GridScreenConfig(
-    val screenWidth: androidx.compose.ui.unit.Dp,
-    val screenHeight: androidx.compose.ui.unit.Dp,
-    val isWide: Boolean,
-    val isLandscape: Boolean,
-    val isCompactHeight: Boolean,
-)
-
-@Suppress("LongMethod", "VariableNaming", "MagicNumber", "CyclomaticComplexMethod")
 @Composable
-fun GameGrid(
+internal fun GameGrid(
     gridCardState: GridCardState,
     settings: GridSettings,
     onCardClick: (Int) -> Unit,
@@ -119,55 +64,90 @@ fun GameGrid(
                         gridPosition = layoutCoordinates.positionInRoot()
                     },
         )
-        val screenWidth = maxWidth
-        val screenHeight = maxHeight
-        val isLandscape = screenWidth > screenHeight
-        val isCompactHeight = screenHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
-        val isWide = screenWidth > WIDE_WIDTH_THRESHOLD_DP.dp
-
-        val screenConfig =
-            GridScreenConfig(
-                screenWidth = screenWidth,
-                screenHeight = screenHeight,
-                isWide = isWide,
-                isLandscape = isLandscape,
-                isCompactHeight = isCompactHeight,
+        val layoutConfig =
+            rememberGridLayoutConfig(
+                screenWidth = maxWidth,
+                screenHeight = maxHeight,
+                cardCount = gridCardState.cards.size,
             )
-
-        val metrics =
-            remember(gridCardState.cards.size, screenConfig) {
-                calculateGridMetrics(gridCardState.cards.size, screenConfig)
-            }
-
-        val spacing = remember(isWide, isCompactHeight) { calculateGridSpacing(isWide, isCompactHeight) }
-
-        val layoutConfig = remember(metrics, spacing) { GridLayoutConfig(metrics, spacing) }
 
         GridContent(
             gridCardState = gridCardState,
             layoutConfig = layoutConfig,
-            screenHeight = screenHeight,
+            screenHeight = maxHeight,
             gridPosition = gridPosition,
             settings = settings,
             onCardClick = onCardClick,
             cardLayouts = cardLayouts,
         )
 
-        GridExplosionEffect(
-            show = settings.showComboExplosion,
-            lastMatchedIds = gridCardState.lastMatchedIds,
-            cardLayouts = cardLayouts,
-            gridPosition = gridPosition,
-        )
-
-        ScoreFlyingGridEffect(
-            lastMatchedIds = gridCardState.lastMatchedIds,
+        GridEffects(
+            gridCardState = gridCardState,
+            settings = settings,
             cardLayouts = cardLayouts,
             gridPosition = gridPosition,
             scorePositionInRoot = scorePositionInRoot,
         )
     }
 }
+
+@Composable
+private fun rememberGridLayoutConfig(
+    screenWidth: androidx.compose.ui.unit.Dp,
+    screenHeight: androidx.compose.ui.unit.Dp,
+    cardCount: Int,
+): GridLayoutConfig {
+    val isLandscape = screenWidth > screenHeight
+    val isCompactHeight = screenHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
+    val isWide = screenWidth > WIDE_WIDTH_THRESHOLD_DP.dp
+
+    val screenConfig =
+        GridScreenConfig(
+            screenWidth = screenWidth,
+            screenHeight = screenHeight,
+            isWide = isWide,
+            isLandscape = isLandscape,
+            isCompactHeight = isCompactHeight,
+        )
+
+    val metrics = remember(cardCount, screenConfig) { calculateGridMetrics(cardCount, screenConfig) }
+    val spacing = remember(isWide, isCompactHeight) { calculateGridSpacing(isWide, isCompactHeight) }
+
+    return remember(metrics, spacing) { GridLayoutConfig(metrics, spacing) }
+}
+
+@Composable
+private fun GridEffects(
+    gridCardState: GridCardState,
+    settings: GridSettings,
+    cardLayouts: Map<Int, CardLayoutInfo>,
+    gridPosition: Offset,
+    scorePositionInRoot: Offset,
+) {
+    GridExplosionEffect(
+        show = settings.showComboExplosion,
+        lastMatchedIds = gridCardState.lastMatchedIds,
+        cardLayouts = cardLayouts,
+        gridPosition = gridPosition,
+    )
+
+    ScoreFlyingGridEffect(
+        lastMatchedIds = gridCardState.lastMatchedIds,
+        cardLayouts = cardLayouts,
+        gridPosition = gridPosition,
+        scorePositionInRoot = scorePositionInRoot,
+    )
+}
+
+private const val COMPACT_HEIGHT_THRESHOLD_DP = 500
+private const val WIDE_WIDTH_THRESHOLD_DP = 800
+
+private const val FAN_ANGLE_MAX = 30f // Total fan spread angle
+private const val FAN_SPREAD_MAX = 120f // Horizontal spread distance
+private const val MUCK_BOTTOM_OFFSET_DP = 20
+private const val MUCK_TARGET_FALLBACK_Y = 1000
+
+private const val CENTER_OFFSET_FRACTION = 0.5f
 
 @Composable
 private fun ScoreFlyingGridEffect(
@@ -194,11 +174,6 @@ private fun ScoreFlyingGridEffect(
         }
     }
 }
-
-private const val FAN_ANGLE_MAX = 30f // Total fan spread angle
-private const val FAN_SPREAD_MAX = 120f // Horizontal spread distance
-private const val MUCK_BOTTOM_OFFSET_DP = 20
-private const val MUCK_TARGET_FALLBACK_Y = 1000
 
 @Composable
 private fun GridContent(
@@ -334,248 +309,4 @@ private fun GridExplosionEffect(
             )
         }
     }
-}
-
-private fun calculateGridMetrics(
-    cardCount: Int,
-    config: GridScreenConfig,
-): GridMetrics =
-    when {
-        config.isLandscape && config.isCompactHeight -> {
-            calculateCompactLandscapeMetrics(cardCount, config.screenWidth)
-        }
-
-        config.isWide -> {
-            calculateWideMetrics(cardCount, config.screenWidth, config.screenHeight)
-        }
-
-        else -> {
-            calculatePortraitMetrics(
-                cardCount,
-                config.screenWidth,
-                config.screenHeight,
-                config.isCompactHeight,
-                config.isWide,
-            )
-        }
-    }
-
-private fun calculateCompactLandscapeMetrics(
-    cardCount: Int,
-    screenWidth: androidx.compose.ui.unit.Dp,
-): GridMetrics {
-    val cols =
-        when {
-            cardCount <= SMALL_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_SMALL
-            cardCount <= MEDIUM_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_MEDIUM
-            cardCount <= LARGE_GRID_THRESHOLD -> COMPACT_LANDSCAPE_COLS_LARGE
-            else -> COMPACT_LANDSCAPE_COLS_DEFAULT
-        }
-    return GridMetrics(GridCells.Fixed(cols), screenWidth)
-}
-
-private fun calculateWideMetrics(
-    cardCount: Int,
-    screenWidth: androidx.compose.ui.unit.Dp,
-    screenHeight: androidx.compose.ui.unit.Dp,
-): GridMetrics {
-    val hPadding = 64.dp
-    val vPadding = 32.dp
-    val spacing = 16.dp
-    val availableWidth = screenWidth - hPadding
-    val availableHeight = screenHeight - vPadding
-
-    var bestCols = MIN_GRID_COLS_WIDE
-    var maxCardHeight = 0.dp
-
-    val maxCols = minOf(cardCount, MAX_GRID_COLS_WIDE)
-    for (cols in MIN_GRID_COLS_WIDE..maxCols) {
-        val rows = ceil(cardCount.toFloat() / cols).toInt()
-        val wBasedCardWidth = (availableWidth - (spacing * (cols - 1))) / cols
-        val hFromW = wBasedCardWidth / CARD_ASPECT_RATIO
-        val hFromH = (availableHeight - (spacing * (rows - 1))) / rows
-        val possibleHeight = if (hFromW < hFromH) hFromW else hFromH
-
-        if (possibleHeight > maxCardHeight) {
-            maxCardHeight = possibleHeight
-            bestCols = cols
-        }
-    }
-
-    val finalCardWidth = maxCardHeight * CARD_ASPECT_RATIO
-    val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
-    return GridMetrics(GridCells.Fixed(bestCols), calculatedWidth.coerceAtMost(screenWidth))
-}
-
-private fun calculatePortraitMetrics(
-    cardCount: Int,
-    screenWidth: androidx.compose.ui.unit.Dp,
-    screenHeight: androidx.compose.ui.unit.Dp,
-    isCompactHeight: Boolean,
-    isWide: Boolean,
-): GridMetrics {
-    val spacing = if (isCompactHeight) 6.dp else 12.dp
-    val hPadding = if (isWide) 32.dp else 16.dp
-    val vPadding = if (isCompactHeight) 16.dp else 32.dp
-
-    val availableWidth = screenWidth - (hPadding * 2)
-    val availableHeight = screenHeight - vPadding
-
-    val cols =
-        when {
-            cardCount <= SMALL_GRID_THRESHOLD -> PORTRAIT_COLS_SMALL
-            cardCount <= MEDIUM_GRID_THRESHOLD -> PORTRAIT_COLS_MEDIUM
-            else -> PORTRAIT_COLS_DEFAULT
-        }
-    val rows = ceil(cardCount.toFloat() / cols).toInt()
-
-    val maxW = (availableWidth - (spacing * (cols - 1))) / cols
-    val maxH = (availableHeight - (spacing * (rows - 1))) / rows
-
-    val wFromH = maxH * CARD_ASPECT_RATIO
-    val finalCardWidth = minOf(maxW, wFromH).coerceAtLeast(60.dp)
-    val calculatedWidth = (finalCardWidth * cols) + (spacing * (cols - 1)) + (hPadding * 2)
-
-    return GridMetrics(GridCells.Fixed(cols), calculatedWidth.coerceAtMost(screenWidth))
-}
-
-private fun calculateGridSpacing(
-    isWide: Boolean,
-    isCompactHeight: Boolean,
-): GridSpacing {
-    val hPadding = if (isWide) 32.dp else 16.dp
-    val topPadding = if (isCompactHeight) 8.dp else 16.dp
-    val bottomPadding = if (isCompactHeight) 8.dp else 16.dp
-
-    val vSpacing =
-        when {
-            isCompactHeight -> 4.dp
-            isWide -> 16.dp
-            else -> 12.dp
-        }
-
-    val hSpacing =
-        when {
-            isCompactHeight -> 6.dp
-            isWide -> 16.dp
-            else -> 12.dp
-        }
-
-    return GridSpacing(
-        horizontalPadding = hPadding,
-        topPadding = topPadding,
-        bottomPadding = bottomPadding,
-        verticalSpacing = vSpacing,
-        horizontalSpacing = hSpacing,
-    )
-}
-
-private const val SMALL_GRID_THRESHOLD = 12
-private const val MEDIUM_GRID_THRESHOLD = 20
-private const val LARGE_GRID_THRESHOLD = 24
-
-private const val COMPACT_HEIGHT_THRESHOLD_DP = 500
-private const val WIDE_WIDTH_THRESHOLD_DP = 800
-
-private const val COMPACT_LANDSCAPE_COLS_SMALL = 6
-private const val COMPACT_LANDSCAPE_COLS_MEDIUM = 7
-private const val COMPACT_LANDSCAPE_COLS_LARGE = 8
-private const val COMPACT_LANDSCAPE_COLS_DEFAULT = 10
-
-private const val PORTRAIT_COLS_SMALL = 3
-private const val PORTRAIT_COLS_MEDIUM = 4
-private const val PORTRAIT_COLS_DEFAULT = 4
-
-private const val MIN_GRID_COLS_WIDE = 4
-private const val MAX_GRID_COLS_WIDE = 12
-
-private const val CARD_ASPECT_RATIO = 0.75f
-private const val CENTER_OFFSET_FRACTION = 0.5f
-private const val FELT_TEXTURE_SEED = 42
-private const val FELT_TEXTURE_POINT_COUNT = 1000
-
-@Composable
-private fun GridBackground(modifier: Modifier = Modifier) {
-    val colors = PokerTheme.colors
-    val spacing = PokerTheme.spacing
-
-    // Dynamic Spotlight Animation
-    val infiniteTransition = rememberInfiniteTransition(label = "spotlight")
-    val spotlightX by infiniteTransition.animateFloat(
-        initialValue = 0.2f,
-        targetValue = 0.8f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(durationMillis = 15000, easing = androidx.compose.animation.core.FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "spotlightX",
-    )
-
-    Box(
-        modifier =
-            modifier.drawBehind {
-                // 1. Premium Felt Background (Base)
-                drawRect(color = colors.background)
-
-                // 2. Dynamic Spotlight (Drifting)
-                val spotlightCenter = Offset(size.width * spotlightX, size.height * 0.3f)
-                drawRect(
-                    brush =
-                        Brush.radialGradient(
-                            colors =
-                                listOf(
-                                    colors.feltGreenCenter.copy(alpha = 0.6f),
-                                    Color.Transparent,
-                                ),
-                            center = spotlightCenter,
-                            radius = size.maxDimension * 0.9f,
-                        ),
-                )
-
-                // 3. Vignette (Dark edges)
-                drawRect(
-                    brush =
-                        Brush.radialGradient(
-                            colors = listOf(Color.Transparent, Color.Black.copy(alpha = 0.8f)),
-                            center = center,
-                            radius = size.maxDimension * 0.8f,
-                        ),
-                )
-
-                // 4. Subtle Noise Texture (Grain)
-                val random = Random(FELT_TEXTURE_SEED)
-                val points =
-                    List(FELT_TEXTURE_POINT_COUNT) {
-                        Offset(random.nextFloat() * size.width, random.nextFloat() * size.height)
-                    }
-                drawPoints(
-                    points = points,
-                    pointMode = PointMode.Points,
-                    color = Color.White.copy(alpha = 0.03f),
-                    strokeWidth = 2f,
-                )
-
-                // 5. Casino Table Border (Glassy/Metallic)
-                val strokeWidth = spacing.medium.toPx()
-
-                // Chrome/Glass Rim
-                drawRect(
-                    color = Color.White.copy(alpha = 0.1f),
-                    style = Stroke(width = strokeWidth),
-                )
-
-                // Inner Table Shadow
-                drawRect(
-                    color = Color.Black.copy(alpha = 0.5f),
-                    style = Stroke(width = spacing.small.toPx()),
-                    topLeft = Offset(strokeWidth, strokeWidth),
-                    size =
-                        size.copy(
-                            width = size.width - strokeWidth * 2,
-                            height = size.height - strokeWidth * 2,
-                        ),
-                )
-            },
-    )
 }
