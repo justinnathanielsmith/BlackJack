@@ -116,7 +116,6 @@ private const val MEDALLION_BG_ALPHA = 0.4f
 private const val START_HEADER_SPACER_HEIGHT_DP = 64
 private const val DEALER_TRAY_MAX_WIDTH_DP = 600
 private const val MAIN_CONTENT_BOTTOM_SPACER_WEIGHT = 0.5f
-private const val RADIAL_FALLOFF_RADIUS = Float.POSITIVE_INFINITY
 private const val HEADER_ANIMATION_DURATION = 800
 private const val CONTENT_ANIMATION_DURATION = 600
 private const val CONTENT_ANIMATION_DELAY = 200
@@ -134,8 +133,6 @@ private fun StartScreenLayout(
     onDailyChallengeClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val spacing = PokerTheme.spacing
-
     // Animation States
     val animations = rememberEntranceAnimations()
     val headerAlpha = animations.headerAlpha
@@ -225,7 +222,7 @@ private fun BoxScope.StartTopActions(
 }
 
 @Composable
-private fun BoxScope.StartMainContent(
+private fun StartMainContent(
     state: DifficultyState,
     onDifficultySelected: (DifficultyLevel) -> Unit,
     onModeSelected: (GameMode) -> Unit,

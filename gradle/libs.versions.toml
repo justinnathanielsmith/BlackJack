@@ -12,7 +12,7 @@ kover = "0.9.4"
 # UI & Compose
 compose-multiplatform = "1.10.0"
 material3 = "1.10.0-alpha05"
-androidx-activity-compose = "1.12.2"
+androidx-activity-compose = "1.12.3"
 androidx-core-splashscreen = "1.2.0"
 google-material = "1.13.0"
 coil = "3.3.0"
@@ -37,6 +37,9 @@ javafx = "21"
 # Testing
 turbine = "1.2.1"
 mokkery = "3.1.1"
+
+# Lottie
+compottie = "2.0.2"
 
 [libraries]
 # AndroidX
@@ -99,6 +102,12 @@ koin-compose = { module = "io.insert-koin:koin-compose", version.ref = "koin" }
 koin-compose-viewmodel = { module = "io.insert-koin:koin-compose-viewmodel", version.ref = "koin" }
 koin-test = { module = "io.insert-koin:koin-test", version.ref = "koin" }
 koin-android = { module = "io.insert-koin:koin-android", version.ref = "koin" }
+
+# Lottie
+compottie = { module = "io.github.alexzhirkevich:compottie", version.ref = "compottie" }
+compottie-dot = { module = "io.github.alexzhirkevich:compottie-dot", version.ref = "compottie" }
+compottie-network = { module = "io.github.alexzhirkevich:compottie-network", version.ref = "compottie" }
+compottie-resources = { module = "io.github.alexzhirkevich:compottie-resources", version.ref = "compottie" }
 
 # JavaFX
 javafx-media = { group = "org.openjfx", name = "javafx-media", version.ref = "javafx" }

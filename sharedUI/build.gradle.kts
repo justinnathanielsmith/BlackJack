@@ -44,6 +44,8 @@ kotlin {
             implementation(libs.bundles.coil)
             api(libs.bundles.koin)
             api(libs.koin.compose.viewmodel)
+            implementation(libs.compottie)
+            implementation(libs.compottie.resources)
         }
 
         commonTest.dependencies {
