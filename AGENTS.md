@@ -12,13 +12,14 @@ This document provides a high-level overview for AI agents and human developers 
 When generating a new feature, ensure all layers are covered:
 
 1. [ ] `domain/model/X.kt` (Data Class)
-2. [ ] `domain/repository/XRepository.kt` (Interface)
-3. [ ] `data/repository/XRepositoryImpl.kt` (Implementation)
-4. [ ] `domain/usecase/GetXUseCase.kt` (Logic)
-5. [ ] `ui/x/XComponent.kt` & `XContent.kt` (Decompose)
-6. [ ] `ui/x/XModels.kt` (State & Events)
-7. [ ] **Koin Update**: Add `factory` or `single` definition in relevant Module.
-8. [ ] **Tests**: `ui/x/XComponentTest.kt` (Turbine + Mokkery).
+2. [ ] `domain/state/XStateMachine.kt` (State Machine logic)
+3. [ ] `domain/repository/XRepository.kt` (Interface)
+4. [ ] `data/repository/XRepositoryImpl.kt` (Implementation)
+5. [ ] `domain/usecase/GetXUseCase.kt` (Logic)
+6. [ ] `ui/x/XComponent.kt` & `XContent.kt` (Decompose)
+7. [ ] `ui/x/XModels.kt` (State & Events)
+8. [ ] **Koin Update**: Add `factory` or `single` definition in relevant Module.
+9. [ ] **Tests**: `ui/x/XStateMachineTest.kt` and `ui/x/XComponentTest.kt`.
 
 ---
 

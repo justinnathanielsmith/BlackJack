@@ -60,13 +60,14 @@ We follow a **Local-First, Modular-Core** strategy. The project is structured to
     *   **Purpose**: The massive shared UI module. Contains all screens, components, and view models.
     *   **Key Tech**: `Compose Multiplatform`, `Decompose`, `Koin`.
 
-### Component-Based MVVM
-We use **Decompose** to implement the Model-View-ViewModel (MVVM) pattern with component lifecycle awareness.
+### Component-Based MVVM (State Machine Pattern)
+We use **Decompose** combined with a **State Machine** pattern to implement robust, testable UI logic.
 
-1.  **Component (ViewModel)**:
+1.  **Component (State Holder)**:
     *   Implements the `ComponentContext` interface.
+    *   Holds an instance of a `GameStateMachine` (or similar) to manage complex transitions.
     *   Exposes `StateFlow<UIState>` for the UI to observe.
-    *   Handles business logic and user intents.
+    *   Handles user intents by dispatching actions to the state machine.
     *   **Rule**: Use `componentScope` for coroutines, NOT `viewModelScope`.
 2.  **UI (View)**:
     *   Pure `@Composable` functions.
@@ -83,9 +84,11 @@ We stay on the bleeding edge of the Kotlin ecosystem.
 | :------------- | :-------------------- | :------ | :---------------------------- |
 | **Language**   | Kotlin                | 2.3.0+  | K2 Mode enabled.              |
 | **UI**         | Compose Multiplatform | 1.10.0+ | Use Strong Skipping mode.     |
-| **DI**         | Koin                  | 4.0.2+  | Context Parameters favored.   |
+| **DI**         | Koin                  | 4.1.1+  | Context Parameters favored.   |
 | **Navigation** | Decompose             | 3.4.0+  | Platform-agnostic navigation. |
 | **DB**         | Room KMP              | 2.8.4+  | Type-safe SQLite.             |
+| **Images**     | Coil                  | 3.3.0+  | Shared image loading.         |
+| **Animation**  | Compottie             | 2.0.2+  | Lottie for Compose KMP.       |
 | **Testing**    | Turbine + Mokkery     | -       | Flow testing & KSP mocking.   |
 
 ---
@@ -134,8 +137,10 @@ This repository is optimized for **AI-Agentic Development**.
 *   ❌ `viewModelScope` -> ✅ Use `componentScope`
 *   ❌ `java.*` / `android.*` in shared code -> ✅ Use `kotlinx.*` or `expect/actual`
 *   ❌ Hardcoded Strings -> ✅ Use `Res.string.my_key`
+*   ❌ `!!` (Null Assertions) -> ✅ Use `requireNotNull()` or `?.`
+*   ❌ Mutable Collections in State -> ✅ Use `kotlinx.collections.immutable`
 *   ❌ `ConstraintLayout` (in Compose) -> ✅ Use `Column`, `Row`, `Box` (better performance)
-*   ❌ Logic in UI -> ✅ Move to `Component`
+*   ❌ Logic in UI -> ✅ Move to `Component` or `StateMachine`
 
 ---
 
