@@ -15,6 +15,8 @@ import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 
 /**
  * Encapsulates the state transitions and side effects of the Memory Game.
@@ -38,6 +40,7 @@ class GameStateMachine(
 
     private val gameTimer = GameTimer(scope, dispatchers) { dispatch(GameAction.Tick) }
     private var peekJob: kotlinx.coroutines.Job? = null
+    private val mutex = Mutex()
 
     init {
         // Initial save
@@ -45,19 +48,23 @@ class GameStateMachine(
     }
 
     fun dispatch(action: GameAction) {
-        if (_state.value.isGameOver && action !is GameAction.Restart) return
+        scope.launch(dispatchers.default) {
+            mutex.withLock {
+                if (_state.value.isGameOver && action !is GameAction.Restart) return@withLock
 
-        when (action) {
-            is GameAction.StartGame -> {
-                if (action.gameState != null) _state.update { action.gameState }
-                startTimer()
+                when (action) {
+                    is GameAction.StartGame -> {
+                        if (action.gameState != null) _state.update { action.gameState }
+                        startTimer()
+                    }
+                    is GameAction.FlipCard -> handleFlipCard(action)
+                    is GameAction.DoubleDown -> handleDoubleDown()
+                    is GameAction.ProcessMismatch -> handleProcessMismatch()
+                    is GameAction.ScanCards -> handleScanCards(action)
+                    is GameAction.Tick -> handleTick()
+                    is GameAction.Restart -> { /* Handled by UI */ }
+                }
             }
-            is GameAction.FlipCard -> handleFlipCard(action)
-            is GameAction.DoubleDown -> handleDoubleDown()
-            is GameAction.ProcessMismatch -> handleProcessMismatch()
-            is GameAction.ScanCards -> handleScanCards(action)
-            is GameAction.Tick -> handleTick()
-            is GameAction.Restart -> { /* Handled by UI */ }
         }
     }
 

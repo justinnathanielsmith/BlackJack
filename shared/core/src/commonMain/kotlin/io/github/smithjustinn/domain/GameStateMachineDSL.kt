@@ -15,11 +15,11 @@ class StateMachineBuilder(
     private var nextTime: Long = currentTime
 
     fun transition(block: (MemoryGameState) -> MemoryGameState) {
-        nextState = block(currentState)
+        nextState = block(nextState)
     }
 
     fun updateTime(block: (Long) -> Long) {
-        nextTime = block(currentTime)
+        nextTime = block(nextTime)
     }
 
     fun effect(effect: GameEffect) {

@@ -296,16 +296,23 @@ private fun calculateMatchScore(
     matchBasePoints: Int,
     matchComboBonus: Int,
 ): MatchScoreResult {
-    val multiplier = if (state.isDoubleDownActive) 2 else 1
-    val matchTotal = (matchBasePoints + matchComboBonus) * multiplier
-    val ddBonus = if (state.isDoubleDownActive) matchTotal / 2 else 0
+    val matchPoints = matchBasePoints + matchComboBonus
 
-    val finalScore = if (isWon) state.score + matchTotal else state.score
-
-    return MatchScoreResult(
-        finalScore = finalScore,
-        ddBonus = ddBonus,
-    )
+    return if (isWon && state.isDoubleDownActive) {
+        val totalWithoutBonus = state.score + matchPoints
+        val finalScore = totalWithoutBonus * 2
+        MatchScoreResult(
+            finalScore = finalScore,
+            ddBonus = finalScore - totalWithoutBonus,
+        )
+    } else {
+        val multiplier = if (state.isDoubleDownActive) 2 else 1
+        val matchTotal = matchPoints * multiplier
+        MatchScoreResult(
+            finalScore = state.score + matchTotal,
+            ddBonus = if (state.isDoubleDownActive) matchTotal / 2 else 0,
+        )
+    }
 }
 
 private data class MatchScoreResult(
