@@ -254,6 +254,7 @@ internal class GameLifecycleHandler(
                 showTimeGain = false,
                 showTimeLoss = false,
                 hasUsedDoubleDownPeek = false,
+                isHeatMode = savedGame.first.comboMultiplier >= savedGame.first.config.heatModeThreshold,
             )
         }
         timerHandler.startTimer(savedGame.first.mode)

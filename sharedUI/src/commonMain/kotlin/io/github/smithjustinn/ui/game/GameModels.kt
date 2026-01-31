@@ -26,7 +26,16 @@ data class GameUIState(
     val showWalkthrough: Boolean = false,
     val walkthroughStep: Int = 0,
     val hasUsedDoubleDownPeek: Boolean = false,
-)
+) {
+    val isDoubleDownAvailable: Boolean
+        get() {
+            val unmatchedPairs = game.cards.count { !it.isMatched } / 2
+            return isHeatMode &&
+                !game.isDoubleDownActive &&
+                !game.isGameOver &&
+                unmatchedPairs >= 3
+        }
+}
 
 sealed class GameUiEvent {
     data object PlayFlip : GameUiEvent()

@@ -325,7 +325,7 @@ private fun BoxScope.GameHUD(
         )
     }
 
-    if (state.isHeatMode && !state.game.isDoubleDownActive && !state.game.isGameOver) {
+    if (state.isDoubleDownAvailable) {
         DoubleDownButton(onDoubleDown)
     }
 

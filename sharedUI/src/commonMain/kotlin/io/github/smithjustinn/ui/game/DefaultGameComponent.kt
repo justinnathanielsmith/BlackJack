@@ -137,7 +137,7 @@ class DefaultGameComponent(
                             bestScore = stats?.bestScore ?: 0,
                             bestTimeSeconds = stats?.bestTimeSeconds ?: 0,
                             // Reset transient game state
-                            isHeatMode = false,
+                            // isHeatMode = false, // Don't reset heat mode here, it overrides resume logic
                             isMegaBonus = false,
                             isNewHighScore = false,
                             showComboExplosion = false,
