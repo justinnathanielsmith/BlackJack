@@ -45,6 +45,7 @@ import io.github.smithjustinn.ui.components.pokerBackground
 import io.github.smithjustinn.ui.components.rememberGlimmerBrush
 import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.start.components.StartHeader
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,7 +56,6 @@ fun StartContent(
     val state by component.state.collectAsState()
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
-    val colors = PokerTheme.colors
 
     Box(
         modifier =
@@ -65,6 +65,8 @@ fun StartContent(
     ) {
         StartScreenLayout(
             state = state,
+            shouldAnimateEntrance = state.shouldAnimateEntrance,
+            onAnimationComplete = component::onEntranceAnimationCompleted,
             onDifficultySelected = { level ->
                 audioService.playEffect(AudioService.SoundEffect.PLINK)
                 component.onDifficultySelected(level)
@@ -114,6 +116,8 @@ private const val CONTENT_INITIAL_OFFSET_Y = 100f
 @Composable
 private fun StartScreenLayout(
     state: DifficultyState,
+    shouldAnimateEntrance: Boolean,
+    onAnimationComplete: () -> Unit,
     onDifficultySelected: (DifficultyLevel) -> Unit,
     onModeSelected: (GameMode) -> Unit,
     onStartGame: () -> Unit,
@@ -124,7 +128,7 @@ private fun StartScreenLayout(
     modifier: Modifier = Modifier,
 ) {
     // Animation States
-    val animations = rememberEntranceAnimations()
+    val animations = rememberEntranceAnimations(shouldAnimateEntrance, onAnimationComplete)
     val headerAlpha = animations.headerAlpha
     val contentAlpha = animations.contentAlpha
     val contentOffsetY = animations.contentOffsetY
@@ -314,37 +318,45 @@ private fun MedallionIcon(
 }
 
 @Composable
-private fun rememberEntranceAnimations(): StartEntranceAnimations {
-    val headerAlpha = remember { Animatable(0f) }
-    val contentAlpha = remember { Animatable(0f) }
-    val contentOffsetY = remember { Animatable(CONTENT_INITIAL_OFFSET_Y) }
+private fun rememberEntranceAnimations(
+    shouldAnimate: Boolean,
+    onAnimationComplete: () -> Unit,
+): StartEntranceAnimations {
+    val headerAlpha = remember { Animatable(if (shouldAnimate) 0f else 1f) }
+    val contentAlpha = remember { Animatable(if (shouldAnimate) 0f else 1f) }
+    val contentOffsetY = remember { Animatable(if (shouldAnimate) CONTENT_INITIAL_OFFSET_Y else 0f) }
 
-    LaunchedEffect(Unit) {
-        // Sequence animations
-        headerAlpha.animateTo(
-            targetValue = 1f,
-            animationSpec = tween(durationMillis = HEADER_ANIMATION_DURATION, easing = LinearOutSlowInEasing),
-        )
+    LaunchedEffect(shouldAnimate, onAnimationComplete) {
+        if (shouldAnimate) {
+            coroutineScope {
+                // Sequence animations
+                headerAlpha.animateTo(
+                    targetValue = 1f,
+                    animationSpec = tween(durationMillis = HEADER_ANIMATION_DURATION, easing = LinearOutSlowInEasing),
+                )
 
-        launch {
-            contentAlpha.animateTo(
-                targetValue = 1f,
-                animationSpec =
-                    tween(
-                        durationMillis = CONTENT_ANIMATION_DURATION,
-                        delayMillis = CONTENT_ANIMATION_DELAY,
-                    ),
-            )
-        }
-        launch {
-            contentOffsetY.animateTo(
-                targetValue = 0f,
-                animationSpec =
-                    spring(
-                        dampingRatio = Spring.DampingRatioLowBouncy,
-                        stiffness = Spring.StiffnessLow,
-                    ),
-            )
+                launch {
+                    contentAlpha.animateTo(
+                        targetValue = 1f,
+                        animationSpec =
+                            tween(
+                                durationMillis = CONTENT_ANIMATION_DURATION,
+                                delayMillis = CONTENT_ANIMATION_DELAY,
+                            ),
+                    )
+                }
+                launch {
+                    contentOffsetY.animateTo(
+                        targetValue = 0f,
+                        animationSpec =
+                            spring(
+                                dampingRatio = Spring.DampingRatioLowBouncy,
+                                stiffness = Spring.StiffnessLow,
+                            ),
+                    )
+                }
+            }
+            onAnimationComplete()
         }
     }
     return StartEntranceAnimations(headerAlpha, contentAlpha, contentOffsetY)

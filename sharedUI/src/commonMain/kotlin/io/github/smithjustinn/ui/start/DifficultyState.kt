@@ -13,4 +13,5 @@ data class DifficultyState(
     val savedGamePairCount: Int = 0,
     val savedGameMode: GameMode = GameMode.STANDARD,
     val isDailyChallengeCompleted: Boolean = false,
+    val shouldAnimateEntrance: Boolean = true,
 )

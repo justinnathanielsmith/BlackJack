@@ -132,6 +132,10 @@ class DefaultStartComponent(
         onNavigateToStats()
     }
 
+    override fun onEntranceAnimationCompleted() {
+        _state.update { it.copy(shouldAnimateEntrance = false) }
+    }
+
     companion object {
         private const val MILLIS_PER_DAY = 86_400_000L
         private const val DAILY_CHALLENGE_PAIRS = 8

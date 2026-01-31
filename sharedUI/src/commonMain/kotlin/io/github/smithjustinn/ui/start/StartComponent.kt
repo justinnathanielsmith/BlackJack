@@ -20,4 +20,6 @@ interface StartComponent {
     fun onSettingsClick()
 
     fun onStatsClick()
+
+    fun onEntranceAnimationCompleted()
 }
