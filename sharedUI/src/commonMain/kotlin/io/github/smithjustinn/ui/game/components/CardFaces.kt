@@ -196,24 +196,7 @@ private fun PokerCardFace(
     suitColor: Color,
     getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
 ) {
-    val density = LocalDensity.current
-    val strokeWidth = with(density) { 2.dp.toPx() }
-    val borderColor = io.github.smithjustinn.theme.PokerTheme.colors.goldenYellow
-
-    // Gold Border
-    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
-        drawRect(
-            color = borderColor,
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth),
-        )
-        // Inner thin border
-        drawRect(
-            color = borderColor.copy(alpha = 0.5f),
-            topLeft = androidx.compose.ui.geometry.Offset(strokeWidth * 2, strokeWidth * 2),
-            size = size.copy(width = size.width - strokeWidth * 4, height = size.height - strokeWidth * 4),
-            style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth / 2),
-        )
-    }
+    PokerCardBorder()
 
     // Serif Typography for Premium Look
     val serifTypography =
@@ -230,60 +213,122 @@ private fun PokerCardFace(
 
     Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
         // Top Left Jumbo Index
-        Column(modifier = Modifier.align(Alignment.TopStart)) {
-            Text(
-                text = rank.symbol,
-                color = suitColor,
-                style = serifTypography.copy(fontSize = getFontSize(FONT_SIZE_TITLE)),
-                lineHeight = getFontSize(FONT_SIZE_TITLE),
-            )
-            Text(
-                text = suit.symbol,
-                color = suitColor,
-                style = labelTypography.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM)),
-                modifier = Modifier.align(Alignment.CenterHorizontally).offset(y = (-4).dp),
-            )
-        }
+        PokerCardCornerIndex(
+            rank = rank,
+            suit = suit,
+            suitColor = suitColor,
+            serifStyle = serifTypography,
+            labelStyle = labelTypography,
+            getFontSize = getFontSize,
+            modifier = Modifier.align(Alignment.TopStart),
+        )
 
         // Center Elegant Element
-        Box(modifier = Modifier.align(Alignment.Center)) {
-            Text(
-                text = suit.symbol,
-                color = suitColor.copy(alpha = 0.15f),
-                style = serifTypography.copy(fontSize = getFontSize(FONT_SIZE_HUGE)),
-            )
-            Text(
-                text = rank.symbol,
-                color = suitColor.copy(alpha = 0.8f),
-                style = serifTypography.copy(
-                    fontSize = getFontSize(FONT_SIZE_DISPLAY),
-                    shadow = androidx.compose.ui.graphics.Shadow(
-                        color = io.github.smithjustinn.theme.PokerTheme.colors.goldenYellow.copy(alpha = 0.5f),
-                        blurRadius = 4f
-                    )
-                ),
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
+        PokerCardCenterContent(
+            rank = rank,
+            suit = suit,
+            suitColor = suitColor,
+            serifStyle = serifTypography,
+            getFontSize = getFontSize,
+            modifier = Modifier.align(Alignment.Center),
+        )
 
         // Bottom Right Jumbo Index (Inverted)
-        Column(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .graphicsLayer { rotationZ = FULL_ROTATION }
-        ) {
-            Text(
-                text = rank.symbol,
-                color = suitColor,
-                style = serifTypography.copy(fontSize = getFontSize(FONT_SIZE_TITLE)),
-                lineHeight = getFontSize(FONT_SIZE_TITLE),
-            )
-            Text(
-                text = suit.symbol,
-                color = suitColor,
-                style = labelTypography.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM)),
-                modifier = Modifier.align(Alignment.CenterHorizontally).offset(y = (-4).dp),
-            )
-        }
+        PokerCardCornerIndex(
+            rank = rank,
+            suit = suit,
+            suitColor = suitColor,
+            serifStyle = serifTypography,
+            labelStyle = labelTypography,
+            getFontSize = getFontSize,
+            modifier = Modifier.align(Alignment.BottomEnd).graphicsLayer { rotationZ = FULL_ROTATION },
+        )
+    }
+}
+
+@Composable
+private fun PokerCardBorder() {
+    val density = LocalDensity.current
+    val strokeWidth = with(density) { 2.dp.toPx() }
+    val borderColor = io.github.smithjustinn.theme.PokerTheme.colors.goldenYellow
+
+    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+        drawRect(
+            color = borderColor,
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = strokeWidth),
+        )
+        // Inner thin border
+        drawRect(
+            color = borderColor.copy(alpha = 0.5f),
+            topLeft =
+                androidx.compose.ui.geometry
+                    .Offset(strokeWidth * 2, strokeWidth * 2),
+            size = size.copy(width = size.width - strokeWidth * 4, height = size.height - strokeWidth * 4),
+            style =
+                androidx.compose.ui.graphics.drawscope
+                    .Stroke(width = strokeWidth / 2),
+        )
+    }
+}
+
+@Composable
+private fun PokerCardCornerIndex(
+    rank: Rank,
+    suit: Suit,
+    suitColor: Color,
+    serifStyle: androidx.compose.ui.text.TextStyle,
+    labelStyle: androidx.compose.ui.text.TextStyle,
+    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = rank.symbol,
+            color = suitColor,
+            style = serifStyle.copy(fontSize = getFontSize(FONT_SIZE_TITLE)),
+            lineHeight = getFontSize(FONT_SIZE_TITLE),
+        )
+        Text(
+            text = suit.symbol,
+            color = suitColor,
+            style = labelStyle.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM)),
+            modifier = Modifier.align(Alignment.CenterHorizontally).offset(y = (-4).dp),
+        )
+    }
+}
+
+@Composable
+private fun PokerCardCenterContent(
+    rank: Rank,
+    suit: Suit,
+    suitColor: Color,
+    serifStyle: androidx.compose.ui.text.TextStyle,
+    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    modifier: Modifier = Modifier,
+) {
+    Box(modifier = modifier) {
+        Text(
+            text = suit.symbol,
+            color = suitColor.copy(alpha = 0.15f),
+            style = serifStyle.copy(fontSize = getFontSize(FONT_SIZE_HUGE)),
+        )
+        Text(
+            text = rank.symbol,
+            color = suitColor.copy(alpha = 0.8f),
+            style =
+                serifStyle.copy(
+                    fontSize = getFontSize(FONT_SIZE_DISPLAY),
+                    shadow =
+                        androidx.compose.ui.graphics.Shadow(
+                            color =
+                                io.github.smithjustinn.theme.PokerTheme.colors.goldenYellow
+                                    .copy(alpha = 0.5f),
+                            blurRadius = 4f,
+                        ),
+                ),
+            modifier = Modifier.align(Alignment.Center),
+        )
     }
 }

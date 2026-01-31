@@ -1,3 +1,8 @@
+---
+trigger: model_decision
+description: clean up the code by linting and checking for code smells
+---
+
 # Antigravity Quality Rules
 
 - **Zero-Tolerance Policy:** All code must pass `./gradlew spotlessCheck` and `./gradlew detekt`.

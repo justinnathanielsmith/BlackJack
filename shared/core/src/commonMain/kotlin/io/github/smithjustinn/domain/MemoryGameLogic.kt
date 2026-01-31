@@ -296,7 +296,6 @@ object MemoryGameLogic {
     private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
     const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
 
-
     /**
      * Activates Double Down if requirements are met.
      */

@@ -77,6 +77,7 @@ fun ResultsCard(
     isWon: Boolean,
     isBusted: Boolean = false,
     score: Int,
+    highScore: Int,
     moves: Int,
     elapsedTimeSeconds: Long,
     scoreBreakdown: ScoreBreakdown,
@@ -108,6 +109,7 @@ fun ResultsCard(
             scale = scale,
             isCompactHeight = isCompactHeight,
             lastMatchedScore = animatedScore.value.roundToInt(),
+            highScore = highScore,
             titleRes = titleRes,
             isWon = isWon,
             scoreBreakdown = scoreBreakdown,
@@ -124,6 +126,7 @@ private fun ResultsCardContent(
     scale: Float,
     isCompactHeight: Boolean,
     lastMatchedScore: Int,
+    highScore: Int,
     titleRes: org.jetbrains.compose.resources.StringResource,
     isWon: Boolean,
     scoreBreakdown: ScoreBreakdown,
@@ -158,7 +161,7 @@ private fun ResultsCardContent(
                 ReceiptDivider()
                 PayoutSection(scoreBreakdown, moves, elapsedTimeSeconds)
                 ReceiptDivider()
-                TotalPayout(lastMatchedScore)
+                TotalPayout(lastMatchedScore, highScore)
                 ReceiptFooter(onPlayAgain, onShareReplay)
             }
 
@@ -251,7 +254,10 @@ private fun PayoutSection(
 }
 
 @Composable
-private fun TotalPayout(animatedScore: Int) {
+private fun TotalPayout(
+    animatedScore: Int,
+    highScore: Int,
+) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
@@ -274,6 +280,16 @@ private fun TotalPayout(animatedScore: Int) {
                     fontWeight = FontWeight.Black,
                 ),
             color = ReceiptAccentColor,
+        )
+        Spacer(modifier = Modifier.height(8.dp))
+        Text(
+            text = "HIGH SCORE: $highScore",
+            style =
+                MaterialTheme.typography.labelMedium.copy(
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold,
+                ),
+            color = ReceiptInkColor.copy(alpha = 0.6f),
         )
     }
 }
