@@ -21,7 +21,6 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.theme.AppTheme
-
 import io.github.smithjustinn.ui.game.GameContent
 import io.github.smithjustinn.ui.root.RootComponent
 import io.github.smithjustinn.ui.settings.SettingsContent

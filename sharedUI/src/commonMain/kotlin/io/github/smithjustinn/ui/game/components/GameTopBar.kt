@@ -38,7 +38,6 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.mute_content_description
-
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.score_caps
 import io.github.smithjustinn.resources.unmute_content_description
@@ -173,12 +172,6 @@ private fun ControlButtons(
         }
     }
 }
-
-
-
-
-
-
 
 @Composable
 private fun PotScoreDisplay(

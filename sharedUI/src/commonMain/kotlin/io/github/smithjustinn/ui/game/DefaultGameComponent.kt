@@ -1,7 +1,6 @@
 package io.github.smithjustinn.ui.game
 
 import com.arkivanov.decompose.ComponentContext
-
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.GameAction
 import io.github.smithjustinn.domain.GameEffect
@@ -179,8 +178,14 @@ class DefaultGameComponent(
         val currentState = _state.value
         when {
             currentState.showWalkthrough -> { /* Walkthrough handles it */ }
-            currentState.isPeekFeatureEnabled && !isResumed -> startPeekSequence()
-            else -> gameStateMachine?.dispatch(GameAction.StartGame())
+
+            currentState.isPeekFeatureEnabled && !isResumed -> {
+                startPeekSequence()
+            }
+
+            else -> {
+                gameStateMachine?.dispatch(GameAction.StartGame())
+            }
         }
     }
 
@@ -229,12 +234,30 @@ class DefaultGameComponent(
 
         // Handle complex effects that need additional logic
         when (effect) {
-            is GameEffect.TimerUpdate -> handleTimerUpdate(effect)
-            is GameEffect.TimeGain -> handleTimeGain(effect)
-            is GameEffect.TimeLoss -> handleTimeLoss(effect)
-            GameEffect.PlayMatchSound -> handleMatchSound()
-            GameEffect.GameOver -> handleGameLost()
-            is GameEffect.GameWon -> handleGameWon(effect.finalState)
+            is GameEffect.TimerUpdate -> {
+                handleTimerUpdate(effect)
+            }
+
+            is GameEffect.TimeGain -> {
+                handleTimeGain(effect)
+            }
+
+            is GameEffect.TimeLoss -> {
+                handleTimeLoss(effect)
+            }
+
+            GameEffect.PlayMatchSound -> {
+                handleMatchSound()
+            }
+
+            GameEffect.GameOver -> {
+                handleGameLost()
+            }
+
+            is GameEffect.GameWon -> {
+                handleGameWon(effect.finalState)
+            }
+
             else -> { /* Already handled by effectToEventMap */ }
         }
     }
@@ -354,8 +377,6 @@ class DefaultGameComponent(
         }
     }
 
-
-
     private suspend fun handleDailyChallenge(bonuses: MemoryGameState) {
         if (bonuses.mode == GameMode.DAILY_CHALLENGE) {
             appGraph.dailyChallengeRepository.saveChallengeResult(
@@ -394,8 +415,6 @@ class DefaultGameComponent(
             _state.update { it.copy(walkthroughStep = it.walkthroughStep + 1) }
         }
     }
-
-
 
     private fun isSavedGameValid(
         savedGame: Pair<MemoryGameState, Long>,

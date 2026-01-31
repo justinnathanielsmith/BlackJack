@@ -6,7 +6,6 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
-import dev.mokkery.matcher.any
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.GameMode
@@ -19,7 +18,6 @@ import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
 class DefaultGameComponentTest : BaseComponentTest() {
-
     private lateinit var component: DefaultGameComponent
 
     @BeforeTest
@@ -35,85 +33,88 @@ class DefaultGameComponentTest : BaseComponentTest() {
     }
 
     @Test
-    fun `starting new game with peek enabled triggers peek sequence`() = runTest { lifecycle ->
-        // Given
-        every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
-        
-        // Mock Repository to return null (New Game scenario)
-        // context.appGraph.getSavedGameUseCase uses context.gameStateRepository internally
-        everySuspend { context.gameStateRepository.getSavedGameState() } returns null
+    fun `starting new game with peek enabled triggers peek sequence`() =
+        runTest { lifecycle ->
+            // Given
+            every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
 
-        // When
-        component = createComponent(lifecycle, forceNewGame = false)
-        testDispatcher.scheduler.runCurrent()
+            // Mock Repository to return null (New Game scenario)
+            // context.appGraph.getSavedGameUseCase uses context.gameStateRepository internally
+            everySuspend { context.gameStateRepository.getSavedGameState() } returns null
 
-        // Then
-        component.state.test {
-            // Need to wait for coroutines
-            var foundPeekState = false
-            try {
-                // Peek should start after initialization
-                // We check a few items
-                var attempts = 0
-                while(!foundPeekState && attempts < 10) {
-                     val state = awaitItem()
-                     if (state.isPeekFeatureEnabled && state.isPeeking) {
-                         foundPeekState = true
-                     }
-                     attempts++
-                     if (state.elapsedTimeSeconds > 0) {
-                         // Game started without peek (timer ticking)
-                         break
-                     }
+            // When
+            component = createComponent(lifecycle, forceNewGame = false)
+            testDispatcher.scheduler.runCurrent()
+
+            // Then
+            component.state.test {
+                // Need to wait for coroutines
+                var foundPeekState = false
+                try {
+                    // Peek should start after initialization
+                    // We check a few items
+                    var attempts = 0
+                    while (!foundPeekState && attempts < 10) {
+                        val state = awaitItem()
+                        if (state.isPeekFeatureEnabled && state.isPeeking) {
+                            foundPeekState = true
+                        }
+                        attempts++
+                        if (state.elapsedTimeSeconds > 0) {
+                            // Game started without peek (timer ticking)
+                            break
+                        }
+                    }
+                } catch (e: Exception) {
+                    // Timeout or explicit failure
                 }
-            } catch (e: Exception) {
-                // Timeout or explicit failure
+                assertTrue(foundPeekState, "Should have entered peek state")
             }
-            assertTrue(foundPeekState, "Should have entered peek state")
         }
-    }
 
     @Test
-    fun `resuming game does NOT trigger peek sequence`() = runTest { lifecycle ->
-        // Given
-        every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
+    fun `resuming game does NOT trigger peek sequence`() =
+        runTest { lifecycle ->
+            // Given
+            every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
 
-        // Mock saved game returns a game (Resume scenario)
-        val savedState = MemoryGameState(mode = GameMode.TIME_ATTACK, pairCount = 8)
-        everySuspend { context.gameStateRepository.getSavedGameState() } returns (savedState to 10L)
+            // Mock saved game returns a game (Resume scenario)
+            val savedState = MemoryGameState(mode = GameMode.TIME_ATTACK, pairCount = 8)
+            everySuspend { context.gameStateRepository.getSavedGameState() } returns (savedState to 10L)
 
-        // When
-        component = createComponent(lifecycle, forceNewGame = false)
-        testDispatcher.scheduler.runCurrent()
+            // When
+            component = createComponent(lifecycle, forceNewGame = false)
+            testDispatcher.scheduler.runCurrent()
 
-        // Then
-        component.state.test {
-            // Initial state should load saved game
-            val initialState = awaitItem()
-            assertTrue(initialState.elapsedTimeSeconds == 10L, "Should have loaded saved time")
-            assertFalse(initialState.isPeeking, "Should NOT be peeking when resuming game")
-            
-            cancelAndIgnoreRemainingEvents()
+            // Then
+            component.state.test {
+                // Initial state should load saved game
+                val initialState = awaitItem()
+                assertTrue(initialState.elapsedTimeSeconds == 10L, "Should have loaded saved time")
+                assertFalse(initialState.isPeeking, "Should NOT be peeking when resuming game")
+
+                cancelAndIgnoreRemainingEvents()
+            }
         }
-    }
 
     private fun createComponent(
-        lifecycle: Lifecycle, 
-        forceNewGame: Boolean
+        lifecycle: Lifecycle,
+        forceNewGame: Boolean,
     ): DefaultGameComponent =
         DefaultGameComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = context.appGraph,
-            args = GameArgs(
-                pairCount = 8,
-                mode = GameMode.TIME_ATTACK,
-                seed = null,
-                forceNewGame = forceNewGame,
-                circuitStage = null,
-                bankedScore = 0,
-                currentWager = 0
-            ),
+            args =
+                GameArgs(
+                    pairCount = 8,
+                    mode = GameMode.TIME_ATTACK,
+                    seed = null,
+                    forceNewGame = forceNewGame,
+                    circuitStage = null,
+                    bankedScore = 0,
+                    currentWager = 0,
+                ),
             onBackClicked = {},
-            onCycleStage = { _, _ -> }
+            onCycleStage = { _, _ -> },
         )
 }

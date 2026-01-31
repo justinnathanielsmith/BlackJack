@@ -2,7 +2,6 @@ package io.github.smithjustinn.ui.start
 
 import com.arkivanov.decompose.ComponentContext
 import com.arkivanov.essenty.lifecycle.doOnResume
-
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.DifficultyLevel
@@ -13,7 +12,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock

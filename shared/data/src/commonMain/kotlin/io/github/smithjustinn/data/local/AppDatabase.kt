@@ -32,8 +32,6 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun dailyChallengeDao(): DailyChallengeDao
 
-
-
     companion object {
         const val DATABASE_VERSION = 8
         private const val VERSION_1 = 1

@@ -115,7 +115,6 @@ fun GameGameOverOverlay(
     }
 }
 
-
 @Composable
 private fun BoxScope.GameResultsOverlay(
     state: GameUIState,

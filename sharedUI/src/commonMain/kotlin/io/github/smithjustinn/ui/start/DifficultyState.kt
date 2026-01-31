@@ -1,7 +1,6 @@
 package io.github.smithjustinn.ui.start
 
 import io.github.smithjustinn.domain.models.CardDisplaySettings
-
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 
@@ -16,6 +15,5 @@ data class DifficultyState(
     val isDailyChallengeCompleted: Boolean = false,
     val shouldAnimateEntrance: Boolean = true,
     val activeCircuitRunId: String? = null,
-
     val activeCircuitBankedScore: Int = 0,
 )

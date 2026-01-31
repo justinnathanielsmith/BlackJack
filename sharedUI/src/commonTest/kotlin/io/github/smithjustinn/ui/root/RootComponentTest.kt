@@ -64,6 +64,4 @@ class RootComponentTest : BaseComponentTest() {
 
             assertTrue(root.childStack.value.active.instance is RootComponent.Child.Stats)
         }
-
-
 }

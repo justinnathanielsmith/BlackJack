@@ -28,9 +28,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -51,10 +49,9 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.best_score_label
 import io.github.smithjustinn.resources.busted
 import io.github.smithjustinn.resources.casino_header_title
-import io.github.smithjustinn.resources.circuit_completed
 import io.github.smithjustinn.resources.game_complete
 import io.github.smithjustinn.resources.game_over
-import io.github.smithjustinn.resources.`high_roller_suite`
+import io.github.smithjustinn.resources.high_roller_suite
 import io.github.smithjustinn.resources.moves_label
 import io.github.smithjustinn.resources.play_again
 import io.github.smithjustinn.resources.score_combo_bonus_label
@@ -126,7 +123,6 @@ fun ResultsCard(
             highScore = highScore,
             titleRes = titleRes,
             isWon = isWon,
-            mode = mode,
             scoreBreakdown = scoreBreakdown,
             moves = moves,
             elapsedTimeSeconds = elapsedTimeSeconds,
@@ -144,7 +140,6 @@ private fun ResultsCardContent(
     highScore: Int,
     titleRes: org.jetbrains.compose.resources.StringResource,
     isWon: Boolean,
-    mode: GameMode,
     scoreBreakdown: ScoreBreakdown,
     moves: Int,
     elapsedTimeSeconds: Long,
@@ -173,7 +168,7 @@ private fun ResultsCardContent(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                CasinoHeader(titleRes, isWon, mode)
+                CasinoHeader(titleRes, isWon)
                 ReceiptDivider()
                 PayoutSection(scoreBreakdown, moves, elapsedTimeSeconds)
                 ReceiptDivider()
@@ -190,7 +185,6 @@ private fun ResultsCardContent(
 private fun CasinoHeader(
     titleRes: org.jetbrains.compose.resources.StringResource,
     isWon: Boolean,
-    mode: GameMode,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Icon(

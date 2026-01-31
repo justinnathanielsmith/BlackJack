@@ -6,11 +6,11 @@ import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
-import com.arkivanov.decompose.router.stack.popWhile
 import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.backhandler.BackHandler
 import io.github.smithjustinn.di.AppGraph
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.ui.game.DefaultGameComponent
 import io.github.smithjustinn.ui.game.GameArgs
 import io.github.smithjustinn.ui.game.GameComponent
@@ -20,7 +20,6 @@ import io.github.smithjustinn.ui.start.DefaultStartComponent
 import io.github.smithjustinn.ui.start.StartComponent
 import io.github.smithjustinn.ui.stats.DefaultStatsComponent
 import io.github.smithjustinn.ui.stats.StatsComponent
-import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -154,8 +153,6 @@ class DefaultRootComponent(
                 ),
             onBackClicked = navigation::pop,
         )
-
-
 
     private fun createSettingsComponent(componentContext: ComponentContext): SettingsComponent =
         DefaultSettingsComponent(

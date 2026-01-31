@@ -13,7 +13,6 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.game_mode
 import io.github.smithjustinn.resources.mode_daily_challenge_caps
-
 import io.github.smithjustinn.resources.mode_time_attack_caps
 import io.github.smithjustinn.ui.components.PillSegmentedControl
 import org.jetbrains.compose.resources.stringResource
@@ -45,7 +44,6 @@ fun ModeSelector(
                 when (mode) {
                     GameMode.TIME_ATTACK -> stringResource(Res.string.mode_time_attack_caps)
                     GameMode.DAILY_CHALLENGE -> stringResource(Res.string.mode_daily_challenge_caps)
-
                 }
             },
         )

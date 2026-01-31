@@ -19,4 +19,3 @@ interface GameComponent {
 
     fun onDoubleDown()
 }
-
