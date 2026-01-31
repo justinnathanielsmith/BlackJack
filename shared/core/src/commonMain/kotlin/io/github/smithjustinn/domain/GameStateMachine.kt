@@ -61,6 +61,12 @@ class GameStateMachine(
         }
     }
 
+    private fun applyResult(result: StateMachineResult) {
+        updateState(result.state)
+        internalTimeSeconds = result.time
+        result.effects.forEach { emitEffect(it) }
+    }
+
     @Suppress("CyclomaticComplexMethod") // Dispatches effects based on game domain events
     private fun handleFlipCard(action: GameAction.FlipCard) {
         val currentState = _state.value
@@ -69,88 +75,96 @@ class GameStateMachine(
         // Guard: Skip if game over or 2 cards already face up
         if (currentState.isGameOver || faceUpUnmatched.size >= 2) return
 
-        val (newState, event) = MemoryGameLogic.flipCard(currentState, action.cardId)
-        if (newState === currentState && event == null) return
+        val (flippedState, event) = MemoryGameLogic.flipCard(currentState, action.cardId)
+        if (flippedState === currentState && event == null) return
 
-        updateState(newState)
+        val result = gameStateMachine(flippedState, internalTimeSeconds) {
+            when (event) {
+                GameDomainEvent.CardFlipped -> effect(GameEffect.PlayFlipSound)
 
-        when (event) {
-            GameDomainEvent.CardFlipped -> emitEffect(GameEffect.PlayFlipSound)
-
-            GameDomainEvent.MatchSuccess, GameDomainEvent.TheNutsAchieved -> {
-                emitEffect(GameEffect.PlayFlipSound)
-                emitEffect(GameEffect.VibrateMatch)
-                emitEffect(GameEffect.PlayMatchSound)
-                if (event == GameDomainEvent.TheNutsAchieved) {
-                    emitEffect(GameEffect.PlayTheNutsSound)
-                } else if (newState.comboMultiplier >= newState.config.heatModeThreshold) {
-                    emitEffect(GameEffect.VibrateHeat)
+                GameDomainEvent.MatchSuccess, GameDomainEvent.TheNutsAchieved -> {
+                    effect(GameEffect.PlayFlipSound)
+                    effect(GameEffect.VibrateMatch)
+                    effect(GameEffect.PlayMatchSound)
+                    if (event == GameDomainEvent.TheNutsAchieved) {
+                        effect(GameEffect.PlayTheNutsSound)
+                    } else if (flippedState.comboMultiplier >= flippedState.config.heatModeThreshold) {
+                        effect(GameEffect.VibrateHeat)
+                    }
+                    if (flippedState.mode == GameMode.TIME_ATTACK) {
+                        val bonus = TimeAttackLogic.calculateTimeGain(flippedState.comboMultiplier - 1)
+                        updateTime { it + bonus }
+                        effect(GameEffect.TimerUpdate(internalTimeSeconds + bonus))
+                        effect(GameEffect.TimeGain(bonus.toInt()))
+                    }
                 }
-                if (newState.mode == GameMode.TIME_ATTACK) {
-                    val bonus = TimeAttackLogic.calculateTimeGain(newState.comboMultiplier - 1)
-                    internalTimeSeconds += bonus
-                    emitEffect(GameEffect.TimerUpdate(internalTimeSeconds))
-                    emitEffect(GameEffect.TimeGain(bonus.toInt()))
+
+                GameDomainEvent.MatchFailure -> {
+                    effect(GameEffect.PlayFlipSound)
+                    effect(GameEffect.PlayMismatch)
+                    effect(GameEffect.VibrateMismatch)
+                    scope.launch(dispatchers.default) {
+                        delay(MISMATCH_DELAY_MS)
+                        dispatch(GameAction.ProcessMismatch)
+                    }
                 }
-            }
 
-            GameDomainEvent.MatchFailure -> {
-                emitEffect(GameEffect.PlayFlipSound)
-                emitEffect(GameEffect.PlayMismatch)
-                emitEffect(GameEffect.VibrateMismatch)
-                scope.launch(dispatchers.default) {
-                    delay(MISMATCH_DELAY_MS)
-                    dispatch(GameAction.ProcessMismatch)
+                GameDomainEvent.GameWon -> {
+                    effect(GameEffect.PlayFlipSound)
+                    stopTimer()
+                    val finalState = MemoryGameLogic.applyFinalBonuses(flippedState, internalTimeSeconds)
+                    transition { finalState }
+                    effect(GameEffect.PlayWinSound)
+                    effect(GameEffect.VibrateMatch)
+                    effect(GameEffect.GameWon(finalState))
                 }
-            }
 
-            GameDomainEvent.GameWon -> {
-                emitEffect(GameEffect.PlayFlipSound)
-                stopTimer()
-                val finalState = MemoryGameLogic.applyFinalBonuses(newState, internalTimeSeconds)
-                updateState(finalState)
-                emitEffect(GameEffect.PlayWinSound)
-                emitEffect(GameEffect.VibrateMatch)
-                emitEffect(GameEffect.GameWon(finalState))
-            }
+                GameDomainEvent.GameOver -> {
+                    stopTimer()
+                    effect(GameEffect.PlayLoseSound)
+                }
 
-            GameDomainEvent.GameOver -> {
-                stopTimer()
-                emitEffect(GameEffect.PlayLoseSound)
+                null -> {}
             }
-
-            null -> {}
         }
+
+        applyResult(result)
     }
 
     private fun handleDoubleDown() {
-        val newState = MemoryGameLogic.activateDoubleDown(_state.value)
-        if (newState != _state.value) {
-            updateState(newState)
-            emitEffect(GameEffect.VibrateHeat)
-            dispatch(GameAction.ScanCards(durationMs = 2000))
+        val result = gameStateMachine(_state.value, internalTimeSeconds) {
+            val newState = MemoryGameLogic.activateDoubleDown(_state.value)
+            if (newState != _state.value) {
+                transition { newState }
+                effect(GameEffect.VibrateHeat)
+                // Side effect that triggers another action
+                scope.launch { dispatch(GameAction.ScanCards(durationMs = 2000)) }
+            }
         }
+        applyResult(result)
     }
 
     private fun handleProcessMismatch() {
-        val currentState = _state.value
-        if (currentState.mode == GameMode.TIME_ATTACK) {
-            val penalty = TimeAttackLogic.TIME_PENALTY_MISMATCH
-            internalTimeSeconds = (internalTimeSeconds - penalty).coerceAtLeast(0)
-            emitEffect(GameEffect.TimerUpdate(internalTimeSeconds))
-            emitEffect(GameEffect.TimeLoss(penalty.toInt()))
-            if (internalTimeSeconds == 0L) {
-                stopTimer()
-                emitEffect(GameEffect.VibrateWarning)
-                emitEffect(GameEffect.PlayLoseSound)
-                updateState(_state.value.copy(isGameOver = true, isGameWon = false, score = 0))
-                emitEffect(GameEffect.GameOver)
-                return
+        val result = gameStateMachine(_state.value, internalTimeSeconds) {
+            val currentState = _state.value
+            if (currentState.mode == GameMode.TIME_ATTACK) {
+                val penalty = TimeAttackLogic.TIME_PENALTY_MISMATCH
+                updateTime { (it - penalty).coerceAtLeast(0) }
+                effect(GameEffect.TimerUpdate(internalTimeSeconds - penalty))
+                effect(GameEffect.TimeLoss(penalty.toInt()))
+                if (internalTimeSeconds - penalty <= 0L) {
+                    stopTimer()
+                    effect(GameEffect.VibrateWarning)
+                    effect(GameEffect.PlayLoseSound)
+                    transition { currentState.copy(isGameOver = true, isGameWon = false, score = 0) }
+                    effect(GameEffect.GameOver)
+                    return@gameStateMachine
+                }
             }
-        }
 
-        val newState = MemoryGameLogic.resetErrorCards(currentState)
-        updateState(newState)
+            transition { MemoryGameLogic.resetErrorCards(currentState) }
+        }
+        applyResult(result)
     }
 
     private fun handleScanCards(action: GameAction.ScanCards) {
@@ -180,26 +194,30 @@ class GameStateMachine(
     }
 
     private fun handleTick() {
-        val currentState = _state.value
-        if (currentState.isGameOver) return
+        val result = gameStateMachine(_state.value, internalTimeSeconds) {
+            val currentState = _state.value
+            if (currentState.isGameOver) return@gameStateMachine
 
-        if (currentState.mode == GameMode.TIME_ATTACK) {
-            internalTimeSeconds = (internalTimeSeconds - 1).coerceAtLeast(0)
-            emitEffect(GameEffect.TimerUpdate(internalTimeSeconds))
+            if (currentState.mode == GameMode.TIME_ATTACK) {
+                updateTime { (it - 1).coerceAtLeast(0) }
+                val nextTime = (internalTimeSeconds - 1).coerceAtLeast(0)
+                effect(GameEffect.TimerUpdate(nextTime))
 
-            if (internalTimeSeconds <= 0) {
-                stopTimer()
-                emitEffect(GameEffect.VibrateWarning)
-                emitEffect(GameEffect.PlayLoseSound)
-                updateState(_state.value.copy(isGameOver = true, isGameWon = false, score = 0))
-                emitEffect(GameEffect.GameOver)
-            } else if (internalTimeSeconds <= LOW_TIME_WARNING_THRESHOLD) {
-                emitEffect(GameEffect.VibrateTick)
+                if (nextTime <= 0) {
+                    stopTimer()
+                    effect(GameEffect.VibrateWarning)
+                    effect(GameEffect.PlayLoseSound)
+                    transition { currentState.copy(isGameOver = true, isGameWon = false, score = 0) }
+                    effect(GameEffect.GameOver)
+                } else if (nextTime <= LOW_TIME_WARNING_THRESHOLD) {
+                    effect(GameEffect.VibrateTick)
+                }
+            } else {
+                updateTime { it + 1 }
+                effect(GameEffect.TimerUpdate(internalTimeSeconds + 1))
             }
-        } else {
-            internalTimeSeconds++
-            emitEffect(GameEffect.TimerUpdate(internalTimeSeconds))
         }
+        applyResult(result)
     }
 
     fun startTimer() = gameTimer.start()
