@@ -3,58 +3,39 @@ package io.github.smithjustinn.domain
 import app.cash.turbine.test
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
-import io.github.smithjustinn.utils.CoroutineDispatchers
+import io.github.smithjustinn.test.BaseLogicTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.test.StandardTestDispatcher
-import kotlinx.coroutines.test.TestScope
 import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 
 @OptIn(ExperimentalCoroutinesApi::class)
-class GameStateMachineTest {
-    private val testDispatcher = StandardTestDispatcher()
-    private val testDispatchers =
-        CoroutineDispatchers(
-            main = testDispatcher,
-            mainImmediate = testDispatcher,
-            io = testDispatcher,
-            default = testDispatcher,
-        )
+class GameStateMachineTest : BaseLogicTest() {
+    companion object {
+        private const val INITIAL_TIME = 60L
+        private const val SCAN_CARDS_DELAY_MS = 2000L
+        private const val MISMATCH_DELAY_MS = 1000L
+    }
 
     @Test
     fun `initial state is correct`() {
         val initialState = MemoryGameState(mode = GameMode.TIME_ATTACK)
-        val machine =
-            GameStateMachine(
-                scope = TestScope(testDispatcher),
-                testDispatchers,
-                initialState = initialState,
-                initialTimeSeconds = 60,
-                onSaveState = { _, _ -> },
-            )
+        val machine = createStateMachine(initialState = initialState)
 
         assertEquals(initialState, machine.state.value)
     }
 
     @Test
     fun `mismatch emits PlayMismatch and VibrateMismatch effects`() =
-        runTest(testDispatcher) {
+        runTest {
             val state = MemoryGameLogic.createInitialState(pairCount = 6)
             val firstCard = state.cards[0]
             val nonMatchCard =
                 state.cards.drop(1).find { it.suit != firstCard.suit || it.rank != firstCard.rank }
                     ?: error("No non-matching card found")
 
-            val machine =
-                GameStateMachine(
-                    scope = this,
-                    testDispatchers,
-                    initialState = state,
-                    initialTimeSeconds = 60,
-                    onSaveState = { _, _ -> },
-                )
+            val machine = createStateMachine(initialState = state)
 
             machine.effects.test {
                 machine.dispatch(GameAction.FlipCard(firstCard.id))
@@ -69,7 +50,7 @@ class GameStateMachineTest {
 
     @Test
     fun `match success emits corresponding effects and updates score`() =
-        runTest(testDispatcher) {
+        runTest {
             val state = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
             val firstCard = state.cards[0]
             val matchingCard =
@@ -78,11 +59,8 @@ class GameStateMachineTest {
 
             var savedState: MemoryGameState? = null
             val machine =
-                GameStateMachine(
-                    scope = this,
-                    testDispatchers,
+                createStateMachine(
                     initialState = state,
-                    initialTimeSeconds = 60,
                     onSaveState = { s, _ -> savedState = s },
                 )
 
@@ -97,58 +75,44 @@ class GameStateMachineTest {
 
                 // Assert timer update and time gain in Time Attack
                 val timerUpdate = awaitItem()
-                assert(timerUpdate is GameEffect.TimerUpdate)
+                assertTrue(timerUpdate is GameEffect.TimerUpdate, "Expected TimerUpdate effect")
 
                 val timeGain = awaitItem()
-                assert(timeGain is GameEffect.TimeGain)
+                assertTrue(timeGain is GameEffect.TimeGain, "Expected TimeGain effect")
 
                 // Check state update
                 val currentState = machine.state.value
                 assertEquals(1, currentState.cards.count { it.isMatched } / 2)
-                assert(currentState.score > 0)
+                assertTrue(currentState.score > 0, "Score should be greater than 0")
                 assertEquals(currentState, savedState)
             }
         }
 
     @Test
     fun `timer ticks in Time Attack mode`() =
-        runTest(testDispatcher) {
+        runTest {
             val initialState = MemoryGameState(mode = GameMode.TIME_ATTACK)
-            val machine =
-                GameStateMachine(
-                    scope = this,
-                    testDispatchers,
-                    initialState = initialState,
-                    initialTimeSeconds = 60,
-                    onSaveState = { _, _ -> },
-                )
+            val machine = createStateMachine(initialState = initialState)
 
             machine.effects.test {
                 machine.dispatch(GameAction.StartGame())
 
                 advanceTimeBy(1001)
-                assertEquals(GameEffect.TimerUpdate(59), awaitItem())
+                assertEquals(GameEffect.TimerUpdate(INITIAL_TIME - 1), awaitItem())
 
                 advanceTimeBy(1001)
-                assertEquals(GameEffect.TimerUpdate(58), awaitItem())
+                assertEquals(GameEffect.TimerUpdate(INITIAL_TIME - 2), awaitItem())
             }
         }
 
     @Test
     fun `mismatch in Time Attack mode triggers penalty`() =
-        runTest(testDispatcher) {
+        runTest {
             val state = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
             val firstCard = state.cards[0]
             val nonMatchCard = state.cards.drop(1).first { it.suit != firstCard.suit || it.rank != firstCard.rank }
 
-            val machine =
-                GameStateMachine(
-                    scope = this,
-                    testDispatchers,
-                    initialState = state,
-                    initialTimeSeconds = 60,
-                    onSaveState = { _, _ -> },
-                )
+            val machine = createStateMachine(initialState = state)
 
             machine.effects.test {
                 machine.dispatch(GameAction.FlipCard(firstCard.id))
@@ -161,31 +125,24 @@ class GameStateMachineTest {
 
                 // Mismatch penalty delay processing starts
                 // We need to wait for MISMATCH_DELAY_MS (1000ms)
-                advanceTimeBy(1001)
+                advanceTimeBy(MISMATCH_DELAY_MS + 1)
 
                 // Then ProcessMismatch is dispatched, which emits TimeLoss and TimerUpdate
-                assertEquals(GameEffect.TimerUpdate(60 - TimeAttackLogic.TIME_PENALTY_MISMATCH), awaitItem())
+                assertEquals(GameEffect.TimerUpdate(INITIAL_TIME - TimeAttackLogic.TIME_PENALTY_MISMATCH), awaitItem())
                 val lossEffect = awaitItem()
-                assert(lossEffect is GameEffect.TimeLoss)
+                assertTrue(lossEffect is GameEffect.TimeLoss, "Expected TimeLoss effect")
                 assertEquals(TimeAttackLogic.TIME_PENALTY_MISMATCH.toInt(), (lossEffect as GameEffect.TimeLoss).amount)
             }
         }
 
     @Test
     fun `Double Down requires heat mode and triggers ScanCards`() =
-        runTest(testDispatcher) {
+        runTest {
             // Create state with heat mode active (comboMultiplier >= 3) and enough unmatched pairs (>= 3)
             val baseState = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
             val state = baseState.copy(comboMultiplier = 3)
 
-            val machine =
-                GameStateMachine(
-                    scope = this,
-                    testDispatchers,
-                    initialState = state,
-                    initialTimeSeconds = 60,
-                    onSaveState = { _, _ -> },
-                )
+            val machine = createStateMachine(initialState = state)
 
             machine.effects.test {
                 machine.dispatch(GameAction.DoubleDown)
@@ -196,17 +153,31 @@ class GameStateMachineTest {
                 // ScanCards is dispatched via scope.launch
                 // ScanCards updates state to peeking (cards face up)
                 advanceTimeBy(100)
-                assert(
+                assertTrue(
                     machine.state.value.cards
                         .all { it.isFaceUp || it.isMatched },
+                    "All cards should be face up or matched during scan",
                 )
 
-                // After 2000ms delay, cards should be face down again
-                advanceTimeBy(2001)
-                assert(
+                // After SCAN_CARDS_DELAY_MS delay, cards should be face down again
+                advanceTimeBy(SCAN_CARDS_DELAY_MS + 1)
+                assertTrue(
                     machine.state.value.cards
                         .none { it.isFaceUp && !it.isMatched },
+                    "All non-matched cards should be face down after scan",
                 )
             }
         }
+
+    private fun createStateMachine(
+        initialState: MemoryGameState = MemoryGameState(mode = GameMode.TIME_ATTACK),
+        initialTimeSeconds: Long = INITIAL_TIME,
+        onSaveState: (MemoryGameState, Long) -> Unit = { _, _ -> },
+    ) = GameStateMachine(
+        scope = testScope,
+        dispatchers = testDispatchers,
+        initialState = initialState,
+        initialTimeSeconds = initialTimeSeconds,
+        onSaveState = onSaveState,
+    )
 }

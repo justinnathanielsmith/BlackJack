@@ -37,9 +37,6 @@ class DefaultGameComponentTest : BaseComponentTest() {
         runTest { lifecycle ->
             // Given
             every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
-
-            // Mock Repository to return null (New Game scenario)
-            // context.appGraph.getSavedGameUseCase uses context.gameStateRepository internally
             everySuspend { context.gameStateRepository.getSavedGameState() } returns null
 
             // When
@@ -48,27 +45,20 @@ class DefaultGameComponentTest : BaseComponentTest() {
 
             // Then
             component.state.test {
-                // Need to wait for coroutines
-                var foundPeekState = false
-                try {
-                    // Peek should start after initialization
-                    // We check a few items
-                    var attempts = 0
-                    while (!foundPeekState && attempts < 10) {
-                        val state = awaitItem()
-                        if (state.isPeekFeatureEnabled && state.isPeeking) {
-                            foundPeekState = true
-                        }
-                        attempts++
-                        if (state.elapsedTimeSeconds > 0) {
-                            // Game started without peek (timer ticking)
-                            break
-                        }
+                // Initial state
+                val initialState = awaitItem()
+
+                // Should eventually reach peeking state
+                var currentState = initialState
+                while (!(currentState.isPeekFeatureEnabled && currentState.isPeeking)) {
+                    currentState = awaitItem()
+                    if (currentState.elapsedTimeSeconds > 0) {
+                        break // Optimization: if timer started, we missed peek or it didn't happen
                     }
-                } catch (e: Exception) {
-                    // Timeout or explicit failure
                 }
-                assertTrue(foundPeekState, "Should have entered peek state")
+
+                assertTrue(currentState.isPeeking, "Should have entered peek state")
+                assertTrue(currentState.isPeekFeatureEnabled, "Peek feature should be enabled")
             }
         }
 
@@ -110,11 +100,7 @@ class DefaultGameComponentTest : BaseComponentTest() {
                     mode = GameMode.TIME_ATTACK,
                     seed = null,
                     forceNewGame = forceNewGame,
-                    circuitStage = null,
-                    bankedScore = 0,
-                    currentWager = 0,
                 ),
             onBackClicked = {},
-            onCycleStage = { _, _ -> },
         )
 }

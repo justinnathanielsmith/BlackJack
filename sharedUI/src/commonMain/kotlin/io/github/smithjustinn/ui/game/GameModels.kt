@@ -12,7 +12,7 @@ data class GameUIState(
     val isNewHighScore: Boolean = false,
     val isPeeking: Boolean = false,
     val peekCountdown: Int = 0,
-    val isPeekFeatureEnabled: Boolean = true,
+    val isPeekFeatureEnabled: Boolean = false,
     val isSoundEnabled: Boolean = true,
     val isMusicEnabled: Boolean = true,
     val cardSettings: CardDisplaySettings = CardDisplaySettings(),

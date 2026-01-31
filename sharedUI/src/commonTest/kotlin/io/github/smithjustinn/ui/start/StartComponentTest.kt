@@ -122,7 +122,7 @@ class StartComponentTest : BaseComponentTest() {
         DefaultStartComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = context.appGraph,
-            onNavigateToGame = { pairs, mode, isNewGame, _, _, _ ->
+            onNavigateToGame = { pairs, mode, isNewGame ->
                 navigatedToGame = Triple(pairs, mode, isNewGame)
             },
             onNavigateToSettings = { navigatedToSettings = true },

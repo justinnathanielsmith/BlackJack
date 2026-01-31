@@ -48,31 +48,31 @@ class DefaultGameComponent(
     init {
         scope.launch {
             val settings = appGraph.settingsRepository
-            val coreSettingsFlow =
-                combine(
-                    settings.isPeekEnabled,
-                    settings.isWalkthroughCompleted,
-                    settings.isMusicEnabled,
-                    settings.isSoundEnabled,
-                ) { peek, walkthrough, music, sound ->
-                    peek to walkthrough to music to sound
-                }
-
             combine(
-                coreSettingsFlow,
-                settings.cardBackTheme,
-                settings.cardSymbolTheme,
-                settings.areSuitsMultiColored,
-            ) { core, cardBack, cardSymbol, multiColor ->
-                val (core1, sound) = core
-                val (core2, music) = core1
-                val (peek, walkthrough) = core2
+                settings.isPeekEnabled,
+                settings.isWalkthroughCompleted,
+                settings.isMusicEnabled,
+                settings.isSoundEnabled,
+            ) { peek, walkthrough, music, sound ->
                 _state.update {
                     it.copy(
                         isPeekFeatureEnabled = peek,
                         showWalkthrough = !walkthrough,
                         isMusicEnabled = music,
                         isSoundEnabled = sound,
+                    )
+                }
+            }.first() // Wait for first emission
+
+            startGame(args)
+
+            combine(
+                settings.cardBackTheme,
+                settings.cardSymbolTheme,
+                settings.areSuitsMultiColored,
+            ) { cardBack, cardSymbol, multiColor ->
+                _state.update {
+                    it.copy(
                         cardSettings =
                             CardDisplaySettings(
                                 backTheme = cardBack,
@@ -83,8 +83,6 @@ class DefaultGameComponent(
                 }
             }.collect()
         }
-
-        startGame(args)
     }
 
     private fun startGame(args: GameArgs) {
