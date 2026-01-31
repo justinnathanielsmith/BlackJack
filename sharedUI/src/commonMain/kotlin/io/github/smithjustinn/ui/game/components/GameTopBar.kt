@@ -154,6 +154,7 @@ private fun TopBarMainRow(
             onMuteClick = onMuteClick,
             onRestartClick = onRestartClick,
             compact = state.compact,
+            showRestart = state.mode != GameMode.HIGH_ROLLER,
         )
     }
 }
@@ -164,6 +165,7 @@ private fun ControlButtons(
     onMuteClick: () -> Unit,
     onRestartClick: () -> Unit,
     compact: Boolean,
+    showRestart: Boolean,
 ) {
     Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
         MuteButton(
@@ -172,10 +174,12 @@ private fun ControlButtons(
             compact = compact,
         )
 
-        RestartButton(
-            onClick = onRestartClick,
-            compact = compact,
-        )
+        if (showRestart) {
+            RestartButton(
+                onClick = onRestartClick,
+                compact = compact,
+            )
+        }
     }
 }
 
