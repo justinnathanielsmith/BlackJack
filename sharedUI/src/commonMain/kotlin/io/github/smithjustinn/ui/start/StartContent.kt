@@ -37,19 +37,16 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
-import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.pokerBackground
 import io.github.smithjustinn.ui.components.rememberGlimmerBrush
 import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.start.components.StartHeader
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
-import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun StartContent(
@@ -265,7 +262,6 @@ private fun StartMainContent(
         }
 
         Spacer(modifier = Modifier.height(spacing.medium))
-
 
         Spacer(modifier = Modifier.weight(1f))
 

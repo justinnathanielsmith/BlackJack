@@ -10,6 +10,7 @@ All Kotlin code must adhere to 2026 standards.
 ## 🚫 Imports
 
 - **No Wildcard Imports**: Never use wildcard imports (`import package.*`). Always use explicit imports for clarity and to prevent namespace pollution.
+- **No Fully Qualified Names (FQNs)**: Never use FQNs in code. Always import the type and use its simple name. If there is a name collision, use an alias (`import package.Type as TypeAlias`).
 
 ## Context Parameters
 ```kotlin

@@ -5,6 +5,7 @@ import com.arkivanov.essenty.lifecycle.doOnResume
 import io.github.smithjustinn.data.local.CircuitStatsEntity
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.CardDisplaySettings
+import io.github.smithjustinn.domain.models.CircuitStage
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.utils.componentScope
@@ -21,7 +22,14 @@ import kotlin.time.Clock
 class DefaultStartComponent(
     componentContext: ComponentContext,
     private val appGraph: AppGraph,
-    private val onNavigateToGame: (pairs: Int, mode: GameMode, forceNewGame: Boolean) -> Unit,
+    private val onNavigateToGame: (
+        pairs: Int,
+        mode: GameMode,
+        forceNewGame: Boolean,
+        stage: CircuitStage?,
+        bankedScore: Int?,
+        shouldOpenBuyIn: Boolean,
+    ) -> Unit,
     private val onNavigateToSettings: () -> Unit,
     private val onNavigateToStats: () -> Unit,
 ) : StartComponent,
@@ -67,7 +75,7 @@ class DefaultStartComponent(
         scope.launch {
             try {
                 val savedGame = gameStateRepository.getSavedGameState()
-                val activeCircuit: io.github.smithjustinn.data.local.CircuitStatsEntity? =
+                val activeCircuit: CircuitStatsEntity? =
                     appGraph.appDatabase
                         .circuitStatsDao()
                         .getActiveCircuitRun()
@@ -77,7 +85,7 @@ class DefaultStartComponent(
                     val runId = activeCircuit?.runId
                     val stage =
                         activeCircuit?.let { entity ->
-                            io.github.smithjustinn.domain.models.CircuitStage.entries
+                            CircuitStage.entries
                                 .find { it.id == entity.currentStageId }
                         }
                     val banked = activeCircuit?.bankedScore ?: 0
@@ -123,20 +131,37 @@ class DefaultStartComponent(
     override fun onStartGame() {
         val pairs = state.value.selectedDifficulty.pairs
         val mode = state.value.selectedMode
-        onNavigateToGame(pairs, mode, true)
+        onNavigateToGame(pairs, mode, true, null, 0, mode == GameMode.HIGH_ROLLER)
     }
 
     override fun onResumeGame() {
-        if (state.value.activeCircuitRunId != null) {
+        if (state.value.hasSavedGame && state.value.savedGameMode == GameMode.HIGH_ROLLER) {
+            // Resume mid-game High Roller
+            onNavigateToGame(
+                state.value.savedGamePairCount,
+                GameMode.HIGH_ROLLER,
+                false,
+                state.value.activeCircuitStage,
+                state.value.activeCircuitBankedScore,
+                false, // DO NOT open BuyIn, open Game
+            )
+        } else if (state.value.activeCircuitRunId != null) {
+            // Resume mid-circuit High Roller (at BuyIn screen)
             onNavigateToGame(
                 state.value.activeCircuitStage?.pairCount ?: 6,
                 GameMode.HIGH_ROLLER,
                 false,
+                state.value.activeCircuitStage,
+                state.value.activeCircuitBankedScore,
+                true, // Open BuyIn
             )
         } else if (state.value.hasSavedGame) {
             onNavigateToGame(
                 state.value.savedGamePairCount,
                 state.value.savedGameMode,
+                false,
+                null,
+                0,
                 false,
             )
         }
@@ -145,7 +170,7 @@ class DefaultStartComponent(
     override fun onDailyChallengeClick() {
         if (!state.value.isDailyChallengeCompleted) {
             // Use 8 pairs for Daily Challenge (standard difficulty)
-            onNavigateToGame(DAILY_CHALLENGE_PAIRS, GameMode.DAILY_CHALLENGE, true)
+            onNavigateToGame(DAILY_CHALLENGE_PAIRS, GameMode.DAILY_CHALLENGE, true, null, 0, false)
         }
     }
 

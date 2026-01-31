@@ -76,33 +76,33 @@ class RootComponentTest : BaseComponentTest() {
 
             // Simulate navigation: Start -> Game -> BuyIn
             val startChild = root.childStack.value.active.instance as RootComponent.Child.Start
-            
+
             // StartComponent interaction to trigger navigation
             startChild.component.onModeSelected(io.github.smithjustinn.domain.models.GameMode.HIGH_ROLLER)
             startChild.component.onStartGame()
-            
+
             // Note: Start component logic pushes BuyIn directly for High Roller, so stack is Start -> BuyIn
-            
+
             // Re-simulate: Start -> BuyIn (High Roller Start)
             assertTrue(root.childStack.value.active.instance is RootComponent.Child.BuyIn)
-            
+
             val buyInChild = root.childStack.value.active.instance as RootComponent.Child.BuyIn
             buyInChild.component.onStartRound()
-            
+
             // Now stack is Start -> BuyIn -> Game
             assertTrue(root.childStack.value.active.instance is RootComponent.Child.Game)
             val gameChild = root.childStack.value.active.instance as RootComponent.Child.Game
-             
+
             // Simulate cycling stage which pushes another BuyIn
             gameChild.component.onCycleStage(io.github.smithjustinn.domain.models.CircuitStage.SEMI_FINAL, 200)
-            
+
             // Now stack is Start -> BuyIn -> Game -> BuyIn
             assertTrue(root.childStack.value.active.instance is RootComponent.Child.BuyIn)
             val secondBuyInChild = root.childStack.value.active.instance as RootComponent.Child.BuyIn
-            
+
             // Trigger Back to Lobby
             secondBuyInChild.component.onBack()
-            
+
             // Should be back at Start
             assertTrue(root.childStack.value.active.instance is RootComponent.Child.Start)
         }

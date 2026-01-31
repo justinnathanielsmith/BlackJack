@@ -19,5 +19,8 @@ interface GameComponent {
 
     fun onDoubleDown()
 
-    fun onCycleStage(nextStage: io.github.smithjustinn.domain.models.CircuitStage, bankedScore: Int)
+    fun onCycleStage(
+        nextStage: io.github.smithjustinn.domain.models.CircuitStage,
+        bankedScore: Int,
+    )
 }

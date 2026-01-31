@@ -1,15 +1,21 @@
 package io.github.smithjustinn.ui.root
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.decompose.DelicateDecomposeApi
 import com.arkivanov.decompose.router.stack.ChildStack
 import com.arkivanov.decompose.router.stack.StackNavigation
 import com.arkivanov.decompose.router.stack.childStack
 import com.arkivanov.decompose.router.stack.pop
-import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.router.stack.popWhile
+import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
+import com.arkivanov.essenty.backhandler.BackHandler
 import io.github.smithjustinn.di.AppGraph
+import io.github.smithjustinn.domain.models.CircuitStage
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.domain.models.GameMode.HIGH_ROLLER
+import io.github.smithjustinn.ui.circuit.BuyInComponent
+import io.github.smithjustinn.ui.circuit.DefaultBuyInComponent
 import io.github.smithjustinn.ui.game.DefaultGameComponent
 import io.github.smithjustinn.ui.game.GameArgs
 import io.github.smithjustinn.ui.game.GameComponent
@@ -27,7 +33,7 @@ private const val DEFAULT_PAIR_COUNT = 8
 
 interface RootComponent {
     val childStack: Value<ChildStack<*, Child>>
-    val backHandler: com.arkivanov.essenty.backhandler.BackHandler
+    val backHandler: BackHandler
 
     fun pop()
 
@@ -49,7 +55,7 @@ interface RootComponent {
         ) : Child()
 
         class BuyIn(
-            val component: io.github.smithjustinn.ui.circuit.BuyInComponent,
+            val component: BuyInComponent,
         ) : Child()
     }
 }
@@ -97,7 +103,7 @@ class DefaultRootComponent(
             val pairs = pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT
             val seed = seedStr?.toLongOrNull()
 
-            @OptIn(com.arkivanov.decompose.DelicateDecomposeApi::class)
+            @OptIn(DelicateDecomposeApi::class)
             navigation.push(Config.Game(pairs, mode, forceNewGame = true, seed = seed))
         } catch (e: IllegalArgumentException) {
             logger.e(e) { "Error handling deep link: $url" }
@@ -121,19 +127,36 @@ class DefaultRootComponent(
             componentContext = componentContext,
             appGraph = appGraph,
             onNavigateToGame =
-                @OptIn(com.arkivanov.decompose.DelicateDecomposeApi::class) { pairs, mode, forceNewGame ->
-                    if (mode == io.github.smithjustinn.domain.models.GameMode.HIGH_ROLLER) {
-                        navigation.push(Config.BuyIn(io.github.smithjustinn.domain.models.CircuitStage.QUALIFIER, 0))
+                @OptIn(DelicateDecomposeApi::class) { pairs, mode, forceNewGame, stage, bankedScore, shouldOpenBuyIn ->
+                    if (mode == HIGH_ROLLER && shouldOpenBuyIn) {
+                        val startStage =
+                            if (forceNewGame) {
+                                CircuitStage.QUALIFIER
+                            } else {
+                                stage ?: CircuitStage.QUALIFIER
+                            }
+                        val startBank = if (forceNewGame) 0 else bankedScore ?: 0
+                        navigation.push(Config.BuyIn(startStage, startBank))
                     } else {
-                        navigation.push(Config.Game(pairs, mode, forceNewGame, null))
+                        navigation.push(
+                            Config.Game(
+                                pairs = pairs,
+                                mode = mode,
+                                forceNewGame = forceNewGame,
+                                seed = null,
+                                circuitStage = stage,
+                                bankedScore = bankedScore ?: 0,
+                                currentWager = if (forceNewGame) 0 else 0, // Wager will be loaded from saved game or handled by BuyIn
+                            ),
+                        )
                     }
                 },
             onNavigateToSettings =
-                @OptIn(com.arkivanov.decompose.DelicateDecomposeApi::class) {
+                @OptIn(DelicateDecomposeApi::class) {
                     navigation.push(Config.Settings)
                 },
             onNavigateToStats =
-                @OptIn(com.arkivanov.decompose.DelicateDecomposeApi::class) {
+                @OptIn(DelicateDecomposeApi::class) {
                     navigation.push(Config.Stats)
                 },
         )
@@ -157,6 +180,7 @@ class DefaultRootComponent(
                 ),
             onBackClicked = navigation::pop,
             onCycleStage = { nextStage, bankedScore ->
+                @OptIn(DelicateDecomposeApi::class)
                 navigation.push(Config.BuyIn(nextStage, bankedScore))
             },
         )
@@ -164,16 +188,17 @@ class DefaultRootComponent(
     private fun createBuyInComponent(
         config: Config.BuyIn,
         componentContext: ComponentContext,
-    ): io.github.smithjustinn.ui.circuit.BuyInComponent =
-        io.github.smithjustinn.ui.circuit.DefaultBuyInComponent(
+    ): BuyInComponent =
+        DefaultBuyInComponent(
             componentContext = componentContext,
             stage = config.stage,
             bankedScore = config.bankedScore,
             onStartRound = { wager ->
+                @OptIn(DelicateDecomposeApi::class)
                 navigation.push(
                     Config.Game(
                         pairs = config.stage.pairCount,
-                        mode = io.github.smithjustinn.domain.models.GameMode.HIGH_ROLLER,
+                        mode = HIGH_ROLLER,
                         forceNewGame = true,
                         seed = null,
                         circuitStage = config.stage,
@@ -183,6 +208,7 @@ class DefaultRootComponent(
                 )
             },
             onBackClicked = {
+                @OptIn(DelicateDecomposeApi::class)
                 navigation.popWhile { it != Config.Start }
             },
         )
@@ -211,7 +237,7 @@ class DefaultRootComponent(
             val mode: GameMode,
             val forceNewGame: Boolean,
             val seed: Long?,
-            val circuitStage: io.github.smithjustinn.domain.models.CircuitStage? = null,
+            val circuitStage: CircuitStage? = null,
             val bankedScore: Int = 0,
             val currentWager: Int = 0,
         ) : Config
@@ -222,7 +248,7 @@ class DefaultRootComponent(
 
         @Serializable
         data class BuyIn(
-            val stage: io.github.smithjustinn.domain.models.CircuitStage,
+            val stage: CircuitStage,
             val bankedScore: Int,
         ) : Config
     }

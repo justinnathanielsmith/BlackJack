@@ -410,7 +410,10 @@ class DefaultGameComponent(
         }
     }
 
-    override fun onCycleStage(nextStage: CircuitStage, bankedScore: Int) {
+    override fun onCycleStage(
+        nextStage: CircuitStage,
+        bankedScore: Int,
+    ) {
         onCycleStage.invoke(nextStage, bankedScore)
     }
 }

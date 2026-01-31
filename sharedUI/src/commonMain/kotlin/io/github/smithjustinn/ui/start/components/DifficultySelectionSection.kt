@@ -16,20 +16,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.DifficultyLevel
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.resume_game
 import io.github.smithjustinn.resources.select_difficulty
 import io.github.smithjustinn.resources.start
 import io.github.smithjustinn.theme.PokerTheme
-import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.PokerChip
 import io.github.smithjustinn.ui.start.DifficultyState
-import org.jetbrains.compose.resources.stringResource
-
 import io.github.smithjustinn.ui.stats.components.ModeSelector
-import io.github.smithjustinn.domain.models.GameMode
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * DifficultySelectionSection
