@@ -362,7 +362,6 @@ class DefaultGameComponent(
             )
 
             handleDailyChallenge(wonState)
-            handleDailyChallenge(wonState)
             appGraph.clearSavedGameUseCase()
         }
     }
