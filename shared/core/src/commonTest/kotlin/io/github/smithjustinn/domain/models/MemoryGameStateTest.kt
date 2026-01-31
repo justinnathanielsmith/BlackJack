@@ -1,61 +1,52 @@
 package io.github.smithjustinn.domain.models
 
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
-import kotlin.test.assertTrue
 
 class MemoryGameStateTest {
     @Test
-    fun `test all properties and copy`() {
+    fun testSerialization() {
+        val card =
+            CardState(
+                id = 1,
+                suit = Suit.Hearts,
+                rank = Rank.Ace,
+                isFaceUp = true,
+                isMatched = false,
+            )
         val state =
             MemoryGameState(
-                cards = persistentListOf(),
-                pairCount = 6,
+                cards = persistentListOf(card),
                 score = 100,
-                moves = 5,
+                lastMatchedIds = persistentListOf(1, 2),
             )
 
-        val copied =
-            state.copy(
-                score = 200,
-                isGameWon = true,
-            )
+        val json = Json.encodeToString(MemoryGameState.serializer(), state)
+        val decoded = Json.decodeFromString(MemoryGameState.serializer(), json)
 
-        assertEquals(100, state.score)
-        assertEquals(200, copied.score)
-        assertTrue(copied.isGameWon)
-
-        // Destructuring order must match constructor
-        val (
-            cards, pairs, _, _, _, score,
-            _, _, _, _, _, _,
-            _, _, _, _, _, _,
-        ) = state
-        assertEquals(state.cards, cards)
-        assertEquals(state.score, score)
-        assertEquals(state.pairCount, pairs)
+        assertEquals(state.cards.size, decoded.cards.size)
+        assertEquals(state.cards[0].id, decoded.cards[0].id)
+        assertEquals(state.score, decoded.score)
+        assertEquals(state.lastMatchedIds.size, decoded.lastMatchedIds.size)
+        assertEquals(state.lastMatchedIds[0], decoded.lastMatchedIds[0])
     }
 
     @Test
-    fun `test equality and hashCode`() {
-        val state1 = MemoryGameState(cards = persistentListOf(), pairCount = 6)
-        val state2 = MemoryGameState(cards = persistentListOf(), pairCount = 6)
-
-        assertEquals(state1, state2)
-        assertEquals(state1.hashCode(), state2.hashCode())
+    fun testDefaults() {
+        val state = MemoryGameState()
+        assertEquals(0, state.score)
+        assertEquals(0, state.moves)
+        assertEquals(8, state.pairCount)
     }
 
     @Test
-    fun `test toString`() {
-        val state = MemoryGameState(cards = persistentListOf(), pairCount = 6, score = 999)
-        assertTrue(state.toString().contains("999"))
-    }
-
-    @Test
-    fun `test companion default`() {
-        val default = MemoryGameState(persistentListOf(), 6)
-        // Just verify it doesn't crash
-        assertEquals(default.pairCount, 6)
+    fun testCopy() {
+        val state = MemoryGameState()
+        val copied = state.copy(score = 50)
+        assertEquals(50, copied.score)
+        assertEquals(state.cards, copied.cards)
+        assertEquals(state.pairCount, copied.pairCount)
     }
 }

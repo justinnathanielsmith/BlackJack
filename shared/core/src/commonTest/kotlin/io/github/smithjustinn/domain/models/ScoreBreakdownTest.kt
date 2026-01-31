@@ -5,31 +5,26 @@ import kotlin.test.assertEquals
 
 class ScoreBreakdownTest {
     @Test
-    fun `test default values`() {
+    fun testDefaults() {
         val breakdown = ScoreBreakdown()
-        assertEquals(0, breakdown.totalScore)
         assertEquals(0, breakdown.basePoints)
+        assertEquals(0, breakdown.timeBonus)
+        assertEquals(0, breakdown.moveBonus)
+        assertEquals(0, breakdown.totalScore)
     }
 
     @Test
-    fun `test custom values`() {
+    fun testCustomValues() {
         val breakdown =
             ScoreBreakdown(
-                basePoints = 1000,
-                comboBonus = 500,
-                totalScore = 1500,
+                basePoints = 100,
+                timeBonus = 50,
+                moveBonus = 20,
+                totalScore = 170,
             )
-        assertEquals(1000, breakdown.basePoints)
-        assertEquals(500, breakdown.comboBonus)
-        assertEquals(1500, breakdown.totalScore)
-    }
-
-    @Test
-    fun `test copy`() {
-        val breakdown1 = ScoreBreakdown(totalScore = 100)
-        val breakdown2 = breakdown1.copy(totalScore = 200)
-
-        assertEquals(100, breakdown1.totalScore)
-        assertEquals(200, breakdown2.totalScore)
+        assertEquals(100, breakdown.basePoints)
+        assertEquals(50, breakdown.timeBonus)
+        assertEquals(20, breakdown.moveBonus)
+        assertEquals(170, breakdown.totalScore)
     }
 }

@@ -11,26 +11,25 @@ import io.github.smithjustinn.data.local.DailyChallengeDao
 import io.github.smithjustinn.data.local.DailyChallengeEntity
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.test.StandardTestDispatcher
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class DailyChallengeRepositoryTest {
     private val dao = mock<DailyChallengeDao>()
-    private val testDispatcher = StandardTestDispatcher()
-    private val dispatchers =
-        CoroutineDispatchers(
-            main = testDispatcher,
-            mainImmediate = testDispatcher,
-            io = testDispatcher,
-            default = testDispatcher,
-        )
+    private val testDispatcher = UnconfinedTestDispatcher()
+    private val dispatchers = CoroutineDispatchers(
+        main = testDispatcher,
+        mainImmediate = testDispatcher,
+        io = testDispatcher,
+        default = testDispatcher
+    )
     private val repository = DailyChallengeRepositoryImpl(dao, dispatchers)
 
     @Test
     fun testIsChallengeCompleted_true() =
-        runTest(testDispatcher) {
+        runTest {
             val date = 123456789L
             val entity = DailyChallengeEntity(date, true, 100, 60, 20)
             every { dao.getDailyChallenge(date) } returns flowOf(entity)
@@ -43,7 +42,7 @@ class DailyChallengeRepositoryTest {
 
     @Test
     fun testIsChallengeCompleted_false() =
-        runTest(testDispatcher) {
+        runTest {
             val date = 123456789L
             val entity = DailyChallengeEntity(date, false, 0, 0, 0)
             every { dao.getDailyChallenge(date) } returns flowOf(entity)
@@ -56,7 +55,7 @@ class DailyChallengeRepositoryTest {
 
     @Test
     fun testIsChallengeCompleted_null() =
-        runTest(testDispatcher) {
+        runTest {
             val date = 123456789L
             every { dao.getDailyChallenge(date) } returns flowOf(null)
 
@@ -68,9 +67,9 @@ class DailyChallengeRepositoryTest {
 
     @Test
     fun testSaveChallengeResult() =
-        runTest(testDispatcher) {
+        runTest {
             val date = 123456789L
-            everySuspend { dao.insertOrUpdate(any()) } returns Unit
+            everySuspend { dao.insertOrUpdate(any<DailyChallengeEntity>()) } returns Unit
 
             repository.saveChallengeResult(date, 100, 60, 20)
 
