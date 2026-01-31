@@ -32,6 +32,13 @@ when (val response = api.get()) {
 
 ## Multi-Dollar Strings
 Use `$$` for JSON or Regex strings to avoid escaping curly braces.
+```kotlin
+val json = $$"""
+{
+  "key": "${value}"
+}
+"""$$
+```
 
 ## 🕒 Time & Clock (Kotlin 2.3 Stable)
 

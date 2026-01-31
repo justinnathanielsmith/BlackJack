@@ -23,6 +23,10 @@ Organize tests using `// region` blocks:
 fun `example`() = runTest {
     val repository = mock<Repository>()
     everySuspend { repository.getData() } returns "Success"
-    // ... test logic
+    
+    val result = repository.getData()
+    
+    assertEquals("Success", result)
+    verifySuspend { repository.getData() }
 }
 ```

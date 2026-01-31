@@ -34,7 +34,7 @@ Before generating code, you **MUST** align with:
 
 ## 2. Compose Best Practices (2026)
 - **Strong Skipping**: Defaults are good; minimize `@Stable` boilerplate.
-- **Collections**: Use `kotlinx.collections.immutable`.
+- **Collections**: Use `kotlinx.collections.immutable` (e.g. `persistentListOf()`, `persistentMapOf()`).
 - **Modifiers**: Prefer `Modifier.Node` over `composed {}`.
 - **Slots**: Use Slot API over passing complex data models.
 - **State**: Defer state reads to Layout/Draw phases.
