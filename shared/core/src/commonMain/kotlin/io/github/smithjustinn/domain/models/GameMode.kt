@@ -9,5 +9,4 @@ import kotlinx.serialization.Serializable
 enum class GameMode {
     TIME_ATTACK,
     DAILY_CHALLENGE,
-    HIGH_ROLLER,
 }

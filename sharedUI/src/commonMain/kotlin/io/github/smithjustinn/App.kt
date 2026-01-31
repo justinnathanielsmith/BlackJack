@@ -21,7 +21,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.theme.AppTheme
-import io.github.smithjustinn.ui.circuit.BuyInContent
+
 import io.github.smithjustinn.ui.game.GameContent
 import io.github.smithjustinn.ui.root.RootComponent
 import io.github.smithjustinn.ui.settings.SettingsContent
@@ -66,7 +66,6 @@ fun App(
                         is RootComponent.Child.Game -> GameContent(child.component)
                         is RootComponent.Child.Settings -> SettingsContent(child.component)
                         is RootComponent.Child.Stats -> StatsContent(child.component)
-                        is RootComponent.Child.BuyIn -> BuyInContent(child.component)
                     }
                 }
             }

@@ -104,7 +104,7 @@ fun ResultsCard(
     val titleRes =
         when {
             isBusted -> Res.string.busted
-            isWon && mode == GameMode.HIGH_ROLLER -> Res.string.game_complete
+
             isWon -> Res.string.game_complete
             isTimeAttack -> Res.string.times_up
             else -> Res.string.game_over
@@ -213,10 +213,8 @@ private fun CasinoHeader(
         Spacer(modifier = Modifier.height(4.dp))
         Text(
             text =
-                if (isWon &&
-                    mode == GameMode.HIGH_ROLLER
-                ) {
-                    stringResource(Res.string.circuit_completed)
+                if (isWon) {
+                    stringResource(Res.string.game_complete).uppercase()
                 } else {
                     stringResource(titleRes).uppercase()
                 },

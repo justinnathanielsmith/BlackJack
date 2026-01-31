@@ -13,7 +13,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.game_mode
 import io.github.smithjustinn.resources.mode_daily_challenge_caps
-import io.github.smithjustinn.resources.mode_high_roller_caps
+
 import io.github.smithjustinn.resources.mode_time_attack_caps
 import io.github.smithjustinn.ui.components.PillSegmentedControl
 import org.jetbrains.compose.resources.stringResource
@@ -24,7 +24,7 @@ fun ModeSelector(
     onModeSelected: (GameMode) -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    val modes = listOf(GameMode.TIME_ATTACK, GameMode.HIGH_ROLLER)
+    val modes = listOf(GameMode.TIME_ATTACK, GameMode.DAILY_CHALLENGE)
 
     Column(
         modifier = modifier,
@@ -45,7 +45,7 @@ fun ModeSelector(
                 when (mode) {
                     GameMode.TIME_ATTACK -> stringResource(Res.string.mode_time_attack_caps)
                     GameMode.DAILY_CHALLENGE -> stringResource(Res.string.mode_daily_challenge_caps)
-                    GameMode.HIGH_ROLLER -> stringResource(Res.string.mode_high_roller_caps)
+
                 }
             },
         )

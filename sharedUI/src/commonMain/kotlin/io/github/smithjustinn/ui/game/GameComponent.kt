@@ -18,9 +18,5 @@ interface GameComponent {
     fun onWalkthroughAction(isComplete: Boolean)
 
     fun onDoubleDown()
-
-    fun onCycleStage(
-        nextStage: io.github.smithjustinn.domain.models.CircuitStage,
-        bankedScore: Int,
-    )
 }
+

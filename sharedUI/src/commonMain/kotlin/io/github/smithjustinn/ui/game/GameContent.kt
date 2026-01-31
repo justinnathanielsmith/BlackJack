@@ -232,8 +232,6 @@ private fun GameMainScreen(
                             state.game.mode == GameMode.TIME_ATTACK &&
                                 state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
                         score = state.game.score,
-                        bankedScore = state.game.bankedScore,
-                        currentPot = state.game.currentPot,
                         isHeatMode = state.isHeatMode,
                     ),
                 onBackClick = {

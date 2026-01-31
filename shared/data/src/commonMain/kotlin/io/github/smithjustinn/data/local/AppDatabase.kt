@@ -16,7 +16,6 @@ import androidx.sqlite.execSQL
         GameStateEntity::class,
         SettingsEntity::class,
         DailyChallengeEntity::class,
-        CircuitStatsEntity::class,
     ],
     version = AppDatabase.DATABASE_VERSION,
 )
@@ -33,7 +32,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     abstract fun dailyChallengeDao(): DailyChallengeDao
 
-    abstract fun circuitStatsDao(): CircuitStatsDao
+
 
     companion object {
         const val DATABASE_VERSION = 8

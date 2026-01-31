@@ -1,7 +1,7 @@
 package io.github.smithjustinn.ui.game
 
 import com.arkivanov.decompose.ComponentContext
-import io.github.smithjustinn.data.local.CircuitStatsEntity
+
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.GameAction
 import io.github.smithjustinn.domain.GameEffect
@@ -9,7 +9,6 @@ import io.github.smithjustinn.domain.GameStateMachine
 import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.TimeAttackLogic
 import io.github.smithjustinn.domain.models.CardDisplaySettings
-import io.github.smithjustinn.domain.models.CircuitStage
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.utils.componentScope
@@ -34,7 +33,6 @@ class DefaultGameComponent(
     private val appGraph: AppGraph,
     private val args: GameArgs,
     private val onBackClicked: () -> Unit,
-    private val onCycleStage: (nextStage: CircuitStage, bankedScore: Int) -> Unit,
 ) : GameComponent,
     ComponentContext by componentContext {
     private val dispatchers = appGraph.coroutineDispatchers
@@ -217,35 +215,6 @@ class DefaultGameComponent(
         val initialState =
             appGraph
                 .startNewGameUseCase(pairCount, mode = mode, seed = finalSeed)
-                .copy(
-                    bankedScore = args.bankedScore,
-                    currentWager = args.currentWager,
-                    circuitStage = args.circuitStage ?: CircuitStage.QUALIFIER,
-                )
-
-        // Save active circuit run if starting a new High Roller round
-        if (mode == GameMode.HIGH_ROLLER) {
-            scope.launch {
-                appGraph.appDatabase.circuitStatsDao().saveCircuitStats(
-                    CircuitStatsEntity(
-                        runId =
-                            args.seed?.toString() ?: Clock.System
-                                .now()
-                                .toEpochMilliseconds()
-                                .toString(),
-                        currentStageId =
-                            (
-                                args.circuitStage
-                                    ?: CircuitStage.QUALIFIER
-                            ).id,
-                        bankedScore = args.bankedScore,
-                        currentWager = args.currentWager,
-                        timestamp = Clock.System.now().toEpochMilliseconds(),
-                        isActive = true,
-                    ),
-                )
-            }
-        }
 
         _events.tryEmit(GameUiEvent.PlayDeal)
         return initialState
@@ -370,7 +339,7 @@ class DefaultGameComponent(
                 gameMode = wonState.mode,
             )
 
-            handleHighRollerCycling(wonState)
+            handleDailyChallenge(wonState)
             handleDailyChallenge(wonState)
             appGraph.clearSavedGameUseCase()
         }
@@ -381,42 +350,12 @@ class DefaultGameComponent(
         // Helper to clear save
         scope.launch {
             val game = _state.value.game
-            if (game.mode == GameMode.HIGH_ROLLER && game.isBusted) {
-                game.seed?.let { seed -> appGraph.appDatabase.circuitStatsDao().deactivateRun(seed.toString()) }
-            }
+
             appGraph.clearSavedGameUseCase()
         }
     }
 
-    private suspend fun handleHighRollerCycling(bonuses: MemoryGameState) {
-        if (bonuses.mode == GameMode.HIGH_ROLLER) {
-            val nextStage =
-                when (bonuses.circuitStage) {
-                    CircuitStage.QUALIFIER -> CircuitStage.SEMI_FINAL
-                    CircuitStage.SEMI_FINAL -> CircuitStage.GRAND_FINALE
-                    CircuitStage.GRAND_FINALE -> null
-                }
-            if (nextStage != null) {
-                appGraph.appDatabase.circuitStatsDao().saveCircuitStats(
-                    CircuitStatsEntity(
-                        runId =
-                            bonuses.seed?.toString() ?: Clock.System
-                                .now()
-                                .toEpochMilliseconds()
-                                .toString(),
-                        currentStageId = nextStage.id,
-                        bankedScore = bonuses.bankedScore,
-                        currentWager = 0,
-                        timestamp = Clock.System.now().toEpochMilliseconds(),
-                        isActive = true,
-                    ),
-                )
-                onCycleStage(nextStage, bonuses.bankedScore)
-            } else {
-                bonuses.seed?.let { appGraph.appDatabase.circuitStatsDao().deactivateRun(it.toString()) }
-            }
-        }
-    }
+
 
     private suspend fun handleDailyChallenge(bonuses: MemoryGameState) {
         if (bonuses.mode == GameMode.DAILY_CHALLENGE) {
@@ -457,12 +396,7 @@ class DefaultGameComponent(
         }
     }
 
-    override fun onCycleStage(
-        nextStage: CircuitStage,
-        bankedScore: Int,
-    ) {
-        onCycleStage.invoke(nextStage, bankedScore)
-    }
+
 
     private fun isSavedGameValid(
         savedGame: Pair<MemoryGameState, Long>,

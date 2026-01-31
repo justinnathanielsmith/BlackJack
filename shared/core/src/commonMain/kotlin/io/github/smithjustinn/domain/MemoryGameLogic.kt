@@ -124,18 +124,7 @@ object MemoryGameLogic {
         val matchBasePoints = config.baseMatchPoints
         val matchComboBonus = comboFactor * config.comboBonusPoints
 
-        val scoreResult =
-            if (state.mode == GameMode.HIGH_ROLLER) {
-                val hrResult = HighRollerLogic.calculateHighRollerScore(state, isWon, matchBasePoints, matchComboBonus)
-                MatchScoreResult(
-                    finalScore = hrResult.finalScore,
-                    resultingPot = hrResult.resultingPot,
-                    resultingBankedScore = hrResult.resultingBankedScore,
-                    ddBonus = hrResult.ddBonus,
-                )
-            } else {
-                calculateMatchScore(state, isWon, matchBasePoints, matchComboBonus)
-            }
+        val scoreResult = calculateMatchScore(state, isWon, matchBasePoints, matchComboBonus)
 
         val comment =
             GameCommentGenerator.generateMatchComment(
@@ -153,8 +142,6 @@ object MemoryGameLogic {
                 isGameOver = isWon,
                 moves = moves,
                 score = scoreResult.finalScore,
-                currentPot = scoreResult.resultingPot,
-                bankedScore = scoreResult.resultingBankedScore,
                 totalBasePoints = state.totalBasePoints + matchBasePoints,
                 totalComboBonus = state.totalComboBonus + matchComboBonus,
                 totalDoubleDownBonus = scoreResult.ddBonus,
@@ -195,24 +182,12 @@ object MemoryGameLogic {
             ) to GameDomainEvent.GameOver
         }
 
-        val isHighRoller = state.mode == GameMode.HIGH_ROLLER
-        val badBeat =
-            if (isHighRoller) {
-                HighRollerLogic.calculateBadBeat(state)
-            } else {
-                null
-            }
-        val finalPot = badBeat?.finalPot ?: 0
-        val isBusted = badBeat?.isBusted ?: false
-
         val newState =
             state.copy(
                 moves = state.moves + 1,
                 comboMultiplier = 0,
-                score = if (isHighRoller) state.bankedScore else state.score.coerceAtLeast(0),
-                currentPot = finalPot,
-                isBusted = isBusted,
-                isGameOver = isBusted,
+                score = state.score.coerceAtLeast(0),
+                isGameOver = false,
                 isDoubleDownActive = false,
                 cards =
                     state.cards
@@ -325,21 +300,16 @@ private fun calculateMatchScore(
     val matchTotal = (matchBasePoints + matchComboBonus) * multiplier
     val ddBonus = if (state.isDoubleDownActive) matchTotal / 2 else 0
 
-    val newBankedScore = state.bankedScore + matchTotal
-    val finalScore = if (isWon) newBankedScore else state.score
+    val finalScore = if (isWon) state.score + matchTotal else state.score
 
     return MatchScoreResult(
         finalScore = finalScore,
-        resultingPot = state.currentPot,
-        resultingBankedScore = newBankedScore,
         ddBonus = ddBonus,
     )
 }
 
 private data class MatchScoreResult(
     val finalScore: Int,
-    val resultingPot: Int,
-    val resultingBankedScore: Int,
     val ddBonus: Int,
 )
 

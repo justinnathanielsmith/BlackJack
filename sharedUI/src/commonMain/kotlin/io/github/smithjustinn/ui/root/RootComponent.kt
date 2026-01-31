@@ -11,11 +11,6 @@ import com.arkivanov.decompose.router.stack.push
 import com.arkivanov.decompose.value.Value
 import com.arkivanov.essenty.backhandler.BackHandler
 import io.github.smithjustinn.di.AppGraph
-import io.github.smithjustinn.domain.models.CircuitStage
-import io.github.smithjustinn.domain.models.GameMode
-import io.github.smithjustinn.domain.models.GameMode.HIGH_ROLLER
-import io.github.smithjustinn.ui.circuit.BuyInComponent
-import io.github.smithjustinn.ui.circuit.DefaultBuyInComponent
 import io.github.smithjustinn.ui.game.DefaultGameComponent
 import io.github.smithjustinn.ui.game.GameArgs
 import io.github.smithjustinn.ui.game.GameComponent
@@ -25,6 +20,7 @@ import io.github.smithjustinn.ui.start.DefaultStartComponent
 import io.github.smithjustinn.ui.start.StartComponent
 import io.github.smithjustinn.ui.stats.DefaultStatsComponent
 import io.github.smithjustinn.ui.stats.StatsComponent
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -52,10 +48,6 @@ interface RootComponent {
 
         class Stats(
             val component: StatsComponent,
-        ) : Child()
-
-        class BuyIn(
-            val component: BuyInComponent,
         ) : Child()
     }
 }
@@ -119,7 +111,6 @@ class DefaultRootComponent(
             is Config.Game -> RootComponent.Child.Game(createGameComponent(config, componentContext))
             is Config.Settings -> RootComponent.Child.Settings(createSettingsComponent(componentContext))
             is Config.Stats -> RootComponent.Child.Stats(createStatsComponent(componentContext))
-            is Config.BuyIn -> RootComponent.Child.BuyIn(createBuyInComponent(config, componentContext))
         }
 
     private fun createStartComponent(componentContext: ComponentContext): StartComponent =
@@ -127,30 +118,15 @@ class DefaultRootComponent(
             componentContext = componentContext,
             appGraph = appGraph,
             onNavigateToGame =
-                @OptIn(DelicateDecomposeApi::class) { pairs, mode, forceNewGame, stage, bankedScore, shouldOpenBuyIn ->
-                    if (mode == HIGH_ROLLER && shouldOpenBuyIn) {
-                        val startStage =
-                            if (forceNewGame) {
-                                CircuitStage.QUALIFIER
-                            } else {
-                                stage ?: CircuitStage.QUALIFIER
-                            }
-                        val startBank = if (forceNewGame) 0 else bankedScore ?: 0
-                        navigation.push(Config.BuyIn(startStage, startBank))
-                    } else {
-                        navigation.push(
-                            Config.Game(
-                                pairs = pairs,
-                                mode = mode,
-                                forceNewGame = forceNewGame,
-                                seed = null,
-                                circuitStage = stage,
-                                bankedScore = bankedScore ?: 0,
-                                // Wager will be loaded from saved game or handled by BuyIn
-                                currentWager = if (forceNewGame) 0 else 0,
-                            ),
-                        )
-                    }
+                @OptIn(DelicateDecomposeApi::class) { pairs, mode, forceNewGame ->
+                    navigation.push(
+                        Config.Game(
+                            pairs = pairs,
+                            mode = mode,
+                            forceNewGame = forceNewGame,
+                            seed = null,
+                        ),
+                    )
                 },
             onNavigateToSettings =
                 @OptIn(DelicateDecomposeApi::class) {
@@ -175,44 +151,11 @@ class DefaultRootComponent(
                     mode = config.mode,
                     forceNewGame = config.forceNewGame,
                     seed = config.seed,
-                    circuitStage = config.circuitStage,
-                    bankedScore = config.bankedScore,
-                    currentWager = config.currentWager,
                 ),
             onBackClicked = navigation::pop,
-            onCycleStage = { nextStage, bankedScore ->
-                @OptIn(DelicateDecomposeApi::class)
-                navigation.push(Config.BuyIn(nextStage, bankedScore))
-            },
         )
 
-    private fun createBuyInComponent(
-        config: Config.BuyIn,
-        componentContext: ComponentContext,
-    ): BuyInComponent =
-        DefaultBuyInComponent(
-            componentContext = componentContext,
-            stage = config.stage,
-            bankedScore = config.bankedScore,
-            onStartRound = { wager ->
-                @OptIn(DelicateDecomposeApi::class)
-                navigation.push(
-                    Config.Game(
-                        pairs = config.stage.pairCount,
-                        mode = HIGH_ROLLER,
-                        forceNewGame = true,
-                        seed = null,
-                        circuitStage = config.stage,
-                        bankedScore = config.bankedScore,
-                        currentWager = wager,
-                    ),
-                )
-            },
-            onBackClicked = {
-                @OptIn(DelicateDecomposeApi::class)
-                navigation.popWhile { it != Config.Start }
-            },
-        )
+
 
     private fun createSettingsComponent(componentContext: ComponentContext): SettingsComponent =
         DefaultSettingsComponent(
@@ -238,20 +181,11 @@ class DefaultRootComponent(
             val mode: GameMode,
             val forceNewGame: Boolean,
             val seed: Long?,
-            val circuitStage: CircuitStage? = null,
-            val bankedScore: Int = 0,
-            val currentWager: Int = 0,
         ) : Config
 
         @Serializable data object Settings : Config
 
         @Serializable data object Stats : Config
-
-        @Serializable
-        data class BuyIn(
-            val stage: CircuitStage,
-            val bankedScore: Int,
-        ) : Config
     }
 }
 

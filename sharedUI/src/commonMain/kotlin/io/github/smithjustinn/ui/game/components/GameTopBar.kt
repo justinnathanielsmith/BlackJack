@@ -38,7 +38,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.mute_content_description
-import io.github.smithjustinn.resources.pot_caps
+
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.score_caps
 import io.github.smithjustinn.resources.unmute_content_description
@@ -131,30 +131,21 @@ private fun TopBarMainRow(
             layout = if (state.compact) TimerLayout.COMPACT else TimerLayout.STANDARD,
         )
 
-        if (state.mode == GameMode.HIGH_ROLLER) {
-            HLScoreDisplay(
-                banked = state.bankedScore,
-                pot = state.currentPot,
-                compact = state.compact,
-                modifier = Modifier.onGloballyPositioned { coords -> onScorePositioned(coords.positionInRoot()) },
-            )
-        } else {
-            PotScoreDisplay(
-                score = state.score,
-                compact = state.compact,
-                modifier =
-                    Modifier.onGloballyPositioned { coords ->
-                        onScorePositioned(coords.positionInRoot())
-                    },
-            )
-        }
+        PotScoreDisplay(
+            score = state.score,
+            compact = state.compact,
+            modifier =
+                Modifier.onGloballyPositioned { coords ->
+                    onScorePositioned(coords.positionInRoot())
+                },
+        )
 
         ControlButtons(
             isAudioEnabled = state.isAudioEnabled,
             onMuteClick = onMuteClick,
             onRestartClick = onRestartClick,
             compact = state.compact,
-            showRestart = state.mode != GameMode.HIGH_ROLLER,
+            showRestart = true,
         )
     }
 }
@@ -183,99 +174,11 @@ private fun ControlButtons(
     }
 }
 
-@Composable
-private fun HLScoreDisplay(
-    banked: Int,
-    pot: Int,
-    compact: Boolean,
-    modifier: Modifier = Modifier,
-) {
-    Row(
-        modifier = modifier.height(if (compact) 36.dp else 44.dp),
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-    ) {
-        // Banked Score (Safe)
-        HLBankedScore(banked = banked, compact = compact)
 
-        // Active Pot (At Risk)
-        HLActivePot(pot = pot, compact = compact)
-    }
-}
 
-@Composable
-private fun HLBankedScore(
-    banked: Int,
-    compact: Boolean,
-) {
-    Surface(
-        shape =
-            androidx.compose.foundation.shape
-                .RoundedCornerShape(if (compact) 12.dp else 16.dp),
-        color = Color.Black.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PokerTheme.colors.brass.copy(alpha = 0.4f)),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = if (compact) 8.dp else 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Icon(
-                AppIcons.Trophy,
-                contentDescription = null,
-                tint = PokerTheme.colors.goldenYellow.copy(alpha = 0.8f),
-                modifier = Modifier.size(if (compact) 14.dp else 16.dp),
-            )
-            Text(
-                text = banked.toString(),
-                style =
-                    MaterialTheme.typography.titleMedium.copy(
-                        fontSize = if (compact) 14.sp else 16.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
-                color = PokerTheme.colors.goldenYellow,
-            )
-        }
-    }
-}
 
-@Composable
-private fun HLActivePot(
-    pot: Int,
-    compact: Boolean,
-) {
-    Surface(
-        shape =
-            androidx.compose.foundation.shape
-                .RoundedCornerShape(if (compact) 12.dp else 16.dp),
-        color = PokerTheme.colors.tacticalRed.copy(alpha = 0.2f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, PokerTheme.colors.goldenYellow.copy(alpha = 0.6f)),
-    ) {
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.padding(horizontal = if (compact) 8.dp else 12.dp),
-            horizontalArrangement = Arrangement.spacedBy(4.dp),
-        ) {
-            Icon(
-                AppIcons.CasinoChip,
-                contentDescription = null,
-                tint = PokerTheme.colors.goldenYellow,
-                modifier = Modifier.size(if (compact) 14.dp else 16.dp),
-            )
-            Text(
-                text = pot.toString(),
-                style =
-                    MaterialTheme.typography.titleLarge.copy(
-                        fontSize = if (compact) 16.sp else 20.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-                    ),
-                color = PokerTheme.colors.goldenYellow,
-            )
-        }
-    }
-}
+
+
 
 @Composable
 private fun PotScoreDisplay(
@@ -297,7 +200,7 @@ private fun PotScoreDisplay(
             horizontalArrangement = Arrangement.spacedBy(if (compact) 4.dp else 8.dp),
         ) {
             Text(
-                text = if (score > 0) stringResource(Res.string.pot_caps) else stringResource(Res.string.score_caps),
+                text = stringResource(Res.string.score_caps),
                 style =
                     androidx.compose.material3.MaterialTheme.typography.labelSmall.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Black,

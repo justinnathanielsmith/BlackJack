@@ -37,8 +37,4 @@ data class MemoryGameState(
     @Serializable(with = IntListSerializer::class)
     val lastMatchedIds: ImmutableList<Int> = persistentListOf(),
     val seed: Long? = null,
-    val currentPot: Int = 0,
-    val bankedScore: Int = 0,
-    val currentWager: Int = 0,
-    val circuitStage: CircuitStage = CircuitStage.QUALIFIER,
 )
