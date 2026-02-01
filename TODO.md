@@ -22,4 +22,3 @@
 
 ## Technical / Testing
 - [ ] **Persistence Verification**: Verify Room database migrations and storage work correctly across app restarts on all platforms.
-- [ ] **Repository Tests**: Re-implement `PlayerEconomyRepositoryTest` with a proper in-memory Room database setup once the test environment is stable.

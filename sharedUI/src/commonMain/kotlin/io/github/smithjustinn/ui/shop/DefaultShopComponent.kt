@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.shop
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.ShopItem
+import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.usecases.economy.BuyItemUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetPlayerBalanceUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetShopItemsUseCase
@@ -15,14 +16,14 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
-import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 
 class DefaultShopComponent(
     componentContext: ComponentContext,
     private val appGraph: AppGraph, // Using AppGraph for injection if possible, or KoinComponent
     private val onBackClicked: () -> Unit,
-) : ShopComponent, ComponentContext by componentContext, KoinComponent {
-
+) : ShopComponent,
+    ComponentContext by componentContext,
+    KoinComponent {
     // Inject use cases via Koin (or could be passed via AppGraph if exposed there,
     // but typically we can inject if AppGraph doesn't have them all property listed)
     // Actually AppGraph is preferred if available.
@@ -34,6 +35,7 @@ class DefaultShopComponent(
     private val buyItemUseCase: BuyItemUseCase by inject()
     private val getPlayerBalanceUseCase: GetPlayerBalanceUseCase by inject()
     private val getShopItemsUseCase: GetShopItemsUseCase by inject()
+
     // Directly injecting repo for unlocked items for now
     private val playerEconomyRepository: PlayerEconomyRepository by inject()
 
@@ -52,14 +54,14 @@ class DefaultShopComponent(
                 ShopState(
                     balance = balance,
                     items = allItems,
-                    unlockedItemIds = unlockedIds
+                    unlockedItemIds = unlockedIds,
                 )
             }.collect { newState ->
                 _state.update {
                     it.copy(
                         balance = newState.balance,
                         items = newState.items,
-                        unlockedItemIds = newState.unlockedItemIds
+                        unlockedItemIds = newState.unlockedItemIds,
                     )
                 }
             }
@@ -77,7 +79,7 @@ class DefaultShopComponent(
                 // Show error
                 _state.update { it.copy(error = result.exceptionOrNull()?.message ?: "Purchase failed") }
             } else {
-                 // Success handled by flow update
+                // Success handled by flow update
             }
         }
     }

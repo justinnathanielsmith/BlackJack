@@ -60,31 +60,32 @@ fun ShopContent(
                 .fillMaxSize()
                 .pokerBackground(),
     ) {
-         AuroraEffect(
+        AuroraEffect(
             modifier = Modifier.align(Alignment.BottomCenter),
         )
 
         Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding()
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .statusBarsPadding()
+                    .navigationBarsPadding(),
         ) {
             ShopHeader(
                 balance = state.balance,
-                onBackClicked = { component.onBackClicked() }
+                onBackClicked = { component.onBackClicked() },
             )
 
             ShopItemsGrid(
                 state = state,
                 onBuyItem = { component.onBuyItemClicked(it) },
-                modifier = Modifier.weight(1f)
+                modifier = Modifier.weight(1f),
             )
         }
 
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         )
     }
 }
@@ -93,46 +94,48 @@ fun ShopContent(
 private fun ShopHeader(
     balance: Long,
     onBackClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier
-            .fillMaxWidth()
-            .padding(16.dp),
-        verticalAlignment = Alignment.CenterVertically
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
     ) {
         Icon(
             imageVector = AppIcons.ArrowBack,
             contentDescription = "Back",
             tint = PokerTheme.colors.onBackground,
-            modifier = Modifier
-                .size(32.dp)
-                .clickable { onBackClicked() }
+            modifier =
+                Modifier
+                    .size(32.dp)
+                    .clickable { onBackClicked() },
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = "The Shop",
             style = MaterialTheme.typography.headlineMedium,
             color = PokerTheme.colors.onBackground,
-            fontWeight = FontWeight.Bold
+            fontWeight = FontWeight.Bold,
         )
         Spacer(modifier = Modifier.weight(1f))
 
         // Bankroll Display
         Row(
-            verticalAlignment = Alignment.CenterVertically
+            verticalAlignment = Alignment.CenterVertically,
         ) {
             Icon(
                 imageVector = AppIcons.CasinoChip,
                 contentDescription = "Bankroll",
                 tint = PokerTheme.colors.goldenYellow,
-                modifier = Modifier.size(24.dp)
+                modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
                 text = "$$balance",
                 style = MaterialTheme.typography.titleMedium,
-                color = PokerTheme.colors.goldenYellow
+                color = PokerTheme.colors.goldenYellow,
             )
         }
     }
@@ -142,21 +145,23 @@ private fun ShopHeader(
 private fun ShopItemsGrid(
     state: ShopState,
     onBuyItem: (ShopItem) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
-        contentPadding = androidx.compose.foundation.layout.PaddingValues(16.dp),
+        contentPadding =
+            androidx.compose.foundation.layout
+                .PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
-        modifier = modifier
+        modifier = modifier,
     ) {
         items(state.items) { item ->
             ShopItemCard(
                 item = item,
                 isUnlocked = state.unlockedItemIds.contains(item.id),
                 canAfford = state.balance >= item.price,
-                onBuy = { onBuyItem(item) }
+                onBuy = { onBuyItem(item) },
             )
         }
     }

@@ -4,9 +4,9 @@ import co.touchlab.kermit.Logger
 import io.github.smithjustinn.data.local.PlayerEconomyDao
 import io.github.smithjustinn.data.local.PlayerEconomyEntity
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
+import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
@@ -19,8 +19,9 @@ import kotlinx.coroutines.sync.withLock
 class PlayerEconomyRepositoryImpl(
     private val dao: PlayerEconomyDao,
     private val logger: Logger,
+    dispatchers: CoroutineDispatchers,
+    private val scope: CoroutineScope = CoroutineScope(dispatchers.io + SupervisorJob()),
 ) : PlayerEconomyRepository {
-    private val scope = CoroutineScope(Dispatchers.IO)
     private val writeMutex = Mutex()
 
     private val economyFlow =
@@ -95,9 +96,11 @@ class PlayerEconomyRepositoryImpl(
         }
 
     override suspend fun isItemUnlocked(itemId: String): Boolean {
-        // We can check the StateFlow directly for synchronous checking if needed,
-        // or query DB. StateFlow is better for UI.
-        return unlockedItemIds.value.contains(itemId)
+        val current = getOrCreateEntity()
+        return current.unlockedItemIds
+            .split(",")
+            .filter { it.isNotBlank() }
+            .contains(itemId)
     }
 
     private suspend fun getOrCreateEntity(): PlayerEconomyEntity =

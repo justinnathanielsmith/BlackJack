@@ -1,0 +1,129 @@
+package io.github.smithjustinn.data.repositories
+
+import app.cash.turbine.test
+import co.touchlab.kermit.Logger
+import io.github.smithjustinn.data.local.AppDatabase
+import io.github.smithjustinn.data.local.createTestDatabase
+import io.github.smithjustinn.utils.CoroutineDispatchers
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.UnconfinedTestDispatcher
+import kotlinx.coroutines.test.runTest
+import kotlin.test.AfterTest
+import kotlin.test.BeforeTest
+import kotlin.test.Test
+import kotlin.test.assertEquals
+import kotlin.test.assertFalse
+import kotlin.test.assertTrue
+
+@OptIn(ExperimentalCoroutinesApi::class)
+class PlayerEconomyRepositoryTest {
+    private lateinit var database: AppDatabase
+    private val testDispatcher = UnconfinedTestDispatcher()
+
+    @BeforeTest
+    fun setup() {
+        database = createTestDatabase()
+        // We will initialize the repository in each test to use the appropriate TestScope/backgroundScope
+    }
+
+    private fun createRepository(scope: CoroutineScope): PlayerEconomyRepositoryImpl =
+        PlayerEconomyRepositoryImpl(
+            dao = database.playerEconomyDao(),
+            logger = Logger.withTag("EconomyTest"),
+            dispatchers =
+                CoroutineDispatchers(
+                    main = testDispatcher,
+                    mainImmediate = testDispatcher,
+                    io = testDispatcher,
+                    default = testDispatcher,
+                ),
+            scope = scope,
+        )
+
+    @AfterTest
+    fun cleanup() {
+        database.close()
+    }
+
+    @Test
+    fun addCurrency_increasesBalance() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.balance.test {
+                assertEquals(0L, awaitItem())
+
+                repository.addCurrency(100L)
+                assertEquals(100L, awaitItem())
+
+                repository.addCurrency(50L)
+                assertEquals(150L, awaitItem())
+            }
+        }
+
+    @Test
+    fun deductCurrency_withSufficientFunds_decreasesBalance() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.addCurrency(100L)
+
+            repository.balance.test {
+                assertEquals(100L, awaitItem())
+                val result = repository.deductCurrency(40L)
+                assertTrue(result)
+                assertEquals(60L, awaitItem())
+            }
+        }
+
+    @Test
+    fun deductCurrency_withInsufficientFunds_returnsFalseAndDoesNotChangeBalance() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.addCurrency(50L)
+
+            repository.balance.test {
+                assertEquals(50L, awaitItem())
+                val result = repository.deductCurrency(100L)
+                assertFalse(result)
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun unlockItem_addsItemToSet() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.unlockedItemIds.test {
+                assertTrue(awaitItem().isEmpty())
+
+                repository.unlockItem("item_1")
+                assertTrue(awaitItem().contains("item_1"))
+
+                repository.unlockItem("item_2")
+                assertTrue(awaitItem().contains("item_2"))
+            }
+        }
+
+    @Test
+    fun unlockItem_alreadyUnlockedItem_doesNotDuplicate() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.unlockItem("item_1")
+
+            repository.unlockedItemIds.test {
+                assertEquals(1, awaitItem().size)
+                repository.unlockItem("item_1")
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun isItemUnlocked_returnsCorrectValue() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            assertFalse(repository.isItemUnlocked("item_1"))
+
+            repository.unlockItem("item_1")
+            assertTrue(repository.isItemUnlocked("item_1"))
+        }
+}
