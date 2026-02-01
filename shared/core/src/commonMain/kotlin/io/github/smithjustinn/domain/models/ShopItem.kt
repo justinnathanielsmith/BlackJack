@@ -1,11 +1,15 @@
 package io.github.smithjustinn.domain.models
 
+import kotlinx.serialization.Serializable
+
+@Serializable
 enum class ShopItemType {
     THEME,
     MUSIC,
     POWER_UP,
 }
 
+@Serializable
 data class ShopItem(
     val id: String,
     val name: String,

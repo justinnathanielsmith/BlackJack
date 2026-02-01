@@ -14,6 +14,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import io.github.smithjustinn.domain.models.SavedGame
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StartComponentTest : BaseComponentTest() {
@@ -72,7 +73,8 @@ class StartComponentTest : BaseComponentTest() {
         runTest { lifecycle ->
             val savedGame =
                 MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
-            everySuspend { context.gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
+            everySuspend { context.gameStateRepository.getSavedGameState() } returns
+                 SavedGame(savedGame, 100L)
 
             component = createDefaultComponent(lifecycle)
 
@@ -109,7 +111,8 @@ class StartComponentTest : BaseComponentTest() {
         runTest { lifecycle ->
             val savedGame =
                 MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
-            everySuspend { context.gameStateRepository.getSavedGameState() } returns (savedGame to 100L)
+            everySuspend { context.gameStateRepository.getSavedGameState() } returns
+                 SavedGame(savedGame, 100L)
 
             component = createDefaultComponent(lifecycle)
             testDispatcher.scheduler.runCurrent()
@@ -127,5 +130,6 @@ class StartComponentTest : BaseComponentTest() {
             },
             onNavigateToSettings = { navigatedToSettings = true },
             onNavigateToStats = { navigatedToStats = true },
+            onNavigateToShop = {},
         )
 }

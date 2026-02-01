@@ -6,6 +6,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
+import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.GameMode
@@ -70,7 +71,8 @@ class DefaultGameComponentTest : BaseComponentTest() {
 
             // Mock saved game returns a game (Resume scenario)
             val savedState = MemoryGameState(mode = GameMode.TIME_ATTACK, pairCount = 8)
-            everySuspend { context.gameStateRepository.getSavedGameState() } returns (savedState to 10L)
+            everySuspend { context.gameStateRepository.getSavedGameState() } returns
+                SavedGame(savedState, 10L)
 
             // When
             component = createComponent(lifecycle, forceNewGame = false)

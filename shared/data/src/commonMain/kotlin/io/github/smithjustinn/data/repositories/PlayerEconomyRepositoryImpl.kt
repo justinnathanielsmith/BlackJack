@@ -62,7 +62,8 @@ class PlayerEconomyRepositoryImpl(
             .map { entity ->
                 try {
                     CardBackTheme.valueOf(entity?.selectedThemeId ?: CardBackTheme.GEOMETRIC.name)
-                } catch (e: Exception) {
+                } catch (e: IllegalArgumentException) {
+                    logger.e(e) { "Invalid theme ID: ${entity?.selectedThemeId}, defaulting to GEOMETRIC" }
                     CardBackTheme.GEOMETRIC
                 }
             }.stateIn(

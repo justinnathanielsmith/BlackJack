@@ -39,11 +39,14 @@ abstract class AppDatabase : RoomDatabase() {
     companion object {
         const val DATABASE_VERSION = 2
 
-        val MIGRATION_1_2 = object : Migration(1, 2) {
-            override fun migrate(connection: SQLiteConnection) {
-                connection.execSQL("ALTER TABLE player_economy ADD COLUMN selectedThemeId TEXT NOT NULL DEFAULT 'GEOMETRIC'")
+        val MIGRATION_1_2 =
+            object : Migration(1, 2) {
+                override fun migrate(connection: SQLiteConnection) {
+                    connection.execSQL(
+                        "ALTER TABLE player_economy ADD COLUMN selectedThemeId TEXT NOT NULL DEFAULT 'GEOMETRIC'",
+                    )
+                }
             }
-        }
     }
 }
 

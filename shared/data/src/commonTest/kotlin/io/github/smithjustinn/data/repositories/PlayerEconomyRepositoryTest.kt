@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.data.local.AppDatabase
 import io.github.smithjustinn.data.local.createTestDatabase
+import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -15,8 +16,6 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import io.github.smithjustinn.domain.models.CardBackTheme
-
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class PlayerEconomyRepositoryTest {
@@ -68,18 +67,15 @@ class PlayerEconomyRepositoryTest {
         runTest(testDispatcher) {
             val repository = createRepository(backgroundScope)
             repository.balance.test {
-
                 assertEquals(0L, awaitItem())
-                
+
                 repository.addCurrency(100L)
                 assertEquals(100L, awaitItem())
-                
+
                 val result = repository.deductCurrency(40L)
                 assertTrue(result)
                 assertEquals(60L, awaitItem())
             }
-
-
         }
 
     @Test
@@ -87,18 +83,15 @@ class PlayerEconomyRepositoryTest {
         runTest(testDispatcher) {
             val repository = createRepository(backgroundScope)
             repository.balance.test {
-
                 assertEquals(0L, awaitItem())
-                
+
                 repository.addCurrency(50L)
                 assertEquals(50L, awaitItem())
-                
+
                 val result = repository.deductCurrency(100L)
                 assertFalse(result)
                 expectNoEvents()
             }
-
-
         }
 
     @Test
@@ -121,17 +114,14 @@ class PlayerEconomyRepositoryTest {
         runTest(testDispatcher) {
             val repository = createRepository(backgroundScope)
             repository.unlockedItemIds.test {
-
                 assertTrue(awaitItem().isEmpty())
-                
+
                 repository.unlockItem("item_1")
                 assertTrue(awaitItem().contains("item_1"))
-                
+
                 repository.unlockItem("item_1")
                 expectNoEvents()
             }
-
-
         }
 
     @Test
@@ -184,5 +174,3 @@ class PlayerEconomyRepositoryTest {
             }
         }
 }
-
-

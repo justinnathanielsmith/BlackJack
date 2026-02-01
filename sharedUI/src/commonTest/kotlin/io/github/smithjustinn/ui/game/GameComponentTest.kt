@@ -11,6 +11,7 @@ import dev.mokkery.verifySuspend
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.test.BaseComponentTest
@@ -62,7 +63,7 @@ class GameComponentTest : BaseComponentTest() {
         runTest { lifecycle ->
             val savedGame = MemoryGameState(pairCount = 8, mode = GameMode.TIME_ATTACK)
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                (savedGame to 100L)
+                SavedGame(savedGame, 100L)
 
             component = createComponent(lifecycle, forceNewGame = false)
             testDispatcher.scheduler.runCurrent()
@@ -85,7 +86,7 @@ class GameComponentTest : BaseComponentTest() {
                 )
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                (savedGame to 0L)
+                SavedGame(savedGame, 0L)
 
             component = createComponent(lifecycle, forceNewGame = false)
             testDispatcher.scheduler.runCurrent()
@@ -189,7 +190,7 @@ class GameComponentTest : BaseComponentTest() {
                 )
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                (gameWithCombo to 0L)
+                SavedGame(gameWithCombo, 0L)
 
             component = createComponent(lifecycle, forceNewGame = false)
             testDispatcher.scheduler.runCurrent()
@@ -224,7 +225,7 @@ class GameComponentTest : BaseComponentTest() {
                 MemoryGameState(pairCount = 8, mode = GameMode.TIME_ATTACK, cards = cards.toImmutableList())
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                (savedGame to 30L)
+                SavedGame(savedGame, 30L)
 
             component =
                 createComponent(
@@ -272,7 +273,7 @@ class GameComponentTest : BaseComponentTest() {
                 )
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                (gameWithHighCombo to 0L)
+                SavedGame(gameWithHighCombo, 0L)
 
             component = createComponent(lifecycle, forceNewGame = false, pairCount = 3)
             testDispatcher.scheduler.runCurrent()
@@ -296,7 +297,7 @@ class GameComponentTest : BaseComponentTest() {
             val gameWithMorePairs = gameWithHighCombo.copy(cards = moreCards.toImmutableList(), pairCount = 4)
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                (gameWithMorePairs to 0L)
+                SavedGame(gameWithMorePairs, 0L)
 
             val component2 = createComponent(lifecycle, forceNewGame = false, pairCount = 4)
             testDispatcher.scheduler.runCurrent()

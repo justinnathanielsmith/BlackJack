@@ -15,6 +15,7 @@ import io.github.smithjustinn.domain.repositories.DailyChallengeRepository
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
 import io.github.smithjustinn.domain.usecases.game.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.game.ClearSavedGameUseCase
@@ -44,6 +45,7 @@ class MokkeryTestContext(
     val gameStatsRepository: GameStatsRepository = mock()
     val leaderboardRepository: LeaderboardRepository = mock()
     val dailyChallengeRepository: DailyChallengeRepository = mock()
+    val playerEconomyRepository: PlayerEconomyRepository = mock()
     val audioService: AudioService = mock()
     val hapticsService: HapticsService = mock()
     val logger: Logger = Logger(StaticConfig())
@@ -69,6 +71,7 @@ class MokkeryTestContext(
         every { appGraph.gameStatsRepository } returns gameStatsRepository
         every { appGraph.leaderboardRepository } returns leaderboardRepository
         every { appGraph.dailyChallengeRepository } returns dailyChallengeRepository
+        every { appGraph.playerEconomyRepository } returns playerEconomyRepository
         every { appGraph.audioService } returns audioService
         every { appGraph.hapticsService } returns hapticsService
         every { appGraph.logger } returns logger
@@ -106,6 +109,8 @@ class MokkeryTestContext(
         every { settingsRepository.cardSymbolTheme } returns
             MutableStateFlow(CardSymbolTheme.CLASSIC)
         every { settingsRepository.areSuitsMultiColored } returns MutableStateFlow(false)
+
+        every { playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
 
         // Repository defaults
         everySuspend { gameStateRepository.getSavedGameState() } returns null

@@ -1,0 +1,34 @@
+[
+  {
+    "id": "theme_classic",
+    "name": "Classic Theme",
+    "description": "Traditional card design.",
+    "price": 0,
+    "type": "THEME",
+    "isConsumable": false
+  },
+  {
+    "id": "theme_geometric",
+    "name": "Geometric Theme",
+    "description": "Modern geometric patterns.",
+    "price": 500,
+    "type": "THEME",
+    "isConsumable": false
+  },
+  {
+    "id": "powerup_timebank",
+    "name": "Time Bank",
+    "description": "Add 10 seconds to the clock.",
+    "price": 200,
+    "type": "POWER_UP",
+    "isConsumable": true
+  },
+  {
+    "id": "powerup_peek",
+    "name": "Pocket Aces",
+    "description": "Briefly reveal all cards.",
+    "price": 500,
+    "type": "POWER_UP",
+    "isConsumable": true
+  }
+]
