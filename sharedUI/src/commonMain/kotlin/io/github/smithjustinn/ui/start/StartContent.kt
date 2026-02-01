@@ -96,10 +96,6 @@ fun StartContent(
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onStatsClick()
             },
-            onDailyChallengeClick = {
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                component.onDailyChallengeClick()
-            },
             onShopClick = {
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onShopClick()
@@ -133,7 +129,6 @@ private fun StartScreenLayout(
     onResumeGame: () -> Unit,
     onSettingsClick: () -> Unit,
     onStatsClick: () -> Unit,
-    onDailyChallengeClick: () -> Unit,
     onShopClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
@@ -150,11 +145,10 @@ private fun StartScreenLayout(
                 .statusBarsPadding()
                 .navigationBarsPadding(),
     ) {
-        val headerModifier = Modifier.graphicsLayer { alpha = headerAlpha.value }
+        val headerAlphaValue = headerAlpha.value
+        val headerModifier = Modifier.graphicsLayer { alpha = headerAlphaValue }
 
         StartTopActions(
-            state = state,
-            onDailyChallengeClick = onDailyChallengeClick,
             onStatsClick = onStatsClick,
             onSettingsClick = onSettingsClick,
             onShopClick = onShopClick,
@@ -179,8 +173,6 @@ private fun StartScreenLayout(
 
 @Composable
 private fun BoxScope.StartTopActions(
-    state: DifficultyState,
-    onDailyChallengeClick: () -> Unit,
     onStatsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onShopClick: () -> Unit,
@@ -188,7 +180,7 @@ private fun BoxScope.StartTopActions(
 ) {
     val spacing = PokerTheme.spacing
 
-    // Top Start Action Row (Daily Challenge)
+    // Top Start Action Row
     Row(
         modifier =
             modifier
@@ -211,7 +203,6 @@ private fun BoxScope.StartTopActions(
                 .padding(spacing.medium),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
-
         MedallionIcon(
             icon = AppIcons.Trophy,
             onClick = onStatsClick,
