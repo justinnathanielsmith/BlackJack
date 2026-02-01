@@ -29,7 +29,11 @@ class IosAudioServiceImpl(
     settingsRepository: SettingsRepository,
 ) : AudioService {
     private val scope = CoroutineScope(Dispatchers.Main)
-    private val players = mutableMapOf<StringResource, AVAudioPlayer>()
+
+    // Pool of players for each sound effect to support polyphony
+    private val playerPools = mutableMapOf<StringResource, MutableList<AVAudioPlayer>>()
+    private val poolIndices = mutableMapOf<StringResource, Int>()
+
     private var isSoundEnabled = true
     private var isMusicEnabled = true
     private var isMusicRequested = false
@@ -48,7 +52,7 @@ class IosAudioServiceImpl(
         settingsRepository.soundVolume
             .onEach { volume ->
                 soundVolume = volume
-                players.values.forEach { it.volume = volume }
+                playerPools.values.flatten().forEach { it.volume = volume }
             }.launchIn(scope)
 
         settingsRepository.isMusicEnabled
@@ -94,10 +98,18 @@ class IosAudioServiceImpl(
                         bytes.usePinned { pinned ->
                             NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
                         }
-                    val player = AVAudioPlayer(data = data, error = null)
-                    player.volume = soundVolume
-                    player.prepareToPlay()
-                    players[resource] = player
+
+                    // Create a pool of players for polyphony support
+                    val pool = mutableListOf<AVAudioPlayer>()
+                    repeat(PLAYER_POOL_SIZE) {
+                        val player = AVAudioPlayer(data = data, error = null)
+                        player.volume = soundVolume
+                        player.prepareToPlay()
+                        pool.add(player)
+                    }
+
+                    playerPools[resource] = pool
+                    poolIndices[resource] = 0
                 } catch (
                     @Suppress("TooGenericExceptionCaught") e: Exception,
                 ) {
@@ -110,17 +122,26 @@ class IosAudioServiceImpl(
     private fun playSound(resource: StringResource) {
         if (!isSoundEnabled) return
 
-        val player = players[resource]
-        if (player == null) {
+        val pool = playerPools[resource]
+        if (pool == null || pool.isEmpty()) {
             logger.w { "Sound not loaded yet: $resource" }
             return
         }
 
+        // Round-robin player selection for polyphony
+        val currentIndex = poolIndices[resource] ?: 0
+        val player = pool[currentIndex]
+
+        // Stop and rewind if already playing
         if (player.playing) {
             player.stop()
             player.currentTime = 0.0
         }
+
         player.play()
+
+        // Update index for next call
+        poolIndices[resource] = (currentIndex + 1) % pool.size
     }
 
     override fun playEffect(effect: AudioService.SoundEffect) {
@@ -187,5 +208,9 @@ class IosAudioServiceImpl(
         musicLoadingJob?.cancel()
         musicLoadingJob = null
         musicPlayer?.stop()
+    }
+
+    companion object {
+        private const val PLAYER_POOL_SIZE = 3
     }
 }

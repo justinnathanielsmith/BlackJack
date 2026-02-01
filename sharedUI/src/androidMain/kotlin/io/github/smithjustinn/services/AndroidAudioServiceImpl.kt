@@ -43,6 +43,7 @@ class AndroidAudioServiceImpl(
     private val soundMap = ConcurrentHashMap<StringResource, Int>()
     private val resourceToName = ConcurrentHashMap<StringResource, String>()
     private val loadedSounds = ConcurrentHashMap.newKeySet<Int>()
+    private val fallbackPlayers = ConcurrentHashMap<StringResource, MediaPlayer>()
     private var isSoundEnabled = true
     private var isMusicEnabled = true
     private var isMusicRequested = false
@@ -112,10 +113,21 @@ class AndroidAudioServiceImpl(
         if (soundId != null && loadedSounds.contains(soundId)) {
             val streamId = soundPool.play(soundId, soundVolume, soundVolume, 1, 0, 1f)
             if (streamId == 0) {
+                logger.w { "SoundPool play failed, using fallback for: $resource" }
                 playFallback(resource)
             }
         } else {
-            playFallback(resource)
+            // Sound not loaded yet - wait briefly and retry before falling back
+            scope.launch {
+                kotlinx.coroutines.delay(SOUNDPOOL_RETRY_DELAY_MS)
+                val retrySoundId = soundMap[resource]
+                if (retrySoundId != null && loadedSounds.contains(retrySoundId)) {
+                    soundPool.play(retrySoundId, soundVolume, soundVolume, 1, 0, 1f)
+                } else {
+                    logger.w { "SoundPool not ready after retry, using fallback for: $resource" }
+                    playFallback(resource)
+                }
+            }
         }
     }
 
@@ -127,18 +139,32 @@ class AndroidAudioServiceImpl(
             try {
                 val tempFile = File(context.cacheDir, fileName)
                 if (tempFile.exists()) {
-                    MediaPlayer().apply {
-                        setDataSource(tempFile.absolutePath)
-                        setVolume(soundVolume, soundVolume)
-                        prepare()
-                        setOnCompletionListener { release() }
-                        start()
+                    // Reuse or create MediaPlayer for this resource
+                    val player =
+                        fallbackPlayers.getOrPut(resource) {
+                            MediaPlayer().apply {
+                                setDataSource(tempFile.absolutePath)
+                                setVolume(soundVolume, soundVolume)
+                                prepare()
+                                setOnCompletionListener { mp ->
+                                    mp.seekTo(0)
+                                }
+                            }
+                        }
+
+                    // Reset and play
+                    if (player.isPlaying) {
+                        player.seekTo(0)
+                    } else {
+                        player.start()
                     }
                 }
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
                 logger.e(e) { "Error playing fallback sound: $name" }
+                // Remove failed player from cache
+                fallbackPlayers.remove(resource)?.release()
             }
         }
     }
@@ -211,5 +237,6 @@ class AndroidAudioServiceImpl(
 
     companion object {
         private const val MAX_STREAMS = 10
+        private const val SOUNDPOOL_RETRY_DELAY_MS = 100L
     }
 }

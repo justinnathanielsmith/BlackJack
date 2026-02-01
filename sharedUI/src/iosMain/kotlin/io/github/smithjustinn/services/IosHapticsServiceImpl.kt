@@ -6,34 +6,41 @@ import platform.UIKit.UINotificationFeedbackGenerator
 import platform.UIKit.UINotificationFeedbackType
 
 class IosHapticsServiceImpl : HapticsService {
+    // Cache generators for better performance
+    private val heavyImpactGenerator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
+    private val lightImpactGenerator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleLight)
+    private val notificationGenerator = UINotificationFeedbackGenerator()
+
+    init {
+        // Prepare generators to reduce latency on first use
+        heavyImpactGenerator.prepare()
+        lightImpactGenerator.prepare()
+        notificationGenerator.prepare()
+    }
+
     override fun vibrateMatch() {
-        val generator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
-        generator.prepare()
-        generator.impactOccurred()
+        heavyImpactGenerator.impactOccurred()
+        heavyImpactGenerator.prepare()
     }
 
     override fun vibrateMismatch() {
-        val generator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
-        generator.prepare()
-        generator.impactOccurred()
+        heavyImpactGenerator.impactOccurred()
+        heavyImpactGenerator.prepare()
     }
 
     override fun vibrateTick() {
-        val generator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleLight)
-        generator.prepare()
-        generator.impactOccurred()
+        lightImpactGenerator.impactOccurred()
+        lightImpactGenerator.prepare()
     }
 
     override fun vibrateWarning() {
-        val generator = UINotificationFeedbackGenerator()
-        generator.prepare()
-        generator.notificationOccurred(UINotificationFeedbackType.UINotificationFeedbackTypeWarning)
+        notificationGenerator.notificationOccurred(UINotificationFeedbackType.UINotificationFeedbackTypeWarning)
+        notificationGenerator.prepare()
     }
 
     override fun vibrateHeat() {
         // Pronounced heat mode vibration using heavy impact
-        val generator = UIImpactFeedbackGenerator(UIImpactFeedbackStyle.UIImpactFeedbackStyleHeavy)
-        generator.prepare()
-        generator.impactOccurred()
+        heavyImpactGenerator.impactOccurred()
+        heavyImpactGenerator.prepare()
     }
 }
