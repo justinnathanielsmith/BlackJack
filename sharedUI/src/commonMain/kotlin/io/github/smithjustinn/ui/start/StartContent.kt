@@ -196,15 +196,10 @@ private fun BoxScope.StartTopActions(
                 .padding(spacing.medium),
     ) {
         MedallionIcon(
-            icon = AppIcons.DateRange,
-            onClick = onDailyChallengeClick,
-            backgroundColor =
-                if (state.isDailyChallengeCompleted) {
-                    PokerTheme.colors.oakWood
-                } else {
-                    Color.Black.copy(alpha = MEDALLION_BG_ALPHA)
-                },
-            tint = if (state.isDailyChallengeCompleted) PokerTheme.colors.goldenYellow else PokerTheme.colors.bronze,
+            icon = AppIcons.ShoppingCart,
+            onClick = onShopClick,
+            applyGlimmer = true,
+            tint = PokerTheme.colors.goldenYellow,
         )
     }
 
@@ -216,12 +211,7 @@ private fun BoxScope.StartTopActions(
                 .padding(spacing.medium),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
     ) {
-        MedallionIcon(
-            icon = AppIcons.ShoppingCart,
-            onClick = onShopClick,
-            applyGlimmer = true,
-            tint = PokerTheme.colors.goldenYellow,
-        )
+
         MedallionIcon(
             icon = AppIcons.Trophy,
             onClick = onStatsClick,
