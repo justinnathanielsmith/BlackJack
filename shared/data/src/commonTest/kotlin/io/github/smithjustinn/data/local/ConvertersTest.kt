@@ -1,7 +1,10 @@
 package io.github.smithjustinn.data.local
 
+import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.domain.models.MemoryGameState
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 import kotlin.time.Instant
 
@@ -22,5 +25,71 @@ class ConvertersTest {
         val instant = Instant.fromEpochMilliseconds(timestamp)
         assertEquals(timestamp, converters.dateToTimestamp(instant))
         assertNull(converters.dateToTimestamp(null))
+    }
+
+    @Test
+    fun testFromGameState() {
+        val gameState =
+            MemoryGameState(
+                pairCount = 8,
+                mode = GameMode.TIME_ATTACK,
+            )
+
+        val json = converters.fromGameState(gameState)
+        assertNotNull(json)
+        // Verify it's valid JSON containing expected fields
+        assert(json.contains("pairCount"))
+        assert(json.contains("TIME_ATTACK"))
+    }
+
+    @Test
+    fun testFromGameState_null() {
+        assertNull(converters.fromGameState(null))
+    }
+
+    @Test
+    fun testToGameState() {
+        val json =
+            """
+            {
+                "pairCount": 8,
+                "mode": "TIME_ATTACK",
+                "cards": [],
+                "flippedIndices": [],
+                "matchedPairs": [],
+                "moves": 0,
+                "timeElapsedSeconds": 0,
+                "isPeekActive": false,
+                "isGameOver": false,
+                "currentScore": 0
+            }
+            """.trimIndent()
+
+        val gameState = converters.toGameState(json)
+        assertNotNull(gameState)
+        assertEquals(8, gameState.pairCount)
+        assertEquals(GameMode.TIME_ATTACK, gameState.mode)
+    }
+
+    @Test
+    fun testToGameState_null() {
+        assertNull(converters.toGameState(null))
+    }
+
+    @Test
+    fun testGameStateRoundTrip() {
+        val original =
+            MemoryGameState(
+                pairCount = 12,
+                mode = GameMode.DAILY_CHALLENGE,
+            )
+
+        val json = converters.fromGameState(original)
+        assertNotNull(json)
+
+        val restored = converters.toGameState(json)
+        assertNotNull(restored)
+        assertEquals(original.pairCount, restored.pairCount)
+        assertEquals(original.mode, restored.mode)
     }
 }

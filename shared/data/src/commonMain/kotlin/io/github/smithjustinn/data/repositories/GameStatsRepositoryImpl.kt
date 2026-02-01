@@ -18,6 +18,7 @@ class GameStatsRepositoryImpl(
             .getStatsForDifficulty(pairCount)
             .map { it?.toDomain() }
             .catch { e ->
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 logger.e(e) { "Error fetching stats for difficulty: $pairCount" }
                 emit(null)
             }
@@ -27,6 +28,7 @@ class GameStatsRepositoryImpl(
         try {
             dao.insertStats(stats.toEntity())
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             logger.e(e) { "Error updating stats: $stats" }
         }
     }

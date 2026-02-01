@@ -48,9 +48,9 @@ class GameStateRepositoryIntegrationTest {
 
             val retrieved = repository.getSavedGameState()
             assertNotNull(retrieved)
-            assertEquals(gameState.pairCount, retrieved.first.pairCount)
-            assertEquals(gameState.mode, retrieved.first.mode)
-            assertEquals(elapsedTime, retrieved.second)
+            assertEquals(gameState.pairCount, retrieved.gameState.pairCount)
+            assertEquals(gameState.mode, retrieved.gameState.mode)
+            assertEquals(elapsedTime, retrieved.elapsedTimeSeconds)
         }
 
     @Test

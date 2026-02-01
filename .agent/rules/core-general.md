@@ -47,3 +47,7 @@ Before generating code, you **MUST** align with:
 - `!!` -> Use `requireNotNull` or `?.`.
 - Logic in UI -> Move to `Component` or `UseCase`.
 - `ConstraintLayout` -> Use `Column`, `Row`, `Box`.
+- Swallowing `CancellationException` -> Always rethrow if catching `Exception` or `Throwable` in coroutines.
+  ```kotlin
+  try { ... } catch (e: Exception) { if (e is CancellationException) throw e; ... }
+  ```

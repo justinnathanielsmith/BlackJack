@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 8,
-    "identityHash": "ca82ba78314bcae2842aae20b0bcd368",
+    "identityHash": "16978d298fa70a40b8005019c4940cb6",
     "entities": [
       {
         "tableName": "game_stats",
@@ -90,7 +90,7 @@
       },
       {
         "tableName": "saved_game_state",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `gameStateJson` TEXT NOT NULL, `elapsedTimeSeconds` INTEGER NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `gameState` TEXT NOT NULL, `elapsedTimeSeconds` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -99,8 +99,8 @@
             "notNull": true
           },
           {
-            "fieldPath": "gameStateJson",
-            "columnName": "gameStateJson",
+            "fieldPath": "gameState",
+            "columnName": "gameState",
             "affinity": "TEXT",
             "notNull": true
           },
@@ -235,7 +235,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'ca82ba78314bcae2842aae20b0bcd368')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, '16978d298fa70a40b8005019c4940cb6')"
     ]
   }
 }

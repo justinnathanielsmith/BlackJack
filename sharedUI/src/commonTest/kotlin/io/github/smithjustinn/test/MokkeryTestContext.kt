@@ -7,11 +7,11 @@ import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
-import io.github.smithjustinn.data.repository.DailyChallengeRepository
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.DifficultyLevel
+import io.github.smithjustinn.domain.repositories.DailyChallengeRepository
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository

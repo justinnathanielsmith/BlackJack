@@ -37,7 +37,8 @@ class KoinAppGraph :
     override val settingsRepository: SettingsRepository by inject()
     override val leaderboardRepository: LeaderboardRepository by inject()
     override val gameStatsRepository: GameStatsRepository by inject()
-    override val dailyChallengeRepository: io.github.smithjustinn.data.repository.DailyChallengeRepository by inject()
+    override val dailyChallengeRepository:
+        io.github.smithjustinn.domain.repositories.DailyChallengeRepository by inject()
 
     override val startNewGameUseCase: StartNewGameUseCase by inject()
     override val flipCardUseCase: FlipCardUseCase by inject()

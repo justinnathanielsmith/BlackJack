@@ -25,13 +25,13 @@ class GameStateRepositoryTest {
     @Test
     fun testSaveGameState() =
         runTest {
-            val state = MemoryGameState(score = 100)
+            val state = MemoryGameState(pairCount = 8)
             everySuspend { dao.saveGameState(any()) } returns Unit
 
             val expectedEntity =
                 GameStateEntity(
                     id = 0,
-                    gameStateJson = json.encodeToString(MemoryGameState.serializer(), state),
+                    gameState = state,
                     elapsedTimeSeconds = 120,
                 )
 
@@ -45,15 +45,14 @@ class GameStateRepositoryTest {
     @Test
     fun testGetSavedGameState_found() =
         runTest {
-            val state = MemoryGameState(score = 200)
-            val jsonString = json.encodeToString(MemoryGameState.serializer(), state)
-            val entity = GameStateEntity(id = 0, gameStateJson = jsonString, elapsedTimeSeconds = 300)
+            val state = MemoryGameState(pairCount = 8)
+            val entity = GameStateEntity(id = 0, gameState = state, elapsedTimeSeconds = 300)
             everySuspend { dao.getSavedGameState() } returns entity
 
             val result = repository.getSavedGameState()
             assertNotNull(result)
-            assertEquals(200, result.first.score)
-            assertEquals(300, result.second)
+            assertEquals(8, result.gameState.pairCount)
+            assertEquals(300, result.elapsedTimeSeconds)
         }
 
     @Test

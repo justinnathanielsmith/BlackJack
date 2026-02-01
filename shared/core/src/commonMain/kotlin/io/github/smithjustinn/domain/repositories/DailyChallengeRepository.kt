@@ -1,4 +1,4 @@
-package io.github.smithjustinn.data.repository
+package io.github.smithjustinn.domain.repositories
 
 import kotlinx.coroutines.flow.Flow
 

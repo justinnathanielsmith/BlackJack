@@ -23,6 +23,7 @@ class LeaderboardRepositoryImpl(
             .map { entities ->
                 entities.map { it.toDomain() }
             }.catch { e ->
+                if (e is kotlinx.coroutines.CancellationException) throw e
                 logger.e(e) { "Error fetching leaderboard for difficulty: $pairCount, mode: $gameMode" }
                 emit(emptyList())
             }
@@ -32,6 +33,7 @@ class LeaderboardRepositoryImpl(
         try {
             dao.insertEntry(entry.toEntity())
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             logger.e(e) { "Error adding leaderboard entry: $entry" }
         }
     }

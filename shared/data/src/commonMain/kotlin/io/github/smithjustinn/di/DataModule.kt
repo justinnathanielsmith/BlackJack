@@ -1,12 +1,12 @@
 package io.github.smithjustinn.di
 
 import io.github.smithjustinn.data.local.AppDatabase
+import io.github.smithjustinn.data.repositories.DailyChallengeRepositoryImpl
 import io.github.smithjustinn.data.repositories.GameStateRepositoryImpl
 import io.github.smithjustinn.data.repositories.GameStatsRepositoryImpl
 import io.github.smithjustinn.data.repositories.LeaderboardRepositoryImpl
 import io.github.smithjustinn.data.repositories.SettingsRepositoryImpl
-import io.github.smithjustinn.data.repository.DailyChallengeRepository
-import io.github.smithjustinn.data.repository.DailyChallengeRepositoryImpl
+import io.github.smithjustinn.domain.repositories.DailyChallengeRepository
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository

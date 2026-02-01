@@ -19,9 +19,9 @@ class GameStateRepositoryImpl(
         elapsedTimeSeconds: Long,
     ) {
         try {
-            val jsonString = json.encodeToString(gameState)
-            dao.saveGameState(GameStateEntity(gameStateJson = jsonString, elapsedTimeSeconds = elapsedTimeSeconds))
+            dao.saveGameState(GameStateEntity(gameState = gameState, elapsedTimeSeconds = elapsedTimeSeconds))
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             logger.e(e) { "Failed to save game state" }
         }
     }
@@ -30,12 +30,9 @@ class GameStateRepositoryImpl(
     override suspend fun getSavedGameState(): SavedGame? {
         val entity = dao.getSavedGameState() ?: return null
         return try {
-            val gameState = json.decodeFromString<MemoryGameState>(entity.gameStateJson)
-            SavedGame(gameState, entity.elapsedTimeSeconds)
-        } catch (e: kotlinx.serialization.SerializationException) {
-            logger.e(e) { "Failed to decode saved game state: JSON corruption" }
-            null
+            SavedGame(entity.gameState, entity.elapsedTimeSeconds)
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             logger.e(e) { "Failed to retrieve saved game state: Database error" }
             null
         }
@@ -46,6 +43,7 @@ class GameStateRepositoryImpl(
         try {
             dao.clearSavedGameState()
         } catch (e: Exception) {
+            if (e is kotlinx.coroutines.CancellationException) throw e
             logger.e(e) { "Failed to clear saved game state" }
         }
     }

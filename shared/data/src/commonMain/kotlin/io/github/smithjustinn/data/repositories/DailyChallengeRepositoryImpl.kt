@@ -1,7 +1,8 @@
-package io.github.smithjustinn.data.repository
+package io.github.smithjustinn.data.repositories
 
 import io.github.smithjustinn.data.local.DailyChallengeDao
 import io.github.smithjustinn.data.local.DailyChallengeEntity
+import io.github.smithjustinn.domain.repositories.DailyChallengeRepository
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
