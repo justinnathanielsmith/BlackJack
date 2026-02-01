@@ -46,7 +46,6 @@ Memory-Match is not just a game; it's a reference implementation for **Clean Arc
 Memory-Match goes beyond a simple card game by introducing high-stakes mechanics and a dynamic "Heat" system that rewards precision and speed.
 
 ### 🕹️ Game Modes
-*   **Standard**: A relaxed experience focused on accuracy. No time limits, perfect for sharpening your memory at your own pace.
 *   **Time Attack**: Race against the clock! Every match rewards you with extra seconds, while mismatches penalize your remaining time. How long can you survive?
 *   **Daily Challenge**: A unique, fixed puzzle generated every 24 hours. Compete with others on the same board and see who can achieve the best score.
 
@@ -133,18 +132,16 @@ We use a **Component-Based MVVM** pattern powered by **Decompose**, ensuring str
 
 ## 🛠 Tech Stack (2026 Standard)
 
-| Layer             | Technology                | Version     | Key Benefit                                         |
-| :---------------- | :------------------------ | :---------- | :-------------------------------------------------- |
-| **Language**      | **Kotlin**                | 2.3.0       | K2 Mode, Context Parameters, Multi-dollar strings   |
-| **UI**            | **Compose Multiplatform** | 1.10.0      | Adaptive layouts, Shared Resources, Skiko Rendering |
-| **Collections**   | **Immutable Collections** | 0.4.0       | Optimized Strong Skipping support for Compose       |
-| **DI**            | **Koin**                  | 4.1.1       | Pragmatic, stable, KMP-native                       |
-| **Navigation**    | **Decompose**             | 3.4.0       | Lifecycle-aware, platform-agnostic navigation       |
-| **Persistence**   | **Room (KMP)**            | 2.8.4       | Type-safe SQLite, Bundled Drivers                   |
-| **Networking**    | **Ktor**                  | 3.4.0       | Multi-platform asynchronous client                  |
-| **Image Loading** | **Coil3**                 | 3.3.0       | Multiplatform-first image pipeline                  |
-| **Animations**    | **Compottie**             | 2.0.2       | Lottie for KMP                                      |
-| **Testing**       | **Turbine + Mokkery**     | 1.2.1 / 3.x | Flow-first testing, KSP-based mocking               |
+| Layer           | Technology                | Version     | Key Benefit                                         |
+| :-------------- | :------------------------ | :---------- | :-------------------------------------------------- |
+| **Language**    | **Kotlin**                | 2.3.0       | K2 Mode, Context Parameters, Multi-dollar strings   |
+| **UI**          | **Compose Multiplatform** | 1.10.0      | Adaptive layouts, Shared Resources, Skiko Rendering |
+| **Collections** | **Immutable Collections** | 0.4.0       | Optimized Strong Skipping support for Compose       |
+| **DI**          | **Koin**                  | 4.1.1       | Pragmatic, stable, KMP-native                       |
+| **Navigation**  | **Decompose**             | 3.4.0       | Lifecycle-aware, platform-agnostic navigation       |
+| **Persistence** | **Room (KMP)**            | 2.8.4       | Type-safe SQLite, Bundled Drivers                   |
+| **Animations**  | **Compottie**             | 2.0.2       | Lottie for KMP                                      |
+| **Testing**     | **Turbine + Mokkery**     | 1.2.1 / 3.x | Flow-first testing, KSP-based mocking               |
 
 ---
 
