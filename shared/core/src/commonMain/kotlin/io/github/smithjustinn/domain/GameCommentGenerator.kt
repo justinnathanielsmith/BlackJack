@@ -42,7 +42,6 @@ import kotlinx.collections.immutable.persistentListOf
 object GameCommentGenerator {
     private const val ONE_MORE_REMAINING = 1
     private const val FIRST_MATCH = 1
-    private const val RECENT_ENTRY_MOVE_THRESHOLD = 5
 
     fun generateMatchComment(
         moves: Int,
@@ -56,42 +55,20 @@ object GameCommentGenerator {
 
         return when {
             // Milestone: Last card (Highest Priority)
-            matchesFound == totalPairs - ONE_MORE_REMAINING -> {
-                val res = listOf(Res.string.comment_one_more, Res.string.comment_river_magic).random()
-                MatchComment(res)
-            }
+            matchesFound == totalPairs - ONE_MORE_REMAINING -> getNearEndComment()
 
             // High stakes: Double Down
-            isDoubleDownActive -> {
-                val res =
-                    listOf(
-                        Res.string.comment_ship_it,
-                        Res.string.comment_stacking_chips,
-                        Res.string.comment_all_in,
-                    ).random()
-                MatchComment(res)
-            }
+            isDoubleDownActive -> getDoubleDownComment()
 
             // Milestone: First Match
-            matchesFound == FIRST_MATCH -> {
-                val res = listOf(Res.string.comment_first_match, Res.string.comment_pocket_aces).random()
-                MatchComment(res)
-            }
+            matchesFound == FIRST_MATCH -> getFirstMatchComment()
 
             // High Combos
             combo >= config.theNutsThreshold -> {
                 MatchComment(Res.string.comment_the_nuts, persistentListOf(combo))
             }
 
-            combo >= config.highRollerThreshold && combo > 1 -> { // Only show high roller for actual streaks
-                val res =
-                    listOf(
-                        Res.string.comment_high_roller,
-                        Res.string.comment_royal_flush,
-                        Res.string.comment_incredible,
-                    ).random()
-                MatchComment(res, persistentListOf(combo))
-            }
+            combo >= config.highRollerThreshold && combo > 1 -> getHighRollerComment(combo)
 
             // Heat Mode transition
             combo == config.heatModeThreshold - 1 -> {
@@ -108,36 +85,61 @@ object GameCommentGenerator {
             }
 
             // Efficiency / Speed
-            moves <= matchesFound * config.commentMovesPerMatchThreshold -> {
-                val res =
-                    listOf(
-                        Res.string.comment_photographic,
-                        Res.string.comment_reading_tells,
-                        Res.string.comment_eagle_eyes,
-                    ).random()
-                MatchComment(res)
-            }
+            moves <= matchesFound * config.commentMovesPerMatchThreshold -> getEfficiencyComment()
 
             // Variety / Random Poker Themed
-            else -> {
-                val randomRes =
-                    listOf(
-                        Res.string.comment_great_find,
-                        Res.string.comment_you_got_it,
-                        Res.string.comment_boom,
-                        Res.string.comment_sharp,
-                        Res.string.comment_on_a_roll,
-                        Res.string.comment_full_house,
-                        Res.string.comment_bad_beat,
-                        Res.string.comment_flopped_a_set,
-                        Res.string.comment_smooth_call,
-                        Res.string.comment_poker_face,
-                        Res.string.comment_grinding,
-                        Res.string.comment_check_mate,
-                        Res.string.comment_no_bluff,
-                    ).random()
-                MatchComment(randomRes)
-            }
+            else -> getRandomGenericComment()
         }
     }
+
+    private fun getNearEndComment() = MatchComment(
+        listOf(Res.string.comment_one_more, Res.string.comment_river_magic).random()
+    )
+
+    private fun getDoubleDownComment() = MatchComment(
+        listOf(
+            Res.string.comment_ship_it,
+            Res.string.comment_stacking_chips,
+            Res.string.comment_all_in,
+        ).random()
+    )
+
+    private fun getFirstMatchComment() = MatchComment(
+        listOf(Res.string.comment_first_match, Res.string.comment_pocket_aces).random()
+    )
+
+    private fun getHighRollerComment(combo: Int) = MatchComment(
+        listOf(
+            Res.string.comment_high_roller,
+            Res.string.comment_royal_flush,
+            Res.string.comment_incredible,
+        ).random(),
+        persistentListOf(combo)
+    )
+
+    private fun getEfficiencyComment() = MatchComment(
+        listOf(
+            Res.string.comment_photographic,
+            Res.string.comment_reading_tells,
+            Res.string.comment_eagle_eyes,
+        ).random()
+    )
+
+    private fun getRandomGenericComment() = MatchComment(
+        listOf(
+            Res.string.comment_great_find,
+            Res.string.comment_you_got_it,
+            Res.string.comment_boom,
+            Res.string.comment_sharp,
+            Res.string.comment_on_a_roll,
+            Res.string.comment_full_house,
+            Res.string.comment_bad_beat,
+            Res.string.comment_flopped_a_set,
+            Res.string.comment_smooth_call,
+            Res.string.comment_poker_face,
+            Res.string.comment_grinding,
+            Res.string.comment_check_mate,
+            Res.string.comment_no_bluff,
+        ).random()
+    )
 }
