@@ -26,11 +26,11 @@ open class StartNewGameUseCase {
                 val mutators = mutableSetOf<DailyChallengeMutator>()
                 // Deterministically select mutators based on the seed
                 // 50% chance for BLACKOUT
-                if (random.nextBoolean()) {
+                if (random.nextFloat() < BLACKOUT_CHANCE) {
                     mutators.add(DailyChallengeMutator.BLACKOUT)
                 }
                 // 40% chance for MIRAGE
-                if (random.nextFloat() < 0.40f) {
+                if (random.nextFloat() < MIRAGE_CHANCE) {
                     mutators.add(DailyChallengeMutator.MIRAGE)
                 }
                 // Ensure at least one mutator is always active for Daily Challenge
@@ -43,5 +43,10 @@ open class StartNewGameUseCase {
             }
 
         return baseState.copy(seed = finalSeed, activeMutators = activeMutators)
+    }
+
+    companion object {
+        private const val BLACKOUT_CHANCE = 0.50f
+        private const val MIRAGE_CHANCE = 0.40f
     }
 }

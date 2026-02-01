@@ -37,11 +37,11 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
+import io.github.smithjustinn.resources.buy_in_banked_label
+import io.github.smithjustinn.resources.hud_pot_label
 import io.github.smithjustinn.resources.mute_content_description
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.unmute_content_description
-import io.github.smithjustinn.resources.hud_pot_label
-import io.github.smithjustinn.resources.buy_in_banked_label
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.game.components.timer.TimerDisplay

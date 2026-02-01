@@ -14,6 +14,8 @@ interface ShopComponent {
     val state: StateFlow<ShopState>
 
     fun onBackClicked()
+
     fun onBuyItemClicked(item: ShopItem)
+
     fun onClearError()
 }

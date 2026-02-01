@@ -3,7 +3,7 @@ package io.github.smithjustinn.domain.models
 enum class ShopItemType {
     THEME,
     MUSIC,
-    POWER_UP
+    POWER_UP,
 }
 
 data class ShopItem(

@@ -7,7 +7,10 @@ interface PlayerEconomyRepository {
     val unlockedItemIds: StateFlow<Set<String>>
 
     suspend fun addCurrency(amount: Long)
+
     suspend fun deductCurrency(amount: Long): Boolean
+
     suspend fun unlockItem(itemId: String)
+
     suspend fun isItemUnlocked(itemId: String): Boolean
 }

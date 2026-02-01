@@ -44,7 +44,8 @@ class PlayerEconomyRepositoryImpl(
     override val unlockedItemIds: StateFlow<Set<String>> =
         economyFlow
             .map { entity ->
-                entity?.unlockedItemIds
+                entity
+                    ?.unlockedItemIds
                     ?.split(",")
                     ?.filter { it.isNotBlank() }
                     ?.toSet() ?: emptySet()
@@ -99,7 +100,6 @@ class PlayerEconomyRepositoryImpl(
         return unlockedItemIds.value.contains(itemId)
     }
 
-    private suspend fun getOrCreateEntity(): PlayerEconomyEntity {
-        return dao.getPlayerEconomy().firstOrNull() ?: PlayerEconomyEntity()
-    }
+    private suspend fun getOrCreateEntity(): PlayerEconomyEntity =
+        dao.getPlayerEconomy().firstOrNull() ?: PlayerEconomyEntity()
 }

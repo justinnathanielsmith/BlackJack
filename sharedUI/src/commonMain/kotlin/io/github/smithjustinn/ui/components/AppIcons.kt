@@ -612,5 +612,4 @@ object AppIcons {
                 }.build()
                 .also { _shoppingCart = it }
         }
-
 }

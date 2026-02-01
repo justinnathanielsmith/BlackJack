@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 
 class DefaultShopComponent(
     componentContext: ComponentContext,
@@ -22,18 +23,19 @@ class DefaultShopComponent(
     private val onBackClicked: () -> Unit,
 ) : ShopComponent, ComponentContext by componentContext, KoinComponent {
 
-    // Inject use cases via Koin (or could be passed via AppGraph if exposed there, 
+    // Inject use cases via Koin (or could be passed via AppGraph if exposed there,
     // but typically we can inject if AppGraph doesn't have them all property listed)
     // Actually AppGraph is preferred if available.
     // For now I'll use Koin inject for the new use cases if they are not in AppGraph interface yet.
-    // Wait, I didn't update AppGraph to expose these use cases. 
-    // It's cleaner to inject them here or update AppGraph. 
+    // Wait, I didn't update AppGraph to expose these use cases.
+    // It's cleaner to inject them here or update AppGraph.
     // I will use `inject` for expediency as I haven't seen AppGraph definition recently.
-    
+
     private val buyItemUseCase: BuyItemUseCase by inject()
     private val getPlayerBalanceUseCase: GetPlayerBalanceUseCase by inject()
     private val getShopItemsUseCase: GetShopItemsUseCase by inject()
-    private val playerEconomyRepository: io.github.smithjustinn.domain.repositories.PlayerEconomyRepository by inject() // Directly injecting repo for unlocked items for now
+    // Directly injecting repo for unlocked items for now
+    private val playerEconomyRepository: PlayerEconomyRepository by inject()
 
     private val _state = MutableStateFlow(ShopState())
     override val state: StateFlow<ShopState> = _state.asStateFlow()
@@ -53,12 +55,12 @@ class DefaultShopComponent(
                     unlockedItemIds = unlockedIds
                 )
             }.collect { newState ->
-                _state.update { 
+                _state.update {
                     it.copy(
                         balance = newState.balance,
                         items = newState.items,
                         unlockedItemIds = newState.unlockedItemIds
-                    ) 
+                    )
                 }
             }
         }

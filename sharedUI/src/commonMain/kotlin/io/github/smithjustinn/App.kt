@@ -24,10 +24,10 @@ import io.github.smithjustinn.theme.AppTheme
 import io.github.smithjustinn.ui.game.GameContent
 import io.github.smithjustinn.ui.root.RootComponent
 import io.github.smithjustinn.ui.settings.SettingsContent
+import io.github.smithjustinn.ui.shop.ShopContent
 import io.github.smithjustinn.ui.splash.SplashScreen
 import io.github.smithjustinn.ui.start.StartContent
 import io.github.smithjustinn.ui.stats.StatsContent
-import io.github.smithjustinn.ui.shop.ShopContent
 
 private const val SPLASH_ANIMATION_DURATION = 1000
 

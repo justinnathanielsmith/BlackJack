@@ -4,8 +4,8 @@ import io.github.smithjustinn.domain.models.ShopItem
 import io.github.smithjustinn.domain.models.ShopItemType
 
 class GetShopItemsUseCase {
-    operator fun invoke(): List<ShopItem> {
-        return listOf(
+    operator fun invoke(): List<ShopItem> =
+        listOf(
             ShopItem(
                 id = "theme_classic",
                 name = "Classic Theme",
@@ -35,7 +35,6 @@ class GetShopItemsUseCase {
                 price = 500,
                 type = ShopItemType.POWER_UP,
                 isConsumable = true,
-            )
+            ),
         )
-    }
 }

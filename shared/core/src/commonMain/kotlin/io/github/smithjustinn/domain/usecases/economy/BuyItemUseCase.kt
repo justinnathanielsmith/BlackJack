@@ -17,12 +17,11 @@ class BuyItemUseCase(
             return Result.success(Unit) // Already owned
         }
 
-        val success = repository.deductCurrency(cost)
-        if (success) {
+        return if (repository.deductCurrency(cost)) {
             repository.unlockItem(itemId)
-            return Result.success(Unit)
+            Result.success(Unit)
         } else {
-            return Result.failure(Exception("Insufficient funds"))
+            Result.failure(Exception("Insufficient funds"))
         }
     }
 }

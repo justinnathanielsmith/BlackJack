@@ -5,20 +5,18 @@ import io.github.smithjustinn.data.repositories.DailyChallengeRepositoryImpl
 import io.github.smithjustinn.data.repositories.GameStateRepositoryImpl
 import io.github.smithjustinn.data.repositories.GameStatsRepositoryImpl
 import io.github.smithjustinn.data.repositories.LeaderboardRepositoryImpl
+import io.github.smithjustinn.data.repositories.PlayerEconomyRepositoryImpl
 import io.github.smithjustinn.data.repositories.SettingsRepositoryImpl
 import io.github.smithjustinn.domain.repositories.DailyChallengeRepository
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
 import kotlinx.serialization.json.Json
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
-
-import io.github.smithjustinn.data.local.PlayerEconomyDao
-import io.github.smithjustinn.data.repositories.PlayerEconomyRepositoryImpl
-import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 
 val dataModule =
     module {
