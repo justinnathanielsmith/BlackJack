@@ -112,9 +112,10 @@ To maintain high quality and velocity, please strictly adhere to these protocols
     *   Run Desktop: `./gradlew :desktopApp:run`
 
 ### 3. Static Analysis
-We use **Detekt** to enforce code quality.
+We use **Spotless** for formatting and **Detekt** for code quality.
+*   **Format Code**: `./gradlew spotlessApply`
 *   **Run Check**: `./gradlew detekt`
-*   **Auto-Correct**: `./gradlew detekt --auto-correct` (Use primarily for formatting).
+*   **Auto-Correct**: `./gradlew detekt --auto-correct`
 
 ### 4. Testing
 *   **Run All Tests**: `./run_tests.sh`
@@ -127,7 +128,7 @@ We use **Detekt** to enforce code quality.
 This repository is optimized for **AI-Agentic Development**.
 
 *   **`AGENTS.md`**: This is the "Constitution" for AI agents. It contains the core rules and architectural constraints. If you change a core pattern, update this file.
-*   **Agent Rules**: Specialized rules are located in `.Agent/rules`.
+*   **Agent Rules**: Specialized rules are located in `.agent/rules`.
 *   **Context**: When working with an AI (like Antigravity), encourage it to read `AGENTS.md` first to align with project standards.
 
 ---
