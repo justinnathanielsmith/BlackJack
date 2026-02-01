@@ -5,6 +5,7 @@ import co.touchlab.kermit.Logger
 import io.github.smithjustinn.data.local.AppDatabase
 import io.github.smithjustinn.data.local.createTestDatabase
 import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -99,7 +100,9 @@ class PlayerEconomyRepositoryTest {
         runTest(testDispatcher) {
             val repository = createRepository(backgroundScope)
             repository.unlockedItemIds.test {
-                assertTrue(awaitItem().isEmpty())
+                val initial = awaitItem()
+                assertTrue(initial.contains("theme_standard"))
+                assertTrue(initial.contains("skin_classic"))
 
                 repository.unlockItem("item_1")
                 assertTrue(awaitItem().contains("item_1"))
@@ -114,7 +117,9 @@ class PlayerEconomyRepositoryTest {
         runTest(testDispatcher) {
             val repository = createRepository(backgroundScope)
             repository.unlockedItemIds.test {
-                assertTrue(awaitItem().isEmpty())
+                val initialItems = awaitItem()
+                assertTrue(initialItems.contains("theme_standard"))
+                assertTrue(initialItems.contains("skin_classic"))
 
                 repository.unlockItem("item_1")
                 assertTrue(awaitItem().contains("item_1"))
@@ -171,6 +176,45 @@ class PlayerEconomyRepositoryTest {
                 } else {
                     assertEquals(CardBackTheme.CLASSIC, first)
                 }
+            }
+        }
+
+    @Test
+    fun skinSelectionPersistence_preservesSelectedSkin() =
+        runTest(testDispatcher) {
+            val repo1 = createRepository(backgroundScope)
+            repo1.selectSkin(CardSymbolTheme.MINIMAL.name)
+
+            // Second instance
+            val repo2 = createRepository(backgroundScope)
+            repo2.selectedSkin.test {
+                val first = awaitItem()
+                if (first == CardSymbolTheme.CLASSIC) {
+                    assertEquals(CardSymbolTheme.MINIMAL, awaitItem())
+                } else {
+                    assertEquals(CardSymbolTheme.MINIMAL, first)
+                }
+            }
+        }
+
+    @Test
+    fun testDefaultSeeding() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.unlockedItemIds.test {
+                val items = awaitItem()
+                assertTrue(items.contains("theme_standard"), "Should contain theme_standard")
+                assertTrue(items.contains("skin_classic"), "Should contain skin_classic")
+                assertEquals(2, items.size)
+            }
+            repository.balance.test {
+                assertEquals(0L, awaitItem())
+            }
+            repository.selectedTheme.test {
+                assertEquals(CardBackTheme.GEOMETRIC, awaitItem())
+            }
+            repository.selectedSkin.test {
+                assertEquals(CardSymbolTheme.CLASSIC, awaitItem())
             }
         }
 }

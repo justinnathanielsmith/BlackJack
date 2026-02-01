@@ -1,5 +1,29 @@
 [
   {
+    "id": "theme_standard",
+    "name": "Standard Theme",
+    "description": "The default geometric pattern.",
+    "price": 0,
+    "type": "THEME",
+    "isConsumable": false
+  },
+  {
+    "id": "theme_dark",
+    "name": "Dark Theme",
+    "description": "Sleek dark mode design.",
+    "price": 250,
+    "type": "THEME",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_classic",
+    "name": "Standard Face",
+    "description": "Classic card face design.",
+    "price": 0,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
     "id": "theme_classic",
     "name": "Classic Theme",
     "description": "Traditional card design.",

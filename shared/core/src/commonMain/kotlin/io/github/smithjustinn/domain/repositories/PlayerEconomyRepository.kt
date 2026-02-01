@@ -1,12 +1,14 @@
 package io.github.smithjustinn.domain.repositories
 
 import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardSymbolTheme
 import kotlinx.coroutines.flow.StateFlow
 
 interface PlayerEconomyRepository {
     val balance: StateFlow<Long>
     val unlockedItemIds: StateFlow<Set<String>>
     val selectedTheme: StateFlow<CardBackTheme>
+    val selectedSkin: StateFlow<CardSymbolTheme>
 
     suspend fun addCurrency(amount: Long)
 
@@ -17,4 +19,6 @@ interface PlayerEconomyRepository {
     suspend fun isItemUnlocked(itemId: String): Boolean
 
     suspend fun selectTheme(themeId: String)
+
+    suspend fun selectSkin(skinId: String)
 }

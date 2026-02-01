@@ -11,8 +11,8 @@ import dev.mokkery.verifySuspend
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
-import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.models.Rank
+import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.test.BaseComponentTest
 import kotlinx.collections.immutable.toImmutableList

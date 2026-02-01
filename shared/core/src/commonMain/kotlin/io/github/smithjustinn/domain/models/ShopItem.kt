@@ -5,6 +5,7 @@ import kotlinx.serialization.Serializable
 @Serializable
 enum class ShopItemType {
     THEME,
+    CARD_SKIN,
     MUSIC,
     POWER_UP,
 }

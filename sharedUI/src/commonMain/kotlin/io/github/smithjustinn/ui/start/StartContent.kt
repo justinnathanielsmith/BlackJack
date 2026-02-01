@@ -198,7 +198,7 @@ private fun BoxScope.StartTopActions(
 
         WalletBadge(
             amount = totalBalance,
-            modifier = Modifier.padding(start = spacing.small)
+            modifier = Modifier.padding(start = spacing.small),
         )
     }
 
@@ -349,13 +349,13 @@ private fun WalletBadge(
                 imageVector = AppIcons.CasinoChip,
                 contentDescription = null,
                 tint = PokerTheme.colors.goldenYellow,
-                modifier = Modifier.size(MEDALLION_ICON_SIZE_DP.dp)
+                modifier = Modifier.size(MEDALLION_ICON_SIZE_DP.dp),
             )
 
             androidx.compose.material3.Text(
                 text = "$amount",
                 style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
-                color = PokerTheme.colors.goldenYellow
+                color = PokerTheme.colors.goldenYellow,
             )
         }
     }

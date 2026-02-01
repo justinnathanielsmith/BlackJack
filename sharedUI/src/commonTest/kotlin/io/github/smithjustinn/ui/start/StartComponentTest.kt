@@ -6,17 +6,17 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
-import kotlinx.coroutines.flow.MutableStateFlow
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.test.BaseComponentTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
-import io.github.smithjustinn.domain.models.SavedGame
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class StartComponentTest : BaseComponentTest() {
@@ -90,7 +90,7 @@ class StartComponentTest : BaseComponentTest() {
             val savedGame =
                 MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                 SavedGame(savedGame, 100L)
+                SavedGame(savedGame, 100L)
 
             component = createDefaultComponent(lifecycle)
 
@@ -128,7 +128,7 @@ class StartComponentTest : BaseComponentTest() {
             val savedGame =
                 MemoryGameState(pairCount = 12, mode = GameMode.TIME_ATTACK, isGameOver = false)
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                 SavedGame(savedGame, 100L)
+                SavedGame(savedGame, 100L)
 
             component = createDefaultComponent(lifecycle)
             testDispatcher.scheduler.runCurrent()

@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import io.github.smithjustinn.data.local.PlayerEconomyDao
 import io.github.smithjustinn.data.local.PlayerEconomyEntity
 import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
@@ -14,6 +15,7 @@ import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -34,6 +36,25 @@ class PlayerEconomyRepositoryImpl(
                 replay = 1,
             )
 
+    init {
+        scope.launch {
+            seedIfNeeded()
+        }
+    }
+
+    private suspend fun seedIfNeeded() {
+        if (dao.getPlayerEconomy().firstOrNull() == null) {
+            writeMutex.withLock {
+                // Double check after lock
+                if (dao.getPlayerEconomy().firstOrNull() == null) {
+                    val defaultEntity = PlayerEconomyEntity()
+                    dao.savePlayerEconomy(defaultEntity)
+                    logger.d { "Seeded default player economy" }
+                }
+            }
+        }
+    }
+
     override val balance: StateFlow<Long> =
         economyFlow
             .map { it?.balance ?: 0L }
@@ -46,30 +67,47 @@ class PlayerEconomyRepositoryImpl(
     override val unlockedItemIds: StateFlow<Set<String>> =
         economyFlow
             .map { entity ->
-                entity
-                    ?.unlockedItemIds
-                    ?.split(",")
-                    ?.filter { it.isNotBlank() }
-                    ?.toSet() ?: emptySet()
+                val idsString = entity?.unlockedItemIds ?: PlayerEconomyEntity().unlockedItemIds
+                idsString
+                    .split(",")
+                    .filter { it.isNotBlank() }
+                    .toSet()
             }.stateIn(
                 scope = scope,
                 started = SharingStarted.Eagerly,
-                initialValue = emptySet(),
+                initialValue = PlayerEconomyEntity().unlockedItemIds.split(",").toSet(),
             )
 
     override val selectedTheme: StateFlow<CardBackTheme> =
         economyFlow
             .map { entity ->
+                val themeId = entity?.selectedThemeId ?: PlayerEconomyEntity().selectedThemeId
                 try {
-                    CardBackTheme.valueOf(entity?.selectedThemeId ?: CardBackTheme.GEOMETRIC.name)
+                    CardBackTheme.valueOf(themeId)
                 } catch (e: IllegalArgumentException) {
-                    logger.e(e) { "Invalid theme ID: ${entity?.selectedThemeId}, defaulting to GEOMETRIC" }
+                    logger.e(e) { "Invalid theme ID: $themeId, defaulting to GEOMETRIC" }
                     CardBackTheme.GEOMETRIC
                 }
             }.stateIn(
                 scope = scope,
                 started = SharingStarted.Eagerly,
                 initialValue = CardBackTheme.GEOMETRIC,
+            )
+
+    override val selectedSkin: StateFlow<CardSymbolTheme> =
+        economyFlow
+            .map { entity ->
+                val skinId = entity?.selectedSkinId ?: PlayerEconomyEntity().selectedSkinId
+                try {
+                    CardSymbolTheme.valueOf(skinId)
+                } catch (e: IllegalArgumentException) {
+                    logger.e(e) { "Invalid skin ID: $skinId, defaulting to CLASSIC" }
+                    CardSymbolTheme.CLASSIC
+                }
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = CardSymbolTheme.CLASSIC,
             )
 
     override suspend fun addCurrency(amount: Long) =
@@ -124,6 +162,13 @@ class PlayerEconomyRepositoryImpl(
             val current = getOrCreateEntity()
             dao.savePlayerEconomy(current.copy(selectedThemeId = themeId))
             logger.d { "Selected theme: $themeId" }
+        }
+
+    override suspend fun selectSkin(skinId: String) =
+        writeMutex.withLock {
+            val current = getOrCreateEntity()
+            dao.savePlayerEconomy(current.copy(selectedSkinId = skinId))
+            logger.d { "Selected skin: $skinId" }
         }
 
     private suspend fun getOrCreateEntity(): PlayerEconomyEntity =

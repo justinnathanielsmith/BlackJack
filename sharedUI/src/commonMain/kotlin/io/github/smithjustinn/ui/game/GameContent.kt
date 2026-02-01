@@ -232,10 +232,10 @@ private fun GameMainScreen(
                         isCriticalTime =
                             state.game.mode == GameMode.TIME_ATTACK &&
                                 state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
-                         bankedScore = state.game.score,
-                         currentPot = state.game.currentPot,
-                         isHeatMode = state.isHeatMode,
-                     ),
+                        bankedScore = state.game.score,
+                        currentPot = state.game.currentPot,
+                        isHeatMode = state.isHeatMode,
+                    ),
                 onBackClick = {
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onBack()

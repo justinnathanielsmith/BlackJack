@@ -8,6 +8,7 @@ data class PlayerEconomyEntity(
     @PrimaryKey
     val id: Int = 0, // Single row for player economy
     val balance: Long = 0,
-    val unlockedItemIds: String = "", // Comma-separated list of unlocked item IDs
+    val unlockedItemIds: String = "theme_standard,skin_classic", // Comma-separated list of unlocked item IDs
     val selectedThemeId: String = "GEOMETRIC",
+    val selectedSkinId: String = "CLASSIC",
 )
