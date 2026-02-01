@@ -28,9 +28,9 @@ class DefaultGameComponentTest : BaseComponentTest() {
         every { context.settingsRepository.isWalkthroughCompleted } returns MutableStateFlow(true)
         every { context.settingsRepository.isMusicEnabled } returns MutableStateFlow(true)
         every { context.settingsRepository.isSoundEnabled } returns MutableStateFlow(true)
-        every { context.settingsRepository.cardBackTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
-        every { context.settingsRepository.cardSymbolTheme } returns MutableStateFlow(CardSymbolTheme.CLASSIC)
         every { context.settingsRepository.areSuitsMultiColored } returns MutableStateFlow(true)
+        every { context.playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
+        every { context.playerEconomyRepository.selectedSkin } returns MutableStateFlow(CardSymbolTheme.CLASSIC)
     }
 
     @Test

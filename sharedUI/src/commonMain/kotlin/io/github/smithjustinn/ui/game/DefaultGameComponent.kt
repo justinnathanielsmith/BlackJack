@@ -71,17 +71,16 @@ class DefaultGameComponent(
             startGame(args)
 
             combine(
-                settings.cardBackTheme,
-                settings.cardSymbolTheme,
                 settings.areSuitsMultiColored,
                 appGraph.playerEconomyRepository.selectedTheme,
-            ) { cardBack: CardBackTheme, cardSymbol: CardSymbolTheme, multiColor: Boolean, theme: CardBackTheme ->
+                appGraph.playerEconomyRepository.selectedSkin,
+            ) { multiColor: Boolean, theme: CardBackTheme, skin: CardSymbolTheme ->
                 _state.update {
                     it.copy(
                         cardSettings =
                             CardDisplaySettings(
                                 backTheme = theme,
-                                symbolTheme = cardSymbol,
+                                symbolTheme = skin,
                                 areSuitsMultiColored = multiColor,
                             ),
                         selectedTheme = theme,
