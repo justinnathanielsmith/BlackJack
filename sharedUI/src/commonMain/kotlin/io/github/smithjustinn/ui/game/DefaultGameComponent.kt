@@ -22,7 +22,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
@@ -167,6 +169,17 @@ class DefaultGameComponent(
                     machine.state.collectLatest { gameState ->
                         _state.update { it.copy(game = gameState) }
                     }
+                }
+                scope.launch {
+                    machine.state
+                        .map { it.matchComment }
+                        .distinctUntilChanged()
+                        .collectLatest { comment ->
+                            if (comment != null) {
+                                delay(GameConstants.COMMENT_DURATION_MS)
+                                machine.dispatch(GameAction.ClearComment)
+                            }
+                        }
                 }
                 scope.launch { machine.effects.collect { effect -> handleEffect(effect) } }
             }

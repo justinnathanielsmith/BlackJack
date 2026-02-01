@@ -63,6 +63,7 @@ class GameStateMachine(
                     is GameAction.ScanCards -> handleScanCards(action)
                     is GameAction.Tick -> handleTick()
                     is GameAction.Restart -> { /* Handled by UI */ }
+                    is GameAction.ClearComment -> _state.update { it.copy(matchComment = null) }
                 }
             }
         }
@@ -272,6 +273,8 @@ sealed class GameAction {
     data object Tick : GameAction()
 
     data object Restart : GameAction()
+
+    data object ClearComment : GameAction()
 }
 
 sealed class GameEffect {
