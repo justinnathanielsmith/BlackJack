@@ -28,6 +28,7 @@ data class GameUIState(
     val walkthroughStep: Int = 0,
     val hasUsedDoubleDownPeek: Boolean = false,
     val selectedTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
+    val totalBalance: Long = 0,
 ) {
     val isDoubleDownAvailable: Boolean
         get() {

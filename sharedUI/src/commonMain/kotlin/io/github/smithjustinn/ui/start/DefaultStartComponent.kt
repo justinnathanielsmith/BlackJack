@@ -18,7 +18,7 @@ import kotlin.time.Clock
 
 class DefaultStartComponent(
     componentContext: ComponentContext,
-    private val appGraph: AppGraph,
+    appGraph: AppGraph,
     private val onNavigateToGame: (
         pairs: Int,
         mode: GameMode,
@@ -39,8 +39,15 @@ class DefaultStartComponent(
     private val settingsRepository = appGraph.settingsRepository
     private val dailyChallengeRepository = appGraph.dailyChallengeRepository
     private val logger = appGraph.logger
+    private val playerEconomyRepository = appGraph.playerEconomyRepository
 
     init {
+
+        scope.launch {
+            playerEconomyRepository.balance.collect { balance ->
+                _state.update { it.copy(totalBalance = balance) }
+            }
+        }
 
         scope.launch {
             combine(

@@ -4,7 +4,9 @@ import app.cash.turbine.test
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
+import dev.mokkery.every
 import dev.mokkery.everySuspend
+import kotlinx.coroutines.flow.MutableStateFlow
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
@@ -65,6 +67,20 @@ class StartComponentTest : BaseComponentTest() {
                 component.onModeSelected(newMode)
                 val newState = awaitItem()
                 assertEquals(newMode, newState.selectedMode)
+            }
+        }
+
+    @Test
+    fun `initial state reflects current balance`() =
+        runTest { lifecycle ->
+            every { context.playerEconomyRepository.balance } returns MutableStateFlow(5000L)
+
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.state.test {
+                val state = awaitItem()
+                assertEquals(5000L, state.totalBalance)
             }
         }
 

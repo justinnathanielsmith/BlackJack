@@ -152,6 +152,7 @@ private fun StartScreenLayout(
             onStatsClick = onStatsClick,
             onSettingsClick = onSettingsClick,
             onShopClick = onShopClick,
+            totalBalance = state.totalBalance,
             modifier = headerModifier,
         )
 
@@ -176,6 +177,7 @@ private fun BoxScope.StartTopActions(
     onStatsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onShopClick: () -> Unit,
+    totalBalance: Long,
     modifier: Modifier = Modifier,
 ) {
     val spacing = PokerTheme.spacing
@@ -192,6 +194,11 @@ private fun BoxScope.StartTopActions(
             onClick = onShopClick,
             applyGlimmer = true,
             tint = PokerTheme.colors.goldenYellow,
+        )
+
+        WalletBadge(
+            amount = totalBalance,
+            modifier = Modifier.padding(start = spacing.small)
         )
     }
 
@@ -313,6 +320,42 @@ private fun MedallionIcon(
                                 Modifier
                             },
                         ),
+            )
+        }
+    }
+}
+
+@Composable
+private fun WalletBadge(
+    amount: Long,
+    modifier: Modifier = Modifier,
+) {
+    Surface(
+        shape = CircleShape,
+        color = Color.Black.copy(alpha = MEDALLION_BG_ALPHA),
+        border =
+            androidx.compose.foundation.BorderStroke(
+                MEDALLION_BORDER_WIDTH_DP.dp,
+                PokerTheme.colors.goldenYellow.copy(alpha = MEDALLION_BORDER_ALPHA),
+            ),
+        modifier = modifier.height(MEDALLION_SIZE_DP.dp),
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(horizontal = 16.dp),
+        ) {
+            Icon(
+                imageVector = AppIcons.CasinoChip,
+                contentDescription = null,
+                tint = PokerTheme.colors.goldenYellow,
+                modifier = Modifier.size(MEDALLION_ICON_SIZE_DP.dp)
+            )
+
+            androidx.compose.material3.Text(
+                text = "$amount",
+                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                color = PokerTheme.colors.goldenYellow
             )
         }
     }

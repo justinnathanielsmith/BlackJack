@@ -16,4 +16,5 @@ data class DifficultyState(
     val shouldAnimateEntrance: Boolean = true,
     val activeCircuitRunId: String? = null,
     val activeCircuitBankedScore: Int = 0,
+    val totalBalance: Long = 0,
 )

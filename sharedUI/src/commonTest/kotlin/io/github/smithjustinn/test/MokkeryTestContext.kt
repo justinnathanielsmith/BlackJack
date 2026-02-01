@@ -17,6 +17,7 @@ import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
+import io.github.smithjustinn.domain.usecases.economy.DefaultEarnCurrencyUseCase
 import io.github.smithjustinn.domain.usecases.game.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.game.ClearSavedGameUseCase
 import io.github.smithjustinn.domain.usecases.game.FlipCardUseCase
@@ -89,6 +90,7 @@ class MokkeryTestContext(
         every { appGraph.getGameStatsUseCase } returns GetGameStatsUseCase(gameStatsRepository)
         every { appGraph.saveGameResultUseCase } returns
             SaveGameResultUseCase(gameStatsRepository, leaderboardRepository, logger)
+        every { appGraph.earnCurrencyUseCase } returns DefaultEarnCurrencyUseCase(playerEconomyRepository)
         every { appGraph.getSavedGameUseCase } returns
             GetSavedGameUseCase(gameStateRepository, logger)
         every { appGraph.saveGameStateUseCase } returns
@@ -111,6 +113,7 @@ class MokkeryTestContext(
         every { settingsRepository.areSuitsMultiColored } returns MutableStateFlow(false)
 
         every { playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
+        every { playerEconomyRepository.balance } returns MutableStateFlow(1000L)
 
         // Repository defaults
         everySuspend { gameStateRepository.getSavedGameState() } returns null

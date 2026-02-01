@@ -4,6 +4,7 @@ import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -17,8 +18,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -218,11 +220,15 @@ private fun ValueBadge(
 ) {
     Surface(
         shape =
-            androidx.compose.foundation.shape
-                .RoundedCornerShape(if (compact) 10.dp else 14.dp),
-        color = Color.Black.copy(alpha = 0.4f),
-        border = androidx.compose.foundation.BorderStroke(1.dp, color.copy(alpha = 0.3f)),
-        modifier = Modifier.height(if (compact) 32.dp else 40.dp),
+            RoundedCornerShape(
+                topStart = 0.dp,
+                topEnd = 0.dp,
+                bottomStart = 4.dp,
+                bottomEnd = 4.dp,
+            ),
+        color = color.copy(alpha = 0.15f),
+        border = BorderStroke(1.dp, color.copy(alpha = 0.3f)),
+        modifier = Modifier.padding(top = if (compact) 0.dp else (-4).dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -232,7 +238,7 @@ private fun ValueBadge(
             Text(
                 text = label,
                 style =
-                    androidx.compose.material3.MaterialTheme.typography.labelSmall.copy(
+                    typography.labelSmall.copy(
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
                         fontSize = if (compact) 9.sp else 11.sp,
                         letterSpacing = 0.5.sp,
@@ -247,7 +253,7 @@ private fun ValueBadge(
             Text(
                 text = value.toString(),
                 style =
-                    androidx.compose.material3.MaterialTheme.typography.titleMedium.copy(
+                    typography.titleMedium.copy(
                         fontSize = if (compact) 14.sp else 18.sp,
                         fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
                         fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
