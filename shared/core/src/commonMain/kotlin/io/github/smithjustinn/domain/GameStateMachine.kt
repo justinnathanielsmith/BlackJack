@@ -108,7 +108,7 @@ class GameStateMachine(
                                 )
                             updateTime { it + bonus }
                             effect(GameEffect.TimerUpdate(internalTimeSeconds + bonus))
-                            effect(GameEffect.TimeGain(bonus.toInt()))
+                            effect(GameEffect.TimeGain(bonus))
                         }
                     }
 
@@ -240,12 +240,12 @@ class GameStateMachine(
 
     fun stopTimer() = gameTimer.stop()
 
-    private inline fun updateState(newState: MemoryGameState) {
+    private fun updateState(newState: MemoryGameState) {
         _state.value = newState
         onSaveState(newState, internalTimeSeconds)
     }
 
-    private inline fun emitEffect(effect: GameEffect) = _effects.tryEmit(effect)
+    private fun emitEffect(effect: GameEffect) = _effects.tryEmit(effect)
 
     companion object {
         const val MISMATCH_DELAY_MS = 1000L
