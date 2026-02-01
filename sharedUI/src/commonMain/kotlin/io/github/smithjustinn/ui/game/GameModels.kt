@@ -1,5 +1,6 @@
 package io.github.smithjustinn.ui.game
 
+import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardDisplaySettings
 import io.github.smithjustinn.domain.models.MemoryGameState
 
@@ -26,6 +27,7 @@ data class GameUIState(
     val showWalkthrough: Boolean = false,
     val walkthroughStep: Int = 0,
     val hasUsedDoubleDownPeek: Boolean = false,
+    val selectedTheme: CardBackTheme = CardBackTheme.GEOMETRIC,
 ) {
     val isDoubleDownAvailable: Boolean
         get() {

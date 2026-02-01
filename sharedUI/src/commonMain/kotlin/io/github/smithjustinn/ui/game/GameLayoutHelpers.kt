@@ -28,6 +28,7 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.game.components.effects.CardFountainOverlay
 import io.github.smithjustinn.ui.game.components.effects.ConfettiEffect
@@ -43,15 +44,35 @@ private const val SNACKBAR_MAX_WIDTH = 500
 private const val RESULTS_MAX_WIDTH = 550
 
 @Composable
-fun GameBackground(isHeatMode: Boolean) {
+fun GameBackground(
+    isHeatMode: Boolean,
+    theme: CardBackTheme,
+) {
     val colors = PokerTheme.colors
+
+    val themeTopColor =
+        when (theme) {
+            CardBackTheme.GEOMETRIC -> Color(0xFF121212)
+            CardBackTheme.CLASSIC -> colors.feltGreen
+            CardBackTheme.PATTERN -> Color(0xFF16212E)
+            CardBackTheme.POKER -> Color(0xFF231515)
+        }
+
+    val themeBottomColor =
+        when (theme) {
+            CardBackTheme.GEOMETRIC -> Color(0xFF1E1E1E)
+            CardBackTheme.CLASSIC -> colors.feltGreenDark
+            CardBackTheme.PATTERN -> Color(0xFF243447)
+            CardBackTheme.POKER -> Color(0xFF352020)
+        }
+
     val backgroundTopColor by animateColorAsState(
-        targetValue = if (isHeatMode) colors.heatBackgroundTop else colors.feltGreen,
+        targetValue = if (isHeatMode) colors.heatBackgroundTop else themeTopColor,
         animationSpec = tween(durationMillis = HEAT_TRANSITION_DURATION_MS),
         label = "backgroundTop",
     )
     val backgroundBottomColor by animateColorAsState(
-        targetValue = if (isHeatMode) colors.heatBackgroundBottom else colors.feltGreenDark,
+        targetValue = if (isHeatMode) colors.heatBackgroundBottom else themeBottomColor,
         animationSpec = tween(durationMillis = HEAT_TRANSITION_DURATION_MS),
         label = "backgroundBottom",
     )

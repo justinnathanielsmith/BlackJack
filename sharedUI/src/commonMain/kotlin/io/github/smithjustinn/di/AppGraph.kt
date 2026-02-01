@@ -38,6 +38,7 @@ interface AppGraph {
     val leaderboardRepository: LeaderboardRepository
     val gameStatsRepository: GameStatsRepository
     val dailyChallengeRepository: io.github.smithjustinn.domain.repositories.DailyChallengeRepository
+    val playerEconomyRepository: io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 
     // Use Cases
     val startNewGameUseCase: StartNewGameUseCase

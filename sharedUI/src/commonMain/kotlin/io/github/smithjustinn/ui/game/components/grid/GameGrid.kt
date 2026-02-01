@@ -60,6 +60,7 @@ internal fun GameGrid(
         contentAlignment = Alignment.Center,
     ) {
         GridBackground(
+            theme = settings.displaySettings.backTheme,
             modifier =
                 Modifier
                     .fillMaxSize()

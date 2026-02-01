@@ -3,6 +3,7 @@ package io.github.smithjustinn.data.repositories
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.data.local.PlayerEconomyDao
 import io.github.smithjustinn.data.local.PlayerEconomyEntity
+import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
@@ -56,6 +57,20 @@ class PlayerEconomyRepositoryImpl(
                 initialValue = emptySet(),
             )
 
+    override val selectedTheme: StateFlow<CardBackTheme> =
+        economyFlow
+            .map { entity ->
+                try {
+                    CardBackTheme.valueOf(entity?.selectedThemeId ?: CardBackTheme.GEOMETRIC.name)
+                } catch (e: Exception) {
+                    CardBackTheme.GEOMETRIC
+                }
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = CardBackTheme.GEOMETRIC,
+            )
+
     override suspend fun addCurrency(amount: Long) =
         writeMutex.withLock {
             val current = getOrCreateEntity()
@@ -102,6 +117,13 @@ class PlayerEconomyRepositoryImpl(
             .filter { it.isNotBlank() }
             .contains(itemId)
     }
+
+    override suspend fun selectTheme(themeId: String) =
+        writeMutex.withLock {
+            val current = getOrCreateEntity()
+            dao.savePlayerEconomy(current.copy(selectedThemeId = themeId))
+            logger.d { "Selected theme: $themeId" }
+        }
 
     private suspend fun getOrCreateEntity(): PlayerEconomyEntity =
         dao.getPlayerEconomy().firstOrNull() ?: PlayerEconomyEntity()

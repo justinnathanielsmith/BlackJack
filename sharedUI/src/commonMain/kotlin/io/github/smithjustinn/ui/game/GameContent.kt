@@ -126,7 +126,7 @@ private fun GameMainScreenWrapper(
         val useCompactUI = isLandscape && isCompactHeight
 
         Box(modifier = Modifier.fillMaxSize()) {
-            GameBackground(isHeatMode = state.isHeatMode)
+            GameBackground(isHeatMode = state.isHeatMode, theme = state.selectedTheme)
             GameMainScreen(
                 state = state,
                 component = component,

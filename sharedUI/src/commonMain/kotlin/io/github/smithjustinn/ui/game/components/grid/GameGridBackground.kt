@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PointMode
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.graphics.drawscope.Stroke
+import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.theme.PokerTheme
 import kotlin.random.Random
 
@@ -40,9 +41,28 @@ private const val BORDER_WHITE_ALPHA = 0.1f
 private const val BORDER_BLACK_ALPHA = 0.5f
 
 @Composable
-internal fun GridBackground(modifier: Modifier = Modifier) {
-    val colors = PokerTheme.colors
+internal fun GridBackground(
+    theme: CardBackTheme,
+    modifier: Modifier = Modifier,
+) {
+    val pokerColors = PokerTheme.colors
     val spacing = PokerTheme.spacing
+
+    val backgroundColor =
+        when (theme) {
+            CardBackTheme.GEOMETRIC -> Color(0xFF1A1A1A) // Dark/Modern
+            CardBackTheme.CLASSIC -> pokerColors.background // Standard Green
+            CardBackTheme.PATTERN -> Color(0xFF1E2A38) // Deep Blue
+            CardBackTheme.POKER -> Color(0xFF2C1A1A) // Deep Maroon
+        }
+
+    val spotlightColor =
+        when (theme) {
+            CardBackTheme.GEOMETRIC -> Color(0xFF333333)
+            CardBackTheme.CLASSIC -> pokerColors.feltGreenCenter
+            CardBackTheme.PATTERN -> Color(0xFF2E3D4F)
+            CardBackTheme.POKER -> Color(0xFF3D2525)
+        }
 
     // Dynamic Spotlight Animation
     val infiniteTransition = rememberInfiniteTransition(label = "spotlight")
@@ -60,8 +80,8 @@ internal fun GridBackground(modifier: Modifier = Modifier) {
     Box(
         modifier =
             modifier.drawBehind {
-                drawFeltBackground(colors.background)
-                drawSpotlight(spotlightX, colors.feltGreenCenter)
+                drawFeltBackground(backgroundColor)
+                drawSpotlight(spotlightX, spotlightColor)
                 drawVignette()
                 drawNoiseTexture()
                 drawTableBorder(spacing.medium.toPx(), spacing.small.toPx())
