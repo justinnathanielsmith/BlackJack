@@ -74,6 +74,10 @@ class StartComponentTest : BaseComponentTest() {
     fun `initial state reflects current balance`() =
         runTest { lifecycle ->
             every { context.playerEconomyRepository.balance } returns MutableStateFlow(5000L)
+            every { context.playerEconomyRepository.selectedTheme } returns
+                MutableStateFlow(io.github.smithjustinn.domain.models.CardBackTheme.PATTERN)
+            every { context.playerEconomyRepository.selectedSkin } returns
+                MutableStateFlow(io.github.smithjustinn.domain.models.CardSymbolTheme.POKER)
 
             component = createDefaultComponent(lifecycle)
             testDispatcher.scheduler.runCurrent()
@@ -81,6 +85,37 @@ class StartComponentTest : BaseComponentTest() {
             component.state.test {
                 val state = awaitItem()
                 assertEquals(5000L, state.totalBalance)
+                assertEquals(io.github.smithjustinn.domain.models.CardBackTheme.PATTERN, state.cardBackTheme)
+                assertEquals(io.github.smithjustinn.domain.models.CardSymbolTheme.POKER, state.cardSymbolTheme)
+            }
+        }
+
+    @Test
+    fun `state updates when selected theme or skin changes`() =
+        runTest { lifecycle ->
+            val themeFlow = MutableStateFlow(io.github.smithjustinn.domain.models.CardBackTheme.GEOMETRIC)
+            val skinFlow = MutableStateFlow(io.github.smithjustinn.domain.models.CardSymbolTheme.CLASSIC)
+            every { context.playerEconomyRepository.selectedTheme } returns themeFlow
+            every { context.playerEconomyRepository.selectedSkin } returns skinFlow
+
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.state.test {
+                val initial = awaitItem()
+                assertEquals(io.github.smithjustinn.domain.models.CardBackTheme.GEOMETRIC, initial.cardBackTheme)
+                assertEquals(io.github.smithjustinn.domain.models.CardSymbolTheme.CLASSIC, initial.cardSymbolTheme)
+
+                themeFlow.value = io.github.smithjustinn.domain.models.CardBackTheme.POKER
+                val stateAfterTheme = awaitItem()
+                assertEquals(io.github.smithjustinn.domain.models.CardBackTheme.POKER, stateAfterTheme.cardBackTheme)
+
+                skinFlow.value = io.github.smithjustinn.domain.models.CardSymbolTheme.MINIMAL
+                val stateAfterSkin = awaitItem()
+                assertEquals(
+                    io.github.smithjustinn.domain.models.CardSymbolTheme.MINIMAL,
+                    stateAfterSkin.cardSymbolTheme,
+                )
             }
         }
 
@@ -101,7 +136,7 @@ class StartComponentTest : BaseComponentTest() {
 
                 testDispatcher.scheduler.runCurrent()
 
-                val updated = awaitItem()
+                val updated = expectMostRecentItem()
                 assertTrue(updated.hasSavedGame)
                 assertEquals(12, updated.savedGamePairCount)
                 assertEquals(GameMode.TIME_ATTACK, updated.savedGameMode)
