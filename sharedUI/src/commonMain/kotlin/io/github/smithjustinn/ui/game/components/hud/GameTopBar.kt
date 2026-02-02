@@ -2,7 +2,6 @@ package io.github.smithjustinn.ui.game.components.hud
 
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
@@ -40,17 +39,12 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
-import io.github.smithjustinn.resources.buy_in_banked_label
 import io.github.smithjustinn.resources.hud_pot_label
 import io.github.smithjustinn.resources.mute_content_description
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.unmute_content_description
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
-import io.github.smithjustinn.ui.game.components.timer.TimerDisplay
-import io.github.smithjustinn.ui.game.components.timer.TimerFeedback
-import io.github.smithjustinn.ui.game.components.timer.TimerLayout
-import io.github.smithjustinn.ui.game.components.timer.TimerState
 import org.jetbrains.compose.resources.stringResource
 
 @Composable
@@ -109,51 +103,35 @@ private fun TopBarMainRow(
     onMuteClick: () -> Unit,
     onScorePositioned: (androidx.compose.ui.geometry.Offset) -> Unit,
 ) {
-    Row(
+    Box(
         modifier = Modifier.fillMaxWidth(),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.SpaceBetween,
     ) {
+        // Left: Back Button
         BackButton(
             onClick = onBackClick,
             compact = state.compact,
+            modifier = Modifier.align(Alignment.CenterStart)
         )
 
-        TimerDisplay(
-            infiniteTransition = rememberInfiniteTransition(),
-            state =
-                TimerState(
-                    time = state.time,
-                    isLowTime = state.isLowTime,
-                    isCriticalTime = state.isCriticalTime,
-                ),
-            feedback =
-                TimerFeedback(
-                    showTimeGain = state.showTimeGain,
-                    timeGainAmount = state.timeGainAmount,
-                    showTimeLoss = state.showTimeLoss,
-                    timeLossAmount = state.timeLossAmount,
-                    isMegaBonus = state.isMegaBonus,
-                ),
-            layout = if (state.compact) TimerLayout.COMPACT else TimerLayout.STANDARD,
-        )
-
+        // Center: Pot Score
         ScoringDisplay(
-            bankedScore = state.bankedScore,
             currentPot = state.currentPot,
             compact = state.compact,
-            modifier =
-                Modifier.onGloballyPositioned { coords ->
+            modifier = Modifier
+                .align(Alignment.Center)
+                .onGloballyPositioned { coords ->
                     onScorePositioned(coords.positionInRoot())
                 },
         )
 
+        // Right: Controls
         ControlButtons(
             isAudioEnabled = state.isAudioEnabled,
             onMuteClick = onMuteClick,
             onRestartClick = onRestartClick,
             compact = state.compact,
             showRestart = true,
+            modifier = Modifier.align(Alignment.CenterEnd)
         )
     }
 }
@@ -165,8 +143,12 @@ private fun ControlButtons(
     onRestartClick: () -> Unit,
     compact: Boolean,
     showRestart: Boolean,
+    modifier: Modifier = Modifier,
 ) {
-    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+    Row(
+        modifier = modifier,
+        horizontalArrangement = Arrangement.spacedBy(12.dp)
+    ) {
         MuteButton(
             isAudioEnabled = isAudioEnabled,
             onClick = onMuteClick,
@@ -184,32 +166,18 @@ private fun ControlButtons(
 
 @Composable
 private fun ScoringDisplay(
-    bankedScore: Int,
     currentPot: Int,
     compact: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(8.dp),
+    // Current Pot Display (At Risk)
+    ValueBadge(
+        label = stringResource(Res.string.hud_pot_label),
+        value = currentPot,
+        color = PokerTheme.colors.goldenYellow,
+        compact = compact,
         modifier = modifier,
-    ) {
-        // Current Pot Display (At Risk)
-        ValueBadge(
-            label = stringResource(Res.string.hud_pot_label),
-            value = currentPot,
-            color = PokerTheme.colors.goldenYellow,
-            compact = compact,
-        )
-
-        // Banked Score Display (Safe)
-        ValueBadge(
-            label = stringResource(Res.string.buy_in_banked_label),
-            value = bankedScore,
-            color = PokerTheme.colors.brass,
-            compact = compact,
-        )
-    }
+    )
 }
 
 @Composable
@@ -218,6 +186,7 @@ private fun ValueBadge(
     value: Int,
     color: Color,
     compact: Boolean,
+    modifier: Modifier = Modifier,
 ) {
     Surface(
         shape =
@@ -229,7 +198,7 @@ private fun ValueBadge(
             ),
         color = color.copy(alpha = 0.15f),
         border = BorderStroke(1.dp, color.copy(alpha = 0.3f)),
-        modifier = Modifier.offset(y = if (compact) 0.dp else (-4).dp),
+        modifier = modifier.offset(y = if (compact) 0.dp else (-4).dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
