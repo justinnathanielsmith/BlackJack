@@ -8,14 +8,6 @@
     "isConsumable": false
   },
   {
-    "id": "theme_dark",
-    "name": "Dark Theme",
-    "description": "Sleek dark mode design.",
-    "price": 250,
-    "type": "THEME",
-    "isConsumable": false
-  },
-  {
     "id": "skin_classic",
     "name": "Standard Face",
     "description": "Classic card face design.",
@@ -32,11 +24,43 @@
     "isConsumable": false
   },
   {
-    "id": "theme_geometric",
-    "name": "Geometric Theme",
-    "description": "Modern geometric patterns.",
-    "price": 500,
+    "id": "theme_pattern",
+    "name": "Pattern Theme",
+    "description": "Intricate pattern design.",
+    "price": 300,
     "type": "THEME",
+    "isConsumable": false
+  },
+  {
+    "id": "theme_poker",
+    "name": "Poker Theme",
+    "description": "Classic poker table aesthetic.",
+    "price": 400,
+    "type": "THEME",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_minimal",
+    "name": "Minimal Face",
+    "description": "Clean, minimalist card design.",
+    "price": 200,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_text",
+    "name": "Text-Only Face",
+    "description": "Simple text-based card face.",
+    "price": 150,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_poker",
+    "name": "Poker Face",
+    "description": "Traditional poker card style.",
+    "price": 350,
+    "type": "CARD_SKIN",
     "isConsumable": false
   },
   {
