@@ -24,8 +24,8 @@ class JsonShopItemRepositoryTest {
                 assertTrue(items.isNotEmpty(), "Shop items should not be empty")
 
                 val firstItem = items.first()
-                assertEquals("theme_classic", firstItem.id)
-                assertEquals("Classic Theme", firstItem.name)
+                assertEquals("theme_standard", firstItem.id)
+                assertEquals("Standard Theme", firstItem.name)
                 assertEquals(ShopItemType.THEME, firstItem.type)
             } catch (e: Exception) {
                 // Fallback: If resource loading fails in unit test environment is a known issue

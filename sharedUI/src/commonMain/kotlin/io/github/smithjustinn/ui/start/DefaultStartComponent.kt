@@ -10,6 +10,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
@@ -40,23 +41,20 @@ class DefaultStartComponent(
     private val playerEconomyRepository = appGraph.playerEconomyRepository
 
     init {
-
         scope.launch {
-            playerEconomyRepository.balance.collect { balance ->
-                _state.update { it.copy(totalBalance = balance) }
-            }
-        }
-
-        scope.launch {
-            playerEconomyRepository.selectedTheme.collect { theme ->
-                _state.update { it.copy(cardBackTheme = theme) }
-            }
-        }
-
-        scope.launch {
-            playerEconomyRepository.selectedSkin.collect { skin ->
-                _state.update { it.copy(cardSymbolTheme = skin) }
-            }
+            combine(
+                playerEconomyRepository.balance,
+                playerEconomyRepository.selectedTheme,
+                playerEconomyRepository.selectedSkin,
+            ) { balance, theme, skin ->
+                _state.update {
+                    it.copy(
+                        totalBalance = balance,
+                        cardBackTheme = theme,
+                        cardSymbolTheme = skin,
+                    )
+                }
+            }.collect()
         }
 
         lifecycle.doOnResume { checkSavedGame() }

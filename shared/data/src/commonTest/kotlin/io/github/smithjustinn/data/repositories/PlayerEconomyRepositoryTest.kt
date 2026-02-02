@@ -165,7 +165,7 @@ class PlayerEconomyRepositoryTest {
     fun themeSelectionPersistence_preservesSelectedTheme() =
         runTest(testDispatcher) {
             val repo1 = createRepository(backgroundScope)
-            repo1.selectTheme(CardBackTheme.CLASSIC.name)
+            repo1.selectTheme(CardBackTheme.CLASSIC.id)
 
             // Second instance
             val repo2 = createRepository(backgroundScope)
@@ -183,7 +183,7 @@ class PlayerEconomyRepositoryTest {
     fun skinSelectionPersistence_preservesSelectedSkin() =
         runTest(testDispatcher) {
             val repo1 = createRepository(backgroundScope)
-            repo1.selectSkin(CardSymbolTheme.MINIMAL.name)
+            repo1.selectSkin(CardSymbolTheme.MINIMAL.id)
 
             // Second instance
             val repo2 = createRepository(backgroundScope)
@@ -215,6 +215,31 @@ class PlayerEconomyRepositoryTest {
             }
             repository.selectedSkin.test {
                 assertEquals(CardSymbolTheme.CLASSIC, awaitItem())
+            }
+        }
+
+    @Test
+    fun themeSelection_handlesLegacyNames() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.selectTheme("CLASSIC") // Old name format
+            repository.selectedTheme.test {
+                val first = awaitItem()
+                if (first == CardBackTheme.GEOMETRIC) {
+                    assertEquals(CardBackTheme.CLASSIC, awaitItem())
+                } else {
+                    assertEquals(CardBackTheme.CLASSIC, first)
+                }
+            }
+
+            repository.selectSkin("MINIMAL") // Old name format
+            repository.selectedSkin.test {
+                val first = awaitItem()
+                if (first == CardSymbolTheme.CLASSIC) {
+                    assertEquals(CardSymbolTheme.MINIMAL, awaitItem())
+                } else {
+                    assertEquals(CardSymbolTheme.MINIMAL, first)
+                }
             }
         }
 }

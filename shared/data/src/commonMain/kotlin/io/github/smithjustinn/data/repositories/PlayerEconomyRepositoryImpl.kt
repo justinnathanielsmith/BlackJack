@@ -82,12 +82,7 @@ class PlayerEconomyRepositoryImpl(
         economyFlow
             .map { entity ->
                 val themeId = entity?.selectedThemeId ?: PlayerEconomyEntity().selectedThemeId
-                try {
-                    CardBackTheme.valueOf(themeId)
-                } catch (e: IllegalArgumentException) {
-                    logger.e(e) { "Invalid theme ID: $themeId, defaulting to GEOMETRIC" }
-                    CardBackTheme.GEOMETRIC
-                }
+                CardBackTheme.fromIdOrName(themeId)
             }.stateIn(
                 scope = scope,
                 started = SharingStarted.Eagerly,
@@ -98,12 +93,7 @@ class PlayerEconomyRepositoryImpl(
         economyFlow
             .map { entity ->
                 val skinId = entity?.selectedSkinId ?: PlayerEconomyEntity().selectedSkinId
-                try {
-                    CardSymbolTheme.valueOf(skinId)
-                } catch (e: IllegalArgumentException) {
-                    logger.e(e) { "Invalid skin ID: $skinId, defaulting to CLASSIC" }
-                    CardSymbolTheme.CLASSIC
-                }
+                CardSymbolTheme.fromIdOrName(skinId)
             }.stateIn(
                 scope = scope,
                 started = SharingStarted.Eagerly,

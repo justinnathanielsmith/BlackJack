@@ -10,6 +10,11 @@ enum class CardBackTheme(
     CLASSIC("theme_classic"),
     PATTERN("theme_pattern"),
     POKER("theme_poker"),
+    ;
+
+    companion object {
+        fun fromIdOrName(value: String): CardBackTheme = entries.find { it.id == value || it.name == value } ?: GEOMETRIC
+    }
 }
 
 @Serializable
@@ -20,4 +25,9 @@ enum class CardSymbolTheme(
     MINIMAL("skin_minimal"),
     TEXT_ONLY("skin_text"),
     POKER("skin_poker"),
+    ;
+
+    companion object {
+        fun fromIdOrName(value: String): CardSymbolTheme = entries.find { it.id == value || it.name == value } ?: CLASSIC
+    }
 }
