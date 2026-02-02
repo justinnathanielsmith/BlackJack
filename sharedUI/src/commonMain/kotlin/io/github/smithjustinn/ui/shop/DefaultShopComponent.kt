@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
 
@@ -52,7 +53,9 @@ class DefaultShopComponent(
             val unlockedFlow = playerEconomyRepository.unlockedItemIds
             val themeFlow = playerEconomyRepository.selectedTheme
             val skinFlow = playerEconomyRepository.selectedSkin
-            val allItems = getShopItemsUseCase()
+            val allItems = withContext(appGraph.coroutineDispatchers.io) {
+                getShopItemsUseCase()
+            }
 
             combine(balanceFlow, unlockedFlow, themeFlow, skinFlow) { balance, unlockedIds, theme, skin ->
                 ShopState(
