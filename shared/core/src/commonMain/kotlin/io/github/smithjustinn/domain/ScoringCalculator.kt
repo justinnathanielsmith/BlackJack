@@ -82,6 +82,13 @@ object ScoringCalculator {
                 totalScore
             }
 
+        val dailyChallengeBonus =
+            if (state.mode == GameMode.DAILY_CHALLENGE) {
+                DAILY_CHALLENGE_CURRENCY_BONUS
+            } else {
+                0
+            }
+
         return state.copy(
             score = totalScore,
             scoreBreakdown =
@@ -91,6 +98,7 @@ object ScoringCalculator {
                     doubleDownBonus = state.totalDoubleDownBonus,
                     timeBonus = timeBonus,
                     moveBonus = moveBonus,
+                    dailyChallengeBonus = dailyChallengeBonus,
                     totalScore = totalScore,
                     earnedCurrency = earnedCurrency,
                 ),

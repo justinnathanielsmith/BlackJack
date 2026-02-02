@@ -55,6 +55,7 @@ import io.github.smithjustinn.resources.high_roller_suite
 import io.github.smithjustinn.resources.moves_label
 import io.github.smithjustinn.resources.play_again
 import io.github.smithjustinn.resources.score_combo_bonus_label
+import io.github.smithjustinn.resources.score_daily_challenge_bonus
 import io.github.smithjustinn.resources.score_double_down
 import io.github.smithjustinn.resources.score_match_points_label
 import io.github.smithjustinn.resources.score_move_efficiency
@@ -86,7 +87,6 @@ private const val BARCODE_WIDTH_FRACTION = 0.8f
 fun ResultsCard(
     isWon: Boolean,
     isBusted: Boolean = false,
-    score: Int,
     highScore: Int,
     moves: Int,
     elapsedTimeSeconds: Long,
@@ -107,7 +107,7 @@ fun ResultsCard(
             else -> Res.string.game_over
         }
 
-    val animatedScore = rememberAnimatedScore(score, onScoreTick)
+    val animatedScore = rememberAnimatedScore(scoreBreakdown.earnedCurrency, onScoreTick)
     val scale = rememberResultsScale()
 
     BoxWithConstraints(
@@ -248,6 +248,9 @@ private fun PayoutSection(
         }
         PayoutRow(stringResource(Res.string.score_time_bonus), scoreBreakdown.timeBonus)
         PayoutRow(stringResource(Res.string.score_move_efficiency), scoreBreakdown.moveBonus)
+        if (scoreBreakdown.dailyChallengeBonus > 0) {
+            PayoutRow(stringResource(Res.string.score_daily_challenge_bonus), scoreBreakdown.dailyChallengeBonus)
+        }
 
         ReceiptDottedLine()
 

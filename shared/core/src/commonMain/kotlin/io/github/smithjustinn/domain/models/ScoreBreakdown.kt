@@ -12,6 +12,7 @@ data class ScoreBreakdown(
     val doubleDownBonus: Int = 0,
     val timeBonus: Int = 0,
     val moveBonus: Int = 0,
+    val dailyChallengeBonus: Int = 0,
     val totalScore: Int = 0,
     val earnedCurrency: Int = 0,
 )

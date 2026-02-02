@@ -171,4 +171,5 @@
     <string name="mutator_blackout">BLACKOUT</string>
     <string name="mutator_mirage">MIRAGE</string>
     <string name="wallet_label">WALLET</string>
+    <string name="score_daily_challenge_bonus">Daily Challenge Bonus</string>
 </resources>
