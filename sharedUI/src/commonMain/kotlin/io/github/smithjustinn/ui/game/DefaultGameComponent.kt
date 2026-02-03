@@ -13,6 +13,7 @@ import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.delay
@@ -432,7 +433,7 @@ class DefaultGameComponent(
     }
 
     private fun isSavedGameValid(
-        savedGame: io.github.smithjustinn.domain.models.SavedGame,
+        savedGame: SavedGame,
         pairCount: Int,
         mode: GameMode,
     ): Boolean =

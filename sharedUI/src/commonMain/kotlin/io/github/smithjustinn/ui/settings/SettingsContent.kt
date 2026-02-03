@@ -141,7 +141,7 @@ private fun SettingsTopBar(
                 Icon(
                     imageVector = AppIcons.ArrowBack,
                     contentDescription = stringResource(Res.string.back_content_description),
-                    tint = io.github.smithjustinn.theme.ModernGold,
+                    tint = ModernGold,
                 )
             }
         },
@@ -267,9 +267,9 @@ private fun SettingsResetSection(
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
-                            io.github.smithjustinn.theme.ModernGold
+                            ModernGold
                                 .copy(alpha = 0.2f),
-                        contentColor = io.github.smithjustinn.theme.ModernGold,
+                        contentColor = ModernGold,
                         disabledContainerColor = PokerTheme.colors.hudBackground.copy(alpha = 0.5f),
                         disabledContentColor = Color.White.copy(alpha = 0.3f),
                     ),
@@ -297,7 +297,7 @@ private fun VolumeSlider(
         Icon(
             imageVector = AppIcons.VolumeUp,
             contentDescription = null,
-            tint = io.github.smithjustinn.theme.ModernGold,
+            tint = ModernGold,
             modifier = Modifier.size(18.dp),
         )
         Slider(
@@ -307,7 +307,7 @@ private fun VolumeSlider(
             colors =
                 SliderDefaults.colors(
                     thumbColor = Color.White,
-                    activeTrackColor = io.github.smithjustinn.theme.ModernGold,
+                    activeTrackColor = ModernGold,
                     inactiveTrackColor = PokerTheme.colors.hudBackground,
                 ),
         )
@@ -353,7 +353,7 @@ private fun SettingsToggle(
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
-                    checkedTrackColor = io.github.smithjustinn.theme.ModernGold,
+                    checkedTrackColor = ModernGold,
                     uncheckedTrackColor = PokerTheme.colors.hudBackground,
                     uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
                     uncheckedBorderColor = Color.Transparent,
