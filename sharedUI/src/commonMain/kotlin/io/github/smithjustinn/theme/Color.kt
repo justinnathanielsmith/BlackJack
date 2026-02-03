@@ -20,6 +20,12 @@ internal val EmeraldGreenDark = Color(0xFF004D1A) // Rich shadow green (not blac
 internal val HeatBackgroundTop = Color(0xFF4A0E0E)
 internal val HeatBackgroundBottom = Color(0xFF1A0505)
 
+// Electric Neon Palette for Heat Mode
+internal val NeonCyan = Color(0xFF00FFFF)
+internal val NeonMagenta = Color(0xFFFF00FF)
+internal val NeonYellow = Color(0xFFCCFF00)
+internal val NeonPurple = Color(0xFFBC13FE)
+
 // Premium Casino Colors
 internal val CasinoBlack = Color(0xFF0A0A0A)
 internal val ModernGold = Color(0xFFFFE043) // Brighter, more vibrant gold
