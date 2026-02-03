@@ -30,8 +30,6 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.domain.models.CardBackTheme
-import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit

@@ -28,11 +28,12 @@ class AndroidHapticsServiceImpl(
                 when (type) {
                     HapticFeedbackType.LIGHT -> VibrationEffect.createPredefined(VibrationEffect.EFFECT_CLICK)
                     HapticFeedbackType.HEAVY -> VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
-                    HapticFeedbackType.LONG_PRESS -> if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-                        VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK)
-                    } else {
-                        VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
-                    }
+                    HapticFeedbackType.LONG_PRESS ->
+                        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                            VibrationEffect.createPredefined(VibrationEffect.EFFECT_DOUBLE_CLICK)
+                        } else {
+                            VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK)
+                        }
                 }
             vibrator?.vibrate(effect)
         } else {

@@ -9,7 +9,7 @@ plugins {
 }
 
 kotlin {
-    android {
+    androidLibrary {
         namespace = "io.github.smithjustinn.data"
         compileSdk = 36
         minSdk = 26
@@ -40,9 +40,6 @@ kotlin {
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.bundles.testing)
-        }
-        androidUnitTest.dependencies {
-            implementation(libs.room.testing)
         }
     }
 }

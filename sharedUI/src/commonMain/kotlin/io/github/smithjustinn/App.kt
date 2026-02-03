@@ -7,13 +7,11 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.animation.togetherWith
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.collectAsState
-import io.github.smithjustinn.domain.models.CardTheme
-import kotlinx.coroutines.flow.combine
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
 import com.arkivanov.decompose.extensions.compose.stack.animation.fade
@@ -23,6 +21,7 @@ import com.arkivanov.decompose.extensions.compose.stack.animation.slide
 import com.arkivanov.decompose.extensions.compose.stack.animation.stackAnimation
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.theme.AppTheme
 import io.github.smithjustinn.theme.LocalCardTheme
 import io.github.smithjustinn.ui.game.GameContent
@@ -32,6 +31,7 @@ import io.github.smithjustinn.ui.shop.ShopContent
 import io.github.smithjustinn.ui.splash.SplashScreen
 import io.github.smithjustinn.ui.start.StartContent
 import io.github.smithjustinn.ui.stats.StatsContent
+import kotlinx.coroutines.flow.combine
 
 private const val SPLASH_ANIMATION_DURATION = 1000
 

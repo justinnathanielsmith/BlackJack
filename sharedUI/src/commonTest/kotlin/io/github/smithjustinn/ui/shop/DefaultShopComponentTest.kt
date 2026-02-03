@@ -46,12 +46,13 @@ class DefaultShopComponentTest {
     private val setActiveCosmeticUseCase = SetActiveCosmeticUseCase(playerEconomyRepository)
 
     private val testDispatcher = StandardTestDispatcher()
-    private val coroutineDispatchers = CoroutineDispatchers(
-        main = testDispatcher,
-        mainImmediate = testDispatcher,
-        io = testDispatcher,
-        default = testDispatcher
-    )
+    private val coroutineDispatchers =
+        CoroutineDispatchers(
+            main = testDispatcher,
+            mainImmediate = testDispatcher,
+            io = testDispatcher,
+            default = testDispatcher,
+        )
 
     private val lifecycle = LifecycleRegistry()
     private val componentContext = DefaultComponentContext(lifecycle)
@@ -66,14 +67,16 @@ class DefaultShopComponentTest {
         everySuspend { shopItemRepository.getShopItems() } returns emptyList()
 
         startKoin {
-            modules(module {
-                single { buyItemUseCase }
-                single { getPlayerBalanceUseCase }
-                single { getShopItemsUseCase }
-                single { setActiveCosmeticUseCase }
-                single { playerEconomyRepository }
-                single { hapticsService }
-            })
+            modules(
+                module {
+                    single { buyItemUseCase }
+                    single { getPlayerBalanceUseCase }
+                    single { getShopItemsUseCase }
+                    single { setActiveCosmeticUseCase }
+                    single { playerEconomyRepository }
+                    single { hapticsService }
+                },
+            )
         }
     }
 
@@ -83,47 +86,56 @@ class DefaultShopComponentTest {
     }
 
     @Test
-    fun `onBuyItemClicked should trigger use case and haptics on success`() = runTest(testDispatcher) {
-        val item = ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
-        
-        everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
-        everySuspend { playerEconomyRepository.deductCurrency(100) } returns true
-        everySuspend { playerEconomyRepository.unlockItem("item1") } returns Unit
-        every { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) } returns Unit
+    fun `onBuyItemClicked should trigger use case and haptics on success`() =
+        runTest(testDispatcher) {
+            val item =
+                ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
 
-        val component = DefaultShopComponent(
-            componentContext = componentContext,
-            appGraph = appGraph,
-            onBackClicked = {}
-        )
+            everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
+            everySuspend { playerEconomyRepository.deductCurrency(100) } returns true
+            everySuspend { playerEconomyRepository.unlockItem("item1") } returns Unit
+            every { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) } returns Unit
 
-        component.onBuyItemClicked(item)
-        advanceUntilIdle()
+            val component =
+                DefaultShopComponent(
+                    componentContext = componentContext,
+                    appGraph = appGraph,
+                    onBackClicked = {},
+                )
 
-        verifySuspend { playerEconomyRepository.deductCurrency(100) }
-        verifySuspend { playerEconomyRepository.unlockItem("item1") }
-        verify { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) }
-    }
+            component.onBuyItemClicked(item)
+            advanceUntilIdle()
+
+            verifySuspend { playerEconomyRepository.deductCurrency(100) }
+            verifySuspend { playerEconomyRepository.unlockItem("item1") }
+            verify { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) }
+        }
 
     @Test
-    fun `onBuyItemClicked should not trigger haptics on failure`() = runTest(testDispatcher) {
-        val item = ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
-        
-        everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
-        everySuspend { playerEconomyRepository.deductCurrency(100) } returns false
+    fun `onBuyItemClicked should not trigger haptics on failure`() =
+        runTest(testDispatcher) {
+            val item =
+                ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
 
-        val component = DefaultShopComponent(
-            componentContext = componentContext,
-            appGraph = appGraph,
-            onBackClicked = {}
-        )
+            everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
+            everySuspend { playerEconomyRepository.deductCurrency(100) } returns false
 
-        component.onBuyItemClicked(item)
-        advanceUntilIdle()
+            val component =
+                DefaultShopComponent(
+                    componentContext = componentContext,
+                    appGraph = appGraph,
+                    onBackClicked = {},
+                )
 
-        verifySuspend { playerEconomyRepository.deductCurrency(100) }
-        verify(dev.mokkery.verify.VerifyMode.exactly(0)) { 
-            hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) 
+            component.onBuyItemClicked(item)
+            advanceUntilIdle()
+
+            verifySuspend { playerEconomyRepository.deductCurrency(100) }
+            verify(
+                dev.mokkery.verify.VerifyMode
+                    .exactly(0),
+            ) {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS)
+            }
         }
-    }
 }

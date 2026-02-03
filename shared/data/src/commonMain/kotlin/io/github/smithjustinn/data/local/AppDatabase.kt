@@ -70,9 +70,11 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_3_4 =
             object : Migration(3, 4) {
                 override fun migrate(connection: SQLiteConnection) {
-                    // Rename columns in player_economy
-                    // SQLite does not support renaming columns directly in older versions, but modern SQLite does.
-                    // However, Room often expects us to recreated the table or use ALTER TABLE RENAME COLUMN if supported.
+                    // Renaming columns in player_economy
+                    // SQLite does not support renaming columns directly in older versions,
+                    // but modern SQLite does.
+                    // However, Room often expects us to recreated the table or use
+                    // ALTER TABLE RENAME COLUMN if supported.
                     // Let's use ALTER TABLE RENAME COLUMN which is supported in SQLite 3.25.0+ (Android 10+, iOS 13+).
                     // Since we are targeting newer versions, this should be fine.
                     connection.execSQL("ALTER TABLE player_economy RENAME COLUMN unlockedItemIds TO owned_items")
