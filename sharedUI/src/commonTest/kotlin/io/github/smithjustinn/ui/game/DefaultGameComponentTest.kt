@@ -6,6 +6,8 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
+import dev.mokkery.matcher.any
+import dev.mokkery.verifySuspend
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.DifficultyType
@@ -16,6 +18,7 @@ import io.github.smithjustinn.test.BaseComponentTest
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -27,6 +30,7 @@ class DefaultGameComponentTest : BaseComponentTest() {
         super.setUp()
         // Default mocks using MutableStateFlow to match StateFlow requirement
         every { context.settingsRepository.isWalkthroughCompleted } returns MutableStateFlow(true)
+        every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(false)
         every { context.settingsRepository.isMusicEnabled } returns MutableStateFlow(true)
         every { context.settingsRepository.isSoundEnabled } returns MutableStateFlow(true)
         every { context.playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
@@ -88,6 +92,103 @@ class DefaultGameComponentTest : BaseComponentTest() {
                 assertFalse(initialState.isPeeking, "Should NOT be peeking when resuming game")
 
                 cancelAndIgnoreRemainingEvents()
+            }
+        }
+
+    @Test
+    fun `toggling audio updates settings repository`() =
+        runTest { lifecycle ->
+            // Given
+            val isMusicEnabledFlow = MutableStateFlow(true)
+            val isSoundEnabledFlow = MutableStateFlow(true)
+            every { context.settingsRepository.isMusicEnabled } returns isMusicEnabledFlow
+            every { context.settingsRepository.isSoundEnabled } returns isSoundEnabledFlow
+            every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(false)
+
+            // Mock setters
+            everySuspend { context.settingsRepository.setMusicEnabled(any()) } returns Unit
+            everySuspend { context.settingsRepository.setSoundEnabled(any()) } returns Unit
+
+            component = createComponent(lifecycle, forceNewGame = false)
+            testDispatcher.scheduler.runCurrent()
+
+            // When
+            component.onToggleAudio()
+            testDispatcher.scheduler.runCurrent()
+
+            // Then
+            verifySuspend {
+                context.settingsRepository.setMusicEnabled(false)
+                context.settingsRepository.setSoundEnabled(false)
+            }
+        }
+
+    @Test
+    fun `completing walkthrough updates settings repository`() =
+        runTest { lifecycle ->
+            // Given
+            every { context.settingsRepository.isWalkthroughCompleted } returns MutableStateFlow(false)
+            every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(false)
+            everySuspend { context.settingsRepository.setWalkthroughCompleted(any()) } returns Unit
+
+            component = createComponent(lifecycle, forceNewGame = false)
+            testDispatcher.scheduler.runCurrent()
+
+            // When
+            component.onWalkthroughAction(isComplete = true)
+            testDispatcher.scheduler.runCurrent()
+
+            // Then
+            verifySuspend {
+                context.settingsRepository.setWalkthroughCompleted(true)
+            }
+        }
+
+    @Test
+    fun `settings changes are reflected in state`() =
+        runTest { lifecycle ->
+            // Given
+            val isPeekEnabledFlow = MutableStateFlow(false)
+            val isMusicEnabledFlow = MutableStateFlow(true)
+            val isSoundEnabledFlow = MutableStateFlow(true)
+
+            every { context.settingsRepository.isPeekEnabled } returns isPeekEnabledFlow
+            every { context.settingsRepository.isMusicEnabled } returns isMusicEnabledFlow
+            every { context.settingsRepository.isSoundEnabled } returns isSoundEnabledFlow
+
+            component = createComponent(lifecycle, forceNewGame = false)
+            testDispatcher.scheduler.runCurrent()
+
+            component.state.test {
+                val initialState = awaitItem()
+
+                // When
+                // Toggle values to ensure we trigger a change regardless of initial state
+                val newPeek = !initialState.isPeekFeatureEnabled
+                val newMusic = !initialState.isMusicEnabled
+                val newSound = !initialState.isSoundEnabled
+
+                isPeekEnabledFlow.emit(newPeek)
+                isMusicEnabledFlow.emit(newMusic)
+                isSoundEnabledFlow.emit(newSound)
+
+                testDispatcher.scheduler.runCurrent()
+
+                // Then
+                // We expect at least one state update. Since we emit multiple changes,
+                // and they might be conflated or sequential depending on dispatcher,
+                // we should loop until we match expectation or timeout.
+
+                var currentState = awaitItem()
+                while (currentState.isPeekFeatureEnabled != newPeek ||
+                       currentState.isMusicEnabled != newMusic ||
+                       currentState.isSoundEnabled != newSound) {
+                    currentState = awaitItem()
+                }
+
+                assertEquals(newPeek, currentState.isPeekFeatureEnabled)
+                assertEquals(newMusic, currentState.isMusicEnabled)
+                assertEquals(newSound, currentState.isSoundEnabled)
             }
         }
 

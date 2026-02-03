@@ -60,21 +60,30 @@ class DefaultGameComponent(
     init {
         scope.launch {
             val settings = appGraph.settingsRepository
-            combine(
-                settings.isPeekEnabled,
-                settings.isWalkthroughCompleted,
-                settings.isMusicEnabled,
-                settings.isSoundEnabled,
-            ) { peek, walkthrough, music, sound ->
-                _state.update {
-                    it.copy(
-                        isPeekFeatureEnabled = peek,
-                        showWalkthrough = !walkthrough,
-                        isMusicEnabled = music,
-                        isSoundEnabled = sound,
-                    )
+            val settingsFlow =
+                combine(
+                    settings.isPeekEnabled,
+                    settings.isWalkthroughCompleted,
+                    settings.isMusicEnabled,
+                    settings.isSoundEnabled,
+                ) { peek, walkthrough, music, sound ->
+                    GameSettingsState(peek, walkthrough, music, sound)
                 }
-            }.first() // Wait for first emission
+
+            launch {
+                settingsFlow.collect { (peek, walkthrough, music, sound) ->
+                    _state.update {
+                        it.copy(
+                            isPeekFeatureEnabled = peek,
+                            showWalkthrough = !walkthrough,
+                            isMusicEnabled = music,
+                            isSoundEnabled = sound,
+                        )
+                    }
+                }
+            }
+
+            settingsFlow.first() // Wait for first emission
 
             startGame(args)
 
@@ -471,5 +480,12 @@ class DefaultGameComponent(
         val state: MemoryGameState,
         val initialTime: Long,
         val isResumed: Boolean,
+    )
+
+    private data class GameSettingsState(
+        val peek: Boolean,
+        val walkthrough: Boolean,
+        val music: Boolean,
+        val sound: Boolean,
     )
 }
