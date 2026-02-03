@@ -21,6 +21,14 @@ class AssetProviderTest {
     }
 
     @Test
+    fun `getBackTheme resolves base theme for variant IDs`() {
+        assertEquals(CardBackTheme.GEOMETRIC, AssetProvider.getBackTheme("theme_standard_green"))
+        assertEquals(CardBackTheme.GEOMETRIC, AssetProvider.getBackTheme("theme_standard_charcoal"))
+        assertEquals(CardBackTheme.CLASSIC, AssetProvider.getBackTheme("theme_classic_blue"))
+        assertEquals(CardBackTheme.POKER, AssetProvider.getBackTheme("theme_poker_red"))
+    }
+
+    @Test
     fun `getSymbolTheme returns correct theme for valid IDs`() {
         assertEquals(CardSymbolTheme.CLASSIC, AssetProvider.getSymbolTheme("skin_classic"))
         assertEquals(CardSymbolTheme.MINIMAL, AssetProvider.getSymbolTheme("skin_minimal"))

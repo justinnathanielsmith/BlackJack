@@ -238,6 +238,7 @@ fun ShopItemCard(
         ) {
             ShopItemPreview(
                 itemId = item.id,
+                hexColor = item.hexColor,
                 modifier = Modifier.fillMaxWidth(),
             )
 
@@ -265,6 +266,7 @@ fun ShopItemCard(
 @Composable
 private fun ShopItemPreview(
     itemId: String,
+    hexColor: String?,
     modifier: Modifier = Modifier,
 ) {
     Box(
@@ -273,6 +275,7 @@ private fun ShopItemPreview(
     ) {
         AssetProvider.CardPreview(
             shopItemId = itemId,
+            hexColor = hexColor,
             modifier = Modifier.fillMaxWidth(0.85f),
         )
     }

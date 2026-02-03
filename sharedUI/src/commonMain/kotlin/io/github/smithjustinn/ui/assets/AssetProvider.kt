@@ -26,7 +26,8 @@ object AssetProvider {
     /**
      * Resolves a CardBackTheme from a shop item ID.
      */
-    fun getBackTheme(id: String): CardBackTheme? = CardBackTheme.entries.firstOrNull { it.id == id }
+    fun getBackTheme(id: String): CardBackTheme? =
+        CardBackTheme.entries.find { id.startsWith(it.id) } ?: CardBackTheme.entries.firstOrNull { it.id == id }
 
     /**
      * Resolves a CardSymbolTheme from a shop item ID.
@@ -42,6 +43,7 @@ object AssetProvider {
     fun CardPreview(
         shopItemId: String,
         modifier: Modifier = Modifier,
+        hexColor: String? = null,
     ) {
         val backTheme = getBackTheme(shopItemId)
         val symbolTheme = getSymbolTheme(shopItemId)
@@ -57,7 +59,7 @@ object AssetProvider {
                     // Render card back preview
                     CardBackPreview(
                         theme = backTheme,
-                        hexColor = null, // Default for now, can be expanded if needed
+                        hexColor = hexColor,
                         modifier = Modifier.fillMaxSize(),
                     )
                 }

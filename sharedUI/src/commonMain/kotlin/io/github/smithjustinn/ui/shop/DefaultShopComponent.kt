@@ -54,20 +54,20 @@ class DefaultShopComponent(
         scope.launch {
             val balanceFlow = getPlayerBalanceUseCase()
             val unlockedFlow = playerEconomyRepository.unlockedItemIds
-            val themeFlow = playerEconomyRepository.selectedTheme
-            val skinFlow = playerEconomyRepository.selectedSkin
+            val themeIdFlow = playerEconomyRepository.selectedThemeId
+            val skinIdFlow = playerEconomyRepository.selectedSkinId
             val allItems =
                 withContext(appGraph.coroutineDispatchers.io) {
                     getShopItemsUseCase()
                 }
 
-            combine(balanceFlow, unlockedFlow, themeFlow, skinFlow) { balance, unlockedIds, theme, skin ->
+            combine(balanceFlow, unlockedFlow, themeIdFlow, skinIdFlow) { balance, unlockedIds, themeId, skinId ->
                 ShopState(
                     balance = balance,
                     items = allItems,
                     unlockedItemIds = unlockedIds,
-                    activeThemeId = theme.id,
-                    activeSkinId = skin.id,
+                    activeThemeId = themeId,
+                    activeSkinId = skinId,
                 )
             }.collect { newState ->
                 _state.update {

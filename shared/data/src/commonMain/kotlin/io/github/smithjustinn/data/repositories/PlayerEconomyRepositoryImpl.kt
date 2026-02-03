@@ -110,6 +110,16 @@ class PlayerEconomyRepositoryImpl(
                 initialValue = CardSymbolTheme.CLASSIC,
             )
 
+    override val selectedSkinId: StateFlow<String> =
+        economyFlow
+            .map { entity ->
+                entity?.selectedSkinId ?: PlayerEconomyEntity().selectedSkinId
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = PlayerEconomyEntity().selectedSkinId,
+            )
+
     override suspend fun addCurrency(amount: Long) =
         writeMutex.withLock {
             val current = getOrCreateEntity()
