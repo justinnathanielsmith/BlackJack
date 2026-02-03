@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.stats
 import app.cash.turbine.test
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.Lifecycle
+import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.test.BaseComponentTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -30,7 +31,7 @@ class StatsComponentTest : BaseComponentTest() {
                 val state = awaitItem()
                 assertEquals(GameMode.TIME_ATTACK, state.selectedGameMode)
                 assertEquals(
-                    io.github.smithjustinn.domain.models.DifficultyLevel.defaultLevels.size,
+                    DifficultyLevel.defaultLevels.size,
                     state.difficultyLeaderboards.size,
                 )
             }

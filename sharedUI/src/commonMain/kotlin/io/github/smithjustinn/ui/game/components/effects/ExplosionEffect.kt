@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
+import io.github.smithjustinn.theme.ModernGold
+import io.github.smithjustinn.theme.TacticalRed
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
@@ -36,8 +38,8 @@ fun ExplosionEffect(
     particleCount: Int = 30,
     colors: List<Color> =
         listOf(
-            io.github.smithjustinn.theme.ModernGold,
-            io.github.smithjustinn.theme.TacticalRed,
+            ModernGold,
+            TacticalRed,
             Color.Black,
             Color.White,
         ),
