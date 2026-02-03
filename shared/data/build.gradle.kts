@@ -41,6 +41,9 @@ kotlin {
             implementation(kotlin("test"))
             implementation(libs.bundles.testing)
         }
+        androidUnitTest.dependencies {
+            implementation(libs.room.testing)
+        }
     }
 }
 
