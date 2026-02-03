@@ -198,4 +198,7 @@
 
     <!-- Combo -->
     <string name="combo_badge_format">%1$dx</string>
+
+    <!-- General -->
+    <string name="clean_number_format">%1$d</string>
 </resources>
