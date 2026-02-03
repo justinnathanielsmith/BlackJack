@@ -43,6 +43,7 @@ class GameStateMachine(
 
     private val gameTimer = GameTimer(scope, dispatchers) { dispatch(GameAction.Tick) }
     private var peekJob: kotlinx.coroutines.Job? = null
+    private var saveJob: kotlinx.coroutines.Job? = null
     private val mutex = Mutex()
 
     init {
@@ -267,7 +268,24 @@ class GameStateMachine(
 
     private fun updateState(newState: MemoryGameState) {
         _state.value = newState
-        onSaveState(newState, internalTimeSeconds)
+        if (newState.isGameOver) {
+            saveJob?.cancel()
+            onSaveState(newState, internalTimeSeconds)
+        } else {
+            triggerDebouncedSave()
+        }
+    }
+
+    private fun triggerDebouncedSave() {
+        if (saveJob?.isActive == true) return
+
+        saveJob =
+            scope.launch(dispatchers.default) {
+                delay(SAVE_DEBOUNCE_DELAY_MS)
+                mutex.withLock {
+                    onSaveState(_state.value, internalTimeSeconds)
+                }
+            }
     }
 
     private fun emitEffect(effect: GameEffect) = _effects.tryEmit(effect)
@@ -275,6 +293,7 @@ class GameStateMachine(
     companion object {
         const val MISMATCH_DELAY_MS = 1000L
         private const val LOW_TIME_WARNING_THRESHOLD = 5L
+        private const val SAVE_DEBOUNCE_DELAY_MS = 2000L
     }
 }
 
