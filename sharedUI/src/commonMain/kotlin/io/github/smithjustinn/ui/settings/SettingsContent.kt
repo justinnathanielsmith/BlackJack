@@ -55,6 +55,7 @@ import io.github.smithjustinn.resources.settings_reset_walkthrough_desc
 import io.github.smithjustinn.resources.settings_sound_effects
 import io.github.smithjustinn.resources.settings_sound_effects_desc
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
