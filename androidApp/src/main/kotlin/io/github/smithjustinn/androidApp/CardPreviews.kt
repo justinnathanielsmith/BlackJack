@@ -4,6 +4,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import io.github.smithjustinn.domain.models.CardSymbolTheme
+import io.github.smithjustinn.domain.models.CardTheme
+
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.ui.game.components.cards.CardContent
@@ -47,6 +49,6 @@ internal fun PokerCardPreview() {
                 rank = Rank.Ace,
                 visualState = CardVisualState(isFaceUp = true),
             ),
-        symbolTheme = CardSymbolTheme.POKER,
+        theme = CardTheme(skin = CardSymbolTheme.POKER),
     )
 }
