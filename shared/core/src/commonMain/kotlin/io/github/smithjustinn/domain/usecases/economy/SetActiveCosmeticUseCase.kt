@@ -13,10 +13,8 @@ class SetActiveCosmeticUseCase(
         when (itemType) {
             ShopItemType.THEME -> playerEconomyRepository.selectTheme(itemId)
             ShopItemType.CARD_SKIN -> playerEconomyRepository.selectSkin(itemId)
-            else -> {
-                // Other types like MUSIC or POWER_UP might have their own logic later
-                // For now, these are the primary cosmetics
-            }
+            ShopItemType.MUSIC -> playerEconomyRepository.selectMusic(itemId)
+            ShopItemType.POWER_UP -> playerEconomyRepository.selectPowerUp(itemId)
         }
     }
 }

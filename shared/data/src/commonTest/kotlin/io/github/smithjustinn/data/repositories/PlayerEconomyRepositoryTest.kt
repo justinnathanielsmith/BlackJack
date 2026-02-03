@@ -6,6 +6,8 @@ import io.github.smithjustinn.data.local.AppDatabase
 import io.github.smithjustinn.data.local.createTestDatabase
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
+import io.github.smithjustinn.domain.models.GameMusic
+import io.github.smithjustinn.domain.models.GamePowerUp
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -193,6 +195,37 @@ class PlayerEconomyRepositoryTest {
                     assertEquals(CardSymbolTheme.MINIMAL, awaitItem())
                 } else {
                     assertEquals(CardSymbolTheme.MINIMAL, first)
+                }
+            }
+        }
+
+    @Test
+    fun musicSelectionPersistence_preservesSelectedMusic() =
+        runTest(testDispatcher) {
+            val repo1 = createRepository(backgroundScope)
+            repo1.selectMusic(GameMusic.DEFAULT.id)
+
+            // Second instance
+            val repo2 = createRepository(backgroundScope)
+            repo2.selectedMusic.test {
+                assertEquals(GameMusic.DEFAULT, awaitItem())
+            }
+        }
+
+    @Test
+    fun powerUpSelectionPersistence_preservesSelectedPowerUp() =
+        runTest(testDispatcher) {
+            val repo1 = createRepository(backgroundScope)
+            repo1.selectPowerUp(GamePowerUp.TIME_BANK.id)
+
+            // Second instance
+            val repo2 = createRepository(backgroundScope)
+            repo2.selectedPowerUp.test {
+                val first = awaitItem()
+                if (first == GamePowerUp.NONE) {
+                    assertEquals(GamePowerUp.TIME_BANK, awaitItem())
+                } else {
+                    assertEquals(GamePowerUp.TIME_BANK, first)
                 }
             }
         }
