@@ -29,6 +29,7 @@ class SettingsComponentTest : BaseComponentTest() {
         everySuspend { context.settingsRepository.setSoundEnabled(any()) } returns Unit
         everySuspend { context.settingsRepository.setSoundVolume(any()) } returns Unit
         everySuspend { context.settingsRepository.setMusicVolume(any()) } returns Unit
+        everySuspend { context.settingsRepository.setSuitsMultiColored(any()) } returns Unit
     }
 
     @Test
@@ -64,6 +65,18 @@ class SettingsComponentTest : BaseComponentTest() {
             testDispatcher.scheduler.runCurrent()
 
             verifySuspend { context.settingsRepository.setPeekEnabled(false) }
+        }
+
+    @Test
+    fun `toggleSuitsMultiColored updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.toggleSuitsMultiColored(true)
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setSuitsMultiColored(true) }
         }
 
     private fun createComponent(lifecycle: Lifecycle): DefaultSettingsComponent =

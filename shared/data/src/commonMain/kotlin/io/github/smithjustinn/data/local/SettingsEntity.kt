@@ -13,4 +13,5 @@ data class SettingsEntity(
     val isWalkthroughCompleted: Boolean = false,
     val soundVolume: Float = 1.0f,
     val musicVolume: Float = 1.0f,
+    val areSuitsMultiColored: Boolean = false,
 )

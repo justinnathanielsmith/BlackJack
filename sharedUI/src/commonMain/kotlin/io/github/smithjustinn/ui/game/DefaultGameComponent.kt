@@ -76,13 +76,14 @@ class DefaultGameComponent(
             combine(
                 appGraph.playerEconomyRepository.selectedThemeId,
                 appGraph.playerEconomyRepository.selectedSkin,
-            ) { themeId: String, skin: CardSymbolTheme ->
+                appGraph.settingsRepository.areSuitsMultiColored,
+            ) { themeId: String, skin: CardSymbolTheme, multiColor: Boolean ->
                 val theme = CardBackTheme.fromIdOrName(themeId)
                 val hexColor = shopItems.find { item -> item.id == themeId }?.hexColor
                 _state.update {
                     it.copy(
                         cardTheme = CardTheme(back = theme, skin = skin, backColorHex = hexColor),
-                        areSuitsMultiColored = false, // Default value, no longer in Settings
+                        areSuitsMultiColored = multiColor,
                     )
                 }
             }.collect()

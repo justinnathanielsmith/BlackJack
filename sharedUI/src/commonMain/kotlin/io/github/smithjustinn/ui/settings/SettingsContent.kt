@@ -41,8 +41,11 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.settings
+import io.github.smithjustinn.resources.settings_appearance
 import io.github.smithjustinn.resources.settings_enable_peek
 import io.github.smithjustinn.resources.settings_enable_peek_desc
+import io.github.smithjustinn.resources.settings_four_color_deck
+import io.github.smithjustinn.resources.settings_four_color_deck_desc
 import io.github.smithjustinn.resources.settings_game_music
 import io.github.smithjustinn.resources.settings_game_music_desc
 import io.github.smithjustinn.resources.settings_gameplay_audio
@@ -52,7 +55,6 @@ import io.github.smithjustinn.resources.settings_reset_walkthrough_desc
 import io.github.smithjustinn.resources.settings_sound_effects
 import io.github.smithjustinn.resources.settings_sound_effects_desc
 import io.github.smithjustinn.services.AudioService
-import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
@@ -104,6 +106,7 @@ fun SettingsContent(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     SettingsAudioSection(state, audioService, component)
+                    SettingsAppearanceSection(state, audioService, component)
                     SettingsResetSection(state, audioService, component)
                 }
             }
@@ -205,6 +208,27 @@ private fun SettingsAudioSection(
                 component.togglePeekEnabled(it)
             },
         )
+    }
+}
+
+@Composable
+private fun SettingsAppearanceSection(
+    state: SettingsState,
+    audioService: AudioService,
+    component: SettingsComponent,
+) {
+    if (state.isFourColorUnlocked) {
+        AppCard(title = stringResource(Res.string.settings_appearance)) {
+            SettingsToggle(
+                title = stringResource(Res.string.settings_four_color_deck),
+                description = stringResource(Res.string.settings_four_color_deck_desc),
+                checked = state.areSuitsMultiColored,
+                onCheckedChange = {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.toggleSuitsMultiColored(it)
+                },
+            )
+        }
     }
 }
 
