@@ -41,8 +41,11 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.settings
+import io.github.smithjustinn.resources.settings_appearance
 import io.github.smithjustinn.resources.settings_enable_peek
 import io.github.smithjustinn.resources.settings_enable_peek_desc
+import io.github.smithjustinn.resources.settings_four_color_deck
+import io.github.smithjustinn.resources.settings_four_color_deck_desc
 import io.github.smithjustinn.resources.settings_game_music
 import io.github.smithjustinn.resources.settings_game_music_desc
 import io.github.smithjustinn.resources.settings_gameplay_audio
@@ -104,6 +107,7 @@ fun SettingsContent(
                     verticalArrangement = Arrangement.spacedBy(20.dp),
                 ) {
                     SettingsAudioSection(state, audioService, component)
+                    SettingsAppearanceSection(state, audioService, component)
                     SettingsResetSection(state, audioService, component)
                 }
             }
@@ -138,7 +142,7 @@ private fun SettingsTopBar(
                 Icon(
                     imageVector = AppIcons.ArrowBack,
                     contentDescription = stringResource(Res.string.back_content_description),
-                    tint = io.github.smithjustinn.theme.ModernGold,
+                    tint = ModernGold,
                 )
             }
         },
@@ -209,6 +213,27 @@ private fun SettingsAudioSection(
 }
 
 @Composable
+private fun SettingsAppearanceSection(
+    state: SettingsState,
+    audioService: AudioService,
+    component: SettingsComponent,
+) {
+    if (state.isFourColorUnlocked) {
+        AppCard(title = stringResource(Res.string.settings_appearance)) {
+            SettingsToggle(
+                title = stringResource(Res.string.settings_four_color_deck),
+                description = stringResource(Res.string.settings_four_color_deck_desc),
+                checked = state.areSuitsMultiColored,
+                onCheckedChange = {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.toggleSuitsMultiColored(it)
+                },
+            )
+        }
+    }
+}
+
+@Composable
 private fun SettingsResetSection(
     state: SettingsState,
     audioService: AudioService,
@@ -243,9 +268,9 @@ private fun SettingsResetSection(
                 colors =
                     ButtonDefaults.buttonColors(
                         containerColor =
-                            io.github.smithjustinn.theme.ModernGold
+                            ModernGold
                                 .copy(alpha = 0.2f),
-                        contentColor = io.github.smithjustinn.theme.ModernGold,
+                        contentColor = ModernGold,
                         disabledContainerColor = PokerTheme.colors.hudBackground.copy(alpha = 0.5f),
                         disabledContentColor = Color.White.copy(alpha = 0.3f),
                     ),
@@ -262,6 +287,13 @@ private fun VolumeSlider(
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val volumeIcon =
+        when {
+            value == 0f -> AppIcons.VolumeOff
+            value <= 0.5f -> AppIcons.VolumeDown
+            else -> AppIcons.VolumeUp
+        }
+
     Row(
         modifier =
             modifier
@@ -271,9 +303,9 @@ private fun VolumeSlider(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Icon(
-            imageVector = AppIcons.VolumeUp,
+            imageVector = volumeIcon,
             contentDescription = null,
-            tint = io.github.smithjustinn.theme.ModernGold,
+            tint = ModernGold,
             modifier = Modifier.size(18.dp),
         )
         Slider(
@@ -283,7 +315,7 @@ private fun VolumeSlider(
             colors =
                 SliderDefaults.colors(
                     thumbColor = Color.White,
-                    activeTrackColor = io.github.smithjustinn.theme.ModernGold,
+                    activeTrackColor = ModernGold,
                     inactiveTrackColor = PokerTheme.colors.hudBackground,
                 ),
         )
@@ -329,7 +361,7 @@ private fun SettingsToggle(
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
-                    checkedTrackColor = io.github.smithjustinn.theme.ModernGold,
+                    checkedTrackColor = ModernGold,
                     uncheckedTrackColor = PokerTheme.colors.hudBackground,
                     uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
                     uncheckedBorderColor = Color.Transparent,

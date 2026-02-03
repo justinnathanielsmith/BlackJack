@@ -227,5 +227,13 @@
     "price": 1000,
     "type": "POWER_UP",
     "isConsumable": true
+  },
+  {
+    "id": "feature_four_color_suits",
+    "name": "Four Color Deck",
+    "description": "Unlock unique colors for all four card suits (Red, Blue, Green, Black).",
+    "price": 800,
+    "type": "CARD_SKIN",
+    "isConsumable": false
   }
 ]

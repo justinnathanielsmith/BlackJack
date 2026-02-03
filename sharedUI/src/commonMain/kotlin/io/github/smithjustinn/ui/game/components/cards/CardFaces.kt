@@ -602,7 +602,7 @@ internal fun PokerCardFace(
 private fun PokerCardBorder() {
     val density = LocalDensity.current
     val strokeWidth = with(density) { 2.dp.toPx() }
-    val borderColor = io.github.smithjustinn.theme.PokerTheme.colors.goldenYellow
+    val borderColor = PokerTheme.colors.goldenYellow
 
     androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
         drawRect(
@@ -675,7 +675,7 @@ private fun PokerCardCenterContent(
                     shadow =
                         androidx.compose.ui.graphics.Shadow(
                             color =
-                                io.github.smithjustinn.theme.PokerTheme.colors.goldenYellow
+                                PokerTheme.colors.goldenYellow
                                     .copy(alpha = 0.5f),
                             blurRadius = 4f,
                         ),
