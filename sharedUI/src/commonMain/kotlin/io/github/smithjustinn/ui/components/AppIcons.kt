@@ -245,6 +245,37 @@ object AppIcons {
                 .also { _volumeUp = it }
         }
 
+    private var _volumeDown: ImageVector? = null
+    val VolumeDown: ImageVector
+        get() {
+            _volumeDown?.let { return it }
+            return ImageVector
+                .Builder(
+                    name = "VolumeDown",
+                    defaultWidth = 24.0.dp,
+                    defaultHeight = 24.0.dp,
+                    viewportWidth = 24.0f,
+                    viewportHeight = 24.0f,
+                ).apply {
+                    path(fill = SolidColor(Color.Black)) {
+                        moveTo(3.0f, 9.0f)
+                        verticalLineToRelative(6.0f)
+                        horizontalLineToRelative(4.0f)
+                        lineToRelative(5.0f, 5.0f)
+                        verticalLineTo(4.0f)
+                        lineToRelative(-5.0f, 5.0f)
+                        horizontalLineTo(3.0f)
+                        close()
+                        moveTo(16.5f, 12.0f)
+                        curveToRelative(0.0f, -1.77f, -1.02f, -3.29f, -2.5f, -4.03f)
+                        verticalLineToRelative(8.05f)
+                        curveToRelative(1.48f, -0.73f, 2.5f, -2.25f, 2.5f, -4.02f)
+                        close()
+                    }
+                }.build()
+                .also { _volumeDown = it }
+        }
+
     private var _volumeOff: ImageVector? = null
     val VolumeOff: ImageVector
         get() {

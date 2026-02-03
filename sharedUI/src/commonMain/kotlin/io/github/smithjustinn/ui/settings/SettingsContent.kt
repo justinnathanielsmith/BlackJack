@@ -262,6 +262,13 @@ private fun VolumeSlider(
     onValueChange: (Float) -> Unit,
     modifier: Modifier = Modifier,
 ) {
+    val volumeIcon =
+        when {
+            value == 0f -> AppIcons.VolumeOff
+            value <= 0.5f -> AppIcons.VolumeDown
+            else -> AppIcons.VolumeUp
+        }
+
     Row(
         modifier =
             modifier
@@ -271,7 +278,7 @@ private fun VolumeSlider(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
         Icon(
-            imageVector = AppIcons.VolumeUp,
+            imageVector = volumeIcon,
             contentDescription = null,
             tint = io.github.smithjustinn.theme.ModernGold,
             modifier = Modifier.size(18.dp),
