@@ -48,7 +48,15 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
-import io.github.smithjustinn.ui.components.pokerBackground
+import org.jetbrains.compose.resources.stringResource
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.shop_title
+import io.github.smithjustinn.resources.shop_back_description
+import io.github.smithjustinn.resources.shop_bankroll_description
+import io.github.smithjustinn.resources.shop_item_active
+import io.github.smithjustinn.resources.shop_item_equip
+import io.github.smithjustinn.resources.shop_item_price_format
+import io.github.smithjustinn.resources.shop_balance_format
 
 @Composable
 fun ShopContent(
@@ -124,7 +132,7 @@ private fun ShopHeader(
     ) {
         Icon(
             imageVector = AppIcons.ArrowBack,
-            contentDescription = "Back",
+            contentDescription = stringResource(Res.string.shop_back_description),
             tint = PokerTheme.colors.onBackground,
             modifier =
                 Modifier
@@ -133,7 +141,7 @@ private fun ShopHeader(
         )
         Spacer(modifier = Modifier.width(16.dp))
         Text(
-            text = "The Shop",
+            text = stringResource(Res.string.shop_title),
             style = MaterialTheme.typography.headlineMedium,
             color = PokerTheme.colors.onBackground,
             fontWeight = FontWeight.Bold,
@@ -146,13 +154,13 @@ private fun ShopHeader(
         ) {
             Icon(
                 imageVector = ShopIcons.CasinoChip,
-                contentDescription = "Bankroll",
+                contentDescription = stringResource(Res.string.shop_bankroll_description),
                 tint = PokerTheme.colors.goldenYellow,
                 modifier = Modifier.size(24.dp),
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = "$$balance",
+                text = stringResource(Res.string.shop_balance_format, balance),
                 style = MaterialTheme.typography.titleMedium,
                 color = PokerTheme.colors.goldenYellow,
             )
@@ -324,7 +332,7 @@ private fun ShopActionButton(
     when (shopItemState) {
         is ShopItemState.Equipped -> {
             PokerButton(
-                text = "ACTIVE",
+                text = stringResource(Res.string.shop_item_active),
                 onClick = {},
                 enabled = false,
                 containerColor = PokerTheme.colors.bonusGreen.copy(alpha = 0.4f),
@@ -334,14 +342,14 @@ private fun ShopActionButton(
         }
         is ShopItemState.Owned -> {
             PokerButton(
-                text = "EQUIP",
+                text = stringResource(Res.string.shop_item_equip),
                 onClick = onEquip,
                 modifier = modifier,
             )
         }
         is ShopItemState.Locked -> {
             PokerButton(
-                text = "$${shopItemState.price}",
+                text = stringResource(Res.string.shop_item_price_format, shopItemState.price),
                 leadingIcon = ShopIcons.CasinoChip,
                 onClick = onBuy,
                 modifier = modifier,
