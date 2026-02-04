@@ -37,6 +37,8 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.clean_number_format
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
@@ -50,8 +52,6 @@ import io.github.smithjustinn.ui.start.components.StartHeader
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import io.github.smithjustinn.resources.Res
-import io.github.smithjustinn.resources.clean_number_format
 
 @Composable
 fun StartContent(
