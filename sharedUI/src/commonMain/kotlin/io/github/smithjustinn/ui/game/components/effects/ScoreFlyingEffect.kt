@@ -18,6 +18,8 @@ import androidx.compose.ui.unit.dp
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
+import androidx.compose.ui.graphics.drawscope.DrawScope
+import kotlin.math.PI
 
 private const val PARTICLES_PER_MATCH = 12
 private const val BASE_DURATION_MS = 600
@@ -120,7 +122,7 @@ private fun generateParticles(
         )
     }
 
-private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawParticle(point: FlyingPoint) {
+private fun DrawScope.drawParticle(point: FlyingPoint) {
     val elapsedSinceStart = point.startTime.elapsedNow()
     val activeTime = elapsedSinceStart - point.delay
 
@@ -130,8 +132,8 @@ private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawParticle(point:
 
         // More pronounced arc/wobble
         val sideVelocity = if (point.id % 2 == 0L) 1f else -1f
-        val wobbleX = sideVelocity * kotlin.math.sin(progress * kotlin.math.PI).toFloat() * WOBBLE_X_DP.dp.toPx()
-        val wobbleY = -kotlin.math.sin(progress * kotlin.math.PI).toFloat() * WOBBLE_Y_DP.dp.toPx()
+        val wobbleX = sideVelocity * kotlin.math.sin(progress * PI).toFloat() * WOBBLE_X_DP.dp.toPx()
+        val wobbleY = -kotlin.math.sin(progress * PI).toFloat() * WOBBLE_Y_DP.dp.toPx()
 
         val currentX = point.startPos.x + (point.targetPos.x - point.startPos.x) * easedProgress + wobbleX
         val currentY = point.startPos.y + (point.targetPos.y - point.startPos.y) * easedProgress + wobbleY

@@ -35,6 +35,7 @@ import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun MutatorIndicators(
@@ -114,7 +115,7 @@ private fun rememberPulsingAlpha() =
     )
 
 private data class MutatorConfig(
-    val icon: androidx.compose.ui.graphics.vector.ImageVector,
+    val icon: ImageVector,
     val labelRes: StringResource,
     val color: Color,
 )

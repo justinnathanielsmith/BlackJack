@@ -1,8 +1,9 @@
 package io.github.smithjustinn.platform
+import java.io.Serializable
 
 /**
  * A platform-agnostic interface for serialization.
- * Maps to java.io.Serializable on Android.
+ * Maps to Serializable on Android.
  */
 expect interface JavaSerializable
 

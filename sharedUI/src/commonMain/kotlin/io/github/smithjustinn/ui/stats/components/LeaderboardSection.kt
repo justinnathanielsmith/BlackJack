@@ -33,6 +33,9 @@ import io.github.smithjustinn.ui.start.displayNameRes
 import io.github.smithjustinn.utils.formatTime
 import kotlinx.collections.immutable.ImmutableList
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.style.TextOverflow
 
 @Composable
 fun LeaderboardSection(
@@ -65,7 +68,7 @@ private fun LeaderboardList(
                     text = stringResource(Res.string.no_stats_yet),
                     style =
                         MaterialTheme.typography.bodyMedium.copy(
-                            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                            fontFamily = FontFamily.Serif,
                         ),
                     color = Color.White.copy(alpha = 0.4f),
                 )
@@ -124,7 +127,7 @@ private fun LeaderboardRow(
                 fontWeight = FontWeight.Bold,
                 color = Color.White,
                 maxLines = 1,
-                overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+                overflow = TextOverflow.Ellipsis,
             )
         }
 
@@ -177,7 +180,7 @@ private fun RankBadge(rank: Int) {
                 else -> Color.Black.copy(alpha = BG_ALPHA_DEFAULT)
             },
         border =
-            androidx.compose.foundation.BorderStroke(
+            BorderStroke(
                 width = 1.dp,
                 color =
                     when (rank) {
@@ -219,13 +222,13 @@ private fun StatMiniItem(
             text = label.uppercase(),
             style =
                 MaterialTheme.typography.labelSmall.copy(
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    fontFamily = FontFamily.Serif,
                 ),
             color = PokerTheme.colors.goldenYellow.copy(alpha = 0.7f),
             fontWeight = FontWeight.ExtraBold,
             letterSpacing = 0.5.sp,
             maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            overflow = TextOverflow.Ellipsis,
         )
         Text(
             text = value,
@@ -233,7 +236,7 @@ private fun StatMiniItem(
             fontWeight = FontWeight.Bold,
             color = Color.White,
             maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

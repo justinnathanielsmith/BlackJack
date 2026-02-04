@@ -28,6 +28,7 @@ import io.github.smithjustinn.resources.score_time_bonus
 import io.github.smithjustinn.theme.BonusGreen
 import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.font.FontFamily
 
 private val BonusColor = BonusGreen
 
@@ -54,7 +55,7 @@ fun ScoreBreakdownSection(
                 text = stringResource(Res.string.score_breakdown_title).uppercase(),
                 style =
                     MaterialTheme.typography.labelMedium.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                        fontFamily = FontFamily.Serif,
                     ),
                 fontWeight = FontWeight.Black,
                 color = PokerTheme.colors.goldenYellow,

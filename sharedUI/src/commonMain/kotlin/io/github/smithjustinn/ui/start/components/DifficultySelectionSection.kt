@@ -29,6 +29,7 @@ import io.github.smithjustinn.ui.start.DifficultyState
 import io.github.smithjustinn.ui.start.displayNameRes
 import io.github.smithjustinn.ui.stats.components.ModeSelector
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.material3.MaterialTheme
 
 /**
  * DifficultySelectionSection
@@ -79,7 +80,7 @@ private fun DifficultySelector(
     ) {
         Text(
             text = stringResource(Res.string.select_difficulty),
-            style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+            style = MaterialTheme.typography.titleMedium,
             fontWeight = FontWeight.Bold,
             color = Color.White,
         )

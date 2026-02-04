@@ -46,6 +46,10 @@ import io.github.smithjustinn.resources.unmute_content_description
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.PathEffect
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontWeight
 
 @Composable
 fun GameTopBar(
@@ -53,7 +57,7 @@ fun GameTopBar(
     onBackClick: () -> Unit,
     onRestartClick: () -> Unit,
     onMuteClick: () -> Unit,
-    onScorePositioned: (androidx.compose.ui.geometry.Offset) -> Unit = {},
+    onScorePositioned: (Offset) -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     GlassDashboard(
@@ -101,7 +105,7 @@ private fun TopBarMainRow(
     onBackClick: () -> Unit,
     onRestartClick: () -> Unit,
     onMuteClick: () -> Unit,
-    onScorePositioned: (androidx.compose.ui.geometry.Offset) -> Unit,
+    onScorePositioned: (Offset) -> Unit,
 ) {
     Box(
         modifier = Modifier.fillMaxWidth(),
@@ -210,12 +214,12 @@ private fun ValueBadge(
                 text = label,
                 style =
                     typography.labelSmall.copy(
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
+                        fontWeight = FontWeight.Black,
                         fontSize = if (compact) 9.sp else 11.sp,
                         letterSpacing = 0.5.sp,
                         fontFamily =
-                            androidx.compose.ui.text.font.FontWeight.Bold.toString().lowercase().let {
-                                androidx.compose.ui.text.font.FontFamily.Serif
+                            FontWeight.Bold.toString().lowercase().let {
+                                FontFamily.Serif
                             },
                     ),
                 color = color.copy(alpha = 0.8f),
@@ -226,8 +230,8 @@ private fun ValueBadge(
                 style =
                     typography.titleMedium.copy(
                         fontSize = if (compact) 14.sp else 18.sp,
-                        fontWeight = androidx.compose.ui.text.font.FontWeight.Black,
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                        fontWeight = FontWeight.Black,
+                        fontFamily = FontFamily.Serif,
                     ),
                 color = color,
             )
@@ -266,7 +270,7 @@ private fun BackButton(
                         Stroke(
                             width = strokeWidth,
                             pathEffect =
-                                androidx.compose.ui.graphics.PathEffect
+                                PathEffect
                                     .dashPathEffect(floatArrayOf(DASH_ON, DASH_OFF), 0f),
                         ),
                     radius = this.size.minDimension / 2 * RADIUS_FACTOR,

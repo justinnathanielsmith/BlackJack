@@ -28,6 +28,7 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.MatchComment
 import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.font.FontFamily
 
 @Composable
 fun DealerSpeechBubble(
@@ -68,7 +69,7 @@ private fun SpeechBubbleContent(matchComment: MatchComment) {
                 text = commentText,
                 style =
                     MaterialTheme.typography.bodyMedium.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                        fontFamily = FontFamily.Serif,
                         color = Color.Black,
                     ),
                 fontWeight = FontWeight.SemiBold,

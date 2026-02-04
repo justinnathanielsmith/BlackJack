@@ -39,6 +39,8 @@ import io.github.smithjustinn.ui.game.components.cards.PlayingCard
 import io.github.smithjustinn.ui.game.components.effects.ExplosionEffect
 import io.github.smithjustinn.ui.game.components.effects.ScoreFlyingEffect
 import kotlinx.collections.immutable.ImmutableList
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 
 private data class CardLayoutInfo(
     val position: Offset,
@@ -101,8 +103,8 @@ internal fun GameGrid(
 
 @Composable
 private fun rememberGridLayoutConfig(
-    screenWidth: androidx.compose.ui.unit.Dp,
-    screenHeight: androidx.compose.ui.unit.Dp,
+    screenWidth: Dp,
+    screenHeight: Dp,
     cardCount: Int,
 ): GridLayoutConfig {
     val isLandscape = screenWidth > screenHeight
@@ -159,7 +161,7 @@ private const val CENTER_OFFSET_FRACTION = 0.5f
 
 @Composable
 private fun ScoreFlyingGridEffect(
-    lastMatchedIds: kotlinx.collections.immutable.ImmutableList<Int>,
+    lastMatchedIds: ImmutableList<Int>,
     cardLayouts: Map<Int, CardLayoutInfo>,
     gridPosition: Offset,
     scorePositionInRoot: Offset,
@@ -187,7 +189,7 @@ private fun ScoreFlyingGridEffect(
 private fun GridContent(
     gridCardState: GridCardState,
     layoutConfig: GridLayoutConfig,
-    screenHeight: androidx.compose.ui.unit.Dp,
+    screenHeight: Dp,
     gridPosition: Offset,
     settings: GridSettings,
     onCardClick: (Int) -> Unit,
@@ -234,16 +236,16 @@ private fun GridItem(
     totalCards: Int,
     card: CardState,
     isPeeking: Boolean,
-    lastMatchedIds: kotlinx.collections.immutable.ImmutableList<Int>,
+    lastMatchedIds: ImmutableList<Int>,
     cardTheme: CardTheme,
     areSuitsMultiColored: Boolean,
-    maxWidth: androidx.compose.ui.unit.Dp,
-    screenHeight: androidx.compose.ui.unit.Dp,
+    maxWidth: Dp,
+    screenHeight: Dp,
     gridPosition: Offset,
     cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
     onCardClick: (Int) -> Unit,
 ) {
-    val density = androidx.compose.ui.platform.LocalDensity.current
+    val density = LocalDensity.current
     val layoutInfo = cardLayouts[card.id]
 
     // Calculate fan-out effect (player's hand)

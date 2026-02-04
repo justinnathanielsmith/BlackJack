@@ -56,6 +56,8 @@ import io.github.smithjustinn.ui.game.components.overlays.WalkthroughOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.font.FontWeight
 
 private const val SHAKE_RESET_OFFSET = 0f
 private const val STEAM_DURATION_MS = 1200
@@ -219,7 +221,7 @@ private fun GameMainScreen(
 ) {
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
-    var scorePosition by remember { mutableStateOf(androidx.compose.ui.geometry.Offset.Zero) }
+    var scorePosition by remember { mutableStateOf(Offset.Zero) }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -281,7 +283,7 @@ private fun GameMainContent(
     state: GameUIState,
     component: GameComponent,
     useCompactUI: Boolean,
-    scorePosition: androidx.compose.ui.geometry.Offset,
+    scorePosition: Offset,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier.fillMaxSize()) {
@@ -384,7 +386,7 @@ private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
         Text(
             text = stringResource(Res.string.game_double_or_nothing),
             style = PokerTheme.typography.labelMedium,
-            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            fontWeight = FontWeight.Bold,
         )
     }
 }

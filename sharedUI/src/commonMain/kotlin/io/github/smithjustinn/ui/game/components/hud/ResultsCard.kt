@@ -68,6 +68,9 @@ import io.github.smithjustinn.resources.total_payout
 import io.github.smithjustinn.ui.components.ShopIcons
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
+import androidx.compose.foundation.BorderStroke
+import kotlin.random.Random
+import org.jetbrains.compose.resources.StringResource
 
 private const val INITIAL_SCALE = 0.8f
 
@@ -139,7 +142,7 @@ private fun ResultsCardContent(
     isCompactHeight: Boolean,
     lastMatchedScore: Int,
     highScore: Int,
-    titleRes: org.jetbrains.compose.resources.StringResource,
+    titleRes: StringResource,
     isWon: Boolean,
     scoreBreakdown: ScoreBreakdown,
     moves: Int,
@@ -184,7 +187,7 @@ private fun ResultsCardContent(
 
 @Composable
 private fun CasinoHeader(
-    titleRes: org.jetbrains.compose.resources.StringResource,
+    titleRes: StringResource,
     isWon: Boolean,
 ) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -348,7 +351,7 @@ private fun BarcodeSimulation() {
                     } else {
                         barWidth / BARCODE_THICKNESS_FACTOR_2
                     }
-                if (kotlin.random.Random.nextBoolean()) {
+                if (Random.nextBoolean()) {
                     drawRect(
                         color = ReceiptInkColor,
                         topLeft = Offset(x, 0f),
@@ -393,7 +396,7 @@ private fun ResultsActions(
             ButtonDefaults.outlinedButtonColors(
                 contentColor = ReceiptInkColor,
             ),
-        border = androidx.compose.foundation.BorderStroke(1.dp, ReceiptInkColor),
+        border = BorderStroke(1.dp, ReceiptInkColor),
         shape = RoundedCornerShape(2.dp),
     ) {
         Text(

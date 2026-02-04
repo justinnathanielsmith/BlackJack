@@ -20,6 +20,7 @@ import io.github.smithjustinn.theme.TacticalRed
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
+import kotlin.math.PI
 
 private data class ExplosionParticle(
     val x: Float,
@@ -59,7 +60,7 @@ fun ExplosionEffect(
     val particles =
         remember {
             List(particleCount) {
-                val angle = Random.nextFloat() * 2 * kotlin.math.PI
+                val angle = Random.nextFloat() * 2 * PI
                 val speed = Random.nextFloat() * MAX_PARTICLE_SPEED + MIN_PARTICLE_SPEED
                 ExplosionParticle(
                     x = 0f,

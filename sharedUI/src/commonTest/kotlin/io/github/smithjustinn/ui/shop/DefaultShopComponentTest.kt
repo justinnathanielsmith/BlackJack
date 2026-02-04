@@ -32,6 +32,7 @@ import org.koin.dsl.module
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
+import dev.mokkery.verify.VerifyMode
 
 class DefaultShopComponentTest {
     private val playerEconomyRepository = mock<PlayerEconomyRepository>()
@@ -134,7 +135,7 @@ class DefaultShopComponentTest {
 
             verifySuspend { playerEconomyRepository.deductCurrency(100) }
             verify(
-                dev.mokkery.verify.VerifyMode
+                VerifyMode
                     .exactly(0),
             ) {
                 hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS)

@@ -37,6 +37,7 @@ import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.game.components.cards.CardContent
 import io.github.smithjustinn.ui.game.components.cards.CardVisualState
 import io.github.smithjustinn.ui.game.components.cards.PlayingCard
+import androidx.compose.animation.core.EaseInOutSine
 
 // Card Preview Layout & Animation Durations
 private const val CARD_ROTATION_DURATION = 3000
@@ -124,7 +125,7 @@ fun CardPreview(
         targetValue = CARD_MAX_ROTATION_Z,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(CARD_ROTATION_DURATION, easing = androidx.compose.animation.core.EaseInOutSine),
+                animation = tween(CARD_ROTATION_DURATION, easing = EaseInOutSine),
                 repeatMode = RepeatMode.Reverse,
             ),
         label = "rotation",
@@ -135,7 +136,7 @@ fun CardPreview(
         targetValue = CARD_MAX_FLOAT_OFFSET,
         animationSpec =
             infiniteRepeatable(
-                animation = tween(CARD_FLOAT_DURATION, easing = androidx.compose.animation.core.EaseInOutSine),
+                animation = tween(CARD_FLOAT_DURATION, easing = EaseInOutSine),
                 repeatMode = RepeatMode.Reverse,
             ),
         label = "float",

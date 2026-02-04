@@ -34,6 +34,7 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.receipt_plus_amount_format
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
+import androidx.compose.runtime.State
 
 private val ReceiptInkColor = Color(0xFF2B2B2B)
 private const val DOTTED_LINE_ALPHA = 0.5f
@@ -116,7 +117,7 @@ fun formatTime(seconds: Long): String {
 fun rememberAnimatedScore(
     score: Int,
     onScoreTick: () -> Unit,
-): androidx.compose.runtime.State<Float> {
+): State<Float> {
     val animatedScore = remember { Animatable(0f) }
     var lastRoundedScore by remember { mutableStateOf(0) }
     val scoreTickHandler by rememberUpdatedState(onScoreTick)
