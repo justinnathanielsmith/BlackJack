@@ -63,7 +63,9 @@ class DefaultShopComponentTest {
         every { playerEconomyRepository.balance } returns MutableStateFlow(1000L)
         every { playerEconomyRepository.unlockedItemIds } returns MutableStateFlow(emptySet())
         every { playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
+        every { playerEconomyRepository.selectedThemeId } returns MutableStateFlow(CardBackTheme.GEOMETRIC.id)
         every { playerEconomyRepository.selectedSkin } returns MutableStateFlow(CardSymbolTheme.CLASSIC)
+        every { playerEconomyRepository.selectedSkinId } returns MutableStateFlow(CardSymbolTheme.CLASSIC.id)
         everySuspend { shopItemRepository.getShopItems() } returns emptyList()
 
         startKoin {

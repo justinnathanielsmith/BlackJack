@@ -13,8 +13,11 @@ import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.CancellationException
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -41,6 +44,10 @@ class DefaultGameComponent(
     ComponentContext by componentContext {
     private val dispatchers = appGraph.coroutineDispatchers
     private val scope = lifecycle.componentScope(dispatchers.mainImmediate)
+
+    private var gameSessionJob: Job? = null
+    private val activeGameScope: CoroutineScope?
+        get() = gameSessionJob?.let { CoroutineScope(scope.coroutineContext + it) }
 
     private val _state = MutableStateFlow(GameUIState())
     override val state: StateFlow<GameUIState> = _state.asStateFlow()
@@ -76,13 +83,14 @@ class DefaultGameComponent(
             combine(
                 appGraph.playerEconomyRepository.selectedThemeId,
                 appGraph.playerEconomyRepository.selectedSkin,
-            ) { themeId: String, skin: CardSymbolTheme ->
+                appGraph.settingsRepository.areSuitsMultiColored,
+            ) { themeId: String, skin: CardSymbolTheme, multiColor: Boolean ->
                 val theme = CardBackTheme.fromIdOrName(themeId)
                 val hexColor = shopItems.find { item -> item.id == themeId }?.hexColor
                 _state.update {
                     it.copy(
                         cardTheme = CardTheme(back = theme, skin = skin, backColorHex = hexColor),
-                        areSuitsMultiColored = false, // Default value, no longer in Settings
+                        areSuitsMultiColored = multiColor,
                     )
                 }
             }.collect()
@@ -90,7 +98,14 @@ class DefaultGameComponent(
     }
 
     private fun startGame(args: GameArgs) {
-        scope.launch {
+        // Cancel any existing game session to prevent state/timer leaks
+        gameSessionJob?.cancel()
+        val newJob = Job(scope.coroutineContext[Job])
+        gameSessionJob = newJob
+        // Create a temporary scope reference for initialization
+        val gameScope = CoroutineScope(scope.coroutineContext + newJob)
+
+        gameScope.launch {
             try {
                 loadGameStats(args.pairCount)
                 val initResult = initializeGameState(args)
@@ -106,7 +121,7 @@ class DefaultGameComponent(
     }
 
     private fun loadGameStats(pairCount: Int) {
-        scope.launch {
+        activeGameScope?.launch {
             appGraph.getGameStatsUseCase(pairCount).collect { stats ->
                 _state.update {
                     it.copy(
@@ -159,21 +174,23 @@ class DefaultGameComponent(
         initialState: MemoryGameState,
         initialTime: Long,
     ) {
+        val sessionScope = activeGameScope ?: return
+
         gameStateMachine =
             GameStateMachine(
-                scope = scope,
+                scope = sessionScope,
                 dispatchers = dispatchers,
                 initialState = initialState,
                 initialTimeSeconds = initialTime,
                 earnCurrencyUseCase = appGraph.earnCurrencyUseCase,
                 onSaveState = { state, time -> saveGame(state, time) },
             ).also { machine ->
-                scope.launch {
+                sessionScope.launch {
                     machine.state.collectLatest { gameState ->
                         _state.update { it.copy(game = gameState) }
                     }
                 }
-                scope.launch {
+                sessionScope.launch {
                     machine.state
                         .map { it.matchComment }
                         .distinctUntilChanged()
@@ -184,7 +201,7 @@ class DefaultGameComponent(
                             }
                         }
                 }
-                scope.launch { machine.effects.collect { effect -> handleEffect(effect) } }
+                sessionScope.launch { machine.effects.collect { effect -> handleEffect(effect) } }
             }
     }
 
@@ -204,7 +221,7 @@ class DefaultGameComponent(
     }
 
     private fun startPeekSequence() {
-        scope.launch {
+        activeGameScope?.launch {
             _state.update {
                 it.copy(isPeeking = true, peekCountdown = GameConstants.PEEK_DURATION_SECONDS)
             }
@@ -431,7 +448,7 @@ class DefaultGameComponent(
     }
 
     private fun isSavedGameValid(
-        savedGame: io.github.smithjustinn.domain.models.SavedGame,
+        savedGame: SavedGame,
         pairCount: Int,
         mode: GameMode,
     ): Boolean =

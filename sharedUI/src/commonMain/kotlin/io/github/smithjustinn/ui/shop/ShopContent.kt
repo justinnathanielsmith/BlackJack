@@ -48,15 +48,6 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
-import org.jetbrains.compose.resources.stringResource
-import io.github.smithjustinn.resources.Res
-import io.github.smithjustinn.resources.shop_title
-import io.github.smithjustinn.resources.shop_back_description
-import io.github.smithjustinn.resources.shop_bankroll_description
-import io.github.smithjustinn.resources.shop_item_active
-import io.github.smithjustinn.resources.shop_item_equip
-import io.github.smithjustinn.resources.shop_item_price_format
-import io.github.smithjustinn.resources.shop_balance_format
 
 @Composable
 fun ShopContent(

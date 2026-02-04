@@ -3,10 +3,13 @@ package io.github.smithjustinn.di
 import androidx.compose.runtime.staticCompositionLocalOf
 import co.touchlab.kermit.Logger
 import io.github.smithjustinn.data.local.AppDatabase
+import io.github.smithjustinn.domain.repositories.DailyChallengeRepository
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
+import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
+import io.github.smithjustinn.domain.repositories.ShopItemRepository
 import io.github.smithjustinn.domain.usecases.economy.EarnCurrencyUseCase
 import io.github.smithjustinn.domain.usecases.game.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.game.ClearSavedGameUseCase
@@ -19,6 +22,7 @@ import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
 import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticsService
+import io.github.smithjustinn.utils.CoroutineDispatchers
 
 /**
  * The primary entry point for the dependency graph.
@@ -28,7 +32,7 @@ interface AppGraph {
     val logger: Logger
     val audioService: AudioService
     val hapticsService: HapticsService
-    val coroutineDispatchers: io.github.smithjustinn.utils.CoroutineDispatchers
+    val coroutineDispatchers: CoroutineDispatchers
     val applicationScope: kotlinx.coroutines.CoroutineScope
 
     val appDatabase: AppDatabase
@@ -37,9 +41,9 @@ interface AppGraph {
     val settingsRepository: SettingsRepository
     val leaderboardRepository: LeaderboardRepository
     val gameStatsRepository: GameStatsRepository
-    val dailyChallengeRepository: io.github.smithjustinn.domain.repositories.DailyChallengeRepository
-    val playerEconomyRepository: io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
-    val shopItemRepository: io.github.smithjustinn.domain.repositories.ShopItemRepository
+    val dailyChallengeRepository: DailyChallengeRepository
+    val playerEconomyRepository: PlayerEconomyRepository
+    val shopItemRepository: ShopItemRepository
 
     // Use Cases
     val startNewGameUseCase: StartNewGameUseCase
