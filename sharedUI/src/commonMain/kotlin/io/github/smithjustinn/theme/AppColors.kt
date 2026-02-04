@@ -86,6 +86,10 @@ internal val HeatAppColors =
         goldenYellow = NeonYellow,
         softBlue = NeonCyan,
         bonusGreen = NeonMagenta,
+        feltGreen = HeatFeltRed,
+        feltGreenDark = HeatFeltRedDark,
+        feltGreenCenter = HeatFeltRedCenter,
+        feltGreenTop = HeatFeltRedTop,
         pillSelected = NeonCyan,
         onSurface = NeonCyan,
     )
