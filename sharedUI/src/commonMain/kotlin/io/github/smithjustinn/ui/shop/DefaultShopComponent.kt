@@ -1,7 +1,4 @@
 package io.github.smithjustinn.ui.shop
- 
-import io.github.smithjustinn.resources.Res
-import io.github.smithjustinn.resources.shop_purchase_failed
 
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.di.AppGraph
@@ -11,6 +8,8 @@ import io.github.smithjustinn.domain.usecases.economy.BuyItemUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetPlayerBalanceUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetShopItemsUseCase
 import io.github.smithjustinn.domain.usecases.economy.SetActiveCosmeticUseCase
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.shop_purchase_failed
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.componentScope

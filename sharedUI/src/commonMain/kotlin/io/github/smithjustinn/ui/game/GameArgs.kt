@@ -9,4 +9,8 @@ data class GameArgs(
     val difficulty: DifficultyType,
     val forceNewGame: Boolean,
     val seed: Long? = null,
-)
+) {
+    init {
+        require(pairCount in 2..52) { "pairCount must be between 2 and 52" }
+    }
+}
