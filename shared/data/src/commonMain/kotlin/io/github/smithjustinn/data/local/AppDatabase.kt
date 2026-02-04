@@ -38,7 +38,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     @Suppress("MagicNumber")
     companion object {
-        const val DATABASE_VERSION = 4
+        const val DATABASE_VERSION = 5
 
         val MIGRATION_1_2 =
             object : Migration(1, 2) {
@@ -80,6 +80,18 @@ abstract class AppDatabase : RoomDatabase() {
                     connection.execSQL("ALTER TABLE player_economy RENAME COLUMN unlockedItemIds TO owned_items")
                     connection.execSQL("ALTER TABLE player_economy RENAME COLUMN selectedThemeId TO active_theme")
                     connection.execSQL("ALTER TABLE player_economy RENAME COLUMN selectedSkinId TO active_skin")
+                }
+            }
+
+        val MIGRATION_4_5 =
+            object : Migration(4, 5) {
+                override fun migrate(connection: SQLiteConnection) {
+                    connection.execSQL(
+                        "ALTER TABLE player_economy ADD COLUMN active_music TEXT NOT NULL DEFAULT 'music_default'",
+                    )
+                    connection.execSQL(
+                        "ALTER TABLE player_economy ADD COLUMN active_powerup TEXT NOT NULL DEFAULT 'powerup_none'",
+                    )
                 }
             }
     }

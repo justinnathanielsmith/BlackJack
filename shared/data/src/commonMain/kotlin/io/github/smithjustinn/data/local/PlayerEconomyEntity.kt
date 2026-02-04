@@ -15,4 +15,8 @@ data class PlayerEconomyEntity(
     val selectedThemeId: String = "theme_standard",
     @ColumnInfo(name = "active_skin")
     val selectedSkinId: String = "skin_classic",
+    @ColumnInfo(name = "active_music")
+    val selectedMusicId: String = "music_default",
+    @ColumnInfo(name = "active_powerup")
+    val selectedPowerUpId: String = "powerup_none",
 )

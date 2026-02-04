@@ -5,6 +5,8 @@ import io.github.smithjustinn.data.local.PlayerEconomyDao
 import io.github.smithjustinn.data.local.PlayerEconomyEntity
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
+import io.github.smithjustinn.domain.models.GameMusic
+import io.github.smithjustinn.domain.models.GamePowerUp
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
@@ -120,6 +122,48 @@ class PlayerEconomyRepositoryImpl(
                 initialValue = PlayerEconomyEntity().selectedSkinId,
             )
 
+    override val selectedMusic: StateFlow<GameMusic> =
+        economyFlow
+            .map { entity ->
+                val musicId = entity?.selectedMusicId ?: PlayerEconomyEntity().selectedMusicId
+                GameMusic.fromIdOrName(musicId)
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = GameMusic.DEFAULT,
+            )
+
+    override val selectedMusicId: StateFlow<String> =
+        economyFlow
+            .map { entity ->
+                entity?.selectedMusicId ?: PlayerEconomyEntity().selectedMusicId
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = PlayerEconomyEntity().selectedMusicId,
+            )
+
+    override val selectedPowerUp: StateFlow<GamePowerUp> =
+        economyFlow
+            .map { entity ->
+                val powerUpId = entity?.selectedPowerUpId ?: PlayerEconomyEntity().selectedPowerUpId
+                GamePowerUp.fromIdOrName(powerUpId)
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = GamePowerUp.NONE,
+            )
+
+    override val selectedPowerUpId: StateFlow<String> =
+        economyFlow
+            .map { entity ->
+                entity?.selectedPowerUpId ?: PlayerEconomyEntity().selectedPowerUpId
+            }.stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = PlayerEconomyEntity().selectedPowerUpId,
+            )
+
     override suspend fun addCurrency(amount: Long) =
         writeMutex.withLock {
             val current = getOrCreateEntity()
@@ -179,6 +223,20 @@ class PlayerEconomyRepositoryImpl(
             val current = getOrCreateEntity()
             dao.savePlayerEconomy(current.copy(selectedSkinId = skinId))
             logger.d { "Selected skin: $skinId" }
+        }
+
+    override suspend fun selectMusic(musicId: String) =
+        writeMutex.withLock {
+            val current = getOrCreateEntity()
+            dao.savePlayerEconomy(current.copy(selectedMusicId = musicId))
+            logger.d { "Selected music: $musicId" }
+        }
+
+    override suspend fun selectPowerUp(powerUpId: String) =
+        writeMutex.withLock {
+            val current = getOrCreateEntity()
+            dao.savePlayerEconomy(current.copy(selectedPowerUpId = powerUpId))
+            logger.d { "Selected power up: $powerUpId" }
         }
 
     private suspend fun getOrCreateEntity(): PlayerEconomyEntity =
