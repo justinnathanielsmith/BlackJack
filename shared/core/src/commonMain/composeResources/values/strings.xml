@@ -201,4 +201,5 @@
 
     <!-- General -->
     <string name="clean_number_format">%1$d</string>
+    <string name="shop_purchase_failed">Purchase failed</string>
 </resources>

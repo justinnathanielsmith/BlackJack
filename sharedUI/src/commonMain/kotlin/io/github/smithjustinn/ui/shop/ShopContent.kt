@@ -39,6 +39,13 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.ShopItem
 import io.github.smithjustinn.domain.models.ShopItemType
+import io.github.smithjustinn.resources.shop_back_description
+import io.github.smithjustinn.resources.shop_balance_format
+import io.github.smithjustinn.resources.shop_bankroll_description
+import io.github.smithjustinn.resources.shop_item_active
+import io.github.smithjustinn.resources.shop_item_equip
+import io.github.smithjustinn.resources.shop_item_price_format
+import io.github.smithjustinn.resources.shop_title
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.assets.AssetProvider
@@ -48,6 +55,9 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
+import io.github.smithjustinn.resources.Res
+import org.jetbrains.compose.resources.getString
+import org.jetbrains.compose.resources.stringResource
 
 @Composable
 fun ShopContent(
@@ -59,8 +69,13 @@ fun ShopContent(
     val hapticsService = LocalAppGraph.current.hapticsService
 
     LaunchedEffect(state.error) {
-        state.error?.let {
-            snackbarHostState.showSnackbar(it)
+        state.error?.let { error ->
+            val message =
+                when (error) {
+                    is ShopErrorMessage.Resource -> getString(error.res)
+                    is ShopErrorMessage.Message -> error.text
+                }
+            snackbarHostState.showSnackbar(message)
             component.onClearError()
         }
     }
