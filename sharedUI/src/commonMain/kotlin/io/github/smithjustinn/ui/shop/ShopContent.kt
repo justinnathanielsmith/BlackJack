@@ -58,6 +58,7 @@ import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun ShopContent(
@@ -322,7 +323,7 @@ private fun ShopItemInfo(
                 color = PokerTheme.colors.onSurface.copy(alpha = 0.6f),
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
-                textAlign = androidx.compose.ui.text.style.TextAlign.Center,
+                textAlign = TextAlign.Center,
             )
         }
     }

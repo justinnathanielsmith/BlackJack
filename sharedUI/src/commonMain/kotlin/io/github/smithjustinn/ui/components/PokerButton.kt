@@ -31,6 +31,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.theme.PokerTheme
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.style.TextOverflow
 
 private const val PULSE_SCALE_TARGET = 1.05f
 private const val PULSE_ANIMATION_DURATION_MS = 1000
@@ -131,7 +133,7 @@ private fun ButtonContent(
                     brush = glimmerBrush,
                     shadow =
                         if (applyGlimmer) {
-                            androidx.compose.ui.graphics.Shadow(
+                            Shadow(
                                 color = Color.Black.copy(alpha = 0.3f),
                                 offset =
                                     androidx.compose.ui.geometry
@@ -144,7 +146,7 @@ private fun ButtonContent(
                 ),
             color = if (applyGlimmer) Color.White else contentColor, // Brush overrides color, but fallback is needed
             maxLines = 1,
-            overflow = androidx.compose.ui.text.style.TextOverflow.Ellipsis,
+            overflow = TextOverflow.Ellipsis,
             modifier = Modifier.weight(1f, fill = false),
         )
 

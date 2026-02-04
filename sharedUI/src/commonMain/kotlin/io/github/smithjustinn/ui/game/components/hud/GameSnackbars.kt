@@ -32,6 +32,7 @@ import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.font.FontFamily
 
 @Composable
 fun NewHighScoreSnackbar(modifier: Modifier = Modifier) {
@@ -88,7 +89,7 @@ private fun NewHighScoreContent() {
             text = stringResource(Res.string.new_high_score).uppercase(),
             style =
                 MaterialTheme.typography.titleLarge.copy(
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                    fontFamily = FontFamily.Serif,
                 ),
             fontWeight = FontWeight.Black,
             color = Color.White,

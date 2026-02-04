@@ -55,6 +55,10 @@ import io.github.smithjustinn.ui.start.components.StartHeader
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
+import androidx.compose.ui.graphics.vector.ImageVector
 
 @Composable
 fun StartContent(
@@ -289,7 +293,7 @@ private fun StartMainContent(
 
 @Composable
 private fun MedallionIcon(
-    icon: androidx.compose.ui.graphics.vector.ImageVector,
+    icon: ImageVector,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     backgroundColor: Color = Color.Black.copy(alpha = MEDALLION_BG_ALPHA),
@@ -305,7 +309,7 @@ private fun MedallionIcon(
         shape = CircleShape,
         color = backgroundColor,
         border =
-            androidx.compose.foundation.BorderStroke(
+            BorderStroke(
                 MEDALLION_BORDER_WIDTH_DP.dp,
                 colors.goldenYellow.copy(alpha = MEDALLION_BORDER_ALPHA),
             ),
@@ -347,7 +351,7 @@ private fun WalletBadge(
         shape = CircleShape,
         color = Color.Black.copy(alpha = MEDALLION_BG_ALPHA),
         border =
-            androidx.compose.foundation.BorderStroke(
+            BorderStroke(
                 MEDALLION_BORDER_WIDTH_DP.dp,
                 PokerTheme.colors.goldenYellow.copy(alpha = MEDALLION_BORDER_ALPHA),
             ),
@@ -365,9 +369,9 @@ private fun WalletBadge(
                 modifier = Modifier.size(MEDALLION_ICON_SIZE_DP.dp),
             )
 
-            androidx.compose.material3.Text(
+            Text(
                 text = stringResource(Res.string.clean_number_format, amount),
-                style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
+                style = MaterialTheme.typography.titleMedium,
                 color = PokerTheme.colors.goldenYellow,
             )
         }

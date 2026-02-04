@@ -43,6 +43,7 @@ import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.font.FontFamily
 
 @Composable
 fun WalkthroughOverlay(
@@ -113,7 +114,7 @@ private fun WalkthroughTexts(step: Int) {
         text = stringResource(getTitleRes(step)).uppercase(),
         style =
             MaterialTheme.typography.headlineSmall.copy(
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                fontFamily = FontFamily.Serif,
             ),
         fontWeight = FontWeight.Black,
         color = ModernGold,
@@ -127,7 +128,7 @@ private fun WalkthroughTexts(step: Int) {
         text = stringResource(getDescriptionRes(step)),
         style =
             MaterialTheme.typography.bodyLarge.copy(
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                fontFamily = FontFamily.Serif,
             ),
         textAlign = TextAlign.Center,
         color = Color.White.copy(alpha = 0.9f),
@@ -151,7 +152,7 @@ private fun WalkthroughActions(
                 stringResource(Res.string.walkthrough_skip),
                 color = Color.White.copy(alpha = 0.6f),
                 fontWeight = FontWeight.Bold,
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                fontFamily = FontFamily.Serif,
             )
         }
 
@@ -172,7 +173,7 @@ private fun WalkthroughActions(
                 },
                 fontWeight = FontWeight.Black,
                 color = Color.Black, // Dark text on Gold button
-                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                fontFamily = FontFamily.Serif,
             )
         }
     }

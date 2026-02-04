@@ -22,6 +22,14 @@ import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.PokerTheme
+import androidx.compose.foundation.Canvas
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
+import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.FontFamily
+import androidx.compose.ui.text.font.FontStyle
+import androidx.compose.ui.unit.TextUnit
 
 object CardFaces {
     @Composable
@@ -134,13 +142,13 @@ object CardFaces {
         modifier: Modifier = Modifier,
         content: @Composable () -> Unit,
     ) {
-        androidx.compose.material3.Card(
+        Card(
             modifier = modifier.fillMaxSize(),
             shape =
                 androidx.compose.foundation.shape
                     .RoundedCornerShape(12.dp),
             colors =
-                androidx.compose.material3.CardDefaults.cardColors(
+                CardDefaults.cardColors(
                     containerColor = Color.White,
                 ),
         ) {
@@ -186,11 +194,11 @@ internal fun CardFace(
 internal fun NeonCardFace(
     rank: Rank,
     suit: Suit,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     val neonColor = if (suit.isRed) Color(0xFFFF0055) else Color(0xFF00FFFF)
     val shadow =
-        androidx.compose.ui.graphics.Shadow(
+        Shadow(
             color = neonColor,
             blurRadius = 8f,
         )
@@ -204,7 +212,7 @@ internal fun NeonCardFace(
                     fontWeight = FontWeight.Bold,
                     fontSize = getFontSize(FONT_SIZE_HERO),
                     shadow = shadow,
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.SansSerif,
+                    fontFamily = FontFamily.SansSerif,
                 ),
             color = neonColor,
             modifier = Modifier.align(Alignment.Center),
@@ -236,8 +244,8 @@ private fun NeonCardCorner(
     rank: Rank,
     suit: Suit,
     neonColor: Color,
-    shadow: androidx.compose.ui.graphics.Shadow,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    shadow: Shadow,
+    getFontSize: (Float) -> TextUnit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -268,11 +276,11 @@ internal fun RetroCardFace(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     val monoStyle =
         MaterialTheme.typography.bodyMedium.copy(
-            fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+            fontFamily = FontFamily.Monospace,
             fontWeight = FontWeight.Bold,
         )
 
@@ -313,16 +321,16 @@ internal fun ElegantCardFace(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     val elegantStyle =
         MaterialTheme.typography.bodyMedium.copy(
-            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
-            fontStyle = androidx.compose.ui.text.font.FontStyle.Italic,
+            fontFamily = FontFamily.Serif,
+            fontStyle = FontStyle.Italic,
         )
 
     // Decorative border
-    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+    Canvas(modifier = Modifier.fillMaxSize()) {
         val strokeWidth = 2.dp.toPx()
         drawRect(
             color = suitColor.copy(alpha = 0.3f),
@@ -373,7 +381,7 @@ internal fun CyberpunkCardFace(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     val glitchColor = if (suitColor == Color.Black) Color.DarkGray else Color.Magenta
 
@@ -387,7 +395,7 @@ internal fun CyberpunkCardFace(
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Black,
                     fontSize = getFontSize(FONT_SIZE_DISPLAY),
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontFamily = FontFamily.Monospace,
                 ),
             modifier = Modifier.align(Alignment.Center).offset(x = 2.dp, y = 2.dp),
         )
@@ -398,7 +406,7 @@ internal fun CyberpunkCardFace(
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Black,
                     fontSize = getFontSize(FONT_SIZE_DISPLAY),
-                    fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    fontFamily = FontFamily.Monospace,
                 ),
             modifier = Modifier.align(Alignment.Center).offset(x = (-2).dp, y = (-2).dp),
         )
@@ -410,7 +418,7 @@ internal fun CyberpunkCardFace(
                 style =
                     MaterialTheme.typography.labelLarge.copy(
                         fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        fontFamily = FontFamily.Monospace,
                     ),
             )
         }
@@ -422,7 +430,7 @@ internal fun CyberpunkCardFace(
                 style =
                     MaterialTheme.typography.labelLarge.copy(
                         fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                        fontFamily = FontFamily.Monospace,
                     ),
             )
         }
@@ -434,7 +442,7 @@ internal fun ClassicCardFace(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     // Top Left
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
@@ -502,7 +510,7 @@ internal fun MinimalCardFace(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Large Rank in Center
@@ -543,7 +551,7 @@ internal fun TextOnlyCardFace(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     Box(modifier = Modifier.fillMaxSize()) {
         // Just the rank, no suit symbols
@@ -577,20 +585,20 @@ internal fun PokerCardFace(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    getFontSize: (Float) -> TextUnit,
 ) {
     PokerCardBorder()
 
     // Serif Typography for Premium Look
     val serifTypography =
         MaterialTheme.typography.displaySmall.copy(
-            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+            fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.Bold,
         )
 
     val labelTypography =
         MaterialTheme.typography.labelMedium.copy(
-            fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+            fontFamily = FontFamily.Serif,
             fontWeight = FontWeight.SemiBold,
         )
 
@@ -635,7 +643,7 @@ private fun PokerCardBorder() {
     val strokeWidth = with(density) { 2.dp.toPx() }
     val borderColor = PokerTheme.colors.goldenYellow
 
-    androidx.compose.foundation.Canvas(modifier = Modifier.fillMaxSize()) {
+    Canvas(modifier = Modifier.fillMaxSize()) {
         drawRect(
             color = borderColor,
             style =
@@ -661,9 +669,9 @@ private fun PokerCardCornerIndex(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    serifStyle: androidx.compose.ui.text.TextStyle,
-    labelStyle: androidx.compose.ui.text.TextStyle,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    serifStyle: TextStyle,
+    labelStyle: TextStyle,
+    getFontSize: (Float) -> TextUnit,
     modifier: Modifier = Modifier,
 ) {
     Column(modifier = modifier) {
@@ -687,8 +695,8 @@ private fun PokerCardCenterContent(
     rank: Rank,
     suit: Suit,
     suitColor: Color,
-    serifStyle: androidx.compose.ui.text.TextStyle,
-    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    serifStyle: TextStyle,
+    getFontSize: (Float) -> TextUnit,
     modifier: Modifier = Modifier,
 ) {
     Box(modifier = modifier) {
@@ -704,7 +712,7 @@ private fun PokerCardCenterContent(
                 serifStyle.copy(
                     fontSize = getFontSize(FONT_SIZE_DISPLAY),
                     shadow =
-                        androidx.compose.ui.graphics.Shadow(
+                        Shadow(
                             color =
                                 PokerTheme.colors.goldenYellow
                                     .copy(alpha = 0.5f),

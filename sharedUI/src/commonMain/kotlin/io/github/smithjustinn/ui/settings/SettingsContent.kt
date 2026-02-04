@@ -63,6 +63,7 @@ import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.pokerBackground
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.text.font.FontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -128,7 +129,7 @@ private fun SettingsTopBar(
                 text = stringResource(Res.string.settings),
                 style =
                     MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                        fontFamily = FontFamily.Serif,
                     ),
                 fontWeight = FontWeight.Bold,
                 color = Color.White,

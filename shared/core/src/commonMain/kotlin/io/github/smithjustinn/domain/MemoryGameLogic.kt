@@ -14,6 +14,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
+import kotlinx.collections.immutable.ImmutableList
 
 /**
  * Pure logic for the Memory Match game.
@@ -300,10 +301,10 @@ object MemoryGameLogic {
 }
 
 private fun updateCardsForMatch(
-    cards: kotlinx.collections.immutable.ImmutableList<CardState>,
+    cards: ImmutableList<CardState>,
     firstId: Int,
     secondId: Int,
-): kotlinx.collections.immutable.ImmutableList<CardState> {
+): ImmutableList<CardState> {
     val persistentCards = if (cards is PersistentList) cards else cards.toPersistentList()
     val firstIndex = persistentCards.indexOfFirst { it.id == firstId }
     val secondIndex = persistentCards.indexOfFirst { it.id == secondId }
@@ -319,10 +320,10 @@ private fun updateCardsForMatch(
 }
 
 private fun updateCardsForError(
-    cards: kotlinx.collections.immutable.ImmutableList<CardState>,
+    cards: ImmutableList<CardState>,
     firstId: Int,
     secondId: Int,
-): kotlinx.collections.immutable.ImmutableList<CardState> {
+): ImmutableList<CardState> {
     val persistentCards = if (cards is PersistentList) cards else cards.toPersistentList()
     val firstIndex = persistentCards.indexOfFirst { it.id == firstId }
     val secondIndex = persistentCards.indexOfFirst { it.id == secondId }

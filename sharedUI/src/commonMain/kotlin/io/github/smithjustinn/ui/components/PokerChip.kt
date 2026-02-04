@@ -30,6 +30,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.theme.PokerTheme
+import androidx.compose.ui.graphics.Shadow
 
 private const val ELEVATION_PRESSED = 2
 private const val ELEVATION_SELECTED = 12
@@ -130,7 +131,7 @@ private fun PokerChipContent(
                     fontWeight = FontWeight.Black,
                     shadow =
                         if (glimmerBrush == null) {
-                            androidx.compose.ui.graphics.Shadow(
+                            Shadow(
                                 color = Color.Black.copy(alpha = 0.5f),
                                 offset =
                                     androidx.compose.ui.geometry

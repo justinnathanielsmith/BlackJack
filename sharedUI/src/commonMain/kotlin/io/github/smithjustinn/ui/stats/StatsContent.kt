@@ -40,6 +40,8 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.stats.components.LeaderboardSection
 import io.github.smithjustinn.ui.stats.components.ModeSelector
 import org.jetbrains.compose.resources.stringResource
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.text.font.FontFamily
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,7 +74,7 @@ fun StatsContent(
                                     colors.feltGreen,
                                     colors.feltGreenDark,
                                 ),
-                            center = androidx.compose.ui.geometry.Offset.Unspecified,
+                            center = Offset.Unspecified,
                             radius = 1000f,
                         ),
                 ),
@@ -147,7 +149,7 @@ private fun StatsTopBar(
                 text = stringResource(Res.string.high_scores),
                 style =
                     MaterialTheme.typography.titleLarge.copy(
-                        fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                        fontFamily = FontFamily.Serif,
                     ),
                 fontWeight = FontWeight.Bold,
                 color = Color.White,

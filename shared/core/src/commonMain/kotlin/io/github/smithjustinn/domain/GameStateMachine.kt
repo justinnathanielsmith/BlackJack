@@ -19,6 +19,7 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.Job
 
 /**
  * Encapsulates the state transitions and side effects of the Memory Game.
@@ -42,8 +43,8 @@ class GameStateMachine(
     val effects: SharedFlow<GameEffect> = _effects.asSharedFlow()
 
     private val gameTimer = GameTimer(scope, dispatchers) { dispatch(GameAction.Tick) }
-    private var peekJob: kotlinx.coroutines.Job? = null
-    private var saveJob: kotlinx.coroutines.Job? = null
+    private var peekJob: Job? = null
+    private var saveJob: Job? = null
     private val mutex = Mutex()
 
     init {

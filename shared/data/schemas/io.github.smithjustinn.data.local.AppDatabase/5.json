@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "a56acf85a83fc9ea8faa956fd926f5d3",
+    "identityHash": "f4bf53441b65217281d533e29a6ba5fa",
     "entities": [
       {
         "tableName": "game_stats",
@@ -222,7 +222,7 @@
       },
       {
         "tableName": "player_economy",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `balance` INTEGER NOT NULL, `owned_items` TEXT NOT NULL, `active_theme` TEXT NOT NULL, `active_skin` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `balance` INTEGER NOT NULL, `owned_items` TEXT NOT NULL, `active_theme` TEXT NOT NULL, `active_skin` TEXT NOT NULL, `active_music` TEXT NOT NULL, `active_powerup` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -253,6 +253,18 @@
             "columnName": "active_skin",
             "affinity": "TEXT",
             "notNull": true
+          },
+          {
+            "fieldPath": "selectedMusicId",
+            "columnName": "active_music",
+            "affinity": "TEXT",
+            "notNull": true
+          },
+          {
+            "fieldPath": "selectedPowerUpId",
+            "columnName": "active_powerup",
+            "affinity": "TEXT",
+            "notNull": true
           }
         ],
         "primaryKey": {
@@ -265,7 +277,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a56acf85a83fc9ea8faa956fd926f5d3')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'f4bf53441b65217281d533e29a6ba5fa')"
     ]
   }
 }

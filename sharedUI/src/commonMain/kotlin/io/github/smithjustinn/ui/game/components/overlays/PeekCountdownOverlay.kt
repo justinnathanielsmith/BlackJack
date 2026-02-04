@@ -23,6 +23,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.theme.PokerTheme
+import androidx.compose.ui.text.font.FontFamily
 
 @Composable
 fun PeekCountdownOverlay(
@@ -59,7 +60,7 @@ fun PeekCountdownOverlay(
                                 fontSize = 80.sp,
                                 fontWeight = FontWeight.Black,
                                 color = PokerTheme.colors.goldenYellow,
-                                fontFamily = androidx.compose.ui.text.font.FontFamily.Serif,
+                                fontFamily = FontFamily.Serif,
                             ),
                     )
                 }

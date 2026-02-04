@@ -15,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.graphics.Color
 import io.github.smithjustinn.domain.models.CardTheme
+import androidx.compose.material3.Typography
 
 private val LightColorScheme =
     lightColorScheme(
@@ -56,7 +57,7 @@ object PokerTheme {
         @ReadOnlyComposable
         get() = LocalAppShapes.current
 
-    val typography: androidx.compose.material3.Typography
+    val typography: Typography
         @Composable
         @ReadOnlyComposable
         get() = LocalAppTypography.current
@@ -77,7 +78,7 @@ fun AppTheme(
     val colors = if (isDarkState.value) DarkAppColors else LightAppColors
     val spacing = AppSpacing()
     val shapes = AppShapes()
-    val typography = androidx.compose.material3.Typography()
+    val typography = Typography()
 
     CompositionLocalProvider(
         LocalThemeIsDark provides isDarkState,

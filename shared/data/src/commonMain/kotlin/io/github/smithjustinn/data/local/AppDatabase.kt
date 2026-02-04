@@ -86,13 +86,9 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_4_5 =
             object : Migration(4, 5) {
                 override fun migrate(connection: SQLiteConnection) {
-                    connection.execSQL(
-                        "ALTER TABLE player_economy ADD COLUMN active_music TEXT NOT NULL DEFAULT 'music_default'",
-                    )
-                    connection.execSQL(
-                        "ALTER TABLE player_economy ADD COLUMN active_powerup TEXT NOT NULL DEFAULT 'powerup_none'",
-                        "ALTER TABLE settings ADD COLUMN areSuitsMultiColored INTEGER NOT NULL DEFAULT 0",
-                    )
+                    connection.execSQL("ALTER TABLE player_economy ADD COLUMN active_music TEXT NOT NULL DEFAULT 'music_default'")
+                    connection.execSQL("ALTER TABLE player_economy ADD COLUMN active_powerup TEXT NOT NULL DEFAULT 'powerup_none'")
+                    connection.execSQL("ALTER TABLE settings ADD COLUMN areSuitsMultiColored INTEGER NOT NULL DEFAULT 0")
                 }
             }
     }

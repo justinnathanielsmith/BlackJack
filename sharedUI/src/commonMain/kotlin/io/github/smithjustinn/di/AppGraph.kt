@@ -23,6 +23,7 @@ import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.CoroutineDispatchers
+import kotlinx.coroutines.CoroutineScope
 
 /**
  * The primary entry point for the dependency graph.
@@ -33,7 +34,7 @@ interface AppGraph {
     val audioService: AudioService
     val hapticsService: HapticsService
     val coroutineDispatchers: CoroutineDispatchers
-    val applicationScope: kotlinx.coroutines.CoroutineScope
+    val applicationScope: CoroutineScope
 
     val appDatabase: AppDatabase
 
