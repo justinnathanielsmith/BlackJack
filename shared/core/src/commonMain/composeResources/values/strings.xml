@@ -172,4 +172,34 @@
     <string name="mutator_mirage">MIRAGE</string>
     <string name="wallet_label">WALLET</string>
     <string name="score_daily_challenge_bonus">Daily Challenge Bonus</string>
+
+    <!-- Shop -->
+    <string name="shop_title">The Shop</string>
+    <string name="shop_back_description">Back</string>
+    <string name="shop_bankroll_description">Bankroll</string>
+    <string name="shop_item_active">ACTIVE</string>
+    <string name="shop_item_equip">EQUIP</string>
+    <string name="shop_item_price_format">$%1$d</string>
+    <string name="shop_balance_format">$%1$d</string>
+
+    <!-- Score Breakdown -->
+    <string name="score_combo_bonus_label_caps">COMBO BONUS</string>
+    <string name="score_double_down_caps">DOUBLE OR NOTHING</string>
+
+    <!-- Settings -->
+    <string name="settings_percentage_format">%1$d%%</string>
+
+    <!-- Timer -->
+    <string name="timer_plus_seconds_format">+%1$ss</string>
+    <string name="timer_minus_seconds_format">-%1$ss</string>
+
+    <!-- Receipt -->
+    <string name="receipt_plus_amount_format">+%1$d</string>
+
+    <!-- Combo -->
+    <string name="combo_badge_format">%1$dx</string>
+
+    <!-- General -->
+    <string name="clean_number_format">%1$d</string>
+    <string name="shop_purchase_failed">Purchase failed</string>
 </resources>

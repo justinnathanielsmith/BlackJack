@@ -49,6 +49,7 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.best_score_label
 import io.github.smithjustinn.resources.busted
 import io.github.smithjustinn.resources.casino_header_title
+import io.github.smithjustinn.resources.clean_number_format
 import io.github.smithjustinn.resources.game_complete
 import io.github.smithjustinn.resources.game_over
 import io.github.smithjustinn.resources.high_roller_suite
@@ -292,7 +293,7 @@ private fun TotalPayout(
             color = ReceiptInkColor,
         )
         Text(
-            text = "$animatedScore",
+            text = stringResource(Res.string.clean_number_format, animatedScore),
             style =
                 MaterialTheme.typography.displayMedium.copy(
                     fontFamily = FontFamily.Monospace,

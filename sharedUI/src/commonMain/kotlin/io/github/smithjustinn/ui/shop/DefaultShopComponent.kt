@@ -8,6 +8,8 @@ import io.github.smithjustinn.domain.usecases.economy.BuyItemUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetPlayerBalanceUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetShopItemsUseCase
 import io.github.smithjustinn.domain.usecases.economy.SetActiveCosmeticUseCase
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.shop_purchase_failed
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.componentScope
@@ -92,7 +94,11 @@ class DefaultShopComponent(
             val result = buyItemUseCase(item.id, item.price)
             if (result.isFailure) {
                 // Show error
-                _state.update { it.copy(error = result.exceptionOrNull()?.message ?: "Purchase failed") }
+                val error =
+                    result.exceptionOrNull()?.message?.let {
+                        ShopErrorMessage.Message(it)
+                    } ?: ShopErrorMessage.Resource(Res.string.shop_purchase_failed)
+                _state.update { it.copy(error = error) }
             } else {
                 // Success handled by flow update
                 hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS)

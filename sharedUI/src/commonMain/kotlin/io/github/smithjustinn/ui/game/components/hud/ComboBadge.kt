@@ -32,7 +32,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.combo_badge_format
 import io.github.smithjustinn.theme.PokerTheme
+import org.jetbrains.compose.resources.stringResource
 
 private const val COMBO_ANIMATION_DURATION_MS = 400
 private const val PULSE_SCALE_HEAT_COMPACT = 1.08f
@@ -153,7 +156,7 @@ private fun ComboBadgeContent(
             )
 
             Text(
-                text = "${state.combo}x",
+                text = stringResource(Res.string.combo_badge_format, state.combo),
                 style =
                     PokerTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Black,

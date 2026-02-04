@@ -91,6 +91,7 @@ abstract class AppDatabase : RoomDatabase() {
                     )
                     connection.execSQL(
                         "ALTER TABLE player_economy ADD COLUMN active_powerup TEXT NOT NULL DEFAULT 'powerup_none'",
+                        "ALTER TABLE settings ADD COLUMN areSuitsMultiColored INTEGER NOT NULL DEFAULT 0",
                     )
                 }
             }

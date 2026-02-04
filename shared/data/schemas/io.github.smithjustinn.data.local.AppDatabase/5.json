@@ -2,7 +2,7 @@
   "formatVersion": 1,
   "database": {
     "version": 5,
-    "identityHash": "e083c0fe05b35431eda601ee09213897",
+    "identityHash": "a56acf85a83fc9ea8faa956fd926f5d3",
     "entities": [
       {
         "tableName": "game_stats",
@@ -120,7 +120,7 @@
       },
       {
         "tableName": "settings",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, `isSoundEnabled` INTEGER NOT NULL, `isMusicEnabled` INTEGER NOT NULL, `isWalkthroughCompleted` INTEGER NOT NULL, `soundVolume` REAL NOT NULL, `musicVolume` REAL NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `isPeekEnabled` INTEGER NOT NULL, `isSoundEnabled` INTEGER NOT NULL, `isMusicEnabled` INTEGER NOT NULL, `isWalkthroughCompleted` INTEGER NOT NULL, `soundVolume` REAL NOT NULL, `musicVolume` REAL NOT NULL, `areSuitsMultiColored` INTEGER NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -162,6 +162,12 @@
             "fieldPath": "musicVolume",
             "columnName": "musicVolume",
             "affinity": "REAL",
+            "notNull": true
+          },
+          {
+            "fieldPath": "areSuitsMultiColored",
+            "columnName": "areSuitsMultiColored",
+            "affinity": "INTEGER",
             "notNull": true
           }
         ],
@@ -216,7 +222,7 @@
       },
       {
         "tableName": "player_economy",
-        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `balance` INTEGER NOT NULL, `owned_items` TEXT NOT NULL, `active_theme` TEXT NOT NULL, `active_skin` TEXT NOT NULL, `active_music` TEXT NOT NULL, `active_powerup` TEXT NOT NULL, PRIMARY KEY(`id`))",
+        "createSql": "CREATE TABLE IF NOT EXISTS `${TABLE_NAME}` (`id` INTEGER NOT NULL, `balance` INTEGER NOT NULL, `owned_items` TEXT NOT NULL, `active_theme` TEXT NOT NULL, `active_skin` TEXT NOT NULL, PRIMARY KEY(`id`))",
         "fields": [
           {
             "fieldPath": "id",
@@ -247,18 +253,6 @@
             "columnName": "active_skin",
             "affinity": "TEXT",
             "notNull": true
-          },
-          {
-            "fieldPath": "selectedMusicId",
-            "columnName": "active_music",
-            "affinity": "TEXT",
-            "notNull": true
-          },
-          {
-            "fieldPath": "selectedPowerUpId",
-            "columnName": "active_powerup",
-            "affinity": "TEXT",
-            "notNull": true
           }
         ],
         "primaryKey": {
@@ -271,7 +265,7 @@
     ],
     "setupQueries": [
       "CREATE TABLE IF NOT EXISTS room_master_table (id INTEGER PRIMARY KEY,identity_hash TEXT)",
-      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'e083c0fe05b35431eda601ee09213897')"
+      "INSERT OR REPLACE INTO room_master_table (id,identity_hash) VALUES(42, 'a56acf85a83fc9ea8faa956fd926f5d3')"
     ]
   }
 }

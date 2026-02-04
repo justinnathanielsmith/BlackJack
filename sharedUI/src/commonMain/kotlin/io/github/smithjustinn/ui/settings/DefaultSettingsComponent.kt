@@ -45,11 +45,15 @@ class DefaultSettingsComponent(
         combine(
             settingsRepository.isPeekEnabled,
             settingsRepository.isWalkthroughCompleted,
+            settingsRepository.areSuitsMultiColored,
+            appGraph.playerEconomyRepository.unlockedItemIds,
             audioSettingsFlow,
-        ) { peek, walkthrough, audio ->
+        ) { peek, walkthrough, multiColor, unlocked, audio ->
             SettingsState(
                 isPeekEnabled = peek,
                 isWalkthroughCompleted = walkthrough,
+                areSuitsMultiColored = multiColor,
+                isFourColorUnlocked = unlocked.contains("feature_four_color_suits"),
                 isSoundEnabled = audio.isSoundEnabled,
                 isMusicEnabled = audio.isMusicEnabled,
                 soundVolume = audio.soundVolume,
@@ -99,6 +103,12 @@ class DefaultSettingsComponent(
     override fun setMusicVolume(volume: Float) {
         scope.launch {
             settingsRepository.setMusicVolume(volume)
+        }
+    }
+
+    override fun toggleSuitsMultiColored(enabled: Boolean) {
+        scope.launch {
+            settingsRepository.setSuitsMultiColored(enabled)
         }
     }
 

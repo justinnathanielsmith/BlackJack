@@ -7,6 +7,8 @@ data class SettingsUIState(
     val isWalkthroughCompleted: Boolean = false,
     val soundVolume: Float = 1.0f,
     val musicVolume: Float = 1.0f,
+    val areSuitsMultiColored: Boolean = false,
+    val isFourColorUnlocked: Boolean = false,
 )
 
 sealed class SettingsUiEvent {

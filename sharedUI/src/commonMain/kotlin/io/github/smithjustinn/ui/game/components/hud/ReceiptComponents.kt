@@ -30,6 +30,9 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.receipt_plus_amount_format
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 private val ReceiptInkColor = Color(0xFF2B2B2B)
@@ -163,7 +166,7 @@ fun PayoutRow(
             color = color,
         )
         Text(
-            text = "+$amount",
+            text = stringResource(Res.string.receipt_plus_amount_format, amount),
             style =
                 MaterialTheme.typography.bodyMedium.copy(
                     fontFamily = FontFamily.Monospace,

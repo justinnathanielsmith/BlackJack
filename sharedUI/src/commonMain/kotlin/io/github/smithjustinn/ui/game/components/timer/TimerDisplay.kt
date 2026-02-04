@@ -33,8 +33,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.timer_minus_seconds_format
+import io.github.smithjustinn.resources.timer_plus_seconds_format
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.utils.formatTime
+import org.jetbrains.compose.resources.stringResource
 
 private const val COLOR_TRANSITION_DURATION_MS = 500
 private const val PULSE_SCALE_TARGET = 1.15f
@@ -176,7 +180,7 @@ private fun MinimalTimerDisplay(
             exit = fadeOut() + slideOutVertically { -it / 2 },
         ) {
             Text(
-                text = "+${feedback.timeGainAmount}s",
+                text = stringResource(Res.string.timer_plus_seconds_format, feedback.timeGainAmount),
                 style = MaterialTheme.typography.labelSmall.copy(fontSize = 10.sp),
                 color =
                     if (feedback.isMegaBonus) {
@@ -264,7 +268,7 @@ private fun TimeGainIndicator(
         exit = fadeOut() + slideOutVertically { -it / 2 },
     ) {
         Text(
-            text = "+${timeGainAmount}s",
+            text = stringResource(Res.string.timer_plus_seconds_format, timeGainAmount),
             style =
                 if (compact) {
                     MaterialTheme.typography.labelSmall
@@ -290,7 +294,7 @@ private fun TimeLossIndicator(
         exit = fadeOut() + slideOutVertically { it / 2 },
     ) {
         Text(
-            text = "-${timeLossAmount}s",
+            text = stringResource(Res.string.timer_minus_seconds_format, timeLossAmount),
             style =
                 if (compact) {
                     MaterialTheme.typography.labelSmall
