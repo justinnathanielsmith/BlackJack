@@ -14,6 +14,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import platform.AVFAudio.AVAudioPlayer
@@ -174,20 +175,28 @@ class IosAudioServiceImpl(
             scope.launch {
                 try {
                     if (musicPlayer == null) {
-                        val name = getString(AudioService.MUSIC)
-                        val path = "$name.m4a"
-                        val bytes = Res.readBytes("files/$path")
-                        if (bytes.isNotEmpty()) {
-                            val data =
-                                bytes.usePinned { pinned ->
-                                    NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                        val player =
+                            withContext(Dispatchers.Default) {
+                                val name = getString(AudioService.MUSIC)
+                                val path = "$name.m4a"
+                                val bytes = Res.readBytes("files/$path")
+                                if (bytes.isNotEmpty()) {
+                                    val data =
+                                        bytes.usePinned { pinned ->
+                                            NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                                        }
+                                    AVAudioPlayer(data = data, error = null).apply {
+                                        numberOfLoops = -1
+                                        prepareToPlay()
+                                    }
+                                } else {
+                                    null
                                 }
-                            musicPlayer =
-                                AVAudioPlayer(data = data, error = null).apply {
-                                    numberOfLoops = -1
-                                    volume = musicVolume
-                                    prepareToPlay()
-                                }
+                            }
+
+                        if (player != null) {
+                            musicPlayer = player
+                            musicPlayer?.volume = musicVolume
                         }
                     }
 

@@ -13,6 +13,15 @@ Welcome to the **Memory-Match** engineering team! This document is your comprehe
 
 Our goal is to demonstrate how to build premium, production-quality apps that share 95%+ of code across Android, iOS, and Desktop.
 
+## 🚀 Platform Matrix
+
+| Platform       | Tier   | Implementation                          | Stability |
+| :------------- | :----- | :-------------------------------------- | :-------- |
+| **Android**    | Tier 1 | Native via Jetpack Compose & Material 3 | Stable    |
+| **iOS**        | Tier 1 | Compose Multiplatform (UIKit Interop)   | Beta      |
+| **Desktop**    | Tier 2 | Compose for Desktop (JVM)               | Stable    |
+| **Web (Wasm)** | Tier 3 | Compose for Web (Experimental)          | Planned   |
+
 ---
 
 ## 🛠️ Prerequisites & Setup
@@ -60,7 +69,7 @@ We follow a **Local-First, Modular-Core** strategy. The project is structured to
     *   **Purpose**: The massive shared UI module. Contains all screens, components, and view models.
     *   **Key Tech**: `Compose Multiplatform`, `Decompose`, `Koin`.
 
-### Component-Based MVVM (State Machine Pattern)
+### Component-Based MVVM & Unidirectional Data Flow (UDF)
 We use **Decompose** combined with a **State Machine** pattern to implement robust, testable UI logic.
 
 1.  **Component (State Holder)**:
@@ -68,11 +77,14 @@ We use **Decompose** combined with a **State Machine** pattern to implement robu
     *   Holds an instance of a `GameStateMachine` (or similar) to manage complex transitions.
     *   Exposes `StateFlow<UIState>` for the UI to observe.
     *   Handles user intents by dispatching actions to the state machine.
+    *   **Lifecycle Safety**: Tied to Decompose lifecycle; state is preserved during config changes but cleared on destruction.
     *   **Rule**: Use `componentScope` for coroutines, NOT `viewModelScope`.
 2.  **UI (View)**:
     *   Pure `@Composable` functions.
     *   Observes state and dispatches events to the Component.
     *   **Rule**: UI should be dumb. No complex logic in Composables.
+3.  **Side Effects**:
+    *   One-time ephemeral events (e.g., sound, navigation) are broadcast via `Flow` or `Channel`.
 
 ---
 
@@ -84,6 +96,7 @@ We stay on the bleeding edge of the Kotlin ecosystem.
 | :------------- | :-------------------- | :------ | :---------------------------- |
 | **Language**   | Kotlin                | 2.3.0+  | K2 Mode enabled.              |
 | **UI**         | Compose Multiplatform | 1.10.0+ | Use Strong Skipping mode.     |
+| **Collections**| Immutable Collections | 0.4.0+  | Essential for Strong Skipping.|
 | **DI**         | Koin                  | 4.1.1+  | Context Parameters favored.   |
 | **Navigation** | Decompose             | 3.4.0+  | Platform-agnostic navigation. |
 | **DB**         | Room KMP              | 2.8.4+  | Type-safe SQLite.             |
@@ -121,15 +134,20 @@ We use **Spotless** for formatting and **Detekt** for code quality.
 *   **Run All Tests**: `./run_tests.sh`
 *   **Shared Logic**: `./gradlew :sharedUI:allTests`
 
+### 5. Code Coverage (Kover)
+We aim for **80%+ line coverage** in domain and data layers.
+*   **Generate Report**: `./gradlew koverHtmlReport` (Open `build/reports/kover/html/index.html`)
+*   **Verify Coverage**: `./gradlew koverVerify`
+
 ---
 
 ## 🤖 Working with AI Agents
 
 This repository is optimized for **AI-Agentic Development**.
 
-*   **`AGENTS.md`**: This is the "Constitution" for AI agents. It contains the core rules and architectural constraints. If you change a core pattern, update this file.
-*   **Agent Rules**: Specialized rules are located in `.agent/rules`.
-*   **Context**: When working with an AI (like Antigravity), encourage it to read `AGENTS.md` first to align with project standards.
+*   **`AGENTS.md`**: Serves as the **Project Dashboard** for agents. It provides high-level context, checklists, and commands.
+*   **`.agent/rules/`**: The **Source of Truth** for detailed coding standards, architectural rules, and prohibited patterns.
+*   **Context**: When working with an AI (like Antigravity), encourage it to read `AGENTS.md` first, then check specific rules in `.agent/rules/`.
 
 ---
 

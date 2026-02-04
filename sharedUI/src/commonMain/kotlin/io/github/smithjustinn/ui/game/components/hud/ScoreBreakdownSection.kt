@@ -20,6 +20,8 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.ScoreBreakdown
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.score_breakdown_title
+import io.github.smithjustinn.resources.score_combo_bonus_label_caps
+import io.github.smithjustinn.resources.score_double_down_caps
 import io.github.smithjustinn.resources.score_match_points
 import io.github.smithjustinn.resources.score_move_bonus
 import io.github.smithjustinn.resources.score_time_bonus
@@ -65,14 +67,14 @@ fun ScoreBreakdownSection(
             )
             if (scoreBreakdown.comboBonus > 0) {
                 BreakdownRow(
-                    label = "COMBO BONUS",
+                    label = stringResource(Res.string.score_combo_bonus_label_caps),
                     value = "+${scoreBreakdown.comboBonus}",
                     color = BonusColor,
                 )
             }
             if (scoreBreakdown.doubleDownBonus > 0) {
                 BreakdownRow(
-                    label = "DOUBLE OR NOTHING",
+                    label = stringResource(Res.string.score_double_down_caps),
                     value = "+${scoreBreakdown.doubleDownBonus}",
                     color = BonusColor,
                 )

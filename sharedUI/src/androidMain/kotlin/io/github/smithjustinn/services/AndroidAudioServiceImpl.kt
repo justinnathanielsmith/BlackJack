@@ -217,8 +217,12 @@ class AndroidAudioServiceImpl(
                             setDataSource(tempFile.absolutePath)
                             isLooping = true
                             setVolume(musicVolume, musicVolume)
-                            prepare()
-                            start()
+                            setOnPreparedListener { mp ->
+                                if (musicPlayer == mp && isMusicRequested && isMusicEnabled) {
+                                    mp.start()
+                                }
+                            }
+                            prepareAsync()
                         }
                 }
             } catch (
@@ -230,7 +234,8 @@ class AndroidAudioServiceImpl(
     }
 
     private fun actuallyStopMusic() {
-        musicPlayer?.stop()
+        // stop() is not called to avoid IllegalStateException if player is preparing.
+        // release() is sufficient to stop playback and free resources.
         musicPlayer?.release()
         musicPlayer = null
     }

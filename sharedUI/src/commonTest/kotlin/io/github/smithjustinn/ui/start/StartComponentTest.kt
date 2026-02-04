@@ -6,6 +6,8 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
+import io.github.smithjustinn.domain.models.CardBackTheme
+import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
@@ -76,9 +78,9 @@ class StartComponentTest : BaseComponentTest() {
         runTest { lifecycle ->
             every { context.playerEconomyRepository.balance } returns MutableStateFlow(5000L)
             every { context.playerEconomyRepository.selectedTheme } returns
-                MutableStateFlow(io.github.smithjustinn.domain.models.CardBackTheme.PATTERN)
+                MutableStateFlow(CardBackTheme.PATTERN)
             every { context.playerEconomyRepository.selectedSkin } returns
-                MutableStateFlow(io.github.smithjustinn.domain.models.CardSymbolTheme.POKER)
+                MutableStateFlow(CardSymbolTheme.POKER)
 
             component = createDefaultComponent(lifecycle)
             testDispatcher.scheduler.runCurrent()
@@ -86,16 +88,16 @@ class StartComponentTest : BaseComponentTest() {
             component.state.test {
                 val state = awaitItem()
                 assertEquals(5000L, state.totalBalance)
-                assertEquals(io.github.smithjustinn.domain.models.CardBackTheme.PATTERN, state.cardBackTheme)
-                assertEquals(io.github.smithjustinn.domain.models.CardSymbolTheme.POKER, state.cardSymbolTheme)
+                assertEquals(CardBackTheme.PATTERN, state.cardBackTheme)
+                assertEquals(CardSymbolTheme.POKER, state.cardSymbolTheme)
             }
         }
 
     @Test
     fun `state updates when selected theme or skin changes`() =
         runTest { lifecycle ->
-            val themeFlow = MutableStateFlow(io.github.smithjustinn.domain.models.CardBackTheme.GEOMETRIC)
-            val skinFlow = MutableStateFlow(io.github.smithjustinn.domain.models.CardSymbolTheme.CLASSIC)
+            val themeFlow = MutableStateFlow(CardBackTheme.GEOMETRIC)
+            val skinFlow = MutableStateFlow(CardSymbolTheme.CLASSIC)
             every { context.playerEconomyRepository.selectedTheme } returns themeFlow
             every { context.playerEconomyRepository.selectedSkin } returns skinFlow
 
@@ -104,17 +106,17 @@ class StartComponentTest : BaseComponentTest() {
 
             component.state.test {
                 val initial = awaitItem()
-                assertEquals(io.github.smithjustinn.domain.models.CardBackTheme.GEOMETRIC, initial.cardBackTheme)
-                assertEquals(io.github.smithjustinn.domain.models.CardSymbolTheme.CLASSIC, initial.cardSymbolTheme)
+                assertEquals(CardBackTheme.GEOMETRIC, initial.cardBackTheme)
+                assertEquals(CardSymbolTheme.CLASSIC, initial.cardSymbolTheme)
 
-                themeFlow.value = io.github.smithjustinn.domain.models.CardBackTheme.POKER
+                themeFlow.value = CardBackTheme.POKER
                 val stateAfterTheme = awaitItem()
-                assertEquals(io.github.smithjustinn.domain.models.CardBackTheme.POKER, stateAfterTheme.cardBackTheme)
+                assertEquals(CardBackTheme.POKER, stateAfterTheme.cardBackTheme)
 
-                skinFlow.value = io.github.smithjustinn.domain.models.CardSymbolTheme.MINIMAL
+                skinFlow.value = CardSymbolTheme.MINIMAL
                 val stateAfterSkin = awaitItem()
                 assertEquals(
-                    io.github.smithjustinn.domain.models.CardSymbolTheme.MINIMAL,
+                    CardSymbolTheme.MINIMAL,
                     stateAfterSkin.cardSymbolTheme,
                 )
             }

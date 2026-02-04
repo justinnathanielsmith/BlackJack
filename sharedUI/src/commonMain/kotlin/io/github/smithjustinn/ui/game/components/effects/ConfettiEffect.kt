@@ -13,6 +13,10 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
+import io.github.smithjustinn.theme.BonusGreen
+import io.github.smithjustinn.theme.ModernGold
+import io.github.smithjustinn.theme.SoftBlue
+import io.github.smithjustinn.theme.TacticalRed
 import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
@@ -57,11 +61,11 @@ fun ConfettiEffect(
     particleCount: Int = 100,
     colors: List<Color> =
         listOf(
-            io.github.smithjustinn.theme.TacticalRed,
-            io.github.smithjustinn.theme.BonusGreen,
+            TacticalRed,
+            BonusGreen,
             Color.Black,
-            io.github.smithjustinn.theme.SoftBlue, // Chip Blue
-            io.github.smithjustinn.theme.ModernGold,
+            SoftBlue, // Chip Blue
+            ModernGold,
         ),
 ) {
     val particles = remember { mutableStateListOf<Particle>() }

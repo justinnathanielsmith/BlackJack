@@ -17,6 +17,8 @@ interface SettingsComponent {
 
     fun togglePeekEnabled(enabled: Boolean)
 
+    fun toggleSuitsMultiColored(enabled: Boolean)
+
     fun resetWalkthrough()
 
     fun onBack()

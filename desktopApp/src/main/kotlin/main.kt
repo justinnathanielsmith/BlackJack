@@ -9,6 +9,7 @@ import androidx.compose.ui.window.rememberWindowState
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
 import io.github.smithjustinn.App
+import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.di.createJvmGraph
 import io.github.smithjustinn.ui.root.DefaultRootComponent
 import java.awt.Dimension
@@ -17,7 +18,7 @@ import javax.swing.SwingUtilities
 fun main() {
     lateinit var lifecycle: LifecycleRegistry
     lateinit var root: DefaultRootComponent
-    lateinit var appGraph: io.github.smithjustinn.di.AppGraph
+    lateinit var appGraph: AppGraph
 
     SwingUtilities.invokeAndWait {
         lifecycle = LifecycleRegistry()

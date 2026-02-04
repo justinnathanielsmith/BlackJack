@@ -84,6 +84,15 @@ class SettingsRepositoryImpl(
                 initialValue = 1.0f,
             )
 
+    override val areSuitsMultiColored: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.areSuitsMultiColored ?: false }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = false,
+            )
+
     override suspend fun setPeekEnabled(enabled: Boolean) =
         writeMutex.withLock {
             val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
@@ -118,5 +127,11 @@ class SettingsRepositoryImpl(
         writeMutex.withLock {
             val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
             dao.saveSettings(current.copy(musicVolume = volume))
+        }
+
+    override suspend fun setSuitsMultiColored(enabled: Boolean) =
+        writeMutex.withLock {
+            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
+            dao.saveSettings(current.copy(areSuitsMultiColored = enabled))
         }
 }

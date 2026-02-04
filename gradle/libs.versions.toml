@@ -1,3 +1,4 @@
+# Verified for 2026 KMP Standards
 [versions]
 # Build Tools
 agp = "9.0.0"
@@ -50,6 +51,7 @@ google-material = { module = "com.google.android.material:material", version.ref
 # Compose Multiplatform
 compose-foundation = { module = "org.jetbrains.compose.foundation:foundation", version.ref = "compose-multiplatform" }
 compose-material3 = { module = "org.jetbrains.compose.material3:material3", version.ref = "material3" }
+# Note: Using components-resources as 'resources' artifact is missing for 1.10.0 in this env
 compose-resources = { module = "org.jetbrains.compose.components:components-resources", version.ref = "compose-multiplatform" }
 compose-runtime = { module = "org.jetbrains.compose.runtime:runtime", version.ref = "compose-multiplatform" }
 compose-ui = { module = "org.jetbrains.compose.ui:ui", version.ref = "compose-multiplatform" }

@@ -19,23 +19,23 @@ class JsonShopItemRepositoryTest {
             // additional configuration to expose composeResources to commonTest.
 
             // However, we can attempt it.
-                val items = repository.getShopItems()
-                assertTrue(items.isNotEmpty(), "Shop items should not be empty")
+            val items = repository.getShopItems()
+            assertTrue(items.isNotEmpty(), "Shop items should not be empty")
 
-                val firstItem = items.first()
-                assertEquals("theme_standard", firstItem.id)
-                assertEquals("Standard Theme", firstItem.name)
-                assertEquals(ShopItemType.THEME, firstItem.type)
+            val firstItem = items.first()
+            assertEquals("theme_standard", firstItem.id)
+            assertEquals("Standard Theme", firstItem.name)
+            assertEquals(ShopItemType.THEME, firstItem.type)
         }
 
     @Test
     fun `getShopItems returns cached items on subsequent calls`() =
         runTest {
-                val items1 = repository.getShopItems()
-                val items2 = repository.getShopItems()
+            val items1 = repository.getShopItems()
+            val items2 = repository.getShopItems()
 
-                // Check that the list instances are the same (identity equality)
-                // This proves the cache was used.
-                assertTrue(items1 === items2, "Subsequent calls should return the same cached list instance")
+            // Check that the list instances are the same (identity equality)
+            // This proves the cache was used.
+            assertTrue(items1 === items2, "Subsequent calls should return the same cached list instance")
         }
 }

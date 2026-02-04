@@ -43,35 +43,39 @@ class ScoringCalculatorTest {
     @Test
     fun `applyFinalBonuses applies difficultly multipliers correctly`() {
         val score = 10000
-        
-        val touristState = MemoryGameState(
-            isGameWon = true,
-            score = score,
-            difficulty = DifficultyType.TOURIST,
-            mode = GameMode.TIME_ATTACK,
-            moves = 8,
-        )
-        val casualState = MemoryGameState(
-            isGameWon = true,
-            score = score,
-            difficulty = DifficultyType.CASUAL,
-            mode = GameMode.TIME_ATTACK,
-            moves = 8,
-        )
-        val masterState = MemoryGameState(
-            isGameWon = true,
-            score = score,
-            difficulty = DifficultyType.MASTER,
-            mode = GameMode.TIME_ATTACK,
-            moves = 8,
-        )
-        val sharkState = MemoryGameState(
-            isGameWon = true,
-            score = score,
-            difficulty = DifficultyType.SHARK,
-            mode = GameMode.TIME_ATTACK,
-            moves = 8,
-        )
+
+        val touristState =
+            MemoryGameState(
+                isGameWon = true,
+                score = score,
+                difficulty = DifficultyType.TOURIST,
+                mode = GameMode.TIME_ATTACK,
+                moves = 8,
+            )
+        val casualState =
+            MemoryGameState(
+                isGameWon = true,
+                score = score,
+                difficulty = DifficultyType.CASUAL,
+                mode = GameMode.TIME_ATTACK,
+                moves = 8,
+            )
+        val masterState =
+            MemoryGameState(
+                isGameWon = true,
+                score = score,
+                difficulty = DifficultyType.MASTER,
+                mode = GameMode.TIME_ATTACK,
+                moves = 8,
+            )
+        val sharkState =
+            MemoryGameState(
+                isGameWon = true,
+                score = score,
+                difficulty = DifficultyType.SHARK,
+                mode = GameMode.TIME_ATTACK,
+                moves = 8,
+            )
 
         val touristResult = ScoringCalculator.applyFinalBonuses(touristState, 0)
         val casualResult = ScoringCalculator.applyFinalBonuses(casualState, 0)
@@ -81,7 +85,7 @@ class ScoringCalculatorTest {
         // Time Attack uses simplified time bonus: 0 * 10 = 0
         // Move Bonus: 8 / 8 * 10000 = 10000
         // Total Score: 10000 + 10000 = 20000
-        
+
         // Tourist: (20000 / 100) * 0.25 = 200 * 0.25 = 50
         // Casual: (20000 / 100) * 1.0 = 200 * 1.0 = 200
         // Master: (20000 / 100) * 2.5 = 200 * 2.5 = 500
