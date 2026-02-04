@@ -32,4 +32,24 @@ class SetActiveCosmeticUseCaseTest {
 
             verifySuspend { repository.selectSkin("skin1") }
         }
+
+    @Test
+    fun `invoke should call selectMusic when itemType is MUSIC`() =
+        runTest {
+            everySuspend { repository.selectMusic("music1") } returns Unit
+
+            useCase("music1", ShopItemType.MUSIC)
+
+            verifySuspend { repository.selectMusic("music1") }
+        }
+
+    @Test
+    fun `invoke should call selectPowerUp when itemType is POWER_UP`() =
+        runTest {
+            everySuspend { repository.selectPowerUp("powerup1") } returns Unit
+
+            useCase("powerup1", ShopItemType.POWER_UP)
+
+            verifySuspend { repository.selectPowerUp("powerup1") }
+        }
 }
