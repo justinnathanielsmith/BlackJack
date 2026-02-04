@@ -49,7 +49,6 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.best_score_label
 import io.github.smithjustinn.resources.busted
 import io.github.smithjustinn.resources.casino_header_title
-import io.github.smithjustinn.resources.clean_number_format
 import io.github.smithjustinn.resources.game_complete
 import io.github.smithjustinn.resources.game_over
 import io.github.smithjustinn.resources.high_roller_suite
@@ -65,6 +64,7 @@ import io.github.smithjustinn.resources.share_receipt
 import io.github.smithjustinn.resources.time_label
 import io.github.smithjustinn.resources.times_up
 import io.github.smithjustinn.resources.total_payout
+import io.github.smithjustinn.resources.clean_number_format
 import io.github.smithjustinn.ui.components.ShopIcons
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt

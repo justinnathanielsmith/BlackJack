@@ -39,7 +39,6 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.ShopItem
 import io.github.smithjustinn.domain.models.ShopItemType
-import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.shop_back_description
 import io.github.smithjustinn.resources.shop_balance_format
 import io.github.smithjustinn.resources.shop_bankroll_description
@@ -56,6 +55,7 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
+import io.github.smithjustinn.resources.Res
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 

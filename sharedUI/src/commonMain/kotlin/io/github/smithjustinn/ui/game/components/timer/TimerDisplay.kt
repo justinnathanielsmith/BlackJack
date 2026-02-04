@@ -33,12 +33,12 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.resources.Res
-import io.github.smithjustinn.resources.timer_minus_seconds_format
-import io.github.smithjustinn.resources.timer_plus_seconds_format
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.utils.formatTime
 import org.jetbrains.compose.resources.stringResource
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.timer_plus_seconds_format
+import io.github.smithjustinn.resources.timer_minus_seconds_format
 
 private const val COLOR_TRANSITION_DURATION_MS = 500
 private const val PULSE_SCALE_TARGET = 1.15f

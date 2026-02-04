@@ -5,13 +5,8 @@ import kotlinx.coroutines.flow.StateFlow
 import org.jetbrains.compose.resources.StringResource
 
 sealed interface ShopErrorMessage {
-    data class Resource(
-        val res: StringResource,
-    ) : ShopErrorMessage
-
-    data class Message(
-        val text: String,
-    ) : ShopErrorMessage
+    data class Resource(val res: StringResource) : ShopErrorMessage
+    data class Message(val text: String) : ShopErrorMessage
 }
 
 data class ShopState(
