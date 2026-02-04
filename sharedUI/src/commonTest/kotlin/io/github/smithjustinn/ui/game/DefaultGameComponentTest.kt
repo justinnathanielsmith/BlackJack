@@ -181,8 +181,9 @@ class DefaultGameComponentTest : BaseComponentTest() {
 
                 var currentState = awaitItem()
                 while (currentState.isPeekFeatureEnabled != newPeek ||
-                       currentState.isMusicEnabled != newMusic ||
-                       currentState.isSoundEnabled != newSound) {
+                    currentState.isMusicEnabled != newMusic ||
+                    currentState.isSoundEnabled != newSound
+                ) {
                     currentState = awaitItem()
                 }
 
