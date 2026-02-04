@@ -15,6 +15,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -34,6 +35,8 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.game_double_or_nothing
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.theme.HeatAppColors
+import io.github.smithjustinn.theme.LocalAppColors
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AdaptiveDensity
@@ -116,29 +119,38 @@ private fun GameMainScreenWrapper(
     showSteam: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    BoxWithConstraints(
-        modifier =
-            modifier
-                .fillMaxSize()
-                .graphicsLayer { translationX = shakeOffset },
-    ) {
-        val isLandscape = maxWidth > maxHeight
-        val isCompactHeight = maxHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
-        val useCompactUI = isLandscape && isCompactHeight
+    val currentColors = PokerTheme.colors
+    val targetColors = if (state.isHeatMode) HeatAppColors else currentColors
 
-        Box(modifier = Modifier.fillMaxSize()) {
-            GameBackground(isHeatMode = state.isHeatMode, theme = state.cardTheme)
-            GameMainScreen(
-                state = state,
-                component = component,
-                useCompactUI = useCompactUI,
-            )
+    CompositionLocalProvider(LocalAppColors provides targetColors) {
+        BoxWithConstraints(
+            modifier =
+                modifier
+                    .fillMaxSize()
+                    .graphicsLayer { translationX = shakeOffset },
+        ) {
+            val isLandscape = maxWidth > maxHeight
+            val isCompactHeight = maxHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
+            val useCompactUI = isLandscape && isCompactHeight
 
-            // Embers overlay - Foreground
-            ParticleEmbers(isHeatMode = state.isHeatMode)
+            Box(modifier = Modifier.fillMaxSize()) {
+                GameBackground(
+                    isHeatMode = state.isHeatMode,
+                    theme = state.cardTheme,
+                    comboMultiplier = state.game.comboMultiplier,
+                )
+                GameMainScreen(
+                    state = state,
+                    component = component,
+                    useCompactUI = useCompactUI,
+                )
 
-            // Steam Cool Down Effect
-            SteamEffect(isVisible = showSteam)
+                // Embers overlay - Foreground
+                ParticleEmbers(isHeatMode = state.isHeatMode)
+
+                // Steam Cool Down Effect
+                SteamEffect(isVisible = showSteam)
+            }
         }
     }
 }
