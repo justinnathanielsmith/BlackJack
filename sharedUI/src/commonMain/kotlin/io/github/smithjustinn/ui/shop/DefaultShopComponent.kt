@@ -1,5 +1,8 @@
 package io.github.smithjustinn.ui.shop
 
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.shop_purchase_failed
+
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.ShopItem

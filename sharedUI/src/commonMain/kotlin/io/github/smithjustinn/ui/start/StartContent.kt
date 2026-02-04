@@ -39,6 +39,9 @@ import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.clean_number_format
+import io.github.smithjustinn.resources.settings
+import io.github.smithjustinn.resources.shop_title
+import io.github.smithjustinn.resources.stats
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
@@ -198,6 +201,7 @@ private fun BoxScope.StartTopActions(
             onClick = onShopClick,
             applyGlimmer = true,
             tint = PokerTheme.colors.goldenYellow,
+            contentDescription = stringResource(Res.string.shop_title),
         )
 
         WalletBadge(
@@ -219,11 +223,13 @@ private fun BoxScope.StartTopActions(
             onClick = onStatsClick,
             applyGlimmer = true,
             tint = PokerTheme.colors.silver,
+            contentDescription = stringResource(Res.string.stats),
         )
         MedallionIcon(
             icon = AppIcons.Settings,
             onClick = onSettingsClick,
             applyGlimmer = true,
+            contentDescription = stringResource(Res.string.settings),
         )
     }
 }
@@ -289,6 +295,7 @@ private fun MedallionIcon(
     backgroundColor: Color = Color.Black.copy(alpha = MEDALLION_BG_ALPHA),
     tint: Color = PokerTheme.colors.goldenYellow,
     applyGlimmer: Boolean = false,
+    contentDescription: String? = null,
 ) {
     val colors = PokerTheme.colors
     val glimmerBrush = if (applyGlimmer) rememberGlimmerBrush() else null
@@ -307,7 +314,7 @@ private fun MedallionIcon(
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = contentDescription,
                 tint = if (applyGlimmer) Color.White else tint,
                 modifier =
                     Modifier
