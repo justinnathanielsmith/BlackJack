@@ -4,6 +4,7 @@ import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.TimeAttackLogic
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.models.SavedGame
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -237,7 +238,7 @@ internal class GameLifecycleHandler(
     private val timerHandler: GameTimerHandler,
     private val onMatchFailure: (MemoryGameState, Boolean) -> Unit,
 ) {
-    fun resumeExistingGame(savedGame: io.github.smithjustinn.domain.models.SavedGame) {
+    fun resumeExistingGame(savedGame: SavedGame) {
         val initialTime =
             if (savedGame.gameState.mode == GameMode.TIME_ATTACK) {
                 TimeAttackLogic.calculateInitialTime(savedGame.gameState.pairCount, savedGame.gameState.config)
@@ -296,7 +297,7 @@ internal class GameLifecycleHandler(
     }
 
     fun isSavedGameValid(
-        savedGame: io.github.smithjustinn.domain.models.SavedGame,
+        savedGame: SavedGame,
         pairCount: Int,
         mode: GameMode,
     ): Boolean =

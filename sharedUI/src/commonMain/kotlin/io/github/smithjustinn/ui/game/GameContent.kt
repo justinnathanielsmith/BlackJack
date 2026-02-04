@@ -37,6 +37,7 @@ import io.github.smithjustinn.resources.game_double_or_nothing
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.theme.HeatAppColors
 import io.github.smithjustinn.theme.LocalAppColors
+import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AdaptiveDensity
 import io.github.smithjustinn.ui.game.components.effects.ParticleEmbers
@@ -181,7 +182,7 @@ private fun GameEventHandler(
 private fun handleGameEvent(
     event: GameUiEvent,
     audioService: AudioService,
-    hapticsService: io.github.smithjustinn.services.HapticsService,
+    hapticsService: HapticsService,
     onTheNuts: () -> Unit,
 ) {
     when (event) {

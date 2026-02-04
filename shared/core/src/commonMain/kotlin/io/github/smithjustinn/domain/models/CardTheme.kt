@@ -26,6 +26,10 @@ enum class CardSymbolTheme(
     MINIMAL("skin_minimal"),
     TEXT_ONLY("skin_text"),
     POKER("skin_poker"),
+    NEON("skin_neon"),
+    RETRO("skin_retro"),
+    ELEGANT("skin_elegant"),
+    CYBERPUNK("skin_cyberpunk"),
     ;
 
     companion object {

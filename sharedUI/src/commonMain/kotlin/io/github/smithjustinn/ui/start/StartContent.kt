@@ -49,6 +49,9 @@ import io.github.smithjustinn.ui.start.components.DifficultySelectionSection
 import io.github.smithjustinn.ui.start.components.StartHeader
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.stringResource
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.clean_number_format
 
 @Composable
 fun StartContent(
@@ -356,7 +359,7 @@ private fun WalletBadge(
             )
 
             androidx.compose.material3.Text(
-                text = "$amount",
+                text = stringResource(Res.string.clean_number_format, amount),
                 style = androidx.compose.material3.MaterialTheme.typography.titleMedium,
                 color = PokerTheme.colors.goldenYellow,
             )

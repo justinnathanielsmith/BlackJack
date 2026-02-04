@@ -61,6 +61,9 @@ Success breeds intensity. By matching multiple pairs in quick succession, you bu
     *   **Constraint**: Requires 3+ pairs to activate.
 
 ### ✨ Key Features
+*   **The Shop**: Spend your hard-earned chips on exclusive Card Backs and Skins to customize your deck.
+*   **Onboarding**: Interactive walkthrough to guide new players through the mechanics.
+*   **Peek Mode**: Get a quick glimpse of the cards before the game starts (if enabled).
 *   **Poker-Style Commentary**: A dynamic Dealer personality providing context-aware commentary ("River Magic!", "Pot Odds!", "All In!") based on your gameplay.
 *   **High-Fidelity Audio**: Custom **Polyphonic Sound Engine** supporting simultaneous SFX traversal (iOS/Android) and rich environmental audio.
 *   **Aurora Ambient Effects**: Beautiful, procedural "Northern Lights" background effects that react to game state and "Heat" levels.
