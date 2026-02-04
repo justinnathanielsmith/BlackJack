@@ -9,8 +9,10 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.models.Suit
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
 
 /**
@@ -57,7 +59,14 @@ object MemoryGameLogic {
         state: MemoryGameState,
         cardId: Int,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        val cardToFlip = state.cards.find { it.id == cardId }
+        // Optimization: avoid O(N) allocation with map.
+        // Find index first (O(N) scan but no allocation) then set (O(log N)).
+        val index = state.cards.indexOfFirst { it.id == cardId }
+        if (index == -1) {
+            return state to null
+        }
+
+        val cardToFlip = state.cards[index]
         val faceUpCards = state.cards.filter { it.isFaceUp && !it.isMatched }
 
         return when {
@@ -65,7 +74,7 @@ object MemoryGameLogic {
                 state to null
             }
 
-            cardToFlip == null || cardToFlip.isFaceUp || cardToFlip.isMatched -> {
+            cardToFlip.isFaceUp || cardToFlip.isMatched -> {
                 state to null
             }
 
@@ -74,13 +83,16 @@ object MemoryGameLogic {
             }
 
             else -> {
+                val newCards =
+                    if (state.cards is PersistentList) {
+                        state.cards.set(index, cardToFlip.copy(isFaceUp = true))
+                    } else {
+                        state.cards.toPersistentList().set(index, cardToFlip.copy(isFaceUp = true))
+                    }
+
                 val newState =
                     state.copy(
-                        cards =
-                            state.cards
-                                .map { card ->
-                                    if (card.id == cardId) card.copy(isFaceUp = true) else card
-                                }.toImmutableList(),
+                        cards = newCards,
                         // Clear last matched IDs when starting a new turn
                         lastMatchedIds = if (faceUpCards.isEmpty()) persistentListOf() else state.lastMatchedIds,
                     )
@@ -172,6 +184,8 @@ object MemoryGameLogic {
         first: CardState,
         second: CardState,
     ): Pair<MemoryGameState, GameDomainEvent?> {
+        val errorCards = updateCardsForError(state.cards, first.id, second.id)
+
         // All-In Rule: Mismatch while Double Down is active results in Game Over and 0 Score
         if (state.isDoubleDownActive) {
             return state.copy(
@@ -180,15 +194,7 @@ object MemoryGameLogic {
                 isGameWon = false,
                 isDoubleDownActive = false,
                 isBusted = true, // BUSTED!
-                cards =
-                    state.cards
-                        .map { card ->
-                            if (card.id == first.id || card.id == second.id) {
-                                card.copy(isError = true)
-                            } else {
-                                card
-                            }
-                        }.toImmutableList(),
+                cards = errorCards,
                 lastMatchedIds = persistentListOf(first.id, second.id), // Show the error
             ) to GameDomainEvent.GameOver
         }
@@ -200,28 +206,25 @@ object MemoryGameLogic {
                 score = state.score.coerceAtLeast(0),
                 isGameOver = false,
                 isDoubleDownActive = false,
-                cards =
-                    state.cards
-                        .map { card ->
-                            if (card.id == first.id || card.id == second.id) {
-                                card.copy(isError = true)
-                            } else {
-                                card
-                            }
-                        }.toImmutableList(),
+                cards = errorCards,
                 lastMatchedIds = persistentListOf(),
             )
         return newState to GameDomainEvent.MatchFailure
     }
 
-    fun resetErrorCards(state: MemoryGameState): MemoryGameState =
-        state.copy(
-            cards =
-                state.cards
-                    .map { card ->
-                        if (card.isError) card.copy(isFaceUp = false, isError = false) else card
-                    }.toImmutableList(),
-        )
+    fun resetErrorCards(state: MemoryGameState): MemoryGameState {
+        var newCards = if (state.cards is PersistentList) state.cards else state.cards.toPersistentList()
+        var changed = false
+
+        for (i in newCards.indices) {
+            if (newCards[i].isError) {
+                newCards = newCards.set(i, newCards[i].copy(isFaceUp = false, isError = false))
+                changed = true
+            }
+        }
+
+        return if (changed) state.copy(cards = newCards) else state
+    }
 
     /**
      * Calculates and applies bonuses to the final score when the game is won.
@@ -297,15 +300,39 @@ object MemoryGameLogic {
 }
 
 private fun updateCardsForMatch(
-    cards: List<CardState>,
+    cards: kotlinx.collections.immutable.ImmutableList<CardState>,
     firstId: Int,
     secondId: Int,
-): kotlinx.collections.immutable.ImmutableList<CardState> =
-    cards
-        .map { card ->
-            if (card.id == firstId || card.id == secondId) {
-                card.copy(isMatched = true, isFaceUp = true)
-            } else {
-                card
-            }
-        }.toImmutableList()
+): kotlinx.collections.immutable.ImmutableList<CardState> {
+    val persistentCards = if (cards is PersistentList) cards else cards.toPersistentList()
+    val firstIndex = persistentCards.indexOfFirst { it.id == firstId }
+    val secondIndex = persistentCards.indexOfFirst { it.id == secondId }
+
+    var result = persistentCards
+    if (firstIndex != -1) {
+        result = result.set(firstIndex, result[firstIndex].copy(isMatched = true, isFaceUp = true))
+    }
+    if (secondIndex != -1) {
+        result = result.set(secondIndex, result[secondIndex].copy(isMatched = true, isFaceUp = true))
+    }
+    return result
+}
+
+private fun updateCardsForError(
+    cards: kotlinx.collections.immutable.ImmutableList<CardState>,
+    firstId: Int,
+    secondId: Int,
+): kotlinx.collections.immutable.ImmutableList<CardState> {
+    val persistentCards = if (cards is PersistentList) cards else cards.toPersistentList()
+    val firstIndex = persistentCards.indexOfFirst { it.id == firstId }
+    val secondIndex = persistentCards.indexOfFirst { it.id == secondId }
+
+    var result = persistentCards
+    if (firstIndex != -1) {
+        result = result.set(firstIndex, result[firstIndex].copy(isError = true))
+    }
+    if (secondIndex != -1) {
+        result = result.set(secondIndex, result[secondIndex].copy(isError = true))
+    }
+    return result
+}

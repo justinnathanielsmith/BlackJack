@@ -98,7 +98,7 @@ class DefaultRootComponent(
             val seedStr = url.getQueryParameter("seed")
 
             val mode = modeStr?.let { GameMode.valueOf(it) } ?: GameMode.TIME_ATTACK
-            val pairs = pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT
+            val pairs = (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT).coerceIn(2, 52)
             val seed = seedStr?.toLongOrNull()
 
             @OptIn(DelicateDecomposeApi::class)
