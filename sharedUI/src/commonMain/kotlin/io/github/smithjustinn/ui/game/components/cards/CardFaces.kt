@@ -74,7 +74,6 @@ object CardFaces {
             NeonCardFace(
                 rank = Rank.Ace,
                 suit = Suit.Spades,
-                suitColor = Color.Black,
                 getFontSize = { getPreviewFontSize(it) },
             )
         }
@@ -175,7 +174,7 @@ internal fun CardFace(
             CardSymbolTheme.MINIMAL -> MinimalCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.TEXT_ONLY -> TextOnlyCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.POKER -> PokerCardFace(rank, suit, suitColor, ::getFontSize)
-            CardSymbolTheme.NEON -> NeonCardFace(rank, suit, suitColor, ::getFontSize)
+            CardSymbolTheme.NEON -> NeonCardFace(rank, suit, ::getFontSize)
             CardSymbolTheme.RETRO -> RetroCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.ELEGANT -> ElegantCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.CYBERPUNK -> CyberpunkCardFace(rank, suit, suitColor, ::getFontSize)
@@ -187,7 +186,6 @@ internal fun CardFace(
 internal fun NeonCardFace(
     rank: Rank,
     suit: Suit,
-    suitColor: Color,
     getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
 ) {
     val neonColor = if (suit.isRed) Color(0xFFFF0055) else Color(0xFF00FFFF)
@@ -211,47 +209,53 @@ internal fun NeonCardFace(
         )
 
         // Corners
-        Column(modifier = Modifier.align(Alignment.TopStart)) {
-            Text(
-                text = rank.symbol,
-                color = neonColor,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                    shadow = shadow
-                )
-            )
-            Text(
-                text = suit.symbol,
-                color = neonColor,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(FONT_SIZE_SMALL),
-                    shadow = shadow
-                )
-            )
-        }
+        NeonCardCorner(
+            rank = rank,
+            suit = suit,
+            neonColor = neonColor,
+            shadow = shadow,
+            getFontSize = getFontSize,
+            modifier = Modifier.align(Alignment.TopStart)
+        )
 
-        Column(
+        NeonCardCorner(
+            rank = rank,
+            suit = suit,
+            neonColor = neonColor,
+            shadow = shadow,
+            getFontSize = getFontSize,
             modifier = Modifier.align(Alignment.BottomEnd).graphicsLayer { rotationZ = FULL_ROTATION }
-        ) {
-            Text(
-                text = rank.symbol,
-                color = neonColor,
-                style = MaterialTheme.typography.labelLarge.copy(
-                    fontWeight = FontWeight.Bold,
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                    shadow = shadow
-                )
+        )
+    }
+}
+
+@Composable
+private fun NeonCardCorner(
+    rank: Rank,
+    suit: Suit,
+    neonColor: Color,
+    shadow: androidx.compose.ui.graphics.Shadow,
+    getFontSize: (Float) -> androidx.compose.ui.unit.TextUnit,
+    modifier: Modifier = Modifier
+) {
+    Column(modifier = modifier) {
+        Text(
+            text = rank.symbol,
+            color = neonColor,
+            style = MaterialTheme.typography.labelLarge.copy(
+                fontWeight = FontWeight.Bold,
+                fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                shadow = shadow
             )
-            Text(
-                text = suit.symbol,
-                color = neonColor,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(FONT_SIZE_SMALL),
-                    shadow = shadow
-                )
+        )
+        Text(
+            text = suit.symbol,
+            color = neonColor,
+            style = MaterialTheme.typography.labelSmall.copy(
+                fontSize = getFontSize(FONT_SIZE_SMALL),
+                shadow = shadow
             )
-        }
+        )
     }
 }
 
@@ -317,7 +321,11 @@ internal fun ElegantCardFace(
         drawRect(
             color = suitColor.copy(alpha = 0.3f),
             topLeft = androidx.compose.ui.geometry.Offset(strokeWidth * 3, strokeWidth * 3),
-            size = size.copy(width = size.width - strokeWidth * 6, height = size.height - strokeWidth * 6),
+            size =
+                size.copy(
+                    width = size.width - strokeWidth * 6,
+                    height = size.height - strokeWidth * 6,
+                ),
             style = androidx.compose.ui.graphics.drawscope.Stroke(width = strokeWidth)
         )
     }
@@ -342,7 +350,10 @@ internal fun ElegantCardFace(
             text = suit.symbol,
             color = suitColor,
             style = elegantStyle.copy(fontSize = getFontSize(FONT_SIZE_LARGE)),
-            modifier = Modifier.align(Alignment.BottomCenter).graphicsLayer { rotationZ = FULL_ROTATION }
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .graphicsLayer { rotationZ = FULL_ROTATION },
         )
     }
 }
@@ -384,7 +395,11 @@ internal fun CyberpunkCardFace(
             Text(
                 text = rank.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
+                style =
+                    MaterialTheme.typography.labelLarge.copy(
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    ),
             )
         }
 
@@ -392,7 +407,11 @@ internal fun CyberpunkCardFace(
             Text(
                 text = suit.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelLarge.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM), fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace)
+                style =
+                    MaterialTheme.typography.labelLarge.copy(
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontFamily = androidx.compose.ui.text.font.FontFamily.Monospace,
+                    ),
             )
         }
     }

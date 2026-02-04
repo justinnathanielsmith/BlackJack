@@ -71,13 +71,13 @@ class DefaultGameComponent(
                 }
 
             launch {
-                settingsFlow.collect { (peek, walkthrough, music, sound) ->
+                settingsFlow.collect { settingsState ->
                     _state.update {
                         it.copy(
-                            isPeekFeatureEnabled = peek,
-                            showWalkthrough = !walkthrough,
-                            isMusicEnabled = music,
-                            isSoundEnabled = sound,
+                            isPeekFeatureEnabled = settingsState.peek,
+                            showWalkthrough = !settingsState.walkthrough,
+                            isMusicEnabled = settingsState.music,
+                            isSoundEnabled = settingsState.sound,
                         )
                     }
                 }
