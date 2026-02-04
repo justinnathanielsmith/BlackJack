@@ -49,6 +49,7 @@ import io.github.smithjustinn.resources.settings_four_color_deck_desc
 import io.github.smithjustinn.resources.settings_game_music
 import io.github.smithjustinn.resources.settings_game_music_desc
 import io.github.smithjustinn.resources.settings_gameplay_audio
+import io.github.smithjustinn.resources.settings_percentage_format
 import io.github.smithjustinn.resources.settings_reset
 import io.github.smithjustinn.resources.settings_reset_walkthrough
 import io.github.smithjustinn.resources.settings_reset_walkthrough_desc
@@ -320,7 +321,7 @@ private fun VolumeSlider(
                 ),
         )
         Text(
-            text = "${(value * 100).toInt()}%",
+            text = stringResource(Res.string.settings_percentage_format, (value * 100).toInt()),
             style = MaterialTheme.typography.labelMedium,
             color = Color.White.copy(alpha = 0.6f),
             modifier = Modifier.width(32.dp),

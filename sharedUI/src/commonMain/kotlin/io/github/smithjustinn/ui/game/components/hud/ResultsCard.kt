@@ -64,6 +64,7 @@ import io.github.smithjustinn.resources.share_receipt
 import io.github.smithjustinn.resources.time_label
 import io.github.smithjustinn.resources.times_up
 import io.github.smithjustinn.resources.total_payout
+import io.github.smithjustinn.resources.clean_number_format
 import io.github.smithjustinn.ui.components.ShopIcons
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
@@ -292,7 +293,7 @@ private fun TotalPayout(
             color = ReceiptInkColor,
         )
         Text(
-            text = "$animatedScore",
+            text = stringResource(Res.string.clean_number_format, animatedScore),
             style =
                 MaterialTheme.typography.displayMedium.copy(
                     fontFamily = FontFamily.Monospace,
