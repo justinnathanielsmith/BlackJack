@@ -82,6 +82,7 @@ internal val HeatAppColors =
     DarkAppColors.copy(
         primary = NeonCyan,
         onPrimary = Color.Black,
+        background = HeatBackgroundTop,
         goldenYellow = NeonYellow,
         softBlue = NeonCyan,
         bonusGreen = NeonMagenta,
