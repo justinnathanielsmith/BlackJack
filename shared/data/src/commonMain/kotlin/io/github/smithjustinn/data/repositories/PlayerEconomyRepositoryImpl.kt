@@ -166,6 +166,7 @@ class PlayerEconomyRepositoryImpl(
 
     override suspend fun addCurrency(amount: Long) =
         writeMutex.withLock {
+            require(amount >= 0) { "Amount must be non-negative" }
             val current = getOrCreateEntity()
             val newBalance = current.balance + amount
             dao.savePlayerEconomy(current.copy(balance = newBalance))
@@ -174,6 +175,7 @@ class PlayerEconomyRepositoryImpl(
 
     override suspend fun deductCurrency(amount: Long): Boolean =
         writeMutex.withLock {
+            require(amount >= 0) { "Amount must be non-negative" }
             val current = getOrCreateEntity()
             if (current.balance >= amount) {
                 val newBalance = current.balance - amount
