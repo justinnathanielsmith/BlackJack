@@ -17,6 +17,7 @@ import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
@@ -273,6 +274,24 @@ class PlayerEconomyRepositoryTest {
                 } else {
                     assertEquals(CardSymbolTheme.MINIMAL, first)
                 }
+            }
+        }
+
+    @Test
+    fun addCurrency_throwsExceptionForNegativeAmount() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            assertFailsWith<IllegalArgumentException> {
+                repository.addCurrency(-100L)
+            }
+        }
+
+    @Test
+    fun deductCurrency_throwsExceptionForNegativeAmount() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            assertFailsWith<IllegalArgumentException> {
+                repository.deductCurrency(-100L)
             }
         }
 }
