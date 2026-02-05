@@ -3,13 +3,13 @@ package io.github.smithjustinn.ui.components
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,6 +26,9 @@ import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -46,6 +49,7 @@ fun PokerChip(
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
     chipSize: Dp = 64.dp,
+    contentDescription: String? = null,
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val chipAnimations = rememberPokerChipAnimations(isSelected, interactionSource)
@@ -72,6 +76,7 @@ fun PokerChip(
             text = text,
             isSelected = isSelected,
             glimmerBrush = glimmerBrush,
+            contentDescription = contentDescription,
         )
     }
 }
@@ -89,6 +94,7 @@ private fun PokerChipContent(
     text: String,
     isSelected: Boolean,
     glimmerBrush: Brush?,
+    contentDescription: String?,
 ) {
     Box(
         contentAlignment = Alignment.Center,
@@ -111,10 +117,16 @@ private fun PokerChipContent(
                         )
                     }
                 }.shadow(elevation, CircleShape)
-                .clickable(
+                .semantics {
+                    if (contentDescription != null) {
+                        this.contentDescription = contentDescription
+                    }
+                }.selectable(
+                    selected = isSelected,
                     interactionSource = interactionSource,
                     indication = null,
                     onClick = onClick,
+                    role = Role.RadioButton,
                 ),
     ) {
         ChipFace(
