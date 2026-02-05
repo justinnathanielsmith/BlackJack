@@ -17,10 +17,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.TacticalRed
+import kotlin.math.PI
 import kotlin.math.cos
 import kotlin.math.sin
 import kotlin.random.Random
-import kotlin.math.PI
 
 private data class ExplosionParticle(
     val x: Float,

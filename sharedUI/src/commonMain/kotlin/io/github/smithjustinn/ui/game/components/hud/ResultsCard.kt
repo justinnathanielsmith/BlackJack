@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.game.components.hud
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.spring
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -66,11 +67,10 @@ import io.github.smithjustinn.resources.time_label
 import io.github.smithjustinn.resources.times_up
 import io.github.smithjustinn.resources.total_payout
 import io.github.smithjustinn.ui.components.ShopIcons
+import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
-import androidx.compose.foundation.BorderStroke
 import kotlin.random.Random
-import org.jetbrains.compose.resources.StringResource
 
 private const val INITIAL_SCALE = 0.8f
 

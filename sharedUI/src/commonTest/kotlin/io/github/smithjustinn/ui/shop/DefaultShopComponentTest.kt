@@ -7,6 +7,7 @@ import dev.mokkery.every
 import dev.mokkery.everySuspend
 import dev.mokkery.mock
 import dev.mokkery.verify
+import dev.mokkery.verify.VerifyMode
 import dev.mokkery.verifySuspend
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.CardBackTheme
@@ -32,7 +33,6 @@ import org.koin.dsl.module
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
-import dev.mokkery.verify.VerifyMode
 
 class DefaultShopComponentTest {
     private val playerEconomyRepository = mock<PlayerEconomyRepository>()

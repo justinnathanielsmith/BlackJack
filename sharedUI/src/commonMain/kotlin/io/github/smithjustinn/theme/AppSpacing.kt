@@ -1,7 +1,7 @@
 package io.github.smithjustinn.theme
 
-import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 
 data class AppSpacing(
     val none: Dp = 0.dp,

@@ -27,12 +27,12 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.theme.PokerTheme
-import androidx.compose.ui.graphics.Shadow
-import androidx.compose.ui.text.style.TextOverflow
 
 private const val PULSE_SCALE_TARGET = 1.05f
 private const val PULSE_ANIMATION_DURATION_MS = 1000

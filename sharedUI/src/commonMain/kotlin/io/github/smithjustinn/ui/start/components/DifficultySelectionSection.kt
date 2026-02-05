@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -29,7 +30,6 @@ import io.github.smithjustinn.ui.start.DifficultyState
 import io.github.smithjustinn.ui.start.displayNameRes
 import io.github.smithjustinn.ui.stats.components.ModeSelector
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.material3.MaterialTheme
 
 /**
  * DifficultySelectionSection

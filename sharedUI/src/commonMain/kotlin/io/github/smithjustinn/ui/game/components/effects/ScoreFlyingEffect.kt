@@ -14,12 +14,12 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
+import kotlin.math.PI
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
-import androidx.compose.ui.graphics.drawscope.DrawScope
-import kotlin.math.PI
 
 private const val PARTICLES_PER_MATCH = 12
 private const val BASE_DURATION_MS = 600

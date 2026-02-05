@@ -34,6 +34,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
@@ -58,7 +59,6 @@ import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.style.TextAlign
 
 @Composable
 fun ShopContent(

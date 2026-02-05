@@ -1,5 +1,4 @@
 package io.github.smithjustinn.platform
-import java.io.Serializable
 
 /**
  * A platform-agnostic interface for serialization.

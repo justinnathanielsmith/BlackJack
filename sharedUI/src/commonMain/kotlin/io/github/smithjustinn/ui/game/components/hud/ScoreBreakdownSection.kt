@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -28,7 +29,6 @@ import io.github.smithjustinn.resources.score_time_bonus
 import io.github.smithjustinn.theme.BonusGreen
 import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.text.font.FontFamily
 
 private val BonusColor = BonusGreen
 

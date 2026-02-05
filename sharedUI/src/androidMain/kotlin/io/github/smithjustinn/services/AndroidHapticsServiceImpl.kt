@@ -7,7 +7,6 @@ import android.os.VibrationEffect
 import android.os.Vibrator
 import android.os.VibratorManager
 import androidx.annotation.RequiresPermission
-import permission.VIBRATE
 
 class AndroidHapticsServiceImpl(
     private val context: Context,
@@ -22,7 +21,7 @@ class AndroidHapticsServiceImpl(
         }
     }
 
-    @RequiresPermission(Manifest.VIBRATE)
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun performHapticFeedback(type: HapticFeedbackType) {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             val effect =
@@ -46,7 +45,7 @@ class AndroidHapticsServiceImpl(
         }
     }
 
-    @RequiresPermission(Manifest.VIBRATE)
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun vibrateMatch() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             vibrator?.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK))
@@ -55,7 +54,7 @@ class AndroidHapticsServiceImpl(
         }
     }
 
-    @RequiresPermission(Manifest.VIBRATE)
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun vibrateMismatch() {
         vibrate(
             longArrayOf(0, MISMATCH_DURATION, PAUSE_DURATION, MISMATCH_DURATION),
@@ -63,7 +62,7 @@ class AndroidHapticsServiceImpl(
         )
     }
 
-    @RequiresPermission(Manifest.VIBRATE)
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun vibrateTick() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             vibrator?.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_TICK))
@@ -72,7 +71,7 @@ class AndroidHapticsServiceImpl(
         }
     }
 
-    @RequiresPermission(Manifest.VIBRATE)
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun vibrateWarning() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
             vibrator?.vibrate(VibrationEffect.createPredefined(VibrationEffect.EFFECT_HEAVY_CLICK))
@@ -81,7 +80,7 @@ class AndroidHapticsServiceImpl(
         }
     }
 
-    @RequiresPermission(Manifest.VIBRATE)
+    @RequiresPermission(Manifest.permission.VIBRATE)
     override fun vibrateHeat() {
         // Pronounced heat mode vibration - longer and more intense
         vibrate(
@@ -90,7 +89,7 @@ class AndroidHapticsServiceImpl(
         )
     }
 
-    @RequiresPermission(Manifest.VIBRATE)
+    @RequiresPermission(Manifest.permission.VIBRATE)
     private fun vibrate(
         timings: LongArray,
         amplitudes: IntArray,

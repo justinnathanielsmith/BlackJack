@@ -1,5 +1,6 @@
 package io.github.smithjustinn.ui.start.components
 
+import androidx.compose.animation.core.EaseInOutSine
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
@@ -37,7 +38,6 @@ import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.game.components.cards.CardContent
 import io.github.smithjustinn.ui.game.components.cards.CardVisualState
 import io.github.smithjustinn.ui.game.components.cards.PlayingCard
-import androidx.compose.animation.core.EaseInOutSine
 
 // Card Preview Layout & Animation Durations
 private const val CARD_ROTATION_DURATION = 3000

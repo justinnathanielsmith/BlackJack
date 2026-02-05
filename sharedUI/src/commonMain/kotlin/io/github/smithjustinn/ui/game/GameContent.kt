@@ -27,8 +27,10 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.GameMode
@@ -56,8 +58,6 @@ import io.github.smithjustinn.ui.game.components.overlays.WalkthroughOverlay
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
-import androidx.compose.ui.geometry.Offset
-import androidx.compose.ui.text.font.FontWeight
 
 private const val SHAKE_RESET_OFFSET = 0f
 private const val STEAM_DURATION_MS = 1200

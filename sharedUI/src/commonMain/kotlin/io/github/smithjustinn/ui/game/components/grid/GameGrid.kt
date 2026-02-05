@@ -26,6 +26,8 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
@@ -39,8 +41,6 @@ import io.github.smithjustinn.ui.game.components.cards.PlayingCard
 import io.github.smithjustinn.ui.game.components.effects.ExplosionEffect
 import io.github.smithjustinn.ui.game.components.effects.ScoreFlyingEffect
 import kotlinx.collections.immutable.ImmutableList
-import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.Dp
 
 private data class CardLayoutInfo(
     val position: Offset,

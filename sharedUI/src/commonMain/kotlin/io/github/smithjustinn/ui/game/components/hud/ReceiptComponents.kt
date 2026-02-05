@@ -14,6 +14,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -34,7 +35,6 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.receipt_plus_amount_format
 import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
-import androidx.compose.runtime.State
 
 private val ReceiptInkColor = Color(0xFF2B2B2B)
 private const val DOTTED_LINE_ALPHA = 0.5f

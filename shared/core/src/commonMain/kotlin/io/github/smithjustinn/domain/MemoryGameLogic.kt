@@ -9,12 +9,12 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.models.Suit
+import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
-import kotlinx.collections.immutable.ImmutableList
 
 /**
  * Pure logic for the Memory Match game.
