@@ -251,19 +251,28 @@ private fun GameMainScreen(
                         currentPot = state.game.currentPot,
                         isHeatMode = state.isHeatMode,
                     ),
-                onBackClick = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onBack()
-                },
-                onRestartClick = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onRestart()
-                    audioService.startMusic()
-                },
-                onMuteClick = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onToggleAudio()
-                },
+                onBackClick =
+                    remember(component, audioService) {
+                        {
+                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onBack()
+                        }
+                    },
+                onRestartClick =
+                    remember(component, audioService) {
+                        {
+                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onRestart()
+                            audioService.startMusic()
+                        }
+                    },
+                onMuteClick =
+                    remember(component, audioService) {
+                        {
+                            audioService.playEffect(AudioService.SoundEffect.CLICK)
+                            component.onToggleAudio()
+                        }
+                    },
                 onScorePositioned = { scorePosition = it },
             )
         },
@@ -286,6 +295,16 @@ private fun GameMainContent(
     scorePosition: Offset,
     modifier: Modifier = Modifier,
 ) {
+    val onCardClick =
+        remember(component) {
+            { cardId: Int -> component.onFlipCard(cardId) }
+        }
+
+    val onDoubleDown =
+        remember(component) {
+            { component.onDoubleDown() }
+        }
+
     Box(modifier = modifier.fillMaxSize()) {
         GameGrid(
             gridCardState =
@@ -300,14 +319,14 @@ private fun GameMainContent(
                     areSuitsMultiColored = state.areSuitsMultiColored,
                     showComboExplosion = state.showComboExplosion,
                 ),
-            onCardClick = { cardId -> component.onFlipCard(cardId) },
+            onCardClick = onCardClick,
             scorePositionInRoot = scorePosition,
         )
 
         GameHUD(
             state = state,
             useCompactUI = useCompactUI,
-            onDoubleDown = { component.onDoubleDown() },
+            onDoubleDown = onDoubleDown,
         )
 
         GameOverlays(
