@@ -19,6 +19,7 @@ import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.pairs_format
 import io.github.smithjustinn.resources.resume_game
 import io.github.smithjustinn.resources.select_difficulty
 import io.github.smithjustinn.resources.start
@@ -103,11 +104,16 @@ private fun DifficultySelector(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.extraSmall),
                 ) {
+                    val difficultyName = stringResource(level.type.displayNameRes)
+                    val pairsDescription = stringResource(Res.string.pairs_format, level.pairs)
+                    val description = "$pairsDescription, $difficultyName"
+
                     PokerChip(
                         text = level.pairs.toString(),
                         contentColor = chipColor,
                         isSelected = state.selectedDifficulty == level,
                         onClick = { onDifficultySelected(level) },
+                        contentDescription = description,
                     )
 
                     Text(
