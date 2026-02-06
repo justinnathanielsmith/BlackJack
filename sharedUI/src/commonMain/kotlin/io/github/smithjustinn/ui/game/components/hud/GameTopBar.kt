@@ -43,9 +43,9 @@ import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
-import io.github.smithjustinn.resources.hud_pot_label
 import io.github.smithjustinn.resources.mute_content_description
 import io.github.smithjustinn.resources.restart_content_description
+import io.github.smithjustinn.resources.score_caps
 import io.github.smithjustinn.resources.unmute_content_description
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
@@ -117,9 +117,9 @@ private fun TopBarMainRow(
             modifier = Modifier.align(Alignment.CenterStart),
         )
 
-        // Center: Pot Score
+        // Center: Score
         ScoringDisplay(
-            currentPot = state.currentPot,
+            score = state.bankedScore,
             compact = state.compact,
             modifier =
                 Modifier
@@ -171,14 +171,14 @@ private fun ControlButtons(
 
 @Composable
 private fun ScoringDisplay(
-    currentPot: Int,
+    score: Int,
     compact: Boolean,
     modifier: Modifier = Modifier,
 ) {
-    // Current Pot Display (At Risk)
+    // Current Score Display
     ValueBadge(
-        label = stringResource(Res.string.hud_pot_label),
-        value = currentPot,
+        label = stringResource(Res.string.score_caps),
+        value = score,
         color = PokerTheme.colors.goldenYellow,
         compact = compact,
         modifier = modifier,
