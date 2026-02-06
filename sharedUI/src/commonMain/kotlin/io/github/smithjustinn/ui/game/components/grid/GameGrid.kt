@@ -268,6 +268,18 @@ private fun GridItem(
             } ?: IntOffset(0, MUCK_TARGET_FALLBACK_Y)
         }
 
+    val onClick = remember(card.id, onCardClick) { { onCardClick(card.id) } }
+    val modifier =
+        remember(card.id, cardLayouts) {
+            Modifier.onGloballyPositioned { layoutCoordinates ->
+                cardLayouts[card.id] =
+                    CardLayoutInfo(
+                        position = layoutCoordinates.positionInRoot(),
+                        size = layoutCoordinates.size.toSize(),
+                    )
+            }
+        }
+
     PlayingCard(
         content =
             CardContent(
@@ -286,15 +298,8 @@ private fun GridItem(
         areSuitsMultiColored = areSuitsMultiColored,
         muckTargetOffset = muckTargetOffset,
         muckTargetRotation = fanRotation,
-        onClick = { onCardClick(card.id) },
-        modifier =
-            Modifier.onGloballyPositioned { layoutCoordinates ->
-                cardLayouts[card.id] =
-                    CardLayoutInfo(
-                        position = layoutCoordinates.positionInRoot(),
-                        size = layoutCoordinates.size.toSize(),
-                    )
-            },
+        onClick = onClick,
+        modifier = modifier,
     )
 }
 
