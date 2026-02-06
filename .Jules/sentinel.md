@@ -28,3 +28,17 @@ This could allow potential exploits where negative amounts were used to manipula
 **Remediation:**
 1.  Added `require(amount >= 0)` checks in both methods.
 2.  Added unit tests to verify exceptions are thrown for negative inputs.
+
+## 2024-05-22: Input Validation Fix in ScoringConfig
+
+**Type:** Validation
+**Severity:** MEDIUM
+**Component:** `shared/core` / `ScoringConfig`
+
+**Finding:**
+`ScoringConfig` lacked validation for several parameters (e.g., `potMismatchPenalty`, `timePenaltyPerSecond`, `comboBonusPoints`).
+Invalid values (negative bonuses, penalties > 100%) could lead to logic corruption or arithmetic overflows in `MemoryGameLogic` and `ScoringCalculator`.
+
+**Remediation:**
+1.  Added strict `require` checks in the `init` block for `potMismatchPenalty` (0.0..1.0) and non-negative values for other fields.
+2.  Added unit tests in `ScoringConfigTest` to verify the validation logic.

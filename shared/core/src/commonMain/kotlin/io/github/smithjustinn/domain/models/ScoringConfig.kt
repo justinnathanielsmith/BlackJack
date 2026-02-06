@@ -56,6 +56,12 @@ data class ScoringConfig(
         require(theNutsThreshold >= highRollerThreshold) {
             "The Nuts threshold must be >= High Roller threshold"
         }
+        require(potMismatchPenalty in 0.0..1.0) { "Pot mismatch penalty must be between 0.0 and 1.0" }
+        require(timePenaltyPerSecond >= 0) { "Time penalty cannot be negative" }
+        require(timeAttackMismatchPenalty >= 0) { "Time attack mismatch penalty cannot be negative" }
+        require(comboBonusPoints >= 0) { "Combo bonus points cannot be negative" }
+        require(doubleDownPenalty >= 0) { "Double down penalty cannot be negative" }
+        require(moveBonusMultiplier >= 0) { "Move bonus multiplier cannot be negative" }
     }
 
     companion object {

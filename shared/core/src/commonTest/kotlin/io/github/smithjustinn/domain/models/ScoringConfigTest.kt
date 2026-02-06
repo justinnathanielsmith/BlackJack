@@ -47,4 +47,34 @@ class ScoringConfigTest {
             ScoringConfig(highRollerThreshold = 10, theNutsThreshold = 5)
         }
     }
+
+    @Test
+    fun testExtendedValidation() {
+        // Pot mismatch penalty out of bounds
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            ScoringConfig(potMismatchPenalty = -0.1)
+        }
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            ScoringConfig(potMismatchPenalty = 1.1)
+        }
+
+        // Negative penalties
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            ScoringConfig(timePenaltyPerSecond = -1)
+        }
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            ScoringConfig(timeAttackMismatchPenalty = -1L)
+        }
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            ScoringConfig(doubleDownPenalty = -100)
+        }
+
+        // Negative bonuses
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            ScoringConfig(comboBonusPoints = -50)
+        }
+        kotlin.test.assertFailsWith<IllegalArgumentException> {
+            ScoringConfig(moveBonusMultiplier = -100)
+        }
+    }
 }
