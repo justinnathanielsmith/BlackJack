@@ -5,3 +5,7 @@
 ## 2024-05-24 - Unstable Lambdas in Frequent Updates
 **Learning:** In Compose, passing unstable lambdas to expensive components (like Grids) causes full recomposition even if data is stable. This is critical when parent state updates frequently (e.g., a timer).
 **Action:** Always wrap event handler lambdas in `remember(dependencies)` when passing them to complex sub-components, especially if the parent composable has high-frequency state updates.
+
+## 2026-02-06 - Unstable Modifiers in Lists
+**Learning:** `Modifier.onGloballyPositioned { ... }` creates a new `Modifier.Element` on every composition. When used in a list (like `items` or `Grid`), this forces the child component to recompose every time the parent does, even if other props are stable.
+**Action:** Wrap complex modifiers (especially those with lambdas like `onGloballyPositioned`) in `remember` within the list item scope to ensure stability and enable skipping.
