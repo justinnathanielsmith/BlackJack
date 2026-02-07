@@ -9,3 +9,7 @@
 ## 2026-02-06 - Unstable Modifiers in Lists
 **Learning:** `Modifier.onGloballyPositioned { ... }` creates a new `Modifier.Element` on every composition. When used in a list (like `items` or `Grid`), this forces the child component to recompose every time the parent does, even if other props are stable.
 **Action:** Wrap complex modifiers (especially those with lambdas like `onGloballyPositioned`) in `remember` within the list item scope to ensure stability and enable skipping.
+
+## 2026-10-24 - Unstable Modifiers in Frequent Parent Updates
+**Learning:** Even outside of lists, `Modifier.onGloballyPositioned` forces recomposition. If a parent component recomposes frequently (e.g., due to a timer), any child with an unstabilized `onGloballyPositioned` modifier will also recompose, even if its data hasn't changed.
+**Action:** Wrap modifiers containing `onGloballyPositioned` in `remember` (keyed by the callback) to allow the child composable to skip recomposition during frequent parent updates.
