@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.selection.toggleable
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,6 +35,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -339,7 +342,14 @@ private fun SettingsToggle(
     modifier: Modifier = Modifier,
 ) {
     Row(
-        modifier = modifier.fillMaxWidth(),
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .toggleable(
+                    value = checked,
+                    onValueChange = onCheckedChange,
+                    role = Role.Switch,
+                ),
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.spacedBy(16.dp),
     ) {
@@ -359,7 +369,8 @@ private fun SettingsToggle(
         }
         Switch(
             checked = checked,
-            onCheckedChange = onCheckedChange,
+            onCheckedChange = null,
+            modifier = Modifier.clearAndSetSemantics {},
             colors =
                 SwitchDefaults.colors(
                     checkedThumbColor = Color.White,
@@ -367,6 +378,11 @@ private fun SettingsToggle(
                     uncheckedTrackColor = PokerTheme.colors.hudBackground,
                     uncheckedThumbColor = Color.White.copy(alpha = 0.6f),
                     uncheckedBorderColor = Color.Transparent,
+                    disabledCheckedThumbColor = Color.White,
+                    disabledCheckedTrackColor = ModernGold,
+                    disabledUncheckedTrackColor = PokerTheme.colors.hudBackground,
+                    disabledUncheckedThumbColor = Color.White.copy(alpha = 0.6f),
+                    disabledUncheckedBorderColor = Color.Transparent,
                 ),
         )
     }
