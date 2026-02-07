@@ -15,4 +15,9 @@ data class ScoreBreakdown(
     val dailyChallengeBonus: Int = 0,
     val totalScore: Int = 0,
     val earnedCurrency: Int = 0,
-)
+) {
+    init {
+        require(totalScore >= 0) { "Total score cannot be negative" }
+        require(earnedCurrency >= 0) { "Earned currency cannot be negative" }
+    }
+}
