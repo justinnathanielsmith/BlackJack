@@ -88,7 +88,7 @@ class GameUseCasesTest {
     @Test
     fun testCalculateFinalScoreUseCase() {
         val useCase = CalculateFinalScoreUseCase()
-        val state = MemoryGameState(score = 100, pairCount = 8, isGameWon = true)
+        val state = MemoryGameState(score = 100, pairCount = 8, isGameWon = true, moves = 8)
         // Elapsed time is low so bonus should be applied
         val result = useCase(state, 10L)
         assertNotNull(result)

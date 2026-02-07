@@ -38,5 +38,10 @@ data class MemoryGameState(
         require(pairCount > 0) { "Pair count must be positive" }
         require(moves >= 0) { "Moves cannot be negative" }
         require(comboMultiplier >= 0) { "Combo multiplier cannot be negative" }
+        require(score >= 0) { "Score cannot be negative" }
+        require(currentPot >= 0) { "Current pot cannot be negative" }
+        require(totalBasePoints >= 0) { "Total base points cannot be negative" }
+        require(totalComboBonus >= 0) { "Total combo bonus cannot be negative" }
+        require(totalDoubleDownBonus >= 0) { "Total double down bonus cannot be negative" }
     }
 }
