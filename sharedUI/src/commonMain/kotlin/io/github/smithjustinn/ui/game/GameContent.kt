@@ -222,6 +222,8 @@ private fun GameMainScreen(
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
     var scorePosition by remember { mutableStateOf(Offset.Zero) }
+    // Bolt: Stabilize lambda to prevent unnecessary recompositions in GameTopBar
+    val onScorePositioned = remember { { pos: Offset -> scorePosition = pos } }
 
     Scaffold(
         containerColor = Color.Transparent,
@@ -273,7 +275,7 @@ private fun GameMainScreen(
                             component.onToggleAudio()
                         }
                     },
-                onScorePositioned = { scorePosition = it },
+                onScorePositioned = onScorePositioned,
             )
         },
     ) { paddingValues ->
