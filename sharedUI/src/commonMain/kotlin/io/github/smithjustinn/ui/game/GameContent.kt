@@ -219,8 +219,6 @@ private fun GameMainScreen(
     component: GameComponent,
     useCompactUI: Boolean,
 ) {
-    val graph = LocalAppGraph.current
-    val audioService = graph.audioService
     var scorePosition by remember { mutableStateOf(Offset.Zero) }
     // Bolt: Stabilize lambda to prevent unnecessary recompositions in GameTopBar
     val onScorePositioned = remember { { pos: Offset -> scorePosition = pos } }
@@ -320,20 +318,26 @@ private fun GameMainContent(
             { component.onDoubleDown() }
         }
 
+    val gridCardState = remember(state.game.cards, state.game.lastMatchedIds, state.isPeeking) {
+        GridCardState(
+            cards = state.game.cards,
+            lastMatchedIds = state.game.lastMatchedIds,
+            isPeeking = state.isPeeking,
+        )
+    }
+
+    val gridSettings = remember(state.cardTheme, state.areSuitsMultiColored, state.showComboExplosion) {
+        GridSettings(
+            cardTheme = state.cardTheme,
+            areSuitsMultiColored = state.areSuitsMultiColored,
+            showComboExplosion = state.showComboExplosion,
+        )
+    }
+
     Box(modifier = modifier.fillMaxSize()) {
         GameGrid(
-            gridCardState =
-                GridCardState(
-                    cards = state.game.cards,
-                    lastMatchedIds = state.game.lastMatchedIds,
-                    isPeeking = state.isPeeking,
-                ),
-            settings =
-                GridSettings(
-                    cardTheme = state.cardTheme,
-                    areSuitsMultiColored = state.areSuitsMultiColored,
-                    showComboExplosion = state.showComboExplosion,
-                ),
+            gridCardState = gridCardState,
+            settings = gridSettings,
             onCardClick = onCardClick,
             scorePositionInRoot = scorePosition,
         )

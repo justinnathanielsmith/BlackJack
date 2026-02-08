@@ -27,6 +27,7 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -249,25 +250,17 @@ private fun GridItem(
     val density = LocalDensity.current
     val layoutInfo = cardLayouts[card.id]
 
-    // Calculate fan-out effect (player's hand)
-    val relativeIndex = (index.toFloat() / (totalCards - 1).coerceAtLeast(1)) - CENTER_OFFSET_FRACTION // -0.5 to 0.5
-    val fanRotation = relativeIndex * FAN_ANGLE_MAX
-    val fanSpreadX = relativeIndex * FAN_SPREAD_MAX
-
-    val muckTargetOffset =
-        with(density) {
-            val muckTarget =
-                Offset(
-                    (maxWidth.toPx() / 2) + fanSpreadX.dp.toPx(),
-                    screenHeight.toPx() - MUCK_BOTTOM_OFFSET_DP.dp.toPx(),
-                )
-            layoutInfo?.let { info ->
-                IntOffset(
-                    (muckTarget.x - (info.position.x - gridPosition.x) - info.size.width / 2).toInt(),
-                    (muckTarget.y - (info.position.y - gridPosition.y) - info.size.height / 2).toInt(),
-                )
-            } ?: IntOffset(0, MUCK_TARGET_FALLBACK_Y)
-        }
+    // Bolt: Memoize expensive layout calculations to prevent redundant work on every timer update
+    val cardMuckTarget =
+        rememberCardMuckTarget(
+            index = index,
+            totalCards = totalCards,
+            density = density,
+            maxWidth = maxWidth,
+            screenHeight = screenHeight,
+            gridPosition = gridPosition,
+            layoutInfo = layoutInfo,
+        )
 
     val onClick = remember(card.id, onCardClick) { { onCardClick(card.id) } }
     val modifier =
@@ -297,11 +290,63 @@ private fun GridItem(
         theme = cardTheme,
         backColor = cardTheme.backColorHex?.toColor() ?: cardTheme.back.getPreferredColor(),
         areSuitsMultiColored = areSuitsMultiColored,
-        muckTargetOffset = muckTargetOffset,
-        muckTargetRotation = fanRotation,
+        muckTargetOffset = cardMuckTarget.offset,
+        muckTargetRotation = cardMuckTarget.rotation,
         onClick = onClick,
         modifier = modifier,
     )
+}
+
+private data class CardMuckTarget(
+    val offset: IntOffset,
+    val rotation: Float,
+)
+
+@Composable
+private fun rememberCardMuckTarget(
+    index: Int,
+    totalCards: Int,
+    density: Density,
+    maxWidth: Dp,
+    screenHeight: Dp,
+    gridPosition: Offset,
+    layoutInfo: CardLayoutInfo?,
+): CardMuckTarget {
+    val (fanRotation, fanSpreadX) =
+        remember(index, totalCards) {
+            val relativeIndex = (index.toFloat() / (totalCards - 1).coerceAtLeast(1)) - CENTER_OFFSET_FRACTION
+            val rotation = relativeIndex * FAN_ANGLE_MAX
+            val spreadX = relativeIndex * FAN_SPREAD_MAX
+            rotation to spreadX
+        }
+
+    val offset =
+        remember(
+            density,
+            maxWidth,
+            screenHeight,
+            gridPosition,
+            layoutInfo,
+            fanSpreadX,
+        ) {
+            with(density) {
+                val muckTarget =
+                    Offset(
+                        (maxWidth.toPx() / 2) + fanSpreadX.dp.toPx(),
+                        screenHeight.toPx() - MUCK_BOTTOM_OFFSET_DP.dp.toPx(),
+                    )
+                layoutInfo?.let { info ->
+                    IntOffset(
+                        (muckTarget.x - (info.position.x - gridPosition.x) - info.size.width / 2).toInt(),
+                        (muckTarget.y - (info.position.y - gridPosition.y) - info.size.height / 2).toInt(),
+                    )
+                } ?: IntOffset(0, MUCK_TARGET_FALLBACK_Y)
+            }
+        }
+
+    return remember(offset, fanRotation) {
+        CardMuckTarget(offset, fanRotation)
+    }
 }
 
 @Composable

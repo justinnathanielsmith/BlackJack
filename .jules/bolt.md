@@ -13,3 +13,7 @@
 ## 2026-10-24 - Unstable Modifiers in Frequent Parent Updates
 **Learning:** Even outside of lists, `Modifier.onGloballyPositioned` forces recomposition. If a parent component recomposes frequently (e.g., due to a timer), any child with an unstabilized `onGloballyPositioned` modifier will also recompose, even if its data hasn't changed.
 **Action:** Wrap modifiers containing `onGloballyPositioned` in `remember` (keyed by the callback) to allow the child composable to skip recomposition during frequent parent updates.
+
+## 2026-02-08 - FQNs in Function Parameters and Linting
+**Learning:** Using fully qualified names (FQNs) in function parameters can lead to brittle code and linting violations (like MaxLineLength) when combined with complex `remember` keys. It also violates project standards for explicit imports.
+**Action:** Always use explicit imports for types used in function signatures and Composable parameters to keep signatures clean and maintainable.
