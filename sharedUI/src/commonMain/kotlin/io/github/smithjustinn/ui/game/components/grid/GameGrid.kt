@@ -212,12 +212,13 @@ private fun GridContent(
                 .widthIn(max = layoutConfig.metrics.maxWidth),
     ) {
         itemsIndexed(gridCardState.cards, key = { _, card -> card.id }) { index, card ->
+            // Bolt: Pass boolean to prevent unnecessary recompositions of GridItem when matched list changes
             GridItem(
                 index = index,
                 totalCards = gridCardState.cards.size,
                 card = card,
                 isPeeking = gridCardState.isPeeking,
-                lastMatchedIds = gridCardState.lastMatchedIds,
+                isRecentlyMatched = gridCardState.lastMatchedIds.contains(card.id),
                 cardTheme = settings.cardTheme,
                 areSuitsMultiColored = settings.areSuitsMultiColored,
                 maxWidth = layoutConfig.metrics.maxWidth,
@@ -236,7 +237,7 @@ private fun GridItem(
     totalCards: Int,
     card: CardState,
     isPeeking: Boolean,
-    lastMatchedIds: ImmutableList<Int>,
+    isRecentlyMatched: Boolean,
     cardTheme: CardTheme,
     areSuitsMultiColored: Boolean,
     maxWidth: Dp,
@@ -289,7 +290,7 @@ private fun GridItem(
                     CardVisualState(
                         isFaceUp = card.isFaceUp || isPeeking,
                         isMatched = card.isMatched,
-                        isRecentlyMatched = lastMatchedIds.contains(card.id),
+                        isRecentlyMatched = isRecentlyMatched,
                         isError = card.isError,
                     ),
             ),
