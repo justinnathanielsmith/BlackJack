@@ -16,14 +16,11 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,7 +34,6 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.game_double_or_nothing
 import io.github.smithjustinn.services.AudioService
-import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.theme.HeatAppColors
 import io.github.smithjustinn.theme.LocalAppColors
 import io.github.smithjustinn.theme.PokerTheme
@@ -154,62 +150,6 @@ private fun GameMainScreenWrapper(
                 SteamEffect(isVisible = showSteam)
             }
         }
-    }
-}
-
-@Composable
-private fun GameEventHandler(
-    component: GameComponent,
-    onTheNuts: () -> Unit,
-) {
-    val currentOnTheNuts by rememberUpdatedState(onTheNuts)
-    val graph = LocalAppGraph.current
-    val audioService = graph.audioService
-    val hapticsService = graph.hapticsService
-
-    LaunchedEffect(Unit) {
-        audioService.startMusic()
-        component.events.collect { event ->
-            handleGameEvent(event, audioService, hapticsService, currentOnTheNuts)
-        }
-    }
-
-    DisposableEffect(Unit) {
-        onDispose {
-            audioService.stopMusic()
-        }
-    }
-}
-
-private fun handleGameEvent(
-    event: GameUiEvent,
-    audioService: AudioService,
-    hapticsService: HapticsService,
-    onTheNuts: () -> Unit,
-) {
-    when (event) {
-        GameUiEvent.PlayFlip -> audioService.playEffect(AudioService.SoundEffect.FLIP)
-        GameUiEvent.PlayMatch -> audioService.playEffect(AudioService.SoundEffect.MATCH)
-        GameUiEvent.PlayMismatch -> audioService.playEffect(AudioService.SoundEffect.MISMATCH)
-        GameUiEvent.PlayTheNuts -> {
-            audioService.playEffect(AudioService.SoundEffect.THE_NUTS)
-            onTheNuts()
-        }
-        GameUiEvent.PlayWin -> {
-            audioService.stopMusic()
-            audioService.playEffect(AudioService.SoundEffect.WIN)
-        }
-        GameUiEvent.PlayLose -> {
-            audioService.stopMusic()
-            audioService.playEffect(AudioService.SoundEffect.LOSE)
-        }
-        GameUiEvent.PlayHighScore -> audioService.playEffect(AudioService.SoundEffect.HIGH_SCORE)
-        GameUiEvent.PlayDeal -> audioService.playEffect(AudioService.SoundEffect.DEAL)
-        GameUiEvent.VibrateMatch -> hapticsService.vibrateMatch()
-        GameUiEvent.VibrateMismatch -> hapticsService.vibrateMismatch()
-        GameUiEvent.VibrateTick -> hapticsService.vibrateTick()
-        GameUiEvent.VibrateWarning -> hapticsService.vibrateWarning()
-        GameUiEvent.VibrateHeat -> hapticsService.vibrateHeat()
     }
 }
 
