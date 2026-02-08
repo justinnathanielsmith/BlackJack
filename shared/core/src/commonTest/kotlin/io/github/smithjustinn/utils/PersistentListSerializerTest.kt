@@ -6,9 +6,9 @@ import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
 
-class ImmutableListSerializerTest {
+class PersistentListSerializerTest {
     private val json = Json
-    private val serializer = ImmutableListSerializer(String.serializer())
+    private val serializer = PersistentListSerializer(String.serializer())
 
     @Test
     fun testSerialization() {

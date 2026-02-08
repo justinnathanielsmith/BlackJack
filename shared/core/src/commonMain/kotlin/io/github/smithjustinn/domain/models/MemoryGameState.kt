@@ -1,6 +1,6 @@
 package io.github.smithjustinn.domain.models
 
-import kotlinx.collections.immutable.ImmutableList
+import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
@@ -11,7 +11,7 @@ import kotlinx.serialization.Transient
 @Serializable
 data class MemoryGameState(
     @Serializable(with = CardStateListSerializer::class)
-    val cards: ImmutableList<CardState> = persistentListOf(),
+    val cards: PersistentList<CardState> = persistentListOf(),
     val pairCount: Int = 8,
     val isGameWon: Boolean = false,
     val isGameOver: Boolean = false,
@@ -29,7 +29,7 @@ data class MemoryGameState(
     val scoreBreakdown: ScoreBreakdown = ScoreBreakdown(),
     val mode: GameMode = GameMode.TIME_ATTACK,
     @Serializable(with = IntListSerializer::class)
-    val lastMatchedIds: ImmutableList<Int> = persistentListOf(),
+    val lastMatchedIds: PersistentList<Int> = persistentListOf(),
     val seed: Long? = null,
     val activeMutators: Set<DailyChallengeMutator> = emptySet(),
     val difficulty: DifficultyType = DifficultyType.CASUAL,

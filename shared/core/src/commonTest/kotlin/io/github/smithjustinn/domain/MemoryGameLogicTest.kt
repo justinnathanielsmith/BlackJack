@@ -27,7 +27,7 @@ import io.github.smithjustinn.resources.comment_sharp
 import io.github.smithjustinn.resources.comment_smooth_call
 import io.github.smithjustinn.resources.comment_you_got_it
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -350,7 +350,7 @@ class MemoryGameLogicTest {
                     state.cards
                         .map {
                             if (it.id == p1c1.id || it.id == p1c2.id) it.copy(isMatched = true) else it
-                        }.toImmutableList(),
+                        }.toPersistentList(),
                 moves = 10, // Ensure moves > matches * 2 to avoid photographic
             )
 
@@ -391,7 +391,7 @@ class MemoryGameLogicTest {
                             } else {
                                 c
                             }
-                        }.toImmutableList(),
+                        }.toPersistentList(),
                 lastMatchedIds = persistentListOf(),
                 moves = 20,
                 comboMultiplier = 1,
@@ -420,7 +420,7 @@ class MemoryGameLogicTest {
                     state.cards
                         .map { c ->
                             if (pairs4[0].any { it.id == c.id }) c.copy(isMatched = true) else c
-                        }.toImmutableList(),
+                        }.toPersistentList(),
                 lastMatchedIds = persistentListOf(),
                 moves = 2,
                 comboMultiplier = 1,
@@ -457,7 +457,7 @@ class MemoryGameLogicTest {
                             } else {
                                 c
                             }
-                        }.toImmutableList(),
+                        }.toPersistentList(),
                 lastMatchedIds = persistentListOf(),
                 moves = 50, // Lots of moves
                 comboMultiplier = 1,
@@ -497,7 +497,7 @@ class MemoryGameLogicTest {
 
         // Use a fixed seed for random to ensure predictability if needed,
         // but here we just want to see if they changed.
-        val newState = MemoryGameLogic.applyMutators(state, Random(42))
+        val newState = MemoryGameActions.applyMutators(state, Random(42))
 
         assertFalse(initialCards == newState.cards, "Cards should have been swapped")
         assertEquals(initialCards.size, newState.cards.size)
@@ -517,7 +517,7 @@ class MemoryGameLogicTest {
             )
         val initialCards = state.cards
 
-        val newState = MemoryGameLogic.applyMutators(state)
+        val newState = MemoryGameActions.applyMutators(state)
 
         assertEquals(initialCards, newState.cards, "Cards should NOT have been swapped")
     }
@@ -583,7 +583,7 @@ class MemoryGameLogicTest {
             )
         val initialCards = state.cards
 
-        val newState = MemoryGameLogic.applyMutators(state)
+        val newState = MemoryGameActions.applyMutators(state)
 
         assertEquals(initialCards, newState.cards, "Cards should NOT have been swapped")
     }

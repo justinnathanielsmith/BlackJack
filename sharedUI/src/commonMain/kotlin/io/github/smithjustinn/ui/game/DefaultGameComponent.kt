@@ -256,11 +256,13 @@ class DefaultGameComponent(
             _state.update {
                 it.copy(isPeeking = true, peekCountdown = GameConstants.PEEK_DURATION_SECONDS)
             }
+
             for (i in GameConstants.PEEK_DURATION_SECONDS downTo 1) {
                 _state.update { it.copy(peekCountdown = i) }
                 _events.tryEmit(GameUiEvent.VibrateTick)
                 delay(GameConstants.PEEK_COUNTDOWN_DELAY_MS)
             }
+
             _state.update { it.copy(isPeeking = false, peekCountdown = 0) }
             _events.emit(GameUiEvent.PlayFlip)
             gameStateMachine?.dispatch(GameAction.StartGame())
@@ -297,39 +299,14 @@ class DefaultGameComponent(
     }
 
     private fun handleEffect(effect: GameEffect) {
-        // Handle simple event mappings first
-        effectToEventMap[effect]?.let { event ->
-            _events.tryEmit(event)
-            return
-        }
-
-        // Handle complex effects that need additional logic
         when (effect) {
-            is GameEffect.TimerUpdate -> {
-                handleTimerUpdate(effect)
-            }
-
-            is GameEffect.TimeGain -> {
-                handleTimeGain(effect)
-            }
-
-            is GameEffect.TimeLoss -> {
-                handleTimeLoss(effect)
-            }
-
-            GameEffect.PlayMatchSound -> {
-                handleMatchSound()
-            }
-
-            GameEffect.GameOver -> {
-                handleGameLost()
-            }
-
-            is GameEffect.GameWon -> {
-                handleGameWon(effect.finalState)
-            }
-
-            else -> { /* Already handled by effectToEventMap */ }
+            is GameEffect.TimerUpdate -> handleTimerUpdate(effect)
+            is GameEffect.TimeGain -> handleTimeGain(effect)
+            is GameEffect.TimeLoss -> handleTimeLoss(effect)
+            GameEffect.PlayMatchSound -> handleMatchSound()
+            GameEffect.GameOver -> handleGameLost()
+            is GameEffect.GameWon -> handleGameWon(effect.finalState)
+            else -> effectToEventMap[effect]?.let { _events.tryEmit(it) }
         }
     }
 

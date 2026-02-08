@@ -9,10 +9,8 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.models.Suit
-import kotlinx.collections.immutable.ImmutableList
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
 
@@ -45,7 +43,7 @@ object MemoryGameLogic {
                 }.shuffled(random)
                 .mapIndexed { index, card ->
                     card.copy(id = index)
-                }.toImmutableList()
+                }.toPersistentList()
 
         return MemoryGameState(
             cards = gameCards,
@@ -60,42 +58,19 @@ object MemoryGameLogic {
         state: MemoryGameState,
         cardId: Int,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        // Optimization: avoid O(N) allocation with map.
-        // Find index first (O(N) scan but no allocation) then set (O(log N)).
         val index = state.cards.indexOfFirst { it.id == cardId }
-        if (index == -1) {
-            return state to null
-        }
-
-        val cardToFlip = state.cards[index]
-        val faceUpCards = state.cards.filter { it.isFaceUp && !it.isMatched }
+        val cardToFlip = state.cards.getOrNull(index)
 
         return when {
-            state.isGameOver -> {
-                state to null
-            }
-
-            cardToFlip.isFaceUp || cardToFlip.isMatched -> {
-                state to null
-            }
-
-            faceUpCards.size >= 2 -> {
-                state to null
-            }
-
+            state.isGameOver || cardToFlip == null || cardToFlip.isFaceUp || cardToFlip.isMatched -> state to null
+            state.cards.count { it.isFaceUp && !it.isMatched } >= 2 -> state to null
             else -> {
-                val newCards =
-                    if (state.cards is PersistentList) {
-                        state.cards.set(index, cardToFlip.copy(isFaceUp = true))
-                    } else {
-                        state.cards.toPersistentList().set(index, cardToFlip.copy(isFaceUp = true))
-                    }
-
+                val newCards = state.cards.set(index, cardToFlip.copy(isFaceUp = true))
+                val faceUpCountBefore = state.cards.count { it.isFaceUp && !it.isMatched }
                 val newState =
                     state.copy(
                         cards = newCards,
-                        // Clear last matched IDs when starting a new turn
-                        lastMatchedIds = if (faceUpCards.isEmpty()) persistentListOf() else state.lastMatchedIds,
+                        lastMatchedIds = if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
                     )
 
                 val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
@@ -112,10 +87,7 @@ object MemoryGameLogic {
         state: MemoryGameState,
         activeCards: List<CardState>,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        if (activeCards.size != 2) return state to null
-
-        val first = activeCards[0]
-        val second = activeCards[1]
+        val (first, second) = activeCards.takeIf { it.size == 2 } ?: return state to null
 
         return if (first.suit == second.suit && first.rank == second.rank) {
             handleMatchSuccess(state, first, second)
@@ -129,8 +101,7 @@ object MemoryGameLogic {
         first: CardState,
         second: CardState,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        val newCards = updateCardsForMatch(state.cards, first.id, second.id)
-
+        val newCards = state.cards.updateByIds(first.id, second.id) { it.copy(isMatched = true, isFaceUp = true) }
         val matchesFound = newCards.count { it.isMatched } / 2
         val isWon = matchesFound == state.pairCount
         val moves = state.moves + 1
@@ -139,23 +110,27 @@ object MemoryGameLogic {
         val comboFactor = state.comboMultiplier * state.comboMultiplier
         val matchBasePoints = config.baseMatchPoints
         val matchComboBonus = comboFactor * config.comboBonusPoints
+        val matchTotalPoints = matchBasePoints + matchComboBonus
+
+        val isMilestone = matchesFound > 0 && matchesFound % config.matchMilestoneInterval == 0
+        val potentialPot = state.currentPot + matchTotalPoints
 
         val scoreResult =
             ScoringCalculator.calculateMatchScore(
-                currentScore = state.score,
+                currentScore = if (isMilestone || isWon) state.score + potentialPot else state.score,
                 isDoubleDownActive = state.isDoubleDownActive,
-                matchBasePoints = matchBasePoints,
-                matchComboBonus = matchComboBonus,
+                matchBasePoints = 0, // Points are in the pot now
+                matchComboBonus = 0,
                 isWon = isWon,
             )
 
         val comment =
             GameCommentGenerator.generateMatchComment(
-                moves,
-                matchesFound,
-                state.pairCount,
-                state.comboMultiplier,
-                config,
+                moves = moves,
+                matchesFound = matchesFound,
+                totalPairs = state.pairCount,
+                comboMultiplier = state.comboMultiplier,
+                config = config,
                 isDoubleDownActive = state.isDoubleDownActive,
             )
 
@@ -166,18 +141,17 @@ object MemoryGameLogic {
                 isGameOver = isWon,
                 moves = moves,
                 score = scoreResult.finalScore,
+                currentPot = if (isMilestone || isWon) 0 else potentialPot,
                 totalBasePoints = state.totalBasePoints + matchBasePoints,
                 totalComboBonus = state.totalComboBonus + matchComboBonus,
                 totalDoubleDownBonus = scoreResult.ddBonus,
                 comboMultiplier = state.comboMultiplier + 1,
-                isDoubleDownActive = state.isDoubleDownActive && !isWon, // Deactivate on win
+                isDoubleDownActive = state.isDoubleDownActive && !isWon,
                 matchComment = comment,
                 lastMatchedIds = persistentListOf(first.id, second.id),
             )
 
-        val event = ScoringCalculator.determineSuccessEvent(isWon, state.comboMultiplier, config)
-
-        return newState to event
+        return newState to ScoringCalculator.determineSuccessEvent(isWon, state.comboMultiplier, config)
     }
 
     private fun handleMatchFailure(
@@ -185,155 +159,133 @@ object MemoryGameLogic {
         first: CardState,
         second: CardState,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        val errorCards = updateCardsForError(state.cards, first.id, second.id)
+        val errorCards = state.cards.updateByIds(first.id, second.id) { it.copy(isError = true) }
 
-        // All-In Rule: Mismatch while Double Down is active results in Game Over and 0 Score
         if (state.isDoubleDownActive) {
             return state.copy(
                 score = 0,
                 isGameOver = true,
                 isGameWon = false,
                 isDoubleDownActive = false,
-                isBusted = true, // BUSTED!
+                isBusted = true,
                 cards = errorCards,
-                lastMatchedIds = persistentListOf(first.id, second.id), // Show the error
+                lastMatchedIds = persistentListOf(first.id, second.id),
             ) to GameDomainEvent.GameOver
         }
 
-        val newState =
-            state.copy(
-                moves = state.moves + 1,
-                comboMultiplier = 0,
-                score = state.score.coerceAtLeast(0),
-                isGameOver = false,
-                isDoubleDownActive = false,
-                cards = errorCards,
-                lastMatchedIds = persistentListOf(),
-            )
-        return newState to GameDomainEvent.MatchFailure
+        val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
+        val newPot = (state.currentPot - penalty).coerceAtLeast(0)
+
+        return state.copy(
+            moves = state.moves + 1,
+            comboMultiplier = 0,
+            score = state.score.coerceAtLeast(0),
+            currentPot = newPot,
+            isGameOver = false,
+            isDoubleDownActive = false,
+            cards = errorCards,
+            lastMatchedIds = persistentListOf(),
+        ) to GameDomainEvent.MatchFailure
     }
 
     fun resetErrorCards(state: MemoryGameState): MemoryGameState {
-        var newCards = if (state.cards is PersistentList) state.cards else state.cards.toPersistentList()
+        var currentCards = state.cards
         var changed = false
 
-        for (i in newCards.indices) {
-            if (newCards[i].isError) {
-                newCards = newCards.set(i, newCards[i].copy(isFaceUp = false, isError = false))
+        currentCards.forEachIndexed { index, card ->
+            if (card.isError) {
+                currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false))
                 changed = true
             }
         }
 
-        return if (changed) state.copy(cards = newCards) else state
+        return if (changed) state.copy(cards = currentCards) else state
     }
 
-    /**
-     * Calculates and applies bonuses to the final score when the game is won.
-     * The move efficiency is now the dominant factor.
-     */
     fun applyFinalBonuses(
         state: MemoryGameState,
         elapsedTimeSeconds: Long,
     ): MemoryGameState = ScoringCalculator.applyFinalBonuses(state, elapsedTimeSeconds)
 
     const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
+}
+
+/**
+ * Secondary actions and mutators for the Memory Match game.
+ */
+object MemoryGameActions {
     private const val MIRAGE_MOVE_INTERVAL = 5
 
-    /**
-     * Activates Double Down if requirements are met.
-     */
+    fun resetErrorCards(state: MemoryGameState): MemoryGameState {
+        var currentCards = state.cards
+        var changed = false
+
+        currentCards.forEachIndexed { index, card ->
+            if (card.isError) {
+                currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false))
+                changed = true
+            }
+        }
+
+        return if (changed) state.copy(cards = currentCards) else state
+    }
+
     fun activateDoubleDown(state: MemoryGameState): MemoryGameState {
         val unmatchedPairs = state.cards.count { !it.isMatched } / 2
         val isEligible =
             state.comboMultiplier >= state.config.heatModeThreshold &&
                 !state.isDoubleDownActive &&
-                unmatchedPairs >= MIN_PAIRS_FOR_DOUBLE_DOWN
+                unmatchedPairs >= MemoryGameLogic.MIN_PAIRS_FOR_DOUBLE_DOWN
 
-        return if (isEligible) {
-            state.copy(isDoubleDownActive = true)
-        } else {
-            state
-        }
+        return if (isEligible) state.copy(isDoubleDownActive = true) else state
     }
 
-    /**
-     * Applies active mutators to the game state.
-     * Currently handles:
-     * - MIRAGE: Swaps two random unmatched cards every 5 moves.
-     */
     fun applyMutators(
         state: MemoryGameState,
         random: Random = Random,
-    ): MemoryGameState {
-        var currentState = state
-        if (state.activeMutators.contains(DailyChallengeMutator.MIRAGE) &&
-            state.moves > 0 &&
-            state.moves % MIRAGE_MOVE_INTERVAL == 0
-        ) {
-            currentState = handleMirageSwap(currentState, random)
-        }
-        return currentState
-    }
+    ): MemoryGameState =
+        state
+            .takeIf {
+                it.activeMutators.contains(DailyChallengeMutator.MIRAGE) &&
+                    it.moves > 0 &&
+                    it.moves % MIRAGE_MOVE_INTERVAL == 0
+            }?.let { handleMirageSwap(it, random) } ?: state
 
     private fun handleMirageSwap(
         state: MemoryGameState,
         random: Random,
     ): MemoryGameState {
-        val unmatchedIndices =
-            state.cards
-                .mapIndexedNotNull { index, card ->
-                    if (!card.isMatched) index else null
-                }
-
+        val unmatchedIndices = state.cards.mapIndexedNotNull { index, card -> index.takeUnless { card.isMatched } }
         if (unmatchedIndices.size < 2) return state
 
-        val shuffledIndices = unmatchedIndices.shuffled(random)
-        val idx1 = shuffledIndices[0]
-        val idx2 = shuffledIndices[1]
+        val (idx1, idx2) = unmatchedIndices.shuffled(random)
+        val newCards =
+            state.cards
+                .toMutableList()
+                .apply {
+                    val temp = this[idx1]
+                    this[idx1] = this[idx2]
+                    this[idx2] = temp
+                }.toPersistentList()
 
-        val newCards = state.cards.toMutableList()
-        val temp = newCards[idx1]
-        newCards[idx1] = newCards[idx2]
-        newCards[idx2] = temp
-
-        return state.copy(cards = newCards.toImmutableList())
+        return state.copy(cards = newCards)
     }
 }
 
-private fun updateCardsForMatch(
-    cards: ImmutableList<CardState>,
-    firstId: Int,
-    secondId: Int,
-): ImmutableList<CardState> {
-    val persistentCards = if (cards is PersistentList) cards else cards.toPersistentList()
-    val firstIndex = persistentCards.indexOfFirst { it.id == firstId }
-    val secondIndex = persistentCards.indexOfFirst { it.id == secondId }
-
-    var result = persistentCards
-    if (firstIndex != -1) {
-        result = result.set(firstIndex, result[firstIndex].copy(isMatched = true, isFaceUp = true))
-    }
-    if (secondIndex != -1) {
-        result = result.set(secondIndex, result[secondIndex].copy(isMatched = true, isFaceUp = true))
-    }
-    return result
-}
-
-private fun updateCardsForError(
-    cards: ImmutableList<CardState>,
-    firstId: Int,
-    secondId: Int,
-): ImmutableList<CardState> {
-    val persistentCards = if (cards is PersistentList) cards else cards.toPersistentList()
-    val firstIndex = persistentCards.indexOfFirst { it.id == firstId }
-    val secondIndex = persistentCards.indexOfFirst { it.id == secondId }
-
-    var result = persistentCards
-    if (firstIndex != -1) {
-        result = result.set(firstIndex, result[firstIndex].copy(isError = true))
-    }
-    if (secondIndex != -1) {
-        result = result.set(secondIndex, result[secondIndex].copy(isError = true))
+/**
+ * Extension to update multiple cards by their IDs in a single pass if possible,
+ * or sequentially for simplicity while maintaining immutability.
+ */
+private inline fun PersistentList<CardState>.updateByIds(
+    vararg ids: Int,
+    crossinline transform: (CardState) -> CardState,
+): PersistentList<CardState> {
+    var result = this
+    ids.forEach { id ->
+        val index = result.indexOfFirst { it.id == id }
+        if (index != -1) {
+            result = result.set(index, transform(result[index]))
+        }
     }
     return result
 }

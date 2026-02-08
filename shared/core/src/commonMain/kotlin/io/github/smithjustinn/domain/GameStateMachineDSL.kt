@@ -7,8 +7,8 @@ annotation class GameDsl
 
 @GameDsl
 class StateMachineBuilder(
-    private var currentState: MemoryGameState,
-    private var currentTime: Long,
+    currentState: MemoryGameState,
+    currentTime: Long,
 ) {
     private val effects = mutableListOf<GameEffect>()
     private var nextState: MemoryGameState = currentState
@@ -18,12 +18,20 @@ class StateMachineBuilder(
         nextState = block(nextState)
     }
 
+    fun updateState(block: MemoryGameState.() -> MemoryGameState) {
+        nextState = nextState.block()
+    }
+
     fun updateTime(block: (Long) -> Long) {
         nextTime = block(nextTime)
     }
 
     fun effect(effect: GameEffect) {
         effects.add(effect)
+    }
+
+    operator fun GameEffect.unaryPlus() {
+        effects.add(this)
     }
 
     fun build(): StateMachineResult = StateMachineResult(nextState, nextTime, effects)

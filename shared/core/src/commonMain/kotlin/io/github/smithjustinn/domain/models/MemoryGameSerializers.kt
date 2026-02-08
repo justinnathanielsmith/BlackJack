@@ -1,9 +1,9 @@
 package io.github.smithjustinn.domain.models
 
-import io.github.smithjustinn.utils.ImmutableListSerializer
+import io.github.smithjustinn.utils.PersistentListSerializer
 import kotlinx.serialization.builtins.serializer
 
-// Type-specific serializers for ImmutableList
-object CardStateListSerializer : ImmutableListSerializer<CardState>(CardState.serializer())
+// Type-specific serializers for PersistentList
+object CardStateListSerializer : PersistentListSerializer<CardState>(CardState.serializer())
 
-object IntListSerializer : ImmutableListSerializer<Int>(Int.serializer())
+object IntListSerializer : PersistentListSerializer<Int>(Int.serializer())

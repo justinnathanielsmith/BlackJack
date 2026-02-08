@@ -91,7 +91,8 @@ class GameStateMachineTest : BaseLogicTest() {
                 // Check state update
                 val currentState = machine.state.value
                 assertEquals(1, currentState.cards.count { it.isMatched } / 2)
-                assertTrue(currentState.score > 0, "Score should be greater than 0")
+                assertEquals(0, currentState.score, "Score should be 0 (points in pot)")
+                assertTrue(currentState.currentPot > 0, "Pot should be greater than 0")
 
                 // Advance time to allow debounced save to trigger
                 advanceTimeBy(2001)
