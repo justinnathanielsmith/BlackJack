@@ -3,10 +3,6 @@ package io.github.smithjustinn.ui.game.components.grid
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.domain.models.CardState
-import io.github.smithjustinn.domain.models.CardTheme
-import kotlinx.collections.immutable.ImmutableList
-import kotlinx.collections.immutable.persistentListOf
 import kotlin.math.ceil
 
 internal const val SMALL_GRID_THRESHOLD = 12
@@ -46,44 +42,6 @@ private const val MIN_CARD_WIDTH_DP = 60
 private const val PORTRAIT_COLS_SMALL = 3
 private const val PORTRAIT_COLS_MEDIUM = 4
 private const val PORTRAIT_COLS_DEFAULT = 4
-
-internal data class GridMetrics(
-    val cells: GridCells,
-    val maxWidth: Dp,
-)
-
-internal data class GridSpacing(
-    val horizontalPadding: Dp,
-    val topPadding: Dp,
-    val bottomPadding: Dp,
-    val verticalSpacing: Dp,
-    val horizontalSpacing: Dp,
-)
-
-internal data class GridLayoutConfig(
-    val metrics: GridMetrics,
-    val spacing: GridSpacing,
-)
-
-internal data class GridCardState(
-    val cards: ImmutableList<CardState>,
-    val lastMatchedIds: ImmutableList<Int> = persistentListOf(),
-    val isPeeking: Boolean = false,
-)
-
-internal data class GridSettings(
-    val cardTheme: CardTheme = CardTheme(),
-    val areSuitsMultiColored: Boolean = false,
-    val showComboExplosion: Boolean = false,
-)
-
-internal data class GridScreenConfig(
-    val screenWidth: Dp,
-    val screenHeight: Dp,
-    val isWide: Boolean,
-    val isLandscape: Boolean,
-    val isCompactHeight: Boolean,
-)
 
 internal fun calculateGridMetrics(
     cardCount: Int,
