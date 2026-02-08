@@ -98,7 +98,7 @@ class GameStateMachineTest : BaseLogicTest() {
                 advanceUntilIdle()
                 assertTrue(
                     savedStates.contains(currentState),
-                    "Saved states should contain the matched state. Found: ${savedStates.map { it.moves }}"
+                    "Saved states should contain the matched state. Found: ${savedStates.map { it.moves }}",
                 )
             }
         }
@@ -238,6 +238,32 @@ class GameStateMachineTest : BaseLogicTest() {
             verifySuspend {
                 mockEarnCurrency.execute(any())
             }
+        }
+
+    @Test
+    fun `busting with Double Down should emit GameOver and expected effects`() =
+        runTest {
+            val state = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
+            // Force Double Down active
+            val ddState = state.copy(isDoubleDownActive = true)
+
+            val firstCard = ddState.cards[0]
+            val nonMatchCard = ddState.cards.drop(1).first { it.suit != firstCard.suit || it.rank != firstCard.rank }
+
+            val machine = createStateMachine(initialState = ddState)
+
+            machine.effects.test {
+                machine.dispatch(GameAction.FlipCard(firstCard.id))
+                assertEquals(GameEffect.PlayFlipSound, awaitItem())
+
+                machine.dispatch(GameAction.FlipCard(nonMatchCard.id))
+                assertEquals(GameEffect.PlayFlipSound, awaitItem())
+                assertEquals(GameEffect.PlayLoseSound, awaitItem())
+                assertEquals(GameEffect.GameOver, awaitItem())
+            }
+
+            assertTrue(machine.state.value.isGameOver, "State should be marked as GameOver")
+            assertTrue(machine.state.value.isBusted, "State should be marked as Busted")
         }
 
     private fun createStateMachine(

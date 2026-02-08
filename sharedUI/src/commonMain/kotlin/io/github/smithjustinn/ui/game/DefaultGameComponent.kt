@@ -139,11 +139,11 @@ class DefaultGameComponent(
         // Cancel any existing game session to prevent state/timer leaks
         val oldMachine = gameStateMachine
         gameSessionJob?.cancel()
-        
+
         val newJob = Job(scope.coroutineContext[Job])
         gameSessionJob = newJob
-        
-        // Flush the old machine state in the background using application scope 
+
+        // Flush the old machine state in the background using application scope
         // to ensure it completes even if this component is being destroyed.
         oldMachine?.let { machine ->
             appGraph.applicationScope.launch(dispatchers.io) {
@@ -535,7 +535,9 @@ class DefaultGameComponent(
         time: Long,
     ) {
         appGraph.applicationScope.launch(appGraph.coroutineDispatchers.io) {
-            if (!game.isGameOver && game.cards.isNotEmpty()) {
+            if (game.isGameOver) {
+                appGraph.clearSavedGameUseCase()
+            } else if (game.cards.isNotEmpty()) {
                 appGraph.saveGameStateUseCase(game, time)
             }
         }

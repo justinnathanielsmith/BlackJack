@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -51,7 +50,7 @@ class GameStateMachine(
 
     init {
         require(initialTimeSeconds >= 0) { "Initial time cannot be negative" }
-        
+
         // Only trigger initial save for new games to avoid redundant I/O on resume
         if (!isResumed) {
             syncManager.sync(initialState, internalTimeSeconds, GameStateSyncManager.Priority.HIGH)
@@ -151,8 +150,10 @@ class GameStateMachine(
     }
 
     private fun StateMachineBuilder.handleGameOver() {
+        +GameEffect.PlayFlipSound
         stopTimer()
         +GameEffect.PlayLoseSound
+        +GameEffect.GameOver
     }
 
     private fun StateMachineBuilder.handleMatchEvent(
@@ -301,11 +302,12 @@ class GameStateMachine(
         val oldMoves = _state.value.moves
         _state.value = newState
 
-        val priority = if (newState.isGameOver || newState.moves > oldMoves) {
-            GameStateSyncManager.Priority.HIGH
-        } else {
-            GameStateSyncManager.Priority.NORMAL
-        }
+        val priority =
+            if (newState.isGameOver || newState.moves > oldMoves) {
+                GameStateSyncManager.Priority.HIGH
+            } else {
+                GameStateSyncManager.Priority.NORMAL
+            }
 
         syncManager.sync(newState, internalTimeSeconds, priority)
     }
