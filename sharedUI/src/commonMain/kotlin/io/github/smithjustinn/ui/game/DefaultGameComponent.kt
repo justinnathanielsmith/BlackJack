@@ -1,6 +1,7 @@
 package io.github.smithjustinn.ui.game
 
 import com.arkivanov.decompose.ComponentContext
+import com.arkivanov.essenty.lifecycle.doOnDestroy
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.GameAction
 import io.github.smithjustinn.domain.GameEffect
@@ -63,6 +64,11 @@ class DefaultGameComponent(
     private var lastAdShownTimestamp: Long = 0L
 
     init {
+        lifecycle.doOnDestroy {
+            scope.launch {
+                gameStateMachine?.flush()
+            }
+        }
         scope.launch {
             val settings = appGraph.settingsRepository
             val settingsFlow =
@@ -128,11 +134,22 @@ class DefaultGameComponent(
         }
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private fun startGame(args: GameArgs) {
         // Cancel any existing game session to prevent state/timer leaks
+        val oldMachine = gameStateMachine
         gameSessionJob?.cancel()
+        
         val newJob = Job(scope.coroutineContext[Job])
         gameSessionJob = newJob
+        
+        // Flush the old machine state in the background using application scope 
+        // to ensure it completes even if this component is being destroyed.
+        oldMachine?.let { machine ->
+            appGraph.applicationScope.launch(dispatchers.io) {
+                machine.flush()
+            }
+        }
         // Create a temporary scope reference for initialization
         val gameScope = CoroutineScope(scope.coroutineContext + newJob)
 
@@ -141,11 +158,11 @@ class DefaultGameComponent(
                 loadGameStats(args.pairCount)
                 val initResult = initializeGameState(args)
                 setupUIState(initResult.state, initResult.initialTime, args)
-                startStateMachine(initResult.state, initResult.initialTime)
+                startStateMachine(initResult.state, initResult.initialTime, initResult.isResumed)
                 handleGameStartSequence(initResult.isResumed)
             } catch (e: CancellationException) {
                 throw e
-            } catch (e: IllegalStateException) {
+            } catch (e: Exception) {
                 appGraph.logger.e(e) { "Error starting game" }
             }
         }
@@ -166,7 +183,7 @@ class DefaultGameComponent(
 
     private suspend fun initializeGameState(args: GameArgs): GameInitResult {
         val savedGame = if (args.forceNewGame) null else appGraph.getSavedGameUseCase()
-        return if (savedGame != null && isSavedGameValid(savedGame, args.pairCount, args.mode)) {
+        return if (savedGame != null && isSavedGameValid(savedGame, args.pairCount, args.mode, args.difficulty)) {
             GameInitResult(savedGame.gameState, savedGame.elapsedTimeSeconds, isResumed = true)
         } else {
             val newState = setupNewGame(args.pairCount, args.mode, args.difficulty, args.seed)
@@ -204,6 +221,7 @@ class DefaultGameComponent(
     private fun startStateMachine(
         initialState: MemoryGameState,
         initialTime: Long,
+        isResumed: Boolean,
     ) {
         val sessionScope = activeGameScope ?: return
 
@@ -215,6 +233,7 @@ class DefaultGameComponent(
                 initialTimeSeconds = initialTime,
                 earnCurrencyUseCase = appGraph.earnCurrencyUseCase,
                 onSaveState = { state, time -> saveGame(state, time) },
+                isResumed = isResumed,
             ).also { machine ->
                 sessionScope.launch {
                     machine.state.collectLatest { gameState ->
@@ -241,7 +260,7 @@ class DefaultGameComponent(
         when {
             currentState.showWalkthrough -> { /* Walkthrough handles it */ }
 
-            currentState.isPeekFeatureEnabled && !isResumed -> {
+            currentState.isPeekFeatureEnabled && (!isResumed || currentState.game.moves == 0) -> {
                 startPeekSequence()
             }
 
@@ -504,10 +523,12 @@ class DefaultGameComponent(
         savedGame: SavedGame,
         pairCount: Int,
         mode: GameMode,
+        difficulty: DifficultyType,
     ): Boolean =
         savedGame.gameState.pairCount == pairCount &&
             !savedGame.gameState.isGameOver &&
-            savedGame.gameState.mode == mode
+            savedGame.gameState.mode == mode &&
+            savedGame.gameState.difficulty == difficulty
 
     private fun saveGame(
         game: MemoryGameState,

@@ -28,14 +28,14 @@ object TimeAttackLogic {
 
     /**
      * Adds bonus time from a rewarded ad.
-     * @param currentTime The current elapsed time in seconds
+     * @param currentTime The current remaining time in seconds
      * @param bonusSeconds The number of bonus seconds to add (typically from ad reward)
-     * @return The new elapsed time after applying the bonus
+     * @return The new time after applying the bonus
      */
     fun addBonusTime(
         currentTime: Long,
         bonusSeconds: Int,
-    ): Long = (currentTime - bonusSeconds).coerceAtLeast(0)
+    ): Long = (currentTime + bonusSeconds).coerceAtLeast(0)
 
     private const val TIME_PER_PAIR_FALLBACK = 4L
 }

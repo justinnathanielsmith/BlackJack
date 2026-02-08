@@ -71,13 +71,13 @@ class DefaultGameComponentTest : BaseComponentTest() {
         }
 
     @Test
-    fun `resuming game does NOT trigger peek sequence`() =
+    fun `resuming game with moves does NOT trigger peek sequence`() =
         runTest { lifecycle ->
             // Given
             every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
 
-            // Mock saved game returns a game (Resume scenario)
-            val savedState = MemoryGameState(mode = GameMode.TIME_ATTACK, pairCount = 8)
+            // Mock saved game returns a game (Resume scenario) with at least one move
+            val savedState = MemoryGameState(mode = GameMode.TIME_ATTACK, pairCount = 8, moves = 1)
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
                 SavedGame(savedState, 10L)
 
@@ -90,10 +90,31 @@ class DefaultGameComponentTest : BaseComponentTest() {
                 // Initial state should load saved game
                 val initialState = awaitItem()
                 assertTrue(initialState.elapsedTimeSeconds == 10L, "Should have loaded saved time")
-                assertFalse(initialState.isPeeking, "Should NOT be peeking when resuming game")
+                assertFalse(initialState.isPeeking, "Should NOT be peeking when resuming game with moves")
 
                 cancelAndIgnoreRemainingEvents()
             }
+        }
+
+    @Test
+    fun `resuming game with 0 moves DOES trigger peek sequence if enabled`() =
+        runTest { lifecycle ->
+            // Given
+            every { context.settingsRepository.isPeekEnabled } returns MutableStateFlow(true)
+
+            // Mock saved game returns a game with 0 moves
+            val savedState = MemoryGameState(mode = GameMode.TIME_ATTACK, pairCount = 8, moves = 0)
+            everySuspend { context.gameStateRepository.getSavedGameState() } returns
+                SavedGame(savedState, 60L)
+
+            // When
+            component = createComponent(lifecycle, forceNewGame = false)
+            testDispatcher.scheduler.runCurrent()
+            testDispatcher.scheduler.advanceTimeBy(100)
+            testDispatcher.scheduler.runCurrent()
+
+            // Then
+            assertTrue(component.state.value.isPeeking, "Should be peeking when resuming game with 0 moves")
         }
 
     @Test
