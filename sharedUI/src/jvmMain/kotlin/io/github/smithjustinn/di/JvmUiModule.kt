@@ -3,7 +3,9 @@ package io.github.smithjustinn.di
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.smithjustinn.data.local.AppDatabase
+import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.services.DesktopAdService
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.services.JvmAudioServiceImpl
 import io.github.smithjustinn.services.JvmHapticsServiceImpl
@@ -20,6 +22,7 @@ val jvmUiModule =
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
         singleOf(::JvmHapticsServiceImpl) { bind<HapticsService>() }
         singleOf(::JvmAudioServiceImpl) { bind<AudioService>() }
+        singleOf(::DesktopAdService) { bind<AdService>() }
         single<AppDatabase> {
             val dbFile = File(System.getProperty("user.home"), ".memory_match.db")
             Room

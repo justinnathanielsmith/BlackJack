@@ -202,4 +202,5 @@
     <!-- General -->
     <string name="clean_number_format">%1$d</string>
     <string name="shop_purchase_failed">Purchase failed</string>
+    <string name="ad_unit_id">ca-app-pub-3940256099942544/5224354917</string>
 </resources>

@@ -47,7 +47,16 @@ open class SaveGameResultUseCase(
                     currentStats.bestTimeSeconds
                 }
 
-            gameStatsRepository.updateStats(GameStats(pairCount, newBestScore, newBestTime))
+            val newGamesPlayed = (currentStats?.gamesPlayed ?: 0) + 1
+
+            gameStatsRepository.updateStats(
+                GameStats(
+                    pairCount = pairCount,
+                    bestScore = newBestScore,
+                    bestTimeSeconds = newBestTime,
+                    gamesPlayed = newGamesPlayed,
+                ),
+            )
 
             leaderboardRepository.addEntry(
                 LeaderboardEntry(

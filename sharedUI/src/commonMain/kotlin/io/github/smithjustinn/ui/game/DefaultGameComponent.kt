@@ -14,6 +14,8 @@ import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.SavedGame
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.ad_unit_id
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -33,7 +35,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.jetbrains.compose.resources.getString
 import kotlin.time.Clock
+import kotlin.time.Duration.Companion.minutes
 
 class DefaultGameComponent(
     componentContext: ComponentContext,
@@ -56,6 +60,7 @@ class DefaultGameComponent(
     override val events: Flow<GameUiEvent> = _events.asSharedFlow()
 
     private var gameStateMachine: GameStateMachine? = null
+    private var lastAdShownTimestamp: Long = 0L
 
     init {
         scope.launch {
@@ -88,6 +93,23 @@ class DefaultGameComponent(
             startGame(args)
 
             val shopItems = appGraph.shopItemRepository.getShopItems()
+
+            // Load total games played for ad eligibility
+            launch {
+                appGraph.gameStatsRepository.getAllStats().collect { statsList ->
+                    val totalGames = statsList.sumOf { it.gamesPlayed }
+                    _state.update { it.copy(totalGamesPlayed = totalGames) }
+                }
+            }
+
+            // Load ad and track cooldown
+            launch {
+                if (args.mode == GameMode.TIME_ATTACK) {
+                    val adUnitId = getString(Res.string.ad_unit_id)
+                    appGraph.adService.loadRewardedAd(adUnitId)
+                    updateAdAvailability()
+                }
+            }
 
             combine(
                 appGraph.playerEconomyRepository.selectedThemeId,
@@ -384,6 +406,45 @@ class DefaultGameComponent(
         gameStateMachine?.dispatch(GameAction.DoubleDown)
     }
 
+    override fun onShowRewardedAd() {
+        val currentState = _state.value
+        if (!currentState.canShowRewardedAd || currentState.game.mode != GameMode.TIME_ATTACK) return
+
+        appGraph.adService.showRewardedAd { bonusSeconds ->
+            scope.launch {
+                val currentTime = _state.value.elapsedTimeSeconds
+                val newTime = TimeAttackLogic.addBonusTime(currentTime, bonusSeconds)
+                
+                // Directly update the elapsed time in UI state
+                _state.update { it.copy(elapsedTimeSeconds = newTime) }
+
+                // Update cooldown
+                lastAdShownTimestamp = Clock.System.now().toEpochMilliseconds()
+                updateAdAvailability()
+
+                // Reload ad for next time
+                val adUnitId = getString(Res.string.ad_unit_id)
+                appGraph.adService.loadRewardedAd(adUnitId)
+            }
+        }
+    }
+
+    private fun updateAdAvailability() {
+        val now = Clock.System.now().toEpochMilliseconds()
+        val timeSinceLastAd = now - lastAdShownTimestamp
+        val isAvailable = timeSinceLastAd >= AD_COOLDOWN_MILLIS
+        _state.update { it.copy(isRewardedAdAvailable = isAvailable) }
+
+        if (!isAvailable) {
+            // Schedule re-check when cooldown expires
+            scope.launch {
+                val remainingTime = AD_COOLDOWN_MILLIS - timeSinceLastAd
+                delay(remainingTime)
+                _state.update { it.copy(isRewardedAdAvailable = true) }
+            }
+        }
+    }
+
     private fun handleGameWon(wonState: MemoryGameState) {
         val isNewHigh = wonState.score > _state.value.bestScore
 
@@ -488,4 +549,8 @@ class DefaultGameComponent(
         val music: Boolean,
         val sound: Boolean,
     )
+
+    companion object {
+        private val AD_COOLDOWN_MILLIS = 10.minutes.inWholeMilliseconds
+    }
 }

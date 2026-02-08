@@ -1,9 +1,12 @@
 package io.github.smithjustinn.di
 
+import android.app.Activity
 import android.content.Context
 import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.smithjustinn.data.local.AppDatabase
+import io.github.smithjustinn.domain.services.AdService
+import io.github.smithjustinn.services.AndroidAdService
 import io.github.smithjustinn.services.AndroidAudioServiceImpl
 import io.github.smithjustinn.services.AndroidHapticsServiceImpl
 import io.github.smithjustinn.services.AudioService
@@ -20,6 +23,9 @@ val androidUiModule =
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
         singleOf(::AndroidHapticsServiceImpl) { bind<HapticsService>() }
         singleOf(::AndroidAudioServiceImpl) { bind<AudioService>() }
+        single<AdService> {
+            AndroidAdService(activityProvider = { getOrNull<Activity>() })
+        }
         single<AppDatabase> {
             val context = get<Context>()
             val dbFile = context.getDatabasePath("memory_match.db")

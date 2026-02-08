@@ -28,6 +28,8 @@ data class GameUIState(
     val walkthroughStep: Int = 0,
     val hasUsedDoubleDownPeek: Boolean = false,
     val totalBalance: Long = 0,
+    val isRewardedAdAvailable: Boolean = false,
+    val totalGamesPlayed: Int = 0,
 ) {
     val isDoubleDownAvailable: Boolean
         get() {
@@ -37,6 +39,13 @@ data class GameUIState(
                 !game.isGameOver &&
                 unmatchedPairs >= 3
         }
+
+    val canShowRewardedAd: Boolean
+        get() = isRewardedAdAvailable && totalGamesPlayed >= MIN_GAMES_BEFORE_ADS
+
+    companion object {
+        private const val MIN_GAMES_BEFORE_ADS = 3
+    }
 }
 
 sealed class GameUiEvent {

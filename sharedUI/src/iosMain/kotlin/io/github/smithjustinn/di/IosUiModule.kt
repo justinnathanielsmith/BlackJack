@@ -4,8 +4,10 @@ import androidx.room.Room
 import androidx.sqlite.driver.bundled.BundledSQLiteDriver
 import io.github.smithjustinn.data.local.AppDatabase
 import io.github.smithjustinn.data.local.AppDatabaseConstructor
+import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticsService
+import io.github.smithjustinn.services.IosAdService
 import io.github.smithjustinn.services.IosAudioServiceImpl
 import io.github.smithjustinn.services.IosHapticsServiceImpl
 import kotlinx.coroutines.CoroutineScope
@@ -22,6 +24,7 @@ val iosUiModule =
         single<CoroutineScope> { CoroutineScope(SupervisorJob() + Dispatchers.Main) }
         singleOf(::IosHapticsServiceImpl) { bind<HapticsService>() }
         singleOf(::IosAudioServiceImpl) { bind<AudioService>() }
+        singleOf(::IosAdService) { bind<AdService>() }
         single<AppDatabase> {
             val dbFile = NSHomeDirectory() + "/memory_match.db"
             return@single Room

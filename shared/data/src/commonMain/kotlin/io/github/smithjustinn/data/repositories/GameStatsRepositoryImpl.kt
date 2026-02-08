@@ -24,6 +24,16 @@ class GameStatsRepositoryImpl(
                 emit(null)
             }
 
+    override fun getAllStats(): Flow<List<GameStats>> =
+        dao
+            .getAllStats()
+            .map { entities -> entities.map { it.toDomain() } }
+            .catch { e ->
+                if (e is CancellationException) throw e
+                logger.e(e) { "Error fetching all stats" }
+                emit(emptyList())
+            }
+
     @Suppress("TooGenericExceptionCaught")
     override suspend fun updateStats(stats: GameStats) {
         try {
@@ -40,6 +50,7 @@ class GameStatsRepositoryImpl(
             pairCount = pairCount,
             bestScore = bestScore,
             bestTimeSeconds = bestTimeSeconds,
+            gamesPlayed = gamesPlayed,
         )
 
     private fun GameStats.toEntity(): GameStatsEntity =
@@ -47,5 +58,6 @@ class GameStatsRepositoryImpl(
             pairCount = pairCount,
             bestScore = bestScore,
             bestTimeSeconds = bestTimeSeconds,
+            gamesPlayed = gamesPlayed,
         )
 }

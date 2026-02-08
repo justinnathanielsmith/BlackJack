@@ -33,5 +33,6 @@ dependencies {
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.google.material)
+    implementation(libs.google.play.services.ads)
     implementation(libs.compottie)
 }

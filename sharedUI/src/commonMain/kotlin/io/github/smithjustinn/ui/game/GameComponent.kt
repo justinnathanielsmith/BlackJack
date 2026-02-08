@@ -18,4 +18,6 @@ interface GameComponent {
     fun onWalkthroughAction(isComplete: Boolean)
 
     fun onDoubleDown()
+
+    fun onShowRewardedAd()
 }

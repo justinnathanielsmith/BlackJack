@@ -20,6 +20,7 @@ import io.github.smithjustinn.domain.usecases.game.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.game.StartNewGameUseCase
 import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
 import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
+import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.CoroutineDispatchers
@@ -33,6 +34,7 @@ interface AppGraph {
     val logger: Logger
     val audioService: AudioService
     val hapticsService: HapticsService
+    val adService: AdService
     val coroutineDispatchers: CoroutineDispatchers
     val applicationScope: CoroutineScope
 

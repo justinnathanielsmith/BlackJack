@@ -19,6 +19,7 @@ import io.github.smithjustinn.domain.usecases.game.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.game.StartNewGameUseCase
 import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
 import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
+import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.CoroutineDispatchers
@@ -32,6 +33,7 @@ class KoinAppGraph :
     override val logger: Logger by inject()
     override val audioService: AudioService by inject()
     override val hapticsService: HapticsService by inject()
+    override val adService: AdService by inject()
     override val coroutineDispatchers: CoroutineDispatchers by inject()
     override val applicationScope: CoroutineScope by inject()
 

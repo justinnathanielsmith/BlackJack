@@ -6,5 +6,7 @@ import kotlinx.coroutines.flow.Flow
 interface GameStatsRepository {
     fun getStatsForDifficulty(pairCount: Int): Flow<GameStats?>
 
+    fun getAllStats(): Flow<List<GameStats>>
+
     suspend fun updateStats(stats: GameStats)
 }

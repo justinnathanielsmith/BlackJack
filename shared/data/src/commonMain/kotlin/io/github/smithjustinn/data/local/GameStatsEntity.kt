@@ -8,4 +8,5 @@ data class GameStatsEntity(
     @PrimaryKey val pairCount: Int,
     val bestScore: Int,
     val bestTimeSeconds: Long,
+    val gamesPlayed: Int = 0,
 )
