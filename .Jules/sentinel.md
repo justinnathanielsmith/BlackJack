@@ -56,4 +56,10 @@ This could lead to invalid game states (e.g., starting with negative time in Tim
 **Remediation:**
 1.  Added `require(elapsedTimeSeconds >= 0)` in `SavedGame` init block.
 2.  Added `require(initialTimeSeconds >= 0)` in `GameStateMachine` init block.
-3.  Added reproduction test `SecurityReproductionTest` to verify the fix (and then removed it).
+    3.  Added reproduction test `SecurityReproductionTest` to verify the fix (and then removed it).
+
+## 2026-02-08 - [Seed Injection in Daily Challenge]
+**Vulnerability:** Seed and Pair Count Injection via Deep Links
+**Learning:** `DAILY_CHALLENGE` mode was intended to be deterministic across all players (same board for everyone), but the implementation allowed overriding the `seed` and `pairCount` through `GameArgs`. This meant a user could force a specific board layout (e.g., an extremely easy one or one already solved) using a Deep Link while still being in `DAILY_CHALLENGE` mode, potentially cheating on leaderboards.
+**Prevention:** Enforce domain-specific invariants at the game initialization boundary. For special modes like `DAILY_CHALLENGE`, explicitly ignore or validate external parameters that must be derived from the system's source of truth (like the date-based seed).
+

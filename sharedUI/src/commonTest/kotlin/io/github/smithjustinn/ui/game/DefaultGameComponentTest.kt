@@ -21,6 +21,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
+import kotlin.time.Clock
 
 class DefaultGameComponentTest : BaseComponentTest() {
     private lateinit var component: DefaultGameComponent
@@ -193,21 +194,59 @@ class DefaultGameComponentTest : BaseComponentTest() {
             }
         }
 
+    @Test
+    fun `Daily Challenge always uses date-based seed and ignores passed seed`() =
+        runTest { lifecycle ->
+            // Given
+            val customSeed = 12345L
+            val expectedSeed = Clock.System.now().toEpochMilliseconds() / 86400000L
+
+            // When
+            component =
+                createComponentWithArgs(
+                    lifecycle,
+                    GameArgs(
+                        pairCount = 12, // Should be ignored and set to 8
+                        mode = GameMode.DAILY_CHALLENGE,
+                        difficulty = DifficultyType.SHARK,
+                        seed = customSeed, // Should be ignored
+                        forceNewGame = true,
+                    ),
+                )
+            testDispatcher.scheduler.runCurrent()
+
+            // Then
+            component.state.test {
+                val state = awaitItem()
+                assertEquals(GameMode.DAILY_CHALLENGE, state.game.mode)
+                assertEquals(8, state.game.pairCount, "Daily Challenge should always use 8 pairs")
+                assertEquals(expectedSeed, state.game.seed, "Daily Challenge should use date-based seed")
+            }
+        }
+
     private fun createComponent(
         lifecycle: Lifecycle,
         forceNewGame: Boolean,
     ): DefaultGameComponent =
+        createComponentWithArgs(
+            lifecycle,
+            GameArgs(
+                pairCount = 8,
+                mode = GameMode.TIME_ATTACK,
+                difficulty = DifficultyType.CASUAL,
+                seed = null,
+                forceNewGame = forceNewGame,
+            ),
+        )
+
+    private fun createComponentWithArgs(
+        lifecycle: Lifecycle,
+        args: GameArgs,
+    ): DefaultGameComponent =
         DefaultGameComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
             appGraph = context.appGraph,
-            args =
-                GameArgs(
-                    pairCount = 8,
-                    mode = GameMode.TIME_ATTACK,
-                    difficulty = DifficultyType.CASUAL,
-                    seed = null,
-                    forceNewGame = forceNewGame,
-                ),
+            args = args,
             onBackClicked = {},
         )
 }

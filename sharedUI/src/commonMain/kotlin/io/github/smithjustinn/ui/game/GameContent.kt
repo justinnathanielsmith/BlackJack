@@ -318,21 +318,23 @@ private fun GameMainContent(
             { component.onDoubleDown() }
         }
 
-    val gridCardState = remember(state.game.cards, state.game.lastMatchedIds, state.isPeeking) {
-        GridCardState(
-            cards = state.game.cards,
-            lastMatchedIds = state.game.lastMatchedIds,
-            isPeeking = state.isPeeking,
-        )
-    }
+    val gridCardState =
+        remember(state.game.cards, state.game.lastMatchedIds, state.isPeeking) {
+            GridCardState(
+                cards = state.game.cards,
+                lastMatchedIds = state.game.lastMatchedIds,
+                isPeeking = state.isPeeking,
+            )
+        }
 
-    val gridSettings = remember(state.cardTheme, state.areSuitsMultiColored, state.showComboExplosion) {
-        GridSettings(
-            cardTheme = state.cardTheme,
-            areSuitsMultiColored = state.areSuitsMultiColored,
-            showComboExplosion = state.showComboExplosion,
-        )
-    }
+    val gridSettings =
+        remember(state.cardTheme, state.areSuitsMultiColored, state.showComboExplosion) {
+            GridSettings(
+                cardTheme = state.cardTheme,
+                areSuitsMultiColored = state.areSuitsMultiColored,
+                showComboExplosion = state.showComboExplosion,
+            )
+        }
 
     Box(modifier = modifier.fillMaxSize()) {
         GameGrid(

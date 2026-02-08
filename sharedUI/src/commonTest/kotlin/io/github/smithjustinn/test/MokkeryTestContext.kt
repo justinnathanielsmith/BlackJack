@@ -18,6 +18,7 @@ import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
 import io.github.smithjustinn.domain.repositories.ShopItemRepository
+import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.domain.usecases.economy.DefaultEarnCurrencyUseCase
 import io.github.smithjustinn.domain.usecases.game.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.game.ClearSavedGameUseCase
@@ -51,6 +52,7 @@ class MokkeryTestContext(
     val shopItemRepository: ShopItemRepository = mock()
     val audioService: AudioService = mock()
     val hapticsService: HapticsService = mock()
+    val adService: AdService = mock()
     val logger: Logger = Logger(StaticConfig())
 
     val appGraph: AppGraph = mock()
@@ -78,6 +80,7 @@ class MokkeryTestContext(
         every { appGraph.shopItemRepository } returns shopItemRepository
         every { appGraph.audioService } returns audioService
         every { appGraph.hapticsService } returns hapticsService
+        every { appGraph.adService } returns adService
         every { appGraph.logger } returns logger
         every { appGraph.coroutineDispatchers } returns coroutineDispatchers
         every { appGraph.applicationScope } returns TestScope(coroutineDispatchers.main)
@@ -123,6 +126,10 @@ class MokkeryTestContext(
         everySuspend { gameStateRepository.saveGameState(any(), any()) } returns Unit
         everySuspend { gameStatsRepository.getStatsForDifficulty(any()) } returns
             MutableStateFlow(null)
+        every { gameStatsRepository.getAllStats() } returns MutableStateFlow(emptyList())
+
+        everySuspend { adService.loadRewardedAd(any()) } returns Unit
+        everySuspend { adService.showRewardedAd(any()) } returns Unit
 
         // Leaderboard defaults
         DifficultyLevel.defaultLevels.forEach { level ->

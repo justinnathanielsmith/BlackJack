@@ -185,6 +185,7 @@ class StartComponentTest : BaseComponentTest() {
             onNavigateToSettings = { navigatedToSettings = true },
             onNavigateToStats = { navigatedToStats = true },
             onNavigateToShop = {},
+            onNavigateToDebug = {},
         )
 }
 

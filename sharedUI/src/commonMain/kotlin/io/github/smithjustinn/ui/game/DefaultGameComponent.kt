@@ -273,16 +273,24 @@ class DefaultGameComponent(
         difficulty: DifficultyType,
         seed: Long?,
     ): MemoryGameState {
-        val finalSeed =
-            seed ?: if (mode == GameMode.DAILY_CHALLENGE) {
-                Clock.System.now().toEpochMilliseconds() / GameConstants.MILLIS_IN_DAY
+        // Security: For Daily Challenge, we MUST use the date-based seed and standard pair count (8)
+        // to ensure fairness and prevent seed/parameter injection via deep links.
+        val (finalPairCount, finalSeed) =
+            if (mode == GameMode.DAILY_CHALLENGE) {
+                val dailySeed = Clock.System.now().toEpochMilliseconds() / GameConstants.MILLIS_IN_DAY
+                8 to dailySeed
             } else {
-                null
+                pairCount to seed
             }
 
         val initialState =
             appGraph
-                .startNewGameUseCase(pairCount, mode = mode, difficulty = difficulty, seed = finalSeed)
+                .startNewGameUseCase(
+                    pairCount = finalPairCount,
+                    mode = mode,
+                    difficulty = difficulty,
+                    seed = finalSeed,
+                )
 
         _events.tryEmit(GameUiEvent.PlayDeal)
         return initialState
