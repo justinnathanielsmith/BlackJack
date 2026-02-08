@@ -60,17 +60,21 @@ class GameStateSyncManager(
 
     private suspend fun handleRequest(request: SyncRequest) {
         debounceJob?.cancel()
-        debounceJob = scope.launch(dispatchers.default) {
-            delay(DEBOUNCE_DELAY_MS)
-            mutex.withLock {
-                performSave(request.state, request.time)
+        debounceJob =
+            scope.launch(dispatchers.default) {
+                delay(DEBOUNCE_DELAY_MS)
+                mutex.withLock {
+                    performSave(request.state, request.time)
+                }
             }
-        }
     }
 
-    private fun performSave(state: MemoryGameState, time: Long) {
+    private fun performSave(
+        state: MemoryGameState,
+        time: Long,
+    ) {
         if (state == lastSavedState && time == lastSavedTime) return
-        
+
         onSave(state, time)
         lastSavedState = state
         lastSavedTime = time
@@ -79,7 +83,10 @@ class GameStateSyncManager(
     /**
      * Force-saves the current state if it hasn't been saved yet.
      */
-    suspend fun flush(state: MemoryGameState, time: Long) {
+    suspend fun flush(
+        state: MemoryGameState,
+        time: Long,
+    ) {
         debounceJob?.cancel()
         mutex.withLock {
             performSave(state, time)
@@ -88,12 +95,12 @@ class GameStateSyncManager(
 
     enum class Priority {
         NORMAL,
-        HIGH
+        HIGH,
     }
 
     private data class SyncRequest(
         val state: MemoryGameState,
-        val time: Long
+        val time: Long,
     )
 
     companion object {
