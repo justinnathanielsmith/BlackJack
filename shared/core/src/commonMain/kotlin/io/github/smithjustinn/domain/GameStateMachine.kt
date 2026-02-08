@@ -48,6 +48,7 @@ class GameStateMachine(
     private val mutex = Mutex()
 
     init {
+        require(initialTimeSeconds >= 0) { "Initial time cannot be negative" }
         // Initial save
         onSaveState(initialState, internalTimeSeconds)
     }

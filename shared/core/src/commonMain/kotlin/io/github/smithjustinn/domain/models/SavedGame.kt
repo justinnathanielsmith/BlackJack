@@ -10,4 +10,8 @@ import kotlinx.serialization.Serializable
 data class SavedGame(
     val gameState: MemoryGameState,
     val elapsedTimeSeconds: Long,
-)
+) {
+    init {
+        require(elapsedTimeSeconds >= 0) { "Elapsed time cannot be negative" }
+    }
+}

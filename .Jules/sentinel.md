@@ -42,3 +42,18 @@ Invalid values (negative bonuses, penalties > 100%) could lead to logic corrupti
 **Remediation:**
 1.  Added strict `require` checks in the `init` block for `potMismatchPenalty` (0.0..1.0) and non-negative values for other fields.
 2.  Added unit tests in `ScoringConfigTest` to verify the validation logic.
+
+## 2024-05-22: Input Validation Fix in SavedGame and GameStateMachine
+
+**Type:** Validation
+**Severity:** MEDIUM
+**Component:** `shared/core` / `SavedGame`, `GameStateMachine`
+
+**Finding:**
+`SavedGame` allowed negative `elapsedTimeSeconds`, and `GameStateMachine` allowed negative `initialTimeSeconds`.
+This could lead to invalid game states (e.g., starting with negative time in Time Attack mode) if a save file was corrupted or tampered with.
+
+**Remediation:**
+1.  Added `require(elapsedTimeSeconds >= 0)` in `SavedGame` init block.
+2.  Added `require(initialTimeSeconds >= 0)` in `GameStateMachine` init block.
+3.  Added reproduction test `SecurityReproductionTest` to verify the fix (and then removed it).
