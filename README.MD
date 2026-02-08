@@ -70,66 +70,91 @@ Success breeds intensity. By matching multiple pairs in quick succession, you bu
 *   **Tactile Haptics**: Professional grade, platform-optimized haptic feedback (CoreHaptics on iOS, VibratorManager on Android) for every interaction.
 *   **State Persistence**: Your progress is automatically saved locally using **Room KMP**, allowing you to resume any game exactly where you left off.
 *   **Deep-Linked Replays**: Share specific game configurations via deep links (`memorymatch://game?seed=...`). Every game generates a unique seed for sharing exact card layouts.
+*   **Rewarded Ads**: Integrated "Panic Button" in Time Attack mode to gain bonus time by watching a rewarded ad (Android/iOS). See **[REWARDED_ADS_GUIDE.md](docs/REWARDED_ADS_GUIDE.md)**.
 *   **Comprehensive Stats**: Track your best scores, fastest times, and total moves across all difficulty levels and game modes.
 
 ---
 
 ## 🏗 Modular Architecture
 
-The project follows a **Local-First, Modular-Core** strategy within the `sharedUI` module, ensuring that 95% of business logic and UI remains shared while maintaining platform-specific performance.
+The project follows a **Local-First, Modular-Core** strategy, ensuring that 95% of business logic remains shared while maintaining platform-specific performance.
 
 ```mermaid
 graph TD
-    subgraph SharedCore [Shared Core - commonMain]
+    subgraph UI_Layer [sharedUI]
         direction TB
         UI[Compose Multiplatform UI]
         C[Decompose Components]
-        Domain[Clean Domain Layer]
-        Expect[Expect/Actual Abstractions]
     end
 
-    subgraph Platforms [Platform Implementations]
-        Android[androidMain]
-        iOS[iosMain]
-        Desktop[desktopMain]
+    subgraph Core_Layer [shared:core]
+        GSM[GameStateMachine]
+        Domain[Domain Models & Logic]
+    end
+
+    subgraph Data_Layer [shared:data]
+        DB[Room KMP Database]
+        API[Ktor Network Client]
+        Repo[Repositories]
+    end
+
+    subgraph Platforms [App Modules]
+        Android[androidApp]
+        iOS[iosApp]
+        Desktop[desktopApp]
     end
 
     UI --> C
-    C --> Domain
-    Domain -.-> Expect
-    Expect -.-> Android
-    Expect -.-> iOS
-    Expect -.-> Desktop
+    C --> GSM
+    GSM --> Domain
+    C --> Repo
+    Repo --> DB
+    Repo --> API
 
-    androidApp --> SharedCore
-    iosApp --> SharedCore
-    desktopApp --> SharedCore
+    Android --> UI_Layer
+    iOS --> UI_Layer
+    Desktop --> UI_Layer
 ```
 
 ### 🧠 Modern 2026 Idioms
-- **Context Parameters**: Leveraging `-Xcontext-parameters` for clean, boilerplate-free dependency injection in functions.
+- **Context Parameters**: Leveraging `-Xcontext-parameters` for clean, boilerplate-free dependency injection.
 - **Strong Skipping**: Optimized for Compose Multiplatform performance using `kotlinx.collections.immutable`.
 - **K2 Compiler Flow**: Fully optimized for the K2 compiler, ensuring sub-second incremental build times.
+- **Local-First Data**: Powered by **Room KMP**, providing a seamless offline-first experience.
 - **AI-Native**: Designed to be navigated and extended by both humans and AI agents (see `AGENTS.md`).
 
 ---
 
-## 🏛 Architecture (MVVM)
+## 🏛 Architecture (MVI + Component-Based)
 
-We use a **Component-Based MVVM** pattern powered by **Decompose**, ensuring strict state management and lifecycle awareness across all platforms.
+We use a **Component-Based MVI** pattern powered by **Decompose**, ensuring strict state management and lifecycle awareness.
 
-| Role          | Responsibility             | Implementation                               |
-| :------------ | :------------------------- | :------------------------------------------- |
-| **Model**     | Business Logic & Data      | Domain Models, UseCases, Repositories        |
-| **View**      | UI Representation          | Compose Multiplatform (`@Composable`)        |
-| **ViewModel** | State & Logic Orchestrator | Decompose Components (e.g., `GameComponent`) |
+| Layer          | Responsibility             | Implementation                               |
+| :------------- | :------------------------- | :------------------------------------------- |
+| **Presentation**| UI & Platform Interop      | Compose Multiplatform (`@Composable`)        |
+| **Navigation**  | Lifecycle & Backstack      | Decompose Components (e.g., `GameComponent`) |
+| **Logic**       | State Machine & Rules      | `GameStateMachine` + `MemoryGameLogic`       |
+| **Data**        | Persistence & Networking   | Room KMP, Ktor, Repositories                 |
 
 ### 🔄 Unidirectional Data Flow (UDF)
 
-1.  **State Exposure**: Components expose a single, immutable `StateFlow<UIState>` (e.g., `GameUIState`) that the UI observes.
-2.  **User Intent**: The UI communicates user actions (e.g., `onFlipCard`) by calling methods directly on the Component.
-3.  **Side Effects**: One-time ephemeral events (e.g., playing a sound, vibrating, or navigating) are broadcast via a `Flow` or `Channel` to be collected by the UI or platform layer.
-4.  **Lifecycle Safety**: Components are tied to the Decompose lifecycle, ensuring state is preserved during configuration changes but cleared when the screen is destroyed.
+1.  **State Exposure**: Components expose a single, immutable `StateFlow<UIState>` that the UI observes.
+2.  **User Intent**: The UI communicates user actions (e.g., `onFlipCard`) by calling methods on the Component, which are dispatched to the `GameStateMachine`.
+3.  **Side Effects**: One-time ephemeral events (sounds, haptics) are broadcast via a `SharedFlow` to be collected by the UI.
+4.  **Game Engine**: Deep dive into the mechanics in **[GAME_ENGINE.md](docs/GAME_ENGINE.md)**.
+
+---
+
+## 📦 Module Responsibilities
+
+| Module           | Responsibility                                                                 |
+| :--------------- | :----------------------------------------------------------------------------- |
+| `:shared:core`   | The "Brain". Contains domain models, `GameStateMachine`, and common utilities. |
+| `:shared:data`   | The "Memory". Manages `Room` database, `Ktor` network client, and repositories.|
+| `:sharedUI`      | The "Body". All `Compose` UI, `Decompose` components, and platform abstractions.|
+| `:androidApp`    | Android entry point, `AndroidManifest`, and specific platform initialization. |
+| `:iosApp`        | iOS Swift entry point (UIKit wrapper) and Xcode project configuration.         |
+| `:desktopApp`    | Desktop JVM entry point and JavaFX-powered audio support.                      |
 
 ---
 
