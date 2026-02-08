@@ -17,7 +17,7 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.test.BaseComponentTest
-import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.BeforeTest
@@ -93,7 +93,7 @@ class GameComponentTest : BaseComponentTest() {
                 MemoryGameState(
                     pairCount = 8,
                     mode = GameMode.TIME_ATTACK,
-                    cards = (listOf(card1, card2) + otherCards).toImmutableList(),
+                    cards = (listOf(card1, card2) + otherCards).toPersistentList(),
                 )
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
@@ -103,7 +103,7 @@ class GameComponentTest : BaseComponentTest() {
             testDispatcher.scheduler.runCurrent()
 
             component.onFlipCard(1)
-            testDispatcher.scheduler.runCurrent()
+            testDispatcher.scheduler.advanceUntilIdle()
 
             assertTrue(
                 component.state.value.game.cards
@@ -195,7 +195,7 @@ class GameComponentTest : BaseComponentTest() {
                 MemoryGameState(
                     pairCount = 8,
                     mode = GameMode.TIME_ATTACK,
-                    cards = cards.toImmutableList(),
+                    cards = cards.toPersistentList(),
                     // High multiplier
                     comboMultiplier = 3,
                 )
@@ -233,7 +233,7 @@ class GameComponentTest : BaseComponentTest() {
                     }
 
             val savedGame =
-                MemoryGameState(pairCount = 8, mode = GameMode.TIME_ATTACK, cards = cards.toImmutableList())
+                MemoryGameState(pairCount = 8, mode = GameMode.TIME_ATTACK, cards = cards.toPersistentList())
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
                 SavedGame(savedGame, 30L)
@@ -278,7 +278,7 @@ class GameComponentTest : BaseComponentTest() {
                 MemoryGameState(
                     pairCount = 3,
                     mode = GameMode.TIME_ATTACK,
-                    cards = cards.toImmutableList(),
+                    cards = cards.toPersistentList(),
                     comboMultiplier = 10, // Heat Mode active
                     isDoubleDownActive = false,
                 )
@@ -305,7 +305,7 @@ class GameComponentTest : BaseComponentTest() {
                         CardState(id = 7, suit = Suit.Spades, rank = Rank.Four),
                         CardState(id = 8, suit = Suit.Spades, rank = Rank.Four),
                     )
-            val gameWithMorePairs = gameWithHighCombo.copy(cards = moreCards.toImmutableList(), pairCount = 4)
+            val gameWithMorePairs = gameWithHighCombo.copy(cards = moreCards.toPersistentList(), pairCount = 4)
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
                 SavedGame(gameWithMorePairs, 0L)

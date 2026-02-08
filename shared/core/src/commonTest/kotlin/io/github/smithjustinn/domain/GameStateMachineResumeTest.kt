@@ -138,5 +138,6 @@ class GameStateMachineResumeTest : BaseLogicTest() {
         initialTimeSeconds = initialTimeSeconds,
         earnCurrencyUseCase = earnCurrencyUseCase,
         onSaveState = onSaveState,
+        isResumed = true,
     )
 }

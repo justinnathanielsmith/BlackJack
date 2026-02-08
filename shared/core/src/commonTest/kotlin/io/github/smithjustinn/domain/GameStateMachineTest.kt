@@ -65,11 +65,11 @@ class GameStateMachineTest : BaseLogicTest() {
                 state.cards.find { it.id != firstCard.id && it.suit == firstCard.suit && it.rank == firstCard.rank }
                     ?: error("No matching card found")
 
-            var savedState: MemoryGameState? = null
+            val savedStates = mutableListOf<MemoryGameState>()
             val machine =
                 createStateMachine(
                     initialState = state,
-                    onSaveState = { s, _ -> savedState = s },
+                    onSaveState = { s, _ -> savedStates.add(s) },
                 )
 
             machine.effects.test {
@@ -94,9 +94,12 @@ class GameStateMachineTest : BaseLogicTest() {
                 assertEquals(0, currentState.score, "Score should be 0 (points in pot)")
                 assertTrue(currentState.currentPot > 0, "Pot should be greater than 0")
 
-                // Advance time to allow debounced save to trigger
-                advanceTimeBy(2001)
-                assertEquals(currentState, savedState)
+                // Ensure background saves are processed
+                advanceUntilIdle()
+                assertTrue(
+                    savedStates.contains(currentState),
+                    "Saved states should contain the matched state. Found: ${savedStates.map { it.moves }}"
+                )
             }
         }
 
@@ -252,5 +255,6 @@ class GameStateMachineTest : BaseLogicTest() {
         initialTimeSeconds = initialTimeSeconds,
         earnCurrencyUseCase = earnCurrencyUseCase,
         onSaveState = onSaveState,
+        isResumed = false,
     )
 }

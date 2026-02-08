@@ -34,6 +34,7 @@ class GameStateMachine(
     private val initialTimeSeconds: Long,
     private val earnCurrencyUseCase: EarnCurrencyUseCase,
     private val onSaveState: (MemoryGameState, Long) -> Unit,
+    private val isResumed: Boolean = false,
 ) {
     private val _state = MutableStateFlow(initialState)
     val state: StateFlow<MemoryGameState> = _state.asStateFlow()
@@ -45,13 +46,16 @@ class GameStateMachine(
 
     private val gameTimer = GameTimer(scope, dispatchers) { dispatch(GameAction.Tick) }
     private var peekJob: Job? = null
-    private var saveJob: Job? = null
     private val mutex = Mutex()
+    private val syncManager = GameStateSyncManager(scope, dispatchers, onSaveState)
 
     init {
         require(initialTimeSeconds >= 0) { "Initial time cannot be negative" }
-        // Initial save
-        onSaveState(initialState, internalTimeSeconds)
+        
+        // Only trigger initial save for new games to avoid redundant I/O on resume
+        if (!isResumed) {
+            syncManager.sync(initialState, internalTimeSeconds, GameStateSyncManager.Priority.HIGH)
+        }
 
         // Fix: If we are resuming a game with mismatched or too many flipped cards, we need to schedule their reset.
         // Also clear lastMatchedIds to avoid showing stale match animations on resume.
@@ -60,7 +64,9 @@ class GameStateMachine(
         val hasError = cards.any { it.isError }
 
         if (hasError || faceUpUnmatched >= 2 || initialState.lastMatchedIds.isNotEmpty()) {
-            _state.update { it.copy(lastMatchedIds = persistentListOf()) }
+            val updatedState = initialState.copy(lastMatchedIds = persistentListOf())
+            updateState(updatedState)
+
             if (hasError || faceUpUnmatched >= 2) {
                 scope.launch(dispatchers.default) {
                     val delayMs =
@@ -83,7 +89,7 @@ class GameStateMachine(
 
                 when (action) {
                     is GameAction.StartGame -> {
-                        if (action.gameState != null) _state.update { action.gameState }
+                        if (action.gameState != null) updateState(action.gameState)
                         startTimer()
                     }
                     is GameAction.FlipCard -> handleFlipCard(action)
@@ -92,7 +98,7 @@ class GameStateMachine(
                     is GameAction.ScanCards -> handleScanCards(action)
                     is GameAction.Tick -> handleTick()
                     is GameAction.Restart -> { /* Handled by UI */ }
-                    is GameAction.ClearComment -> _state.update { it.copy(matchComment = null) }
+                    is GameAction.ClearComment -> updateState(_state.value.copy(matchComment = null))
                 }
             }
         }
@@ -238,18 +244,17 @@ class GameStateMachine(
                         .map {
                             if (!it.isMatched) it.copy(isFaceUp = true) else it
                         }.toPersistentList()
-                _state.update { it.copy(cards = peekCards) }
+                updateState(currentState.copy(cards = peekCards))
 
                 delay(action.durationMs)
 
-                _state.update { s ->
-                    val hiddenCards =
-                        s.cards
-                            .map {
-                                if (!it.isMatched) it.copy(isFaceUp = false) else it
-                            }.toPersistentList()
-                    s.copy(cards = hiddenCards)
-                }
+                val latestState = _state.value
+                val hiddenCards =
+                    latestState.cards
+                        .map {
+                            if (!it.isMatched) it.copy(isFaceUp = false) else it
+                        }.toPersistentList()
+                updateState(latestState.copy(cards = hiddenCards))
             }
     }
 
@@ -285,26 +290,24 @@ class GameStateMachine(
 
     fun stopTimer() = gameTimer.stop()
 
-    private fun updateState(newState: MemoryGameState) {
-        _state.value = newState
-        if (newState.isGameOver) {
-            saveJob?.cancel()
-            onSaveState(newState, internalTimeSeconds)
-        } else {
-            triggerDebouncedSave()
-        }
+    /**
+     * Ensures all pending state changes are saved. Call this when the game session ends.
+     */
+    suspend fun flush() {
+        syncManager.flush(_state.value, internalTimeSeconds)
     }
 
-    private fun triggerDebouncedSave() {
-        if (saveJob?.isActive == true) return
+    private fun updateState(newState: MemoryGameState) {
+        val oldMoves = _state.value.moves
+        _state.value = newState
 
-        saveJob =
-            scope.launch(dispatchers.default) {
-                delay(SAVE_DEBOUNCE_DELAY_MS)
-                mutex.withLock {
-                    onSaveState(_state.value, internalTimeSeconds)
-                }
-            }
+        val priority = if (newState.isGameOver || newState.moves > oldMoves) {
+            GameStateSyncManager.Priority.HIGH
+        } else {
+            GameStateSyncManager.Priority.NORMAL
+        }
+
+        syncManager.sync(newState, internalTimeSeconds, priority)
     }
 
     private fun emitEffect(effect: GameEffect) = _effects.tryEmit(effect)
@@ -312,7 +315,6 @@ class GameStateMachine(
     companion object {
         const val MISMATCH_DELAY_MS = 1000L
         private const val LOW_TIME_WARNING_THRESHOLD = 5L
-        private const val SAVE_DEBOUNCE_DELAY_MS = 2000L
     }
 }
 
