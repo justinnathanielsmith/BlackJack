@@ -202,6 +202,20 @@ object MemoryGameLogic {
         return if (changed) state.copy(cards = currentCards) else state
     }
 
+    fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState {
+        var currentCards = state.cards
+        var changed = false
+
+        currentCards.forEachIndexed { index, card ->
+            if (!card.isMatched && card.isFaceUp) {
+                currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false))
+                changed = true
+            }
+        }
+
+        return if (changed) state.copy(cards = currentCards) else state
+    }
+
     fun applyFinalBonuses(
         state: MemoryGameState,
         elapsedTimeSeconds: Long,
@@ -216,19 +230,9 @@ object MemoryGameLogic {
 object MemoryGameActions {
     private const val MIRAGE_MOVE_INTERVAL = 5
 
-    fun resetErrorCards(state: MemoryGameState): MemoryGameState {
-        var currentCards = state.cards
-        var changed = false
+    fun resetErrorCards(state: MemoryGameState): MemoryGameState = MemoryGameLogic.resetErrorCards(state)
 
-        currentCards.forEachIndexed { index, card ->
-            if (card.isError) {
-                currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false))
-                changed = true
-            }
-        }
-
-        return if (changed) state.copy(cards = currentCards) else state
-    }
+    fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState = MemoryGameLogic.resetUnmatchedCards(state)
 
     fun activateDoubleDown(state: MemoryGameState): MemoryGameState {
         val unmatchedPairs = state.cards.count { !it.isMatched } / 2

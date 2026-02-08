@@ -6,6 +6,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.usecases.economy.EarnCurrencyUseCase
 import io.github.smithjustinn.utils.CoroutineDispatchers
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -51,6 +52,28 @@ class GameStateMachine(
         require(initialTimeSeconds >= 0) { "Initial time cannot be negative" }
         // Initial save
         onSaveState(initialState, internalTimeSeconds)
+
+        // Fix: If we are resuming a game with mismatched or too many flipped cards, we need to schedule their reset.
+        // Also clear lastMatchedIds to avoid showing stale match animations on resume.
+        val cards = initialState.cards
+        val faceUpUnmatched = cards.count { it.isFaceUp && !it.isMatched }
+        val hasError = cards.any { it.isError }
+
+        if (hasError || faceUpUnmatched >= 2 || initialState.lastMatchedIds.isNotEmpty()) {
+            _state.update { it.copy(lastMatchedIds = persistentListOf()) }
+            if (hasError || faceUpUnmatched >= 2) {
+                scope.launch(dispatchers.default) {
+                    val delayMs =
+                        if (initialState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
+                            MISMATCH_DELAY_MS / 2
+                        } else {
+                            MISMATCH_DELAY_MS
+                        }
+                    delay(delayMs)
+                    dispatch(GameAction.ProcessMismatch)
+                }
+            }
+        }
     }
 
     fun dispatch(action: GameAction) {
@@ -145,65 +168,65 @@ class GameStateMachine(
             updateTime { it + bonus }
             +GameEffect.TimerUpdate(internalTimeSeconds + bonus)
             +GameEffect.TimeGain(bonus)
+        }
+        transition { MemoryGameActions.applyMutators(it) }
+    }
+
+    private fun StateMachineBuilder.handleMismatchEvent(flippedState: MemoryGameState) {
+        +GameEffect.PlayFlipSound
+        +GameEffect.PlayMismatch
+        +GameEffect.VibrateMismatch
+
+        scope.launch(dispatchers.default) {
+            val delayMs =
+                if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
+                    MISMATCH_DELAY_MS / 2
+                } else {
+                    MISMATCH_DELAY_MS
                 }
-                transition { MemoryGameActions.applyMutators(it) }
-            }
-        
-            private fun StateMachineBuilder.handleMismatchEvent(flippedState: MemoryGameState) {
-                +GameEffect.PlayFlipSound
-                +GameEffect.PlayMismatch
-                +GameEffect.VibrateMismatch
-        
-                scope.launch(dispatchers.default) {
-                    val delayMs = if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
-                        MISMATCH_DELAY_MS / 2
-                    } else {
-                        MISMATCH_DELAY_MS
-                    }
-                    delay(delayMs)
-                    dispatch(GameAction.ProcessMismatch)
+            delay(delayMs)
+            dispatch(GameAction.ProcessMismatch)
+        }
+        transition { MemoryGameActions.applyMutators(it) }
+    }
+
+    private fun handleDoubleDown() {
+        val result =
+            gameStateMachine(_state.value, internalTimeSeconds) {
+                val newState = MemoryGameActions.activateDoubleDown(_state.value)
+                if (newState != _state.value) {
+                    transition { newState }
+                    +GameEffect.VibrateHeat
+                    // Side effect that triggers another action
+                    scope.launch { dispatch(GameAction.ScanCards(durationMs = 2000)) }
                 }
-                transition { MemoryGameActions.applyMutators(it) }
             }
-        
-            private fun handleDoubleDown() {
-                val result =
-                    gameStateMachine(_state.value, internalTimeSeconds) {
-                        val newState = MemoryGameActions.activateDoubleDown(_state.value)
-                        if (newState != _state.value) {
-                            transition { newState }
-                            +GameEffect.VibrateHeat
-                            // Side effect that triggers another action
-                            scope.launch { dispatch(GameAction.ScanCards(durationMs = 2000)) }
-                        }
+        applyResult(result)
+    }
+
+    private fun handleProcessMismatch() {
+        val result =
+            gameStateMachine(_state.value, internalTimeSeconds) {
+                val currentState = _state.value
+                if (currentState.mode == GameMode.TIME_ATTACK) {
+                    val penalty = currentState.config.timeAttackMismatchPenalty
+                    updateTime { (it - penalty).coerceAtLeast(0) }
+                    +GameEffect.TimerUpdate(internalTimeSeconds - penalty)
+                    +GameEffect.TimeLoss(penalty.toInt())
+                    if (internalTimeSeconds - penalty <= 0L) {
+                        stopTimer()
+                        +GameEffect.VibrateWarning
+                        +GameEffect.PlayLoseSound
+                        transition { currentState.copy(isGameOver = true, isGameWon = false, score = 0) }
+                        +GameEffect.GameOver
+                        return@gameStateMachine
                     }
-                applyResult(result)
+                }
+
+                transition { MemoryGameActions.resetUnmatchedCards(currentState) }
             }
-        
-            private fun handleProcessMismatch() {
-                val result =
-                    gameStateMachine(_state.value, internalTimeSeconds) {
-                        val currentState = _state.value
-                        if (currentState.mode == GameMode.TIME_ATTACK) {
-                            val penalty = currentState.config.timeAttackMismatchPenalty
-                            updateTime { (it - penalty).coerceAtLeast(0) }
-                            +GameEffect.TimerUpdate(internalTimeSeconds - penalty)
-                            +GameEffect.TimeLoss(penalty.toInt())
-                            if (internalTimeSeconds - penalty <= 0L) {
-                                stopTimer()
-                                +GameEffect.VibrateWarning
-                                +GameEffect.PlayLoseSound
-                                transition { currentState.copy(isGameOver = true, isGameWon = false, score = 0) }
-                                +GameEffect.GameOver
-                                return@gameStateMachine
-                            }
-                        }
-        
-                        transition { MemoryGameActions.resetErrorCards(currentState) }
-                    }
-                applyResult(result)
-            }
-        
+        applyResult(result)
+    }
 
     private fun handleScanCards(action: GameAction.ScanCards) {
         peekJob?.cancel()

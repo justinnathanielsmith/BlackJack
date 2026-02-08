@@ -457,8 +457,6 @@ class DefaultGameComponent(
         // Game Over logic already mostly handled by state update in Machine
         // Helper to clear save
         scope.launch {
-            val game = _state.value.game
-
             appGraph.clearSavedGameUseCase()
         }
     }

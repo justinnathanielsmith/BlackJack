@@ -103,7 +103,7 @@ class DoubleDownLogicTest {
 
         // Act: Match the final pair
         val (flippedState, _) = MemoryGameLogic.flipCard(state, card1.id)
-        val (finalState, event) = MemoryGameLogic.flipCard(flippedState, card2.id)
+        val (finalState, _) = MemoryGameLogic.flipCard(flippedState, card2.id)
 
         // Assert
         assertTrue(finalState.isGameWon)
