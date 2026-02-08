@@ -37,6 +37,8 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DifficultyLevel
@@ -47,7 +49,9 @@ import io.github.smithjustinn.resources.debug
 import io.github.smithjustinn.resources.settings
 import io.github.smithjustinn.resources.shop_title
 import io.github.smithjustinn.resources.stats
+import io.github.smithjustinn.resources.wallet_label
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
 import io.github.smithjustinn.ui.components.AppIcons
@@ -317,10 +321,14 @@ private fun MedallionIcon(
     contentDescription: String? = null,
 ) {
     val colors = PokerTheme.colors
+    val hapticsService = LocalAppGraph.current.hapticsService
     val glimmerBrush = if (applyGlimmer) rememberGlimmerBrush() else null
 
     Surface(
-        onClick = onClick,
+        onClick = {
+            hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+            onClick()
+        },
         shape = CircleShape,
         color = backgroundColor,
         border =
@@ -362,6 +370,9 @@ private fun WalletBadge(
     amount: Long,
     modifier: Modifier = Modifier,
 ) {
+    val walletLabel = stringResource(Res.string.wallet_label)
+    val formattedAmount = stringResource(Res.string.clean_number_format, amount)
+
     Surface(
         shape = CircleShape,
         color = Color.Black.copy(alpha = MEDALLION_BG_ALPHA),
@@ -370,7 +381,12 @@ private fun WalletBadge(
                 MEDALLION_BORDER_WIDTH_DP.dp,
                 PokerTheme.colors.goldenYellow.copy(alpha = MEDALLION_BORDER_ALPHA),
             ),
-        modifier = modifier.height(MEDALLION_SIZE_DP.dp),
+        modifier =
+            modifier
+                .height(MEDALLION_SIZE_DP.dp)
+                .semantics {
+                    contentDescription = "$walletLabel: $formattedAmount"
+                },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -385,7 +401,7 @@ private fun WalletBadge(
             )
 
             Text(
-                text = stringResource(Res.string.clean_number_format, amount),
+                text = formattedAmount,
                 style = MaterialTheme.typography.titleMedium,
                 color = PokerTheme.colors.goldenYellow,
             )

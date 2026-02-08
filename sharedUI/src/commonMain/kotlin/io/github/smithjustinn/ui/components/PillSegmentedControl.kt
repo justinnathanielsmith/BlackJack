@@ -24,6 +24,8 @@ import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 
 @Composable
@@ -54,41 +56,79 @@ fun <T> PillSegmentedControl(
             label = "indicatorOffset",
         )
 
-        // Selected Indicator
-        Box(
-            modifier =
-                Modifier
-                    .width(itemWidth)
-                    .fillMaxHeight()
-                    .offset(x = indicatorOffset)
-                    .clip(shape)
-                    .background(colors.pillSelected),
+        SegmentIndicator(
+            itemWidth = itemWidth,
+            offset = indicatorOffset,
+            shape = shape,
+            color = colors.pillSelected,
         )
 
-        // Labels
-        Row(modifier = Modifier.fillMaxSize()) {
-            items.forEach { item ->
-                val isSelected = item == selectedItem
-                Box(
-                    modifier =
-                        Modifier
-                            .width(itemWidth)
-                            .fillMaxHeight()
-                            .selectable(
-                                selected = isSelected,
-                                onClick = { onItemSelected(item) },
-                                role = Role.RadioButton,
-                            ),
-                    contentAlignment = Alignment.Center,
-                ) {
-                    Text(
-                        text = labelProvider(item),
-                        style = PokerTheme.typography.labelLarge,
-                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
-                        color = if (isSelected) colors.feltGreenDark else Color.White.copy(alpha = 0.7f),
-                        textAlign = TextAlign.Center,
-                    )
-                }
+        SegmentLabels(
+            items = items,
+            selectedItem = selectedItem,
+            itemWidth = itemWidth,
+            onItemSelected = onItemSelected,
+            labelProvider = labelProvider,
+        )
+    }
+}
+
+@Composable
+private fun SegmentIndicator(
+    itemWidth: androidx.compose.ui.unit.Dp,
+    offset: androidx.compose.ui.unit.Dp,
+    shape: RoundedCornerShape,
+    color: Color,
+) {
+    Box(
+        modifier =
+            Modifier
+                .width(itemWidth)
+                .fillMaxHeight()
+                .offset(x = offset)
+                .clip(shape)
+                .background(color),
+    )
+}
+
+@Composable
+private fun <T> SegmentLabels(
+    items: List<T>,
+    selectedItem: T,
+    itemWidth: androidx.compose.ui.unit.Dp,
+    onItemSelected: (T) -> Unit,
+    labelProvider: @Composable (T) -> String,
+) {
+    val hapticsService = LocalAppGraph.current.hapticsService
+    val colors = PokerTheme.colors
+
+    Row(modifier = Modifier.fillMaxSize()) {
+        items.forEach { item ->
+            val isSelected = item == selectedItem
+            Box(
+                modifier =
+                    Modifier
+                        .width(itemWidth)
+                        .fillMaxHeight()
+                        .selectable(
+                            selected = isSelected,
+                            onClick = {
+                                if (!isSelected) {
+                                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                                    onItemSelected(item)
+                                }
+                            },
+                            role = Role.RadioButton,
+                        ),
+                contentAlignment = Alignment.Center,
+            ) {
+                Text(
+                    text = labelProvider(item),
+                    style = PokerTheme.typography.labelLarge,
+                    fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    color = if (isSelected) colors.feltGreenDark else Color.White.copy(alpha = 0.7f),
+                    textAlign = TextAlign.Center,
+                )
             }
         }
     }

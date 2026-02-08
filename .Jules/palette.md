@@ -9,3 +9,10 @@
 
 ### Decompose
 - Remember to use `componentScope` for coroutines in components.
+
+### Tactile Feedback (Haptics)
+- **HapticService**: Inject `LocalAppGraph` to access `hapticsService`. Use `LIGHT` for standard button/selection interactions and `HEAVY` for primary actions (e.g., Starting the game) to provide distinct physical feedback.
+- **Consistency**: Adding haptics to base UI components (`PokerButton`, `PokerChip`, `PillSegmentedControl`) ensures a consistent tactile experience across the entire app without cluttering high-level screen code.
+
+### Wallet Accessibility
+- **Semantic Grouping**: When a custom component like `WalletBadge` displays multiple pieces of info (icon + text), use `Modifier.semantics { contentDescription = "..." }` on the container to provide a clear, unified description for screen readers (e.g., "Wallet: 1,000").

@@ -33,6 +33,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 
 private const val ELEVATION_PRESSED = 2
@@ -96,6 +98,8 @@ private fun PokerChipContent(
     glimmerBrush: Brush?,
     contentDescription: String?,
 ) {
+    val hapticsService = LocalAppGraph.current.hapticsService
+
     Box(
         contentAlignment = Alignment.Center,
         modifier =
@@ -125,7 +129,10 @@ private fun PokerChipContent(
                     selected = isSelected,
                     interactionSource = interactionSource,
                     indication = null,
-                    onClick = onClick,
+                    onClick = {
+                        hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                        onClick()
+                    },
                     role = Role.RadioButton,
                 ),
     ) {

@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 
 private const val PULSE_SCALE_TARGET = 1.05f
@@ -80,6 +82,8 @@ fun PokerButton(
             null
         }
 
+    val hapticsService = LocalAppGraph.current.hapticsService
+
     Box(
         modifier =
             modifier
@@ -89,8 +93,15 @@ fun PokerButton(
                 .clip(PokerTheme.shapes.medium)
                 .then(if (border != null && enabled) Modifier.border(border, PokerTheme.shapes.medium) else Modifier)
                 .background(if (enabled) finalContainerColor else finalContainerColor.copy(alpha = 0.5f))
-                .clickable(enabled = enabled, onClick = onClick)
-                .padding(horizontal = PokerTheme.spacing.medium),
+                .clickable(
+                    enabled = enabled,
+                    onClick = {
+                        hapticsService.performHapticFeedback(
+                            if (isPrimary) HapticFeedbackType.HEAVY else HapticFeedbackType.LIGHT,
+                        )
+                        onClick()
+                    },
+                ).padding(horizontal = PokerTheme.spacing.medium),
         contentAlignment = Alignment.Center,
     ) {
         ButtonContent(
