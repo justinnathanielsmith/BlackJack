@@ -21,6 +21,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -48,6 +49,7 @@ import io.github.smithjustinn.resources.shop_item_active
 import io.github.smithjustinn.resources.shop_item_equip
 import io.github.smithjustinn.resources.shop_item_price_format
 import io.github.smithjustinn.resources.shop_title
+import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.assets.AssetProvider
@@ -68,6 +70,7 @@ fun ShopContent(
     val state by component.state.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val hapticsService = LocalAppGraph.current.hapticsService
+    val audioService = LocalAppGraph.current.audioService
 
     LaunchedEffect(state.error) {
         state.error?.let { error ->
@@ -100,7 +103,10 @@ fun ShopContent(
         ) {
             ShopHeader(
                 balance = state.balance,
-                onBackClicked = { component.onBackClicked() },
+                onBackClicked = {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onBackClicked()
+                },
             )
 
             ShopItemsGrid(
@@ -137,15 +143,14 @@ private fun ShopHeader(
                 .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Icon(
-            imageVector = AppIcons.ArrowBack,
-            contentDescription = stringResource(Res.string.shop_back_description),
-            tint = PokerTheme.colors.onBackground,
-            modifier =
-                Modifier
-                    .size(32.dp)
-                    .clickable { onBackClicked() },
-        )
+        IconButton(onClick = onBackClicked) {
+            Icon(
+                imageVector = AppIcons.ArrowBack,
+                contentDescription = stringResource(Res.string.shop_back_description),
+                tint = PokerTheme.colors.onBackground,
+                modifier = Modifier.size(32.dp),
+            )
+        }
         Spacer(modifier = Modifier.width(16.dp))
         Text(
             text = stringResource(Res.string.shop_title),
