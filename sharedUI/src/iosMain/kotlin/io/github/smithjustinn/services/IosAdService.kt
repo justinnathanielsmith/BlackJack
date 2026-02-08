@@ -2,10 +2,10 @@ package io.github.smithjustinn.services
 
 import io.github.smithjustinn.domain.services.AdService
 import platform.Foundation.NSError
-import platform.UIKit.UIApplication
 import platform.GoogleMobileAds.GADRequest
 import platform.GoogleMobileAds.GADRewardedAd
 import platform.GoogleMobileAds.GADRewardedAdLoadCompletionHandler
+import platform.UIKit.UIApplication
 
 /**
  * iOS implementation of AdService using Google Mobile Ads SDK.
@@ -17,11 +17,12 @@ class IosAdService : AdService {
         GADRewardedAd.loadWithAdUnitID(
             adUnitID = adUnitId,
             request = GADRequest(),
-            completionHandler = { ad: GADRewardedAd?, error: NSError? ->
-                if (error == null) {
-                    rewardedAd = ad
-                }
-            } as GADRewardedAdLoadCompletionHandler,
+            completionHandler =
+                { ad: GADRewardedAd?, error: NSError? ->
+                    if (error == null) {
+                        rewardedAd = ad
+                    }
+                } as GADRewardedAdLoadCompletionHandler,
         )
     }
 

@@ -230,53 +230,7 @@ private fun GameMainScreen(
         modifier = Modifier.fillMaxSize(),
         contentWindowInsets = WindowInsets(0, 0, 0, 0),
         topBar = {
-            GameTopBar(
-                state =
-                    GameTopBarState(
-                        time = state.elapsedTimeSeconds,
-                        mode = state.game.mode,
-                        maxTime = state.maxTimeSeconds,
-                        showTimeGain = state.showTimeGain,
-                        timeGainAmount = state.timeGainAmount,
-                        showTimeLoss = state.showTimeLoss,
-                        timeLossAmount = state.timeLossAmount,
-                        isMegaBonus = state.isMegaBonus,
-                        compact = useCompactUI,
-                        isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
-                        isLowTime =
-                            state.game.mode == GameMode.TIME_ATTACK &&
-                                state.elapsedTimeSeconds <= GameTopBarState.LOW_TIME_THRESHOLD_SEC,
-                        isCriticalTime =
-                            state.game.mode == GameMode.TIME_ATTACK &&
-                                state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
-                        bankedScore = state.game.score,
-                        currentPot = state.game.currentPot,
-                        isHeatMode = state.isHeatMode,
-                    ),
-                onBackClick =
-                    remember(component, audioService) {
-                        {
-                            audioService.playEffect(AudioService.SoundEffect.CLICK)
-                            component.onBack()
-                        }
-                    },
-                onRestartClick =
-                    remember(component, audioService) {
-                        {
-                            audioService.playEffect(AudioService.SoundEffect.CLICK)
-                            component.onRestart()
-                            audioService.startMusic()
-                        }
-                    },
-                onMuteClick =
-                    remember(component, audioService) {
-                        {
-                            audioService.playEffect(AudioService.SoundEffect.CLICK)
-                            component.onToggleAudio()
-                        }
-                    },
-                onScorePositioned = onScorePositioned,
-            )
+            GameTopBarContent(state, component, useCompactUI, onScorePositioned)
         },
     ) { paddingValues ->
         GameMainContent(
@@ -287,6 +241,65 @@ private fun GameMainScreen(
             modifier = Modifier.padding(top = paddingValues.calculateTopPadding()),
         )
     }
+}
+
+@Composable
+private fun GameTopBarContent(
+    state: GameUIState,
+    component: GameComponent,
+    useCompactUI: Boolean,
+    onScorePositioned: (Offset) -> Unit,
+) {
+    val graph = LocalAppGraph.current
+    val audioService = graph.audioService
+
+    GameTopBar(
+        state =
+            GameTopBarState(
+                time = state.elapsedTimeSeconds,
+                mode = state.game.mode,
+                maxTime = state.maxTimeSeconds,
+                showTimeGain = state.showTimeGain,
+                timeGainAmount = state.timeGainAmount,
+                showTimeLoss = state.showTimeLoss,
+                timeLossAmount = state.timeLossAmount,
+                isMegaBonus = state.isMegaBonus,
+                compact = useCompactUI,
+                isAudioEnabled = state.isMusicEnabled || state.isSoundEnabled,
+                isLowTime =
+                    state.game.mode == GameMode.TIME_ATTACK &&
+                        state.elapsedTimeSeconds <= GameTopBarState.LOW_TIME_THRESHOLD_SEC,
+                isCriticalTime =
+                    state.game.mode == GameMode.TIME_ATTACK &&
+                        state.elapsedTimeSeconds <= GameTopBarState.CRITICAL_TIME_THRESHOLD_SEC,
+                bankedScore = state.game.score,
+                currentPot = state.game.currentPot,
+                isHeatMode = state.isHeatMode,
+            ),
+        onBackClick =
+            remember(component, audioService) {
+                {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onBack()
+                }
+            },
+        onRestartClick =
+            remember(component, audioService) {
+                {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onRestart()
+                    audioService.startMusic()
+                }
+            },
+        onMuteClick =
+            remember(component, audioService) {
+                {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onToggleAudio()
+                }
+            },
+        onScorePositioned = onScorePositioned,
+    )
 }
 
 @Composable

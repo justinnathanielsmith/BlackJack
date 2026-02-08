@@ -3,9 +3,6 @@ package io.github.smithjustinn.androidApp
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.unloadKoinModules
-import org.koin.dsl.module
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -18,11 +15,15 @@ import com.arkivanov.decompose.defaultComponentContext
 import io.github.smithjustinn.App
 import io.github.smithjustinn.ui.root.DeepLinkHandler
 import io.github.smithjustinn.ui.root.DefaultRootComponent
+import org.koin.core.context.loadKoinModules
+import org.koin.core.context.unloadKoinModules
+import org.koin.dsl.module
 
 class AppActivity : ComponentActivity() {
-    private val activityModule = module {
-        single<Activity> { this@AppActivity }
-    }
+    private val activityModule =
+        module {
+            single<Activity> { this@AppActivity }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()

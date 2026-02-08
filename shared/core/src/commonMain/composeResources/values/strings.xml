@@ -203,4 +203,18 @@
     <string name="clean_number_format">%1$d</string>
     <string name="shop_purchase_failed">Purchase failed</string>
     <string name="ad_unit_id">ca-app-pub-3940256099942544/5224354917</string>
+    <string name="debug">Debug</string>
+    <string name="debug_menu_title">Debug Menu</string>
+    <string name="debug_balance_format">Balance: %1$d</string>
+    <string name="debug_ads_title">Ads</string>
+    <string name="debug_show_rewarded_ad">Show Rewarded Ad</string>
+    <string name="debug_economy_title">Economy</string>
+    <string name="debug_add_1000">+1000 Coins</string>
+    <string name="debug_add_10000">+10k Coins</string>
+    <string name="debug_reset_balance">Reset Balance to 0</string>
+    <string name="debug_ad_status_idle">Idle</string>
+    <string name="debug_ad_status_loading">Loading Ad...</string>
+    <string name="debug_ad_status_showing">Ad Loaded. Showing...</string>
+    <string name="debug_ad_status_reward_earned">Reward Earned: %1$d</string>
+    <string name="debug_ad_status_error">Error: %1$s</string>
 </resources>

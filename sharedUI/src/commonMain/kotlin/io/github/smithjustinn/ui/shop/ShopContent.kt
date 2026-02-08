@@ -191,9 +191,7 @@ private fun ShopItemsGrid(
 
     LazyVerticalGrid(
         columns = GridCells.Adaptive(minSize = 160.dp),
-        contentPadding =
-            androidx.compose.foundation.layout
-                .PaddingValues(16.dp),
+        contentPadding = PaddingValues(16.dp),
         verticalArrangement = Arrangement.spacedBy(16.dp),
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier,

@@ -1,5 +1,6 @@
 package io.github.smithjustinn.theme
 
+import androidx.compose.runtime.staticCompositionLocalOf
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
@@ -14,4 +15,4 @@ data class AppSpacing(
     val massive: Dp = 64.dp,
 )
 
-val LocalAppSpacing = androidx.compose.runtime.staticCompositionLocalOf { AppSpacing() }
+val LocalAppSpacing = staticCompositionLocalOf { AppSpacing() }

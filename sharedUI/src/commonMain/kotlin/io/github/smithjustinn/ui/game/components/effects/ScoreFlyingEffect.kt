@@ -17,6 +17,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.DrawScope
 import androidx.compose.ui.unit.dp
 import kotlin.math.PI
+import kotlin.math.sin
 import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.TimeSource
@@ -132,8 +133,8 @@ private fun DrawScope.drawParticle(point: FlyingPoint) {
 
         // More pronounced arc/wobble
         val sideVelocity = if (point.id % 2 == 0L) 1f else -1f
-        val wobbleX = sideVelocity * kotlin.math.sin(progress * PI).toFloat() * WOBBLE_X_DP.dp.toPx()
-        val wobbleY = -kotlin.math.sin(progress * PI).toFloat() * WOBBLE_Y_DP.dp.toPx()
+        val wobbleX = sideVelocity * sin(progress * PI).toFloat() * WOBBLE_X_DP.dp.toPx()
+        val wobbleY = -sin(progress * PI).toFloat() * WOBBLE_Y_DP.dp.toPx()
 
         val currentX = point.startPos.x + (point.targetPos.x - point.startPos.x) * easedProgress + wobbleX
         val currentY = point.startPos.y + (point.targetPos.y - point.startPos.y) * easedProgress + wobbleY

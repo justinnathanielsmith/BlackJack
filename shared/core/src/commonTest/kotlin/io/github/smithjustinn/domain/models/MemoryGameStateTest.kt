@@ -4,6 +4,7 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.serialization.json.Json
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class MemoryGameStateTest {
     @Test
@@ -52,13 +53,13 @@ class MemoryGameStateTest {
 
     @Test
     fun testValidation() {
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             MemoryGameState(pairCount = 0)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             MemoryGameState(moves = -1)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             MemoryGameState(comboMultiplier = -1)
         }
     }

@@ -43,6 +43,7 @@ import io.github.smithjustinn.domain.models.DifficultyLevel
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.clean_number_format
+import io.github.smithjustinn.resources.debug
 import io.github.smithjustinn.resources.settings
 import io.github.smithjustinn.resources.shop_title
 import io.github.smithjustinn.resources.stats
@@ -111,6 +112,10 @@ fun StartContent(
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onShopClick()
             },
+            onDebugClick = {
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onDebugClick()
+            },
             modifier = Modifier.fillMaxSize(),
         )
     }
@@ -141,6 +146,7 @@ private fun StartScreenLayout(
     onSettingsClick: () -> Unit,
     onStatsClick: () -> Unit,
     onShopClick: () -> Unit,
+    onDebugClick: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     // Animation States
@@ -163,6 +169,7 @@ private fun StartScreenLayout(
             onStatsClick = onStatsClick,
             onSettingsClick = onSettingsClick,
             onShopClick = onShopClick,
+            onDebugClick = onDebugClick,
             totalBalance = state.totalBalance,
             modifier = headerModifier,
         )
@@ -188,6 +195,7 @@ private fun BoxScope.StartTopActions(
     onStatsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onShopClick: () -> Unit,
+    onDebugClick: () -> Unit,
     totalBalance: Long,
     modifier: Modifier = Modifier,
 ) {
@@ -234,6 +242,13 @@ private fun BoxScope.StartTopActions(
             onClick = onSettingsClick,
             applyGlimmer = true,
             contentDescription = stringResource(Res.string.settings),
+        )
+        MedallionIcon(
+            icon = AppIcons.VisibilityOff,
+            onClick = onDebugClick,
+            applyGlimmer = false,
+            tint = Color.Red,
+            contentDescription = stringResource(Res.string.debug),
         )
     }
 }

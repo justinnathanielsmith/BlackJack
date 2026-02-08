@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -135,9 +136,7 @@ private fun ButtonContent(
                         if (applyGlimmer) {
                             Shadow(
                                 color = Color.Black.copy(alpha = 0.3f),
-                                offset =
-                                    androidx.compose.ui.geometry
-                                        .Offset(2f, 2f),
+                                offset = Offset(2f, 2f),
                                 blurRadius = 4f,
                             )
                         } else {

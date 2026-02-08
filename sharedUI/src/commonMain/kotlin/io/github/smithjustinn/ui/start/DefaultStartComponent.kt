@@ -28,6 +28,7 @@ class DefaultStartComponent(
     private val onNavigateToSettings: () -> Unit,
     private val onNavigateToStats: () -> Unit,
     private val onNavigateToShop: () -> Unit,
+    private val onNavigateToDebug: () -> Unit,
 ) : StartComponent,
     ComponentContext by componentContext {
     private val dispatchers = appGraph.coroutineDispatchers
@@ -145,6 +146,10 @@ class DefaultStartComponent(
 
     override fun onShopClick() {
         onNavigateToShop()
+    }
+
+    override fun onDebugClick() {
+        onNavigateToDebug()
     }
 
     override fun onEntranceAnimationCompleted() {

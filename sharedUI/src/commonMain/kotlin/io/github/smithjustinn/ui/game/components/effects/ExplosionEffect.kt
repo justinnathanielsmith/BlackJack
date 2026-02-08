@@ -13,6 +13,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.rotate
 import io.github.smithjustinn.theme.ModernGold
@@ -90,9 +91,7 @@ fun ExplosionEffect(
                 drawRect(
                     color = particle.color.copy(alpha = alpha),
                     topLeft = Offset(currentX - particle.size / 2, currentY - particle.size / 2),
-                    size =
-                        androidx.compose.ui.geometry
-                            .Size(particle.size, particle.size),
+                    size = Size(particle.size, particle.size),
                 )
             }
         }

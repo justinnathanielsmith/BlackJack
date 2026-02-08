@@ -10,6 +10,7 @@ import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
 import io.github.smithjustinn.domain.repositories.ShopItemRepository
+import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.domain.usecases.economy.EarnCurrencyUseCase
 import io.github.smithjustinn.domain.usecases.game.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.game.ClearSavedGameUseCase
@@ -20,7 +21,6 @@ import io.github.smithjustinn.domain.usecases.game.SaveGameStateUseCase
 import io.github.smithjustinn.domain.usecases.game.StartNewGameUseCase
 import io.github.smithjustinn.domain.usecases.stats.GetGameStatsUseCase
 import io.github.smithjustinn.domain.usecases.stats.SaveGameResultUseCase
-import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.CoroutineDispatchers

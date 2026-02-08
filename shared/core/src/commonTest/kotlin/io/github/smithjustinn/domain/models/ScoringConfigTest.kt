@@ -2,6 +2,7 @@ package io.github.smithjustinn.domain.models
 
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 
 class ScoringConfigTest {
     @Test
@@ -37,13 +38,13 @@ class ScoringConfigTest {
 
     @Test
     fun testValidation() {
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(baseMatchPoints = 0)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(heatModeThreshold = 0)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(highRollerThreshold = 10, theNutsThreshold = 5)
         }
     }
@@ -51,29 +52,29 @@ class ScoringConfigTest {
     @Test
     fun testExtendedValidation() {
         // Pot mismatch penalty out of bounds
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(potMismatchPenalty = -0.1)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(potMismatchPenalty = 1.1)
         }
 
         // Negative penalties
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(timePenaltyPerSecond = -1)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(timeAttackMismatchPenalty = -1L)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(doubleDownPenalty = -100)
         }
 
         // Negative bonuses
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(comboBonusPoints = -50)
         }
-        kotlin.test.assertFailsWith<IllegalArgumentException> {
+        assertFailsWith<IllegalArgumentException> {
             ScoringConfig(moveBonusMultiplier = -100)
         }
     }

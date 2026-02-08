@@ -16,7 +16,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
@@ -190,9 +192,7 @@ internal fun GeometricCardBack(baseColor: Color) {
                     drawRect(
                         color = patternColor,
                         topLeft = Offset(x.toFloat(), y.toFloat()),
-                        size =
-                            androidx.compose.ui.geometry
-                                .Size(step / HALF_DIVISOR, step / HALF_DIVISOR),
+                        size = Size(step / HALF_DIVISOR, step / HALF_DIVISOR),
                         style = Stroke(width = 1.dp.toPx()),
                     )
                 }
@@ -203,12 +203,8 @@ internal fun GeometricCardBack(baseColor: Color) {
         drawRoundRect(
             color = Color.White.copy(alpha = SUBTLE_ALPHA),
             topLeft = Offset(8.dp.toPx(), 8.dp.toPx()),
-            size =
-                androidx.compose.ui.geometry
-                    .Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
-            cornerRadius =
-                androidx.compose.ui.geometry
-                    .CornerRadius(8.dp.toPx()),
+            size = Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
+            cornerRadius = CornerRadius(8.dp.toPx()),
             style = Stroke(width = 1.dp.toPx()),
         )
     }
@@ -238,12 +234,8 @@ internal fun ClassicCardBack(baseColor: Color) {
         drawRoundRect(
             color = Color.White,
             topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
-            size =
-                androidx.compose.ui.geometry
-                    .Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
-            cornerRadius =
-                androidx.compose.ui.geometry
-                    .CornerRadius(6.dp.toPx()),
+            size = Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
+            cornerRadius = CornerRadius(6.dp.toPx()),
             style = Stroke(width = 3.dp.toPx()),
         )
     }
@@ -281,12 +273,8 @@ internal fun PatternCardBack(baseColor: Color) {
         drawRoundRect(
             color = Color.White.copy(alpha = MEDIUM_ALPHA),
             topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
-            size =
-                androidx.compose.ui.geometry
-                    .Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
-            cornerRadius =
-                androidx.compose.ui.geometry
-                    .CornerRadius(6.dp.toPx()),
+            size = Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
+            cornerRadius = CornerRadius(6.dp.toPx()),
             style = Stroke(width = 1.5.dp.toPx()),
         )
     }
@@ -303,12 +291,8 @@ internal fun PokerCardBack(baseColor: Color) {
         drawRoundRect(
             color = baseColor,
             topLeft = Offset(borderSize, borderSize),
-            size =
-                androidx.compose.ui.geometry
-                    .Size(size.width - borderSize * 2, size.height - borderSize * 2),
-            cornerRadius =
-                androidx.compose.ui.geometry
-                    .CornerRadius(8.dp.toPx()),
+            size = Size(size.width - borderSize * 2, size.height - borderSize * 2),
+            cornerRadius = CornerRadius(8.dp.toPx()),
         )
 
         // Diamond Grid Pattern (Classic Casino)

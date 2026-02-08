@@ -9,6 +9,7 @@ import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
+import kotlinx.coroutines.test.runTest as runCoroutineTest
 
 /**
  * An abstract base class for core logic tests that provides standardized coroutine setup.
@@ -40,5 +41,5 @@ abstract class BaseLogicTest {
      * A helper to run logic tests using the class-level [testDispatcher].
      */
     protected fun runTest(testBody: suspend TestScope.() -> Unit) =
-        kotlinx.coroutines.test.runTest(context = testDispatcher, testBody = testBody)
+        runCoroutineTest(context = testDispatcher, testBody = testBody)
 }

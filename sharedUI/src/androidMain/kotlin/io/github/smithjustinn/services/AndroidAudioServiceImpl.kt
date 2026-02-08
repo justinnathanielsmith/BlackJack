@@ -10,6 +10,7 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.services.AudioService.Companion.toResource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -119,7 +120,7 @@ class AndroidAudioServiceImpl(
         } else {
             // Sound not loaded yet - wait briefly and retry before falling back
             scope.launch {
-                kotlinx.coroutines.delay(SOUNDPOOL_RETRY_DELAY_MS)
+                delay(SOUNDPOOL_RETRY_DELAY_MS)
                 val retrySoundId = soundMap[resource]
                 if (retrySoundId != null && loadedSounds.contains(retrySoundId)) {
                     soundPool.play(retrySoundId, soundVolume, soundVolume, 1, 0, 1f)

@@ -134,30 +134,40 @@ private fun PokerChipContent(
             modifier = Modifier.matchParentSize(),
         )
 
-        // Value Text on Chip
-        Text(
+        ChipValueText(
             text = text,
-            style =
-                PokerTheme.typography.titleMedium.copy(
-                    fontSize = if (isSelected) 20.sp else 16.sp,
-                    fontWeight = FontWeight.Black,
-                    shadow =
-                        if (glimmerBrush == null) {
-                            Shadow(
-                                color = Color.Black.copy(alpha = 0.5f),
-                                offset =
-                                    androidx.compose.ui.geometry
-                                        .Offset(1f, 1f),
-                                blurRadius = 2f,
-                            )
-                        } else {
-                            null
-                        },
-                    brush = glimmerBrush,
-                ),
-            color = if (glimmerBrush != null) Color.White else Color.White,
+            isSelected = isSelected,
+            glimmerBrush = glimmerBrush,
         )
     }
+}
+
+@Composable
+private fun ChipValueText(
+    text: String,
+    isSelected: Boolean,
+    glimmerBrush: Brush?,
+) {
+    Text(
+        text = text,
+        style =
+            PokerTheme.typography.titleMedium.copy(
+                fontSize = if (isSelected) 20.sp else 16.sp,
+                fontWeight = FontWeight.Black,
+                shadow =
+                    if (glimmerBrush == null) {
+                        Shadow(
+                            color = Color.Black.copy(alpha = 0.5f),
+                            offset = Offset(1f, 1f),
+                            blurRadius = 2f,
+                        )
+                    } else {
+                        null
+                    },
+                brush = glimmerBrush,
+            ),
+        color = Color.White,
+    )
 }
 
 @Composable

@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -14,8 +15,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.TextStyle
@@ -144,9 +147,7 @@ object CardFaces {
     ) {
         Card(
             modifier = modifier.fillMaxSize(),
-            shape =
-                androidx.compose.foundation.shape
-                    .RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(12.dp),
             colors =
                 CardDefaults.cardColors(
                     containerColor = Color.White,
@@ -334,17 +335,13 @@ internal fun ElegantCardFace(
         val strokeWidth = 2.dp.toPx()
         drawRect(
             color = suitColor.copy(alpha = 0.3f),
-            topLeft =
-                androidx.compose.ui.geometry
-                    .Offset(strokeWidth * 3, strokeWidth * 3),
+            topLeft = Offset(strokeWidth * 3, strokeWidth * 3),
             size =
                 size.copy(
                     width = size.width - strokeWidth * 6,
                     height = size.height - strokeWidth * 6,
                 ),
-            style =
-                androidx.compose.ui.graphics.drawscope
-                    .Stroke(width = strokeWidth),
+            style = Stroke(width = strokeWidth),
         )
     }
 
@@ -646,20 +643,14 @@ private fun PokerCardBorder() {
     Canvas(modifier = Modifier.fillMaxSize()) {
         drawRect(
             color = borderColor,
-            style =
-                androidx.compose.ui.graphics.drawscope
-                    .Stroke(width = strokeWidth),
+            style = Stroke(width = strokeWidth),
         )
         // Inner thin border
         drawRect(
             color = borderColor.copy(alpha = 0.5f),
-            topLeft =
-                androidx.compose.ui.geometry
-                    .Offset(strokeWidth * 2, strokeWidth * 2),
+            topLeft = Offset(strokeWidth * 2, strokeWidth * 2),
             size = size.copy(width = size.width - strokeWidth * 4, height = size.height - strokeWidth * 4),
-            style =
-                androidx.compose.ui.graphics.drawscope
-                    .Stroke(width = strokeWidth / 2),
+            style = Stroke(width = strokeWidth / 2),
         )
     }
 }

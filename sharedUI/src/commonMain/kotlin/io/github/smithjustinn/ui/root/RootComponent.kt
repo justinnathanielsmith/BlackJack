@@ -12,6 +12,8 @@ import com.arkivanov.essenty.backhandler.BackHandler
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.ui.debug.DebugComponent
+import io.github.smithjustinn.ui.debug.DefaultDebugComponent
 import io.github.smithjustinn.ui.game.DefaultGameComponent
 import io.github.smithjustinn.ui.game.GameArgs
 import io.github.smithjustinn.ui.game.GameComponent
@@ -54,6 +56,10 @@ interface RootComponent {
 
         class Shop(
             val component: ShopComponent,
+        ) : Child()
+
+        class Debug(
+            val component: DebugComponent,
         ) : Child()
     }
 }
@@ -126,6 +132,7 @@ class DefaultRootComponent(
             is Config.Settings -> RootComponent.Child.Settings(createSettingsComponent(componentContext))
             is Config.Stats -> RootComponent.Child.Stats(createStatsComponent(componentContext))
             is Config.Shop -> RootComponent.Child.Shop(createShopComponent(componentContext))
+            is Config.Debug -> RootComponent.Child.Debug(createDebugComponent(componentContext))
         }
 
     private fun createStartComponent(componentContext: ComponentContext): StartComponent =
@@ -155,6 +162,10 @@ class DefaultRootComponent(
             onNavigateToShop =
                 @OptIn(DelicateDecomposeApi::class) {
                     navigation.push(Config.Shop)
+                },
+            onNavigateToDebug =
+                @OptIn(DelicateDecomposeApi::class) {
+                    navigation.push(Config.Debug)
                 },
         )
 
@@ -197,6 +208,13 @@ class DefaultRootComponent(
             onBackClicked = navigation::pop,
         )
 
+    private fun createDebugComponent(componentContext: ComponentContext): DebugComponent =
+        DefaultDebugComponent(
+            componentContext = componentContext,
+            appGraph = appGraph,
+            onBackClicked = navigation::pop,
+        )
+
     @Serializable
     private sealed interface Config {
         @Serializable data object Start : Config
@@ -215,6 +233,8 @@ class DefaultRootComponent(
         @Serializable data object Stats : Config
 
         @Serializable data object Shop : Config
+
+        @Serializable data object Debug : Config
     }
 }
 

@@ -24,6 +24,7 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.theme.AppTheme
 import io.github.smithjustinn.theme.LocalCardTheme
+import io.github.smithjustinn.ui.debug.DebugContent
 import io.github.smithjustinn.ui.game.GameContent
 import io.github.smithjustinn.ui.root.RootComponent
 import io.github.smithjustinn.ui.settings.SettingsContent
@@ -81,6 +82,7 @@ fun App(
                         is RootComponent.Child.Settings -> SettingsContent(child.component)
                         is RootComponent.Child.Stats -> StatsContent(child.component)
                         is RootComponent.Child.Shop -> ShopContent(child.component)
+                        is RootComponent.Child.Debug -> DebugContent(child.component)
                     }
                 }
             }
