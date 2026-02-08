@@ -70,7 +70,7 @@ We follow a **Local-First, Modular-Core** strategy. The project is structured to
     *   **Key Tech**: `Compose Multiplatform`, `Decompose`, `Koin`.
 
 ### Component-Based MVVM & Unidirectional Data Flow (UDF)
-We use **Decompose** combined with a **State Machine** pattern to implement robust, testable UI logic.
+We use **Decompose** combined with a **State Machine** pattern to implement robust, testable UI logic. See **[GAME_ENGINE.md](docs/GAME_ENGINE.md)** for a deep dive into the state machine.
 
 1.  **Component (State Holder)**:
     *   Implements the `ComponentContext` interface.
@@ -135,9 +135,18 @@ We use **Spotless** for formatting and **Detekt** for code quality.
 *   **Shared Logic**: `./gradlew :sharedUI:allTests`
 
 ### 5. Code Coverage (Kover)
-We aim for **80%+ line coverage** in domain and data layers.
+We enforce a minimum of **80% line coverage** in domain and data layers. Currently, the project sits at **90.9% overall coverage**.
 *   **Generate Report**: `./gradlew koverHtmlReport` (Open `build/reports/kover/html/index.html`)
 *   **Verify Coverage**: `./gradlew koverVerify`
+*   **Detailed Research**: See **[KOVER_COVERAGE_RESEARCH.md](docs/KOVER_COVERAGE_RESEARCH.md)** and **[KOVER_COVERAGE_SUMMARY.md](docs/KOVER_COVERAGE_SUMMARY.md)**.
+
+---
+
+## 📚 Feature-Specific Guides
+
+*   **[GAME_ENGINE.md](docs/GAME_ENGINE.md)**: Detailed mapping of the card game engine, states, and flows.
+*   **[REWARDED_ADS_GUIDE.md](docs/REWARDED_ADS_GUIDE.md)**: Implementation details for rewarded ads integration.
+*   **[KOVER_COVERAGE_RESEARCH.md](docs/KOVER_COVERAGE_RESEARCH.md)**: Research on KMP coverage and exclusion strategies.
 
 ---
 
