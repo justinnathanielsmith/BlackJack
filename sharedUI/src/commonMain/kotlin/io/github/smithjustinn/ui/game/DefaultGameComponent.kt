@@ -111,7 +111,13 @@ class DefaultGameComponent(
             // Load ad and track cooldown
             launch {
                 if (args.mode == GameMode.TIME_ATTACK) {
-                    val adUnitId = getString(Res.string.ad_unit_id)
+                    val adUnitId =
+                        try {
+                            getString(Res.string.ad_unit_id)
+                        } catch (e: Exception) {
+                            appGraph.logger.w(e) { "Failed to load ad unit ID" }
+                            return@launch
+                        }
                     appGraph.adService.loadRewardedAd(adUnitId)
                     updateAdAvailability()
                 }
@@ -459,13 +465,19 @@ class DefaultGameComponent(
         _state.update { it.copy(game = wonState, isNewHighScore = isNewHigh) }
 
         scope.launch {
-            appGraph.saveGameResultUseCase(
-                pairCount = wonState.pairCount,
-                score = wonState.score,
-                timeSeconds = _state.value.elapsedTimeSeconds, // Or from wonState / internal stat
-                moves = wonState.moves,
-                gameMode = wonState.mode,
-            )
+            // Security: Custom seeds in modes other than Daily Challenge are for practice only
+            // and should not be saved to leaderboards to prevent cheating.
+            val isLeaderboardEligible = args.mode == GameMode.DAILY_CHALLENGE || args.seed == null
+
+            if (isLeaderboardEligible) {
+                appGraph.saveGameResultUseCase(
+                    pairCount = wonState.pairCount,
+                    score = wonState.score,
+                    timeSeconds = _state.value.elapsedTimeSeconds, // Or from wonState / internal stat
+                    moves = wonState.moves,
+                    gameMode = wonState.mode,
+                )
+            }
 
             handleDailyChallenge(wonState)
             appGraph.clearSavedGameUseCase()
