@@ -21,6 +21,8 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
@@ -92,11 +94,11 @@ data class CardContent(
 
 data class CardContainerVisuals(
     val visualState: CardVisualState,
-    val rotation: Float,
-    val scale: Float,
-    val matchedGlowAlpha: Float,
-    val shadowElevation: Dp,
-    val shadowYOffset: Dp,
+    val rotation: State<Float>,
+    val scale: State<Float>,
+    val matchedGlowAlpha: State<Float>,
+    val shadowElevation: State<Dp>,
+    val shadowYOffset: State<Dp>,
 )
 
 data class CardInteractions(
@@ -105,16 +107,16 @@ data class CardInteractions(
 )
 
 data class CardAnimations(
-    val rotation: Float,
-    val scale: Float,
-    val shakeOffset: Float,
-    val matchedGlowAlpha: Float,
-    val muckTranslationX: Float,
-    val muckTranslationY: Float,
-    val muckRotation: Float,
-    val muckScale: Float,
-    val shadowElevation: Dp,
-    val shadowYOffset: Dp,
+    val rotation: State<Float>,
+    val scale: State<Float>,
+    val shakeOffset: State<Float>,
+    val matchedGlowAlpha: State<Float>,
+    val muckTranslationX: State<Float>,
+    val muckTranslationY: State<Float>,
+    val muckRotation: State<Float>,
+    val muckScale: State<Float>,
+    val shadowElevation: State<Dp>,
+    val shadowYOffset: State<Dp>,
 )
 
 @Composable
@@ -142,7 +144,7 @@ fun PlayingCard(
     val suitColor = calculateSuitColor(content.suit, areSuitsMultiColored, theme.skin)
 
     CardContainer(
-        modifier = modifier.offset { IntOffset(animations.shakeOffset.roundToInt(), 0) },
+        modifier = modifier.offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) },
         visuals =
             CardContainerVisuals(
                 visualState = content.visualState,
@@ -171,19 +173,21 @@ fun PlayingCard(
 @Composable
 private fun CardContentSelectors(
     content: CardContent,
-    rotation: Float,
+    rotation: State<Float>,
     suitColor: Color,
     theme: CardTheme,
     backColor: Color,
 ) {
-    if (rotation <= HALF_ROTATION) {
+    val showFace by remember { derivedStateOf { rotation.value <= HALF_ROTATION } }
+
+    if (showFace) {
         CardFace(rank = content.rank, suit = content.suit, suitColor = suitColor, theme = theme.skin)
         if (content.visualState.isRecentlyMatched) ShimmerEffect()
     } else {
         CardBack(
             theme = theme.back,
             backColor = backColor,
-            rotation = rotation,
+            rotation = rotation.value,
         )
     }
 }
@@ -206,22 +210,22 @@ private fun rememberCardAnimations(
     muckTargetRotation: Float,
     isMuckingEnabled: Boolean,
 ): CardAnimations {
-    val rotation by rememberFlipAnimation(content.visualState.isFaceUp)
-    val scale by rememberPulseAnimation(content.visualState, isHovered)
+    val rotation = rememberFlipAnimation(content.visualState.isFaceUp)
+    val scale = rememberPulseAnimation(content.visualState, isHovered)
     val shakeOffset = rememberShakeAnimation(content.visualState.isError)
-    val matchedGlowAlpha by rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)
+    val matchedGlowAlpha = rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)
 
-    val muckTranslationX by rememberMuckAnimation(
+    val muckTranslationX = rememberMuckAnimation(
         isMuckingEnabled && content.visualState.isMatched,
         muckTargetOffset.x.toFloat(),
         "muckTranslationX",
     )
-    val muckTranslationY by rememberMuckAnimation(
+    val muckTranslationY = rememberMuckAnimation(
         isMuckingEnabled && content.visualState.isMatched,
         muckTargetOffset.y.toFloat(),
         "muckTranslationY",
     )
-    val muckRotation by rememberMuckAnimation(
+    val muckRotation = rememberMuckAnimation(
         isMuckingEnabled && content.visualState.isMatched,
         muckTargetRotation,
         "muckRotation",
@@ -267,7 +271,7 @@ private fun rememberPulseAnimation(
 )
 
 @Composable
-private fun rememberShakeAnimation(isError: Boolean): Float {
+private fun rememberShakeAnimation(isError: Boolean): State<Float> {
     val shakeOffset = remember { Animatable(0f) }
     LaunchedEffect(isError) {
         if (isError) {
@@ -278,7 +282,7 @@ private fun rememberShakeAnimation(isError: Boolean): Float {
             shakeOffset.animateTo(0f, tween(SHAKE_ANIMATION_DURATION_MS))
         }
     }
-    return shakeOffset.value
+    return shakeOffset.asState()
 }
 
 @Composable
@@ -308,7 +312,7 @@ private fun rememberMuckAnimation(
 private fun rememberShadowAnimation(
     visualState: CardVisualState,
     isHovered: Boolean,
-): Pair<Dp, Dp> {
+): Pair<State<Dp>, State<Dp>> {
     val targetElevation =
         when {
             visualState.isRecentlyMatched -> ELEVATION_RECENTLY_MATCHED.dp
@@ -317,13 +321,13 @@ private fun rememberShadowAnimation(
             else -> ELEVATION_DEFAULT.dp
         }
 
-    val shadowElevation by animateDpAsState(
+    val shadowElevation = animateDpAsState(
         targetValue = targetElevation,
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "shadowElevation",
     )
 
-    val shadowYOffset by animateDpAsState(
+    val shadowYOffset = animateDpAsState(
         targetValue = (targetElevation.value / SHADOW_OFFSET_DIVISOR).dp,
         animationSpec = spring(stiffness = Spring.StiffnessLow),
         label = "shadowYOffset",
@@ -336,32 +340,34 @@ private fun rememberShadowAnimation(
 private fun CardContainer(
     modifier: Modifier = Modifier,
     visuals: CardContainerVisuals,
-    muckTranslationX: Float = 0f,
-    muckTranslationY: Float = 0f,
-    muckRotation: Float = 0f,
+    muckTranslationX: State<Float>,
+    muckTranslationY: State<Float>,
+    muckRotation: State<Float>,
     backColor: Color,
     interactions: CardInteractions,
     content: @Composable () -> Unit,
 ) {
     val glowColor = PokerTheme.colors.goldenYellow
+    val isFaceUpVisual by remember { derivedStateOf { visuals.rotation.value <= HALF_ROTATION } }
+
     Box(
         modifier =
             modifier
                 .widthIn(min = 60.dp)
                 .aspectRatio(CARD_ASPECT_RATIO)
                 .graphicsLayer {
-                    translationX = muckTranslationX
-                    translationY = muckTranslationY
-                    rotationZ = muckRotation
-                    rotationY = visuals.rotation
-                    scaleX = visuals.scale
-                    scaleY = visuals.scale
+                    translationX = muckTranslationX.value
+                    translationY = muckTranslationY.value
+                    rotationZ = muckRotation.value
+                    rotationY = visuals.rotation.value
+                    scaleX = visuals.scale.value
+                    scaleY = visuals.scale.value
                     cameraDistance = CAMERA_DISTANCE_MULTIPLIER * density
                     alpha = 1f
                 }.drawBehind {
                     if (visuals.visualState.isRecentlyMatched) {
                         drawCircle(
-                            color = glowColor.copy(alpha = visuals.matchedGlowAlpha),
+                            color = glowColor.copy(alpha = visuals.matchedGlowAlpha.value),
                             radius = size.maxDimension * GLOW_SIZE_MULTIPLIER,
                             center = center,
                         )
@@ -377,13 +383,13 @@ private fun CardContainer(
         Card(
             onClick = interactions.onClick,
             interactionSource = interactions.interactionSource,
-            modifier = Modifier.fillMaxSize(),
+            modifier = Modifier.fillMaxSize().cardBorder(visuals.rotation, visuals.visualState),
             shape = RoundedCornerShape(12.dp),
             colors =
                 CardDefaults.cardColors(
-                    containerColor = if (visuals.rotation <= HALF_ROTATION) Color.White else backColor,
+                    containerColor = if (isFaceUpVisual) Color.White else backColor,
                 ),
-            border = getCardBorder(visuals.rotation, visuals.visualState),
+            border = null,
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
                 content()

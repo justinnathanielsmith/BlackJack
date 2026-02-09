@@ -1,14 +1,16 @@
 package io.github.smithjustinn.ui.game.components.cards
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -25,11 +27,12 @@ private const val BORDER_SIZE_MULTIPLIER = 2f
 
 @Composable
 fun CardShadowLayer(
-    elevation: Dp,
-    yOffset: Dp,
+    elevation: State<Dp>,
+    yOffset: State<Dp>,
     isRecentlyMatched: Boolean,
 ) {
-    if (elevation <= 0.dp) return
+    val currentElevation = elevation.value
+    if (currentElevation <= 0.dp) return
 
     val glowColor = PokerTheme.colors.goldenYellow
     val baseShadowColor = if (isRecentlyMatched) glowColor else PokerTheme.colors.tableShadow
@@ -39,9 +42,9 @@ fun CardShadowLayer(
             Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    translationY = yOffset.toPx()
+                    translationY = yOffset.value.toPx()
                 }.shadow(
-                    elevation = elevation,
+                    elevation = currentElevation,
                     shape = RoundedCornerShape(CORNER_RADIUS_DP.dp),
                     clip = false,
                     ambientColor = baseShadowColor.copy(alpha = SHADOW_AMBIENT_ALPHA),
@@ -51,25 +54,49 @@ fun CardShadowLayer(
 }
 
 @Composable
-fun getCardBorder(
-    rotation: Float,
+fun Modifier.cardBorder(
+    rotation: State<Float>,
     visualState: CardVisualState,
-): BorderStroke =
-    if (rotation <= HALF_ROTATION) {
-        when {
-            visualState.isRecentlyMatched -> BorderStroke(2.dp, PokerTheme.colors.goldenYellow)
-            visualState.isMatched -> BorderStroke(1.dp, PokerTheme.colors.goldenYellow.copy(alpha = MEDIUM_ALPHA))
-            visualState.isError -> BorderStroke(3.dp, MaterialTheme.colorScheme.error)
-            else -> BorderStroke(1.dp, Color.LightGray.copy(alpha = HALF_ALPHA))
+): Modifier {
+    val primaryColor = PokerTheme.colors.goldenYellow
+    val errorColor = MaterialTheme.colorScheme.error
+    val lightGray = Color.LightGray
+
+    return this.drawWithContent {
+        drawContent()
+
+        val currentRotation = rotation.value
+
+        if (currentRotation <= HALF_ROTATION) {
+            val (width, color) = when {
+                visualState.isRecentlyMatched -> 2.dp to primaryColor
+                visualState.isMatched -> 1.dp to primaryColor.copy(alpha = MEDIUM_ALPHA)
+                visualState.isError -> 3.dp to errorColor
+                else -> 1.dp to lightGray.copy(alpha = HALF_ALPHA)
+            }
+
+            drawRoundRect(
+                color = color,
+                size = size,
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(CORNER_RADIUS_DP.dp.toPx()),
+                style = Stroke(width = width.toPx())
+            )
+        } else {
+            val rimLightAlpha = (1f - (abs(currentRotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
+            val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
+
+            val width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp)
+            val color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA)
+
+            drawRoundRect(
+                color = color,
+                size = size,
+                cornerRadius = androidx.compose.ui.geometry.CornerRadius(CORNER_RADIUS_DP.dp.toPx()),
+                style = Stroke(width = width.toPx())
+            )
         }
-    } else {
-        val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
-        val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
-        BorderStroke(
-            width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp),
-            color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA),
-        )
     }
+}
 
 @Composable
 fun calculateSuitColor(
