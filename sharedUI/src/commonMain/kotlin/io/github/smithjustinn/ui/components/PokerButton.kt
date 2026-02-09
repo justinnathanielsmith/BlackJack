@@ -30,6 +30,9 @@ import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -59,6 +62,7 @@ fun PokerButton(
     isPrimary: Boolean = false,
     isPulsing: Boolean = false,
     applyGlimmer: Boolean = false,
+    contentDescription: String? = null,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "poker_button_pulse")
     val scale by infiniteTransition.animateFloat(
@@ -101,7 +105,12 @@ fun PokerButton(
                         )
                         onClick()
                     },
-                ).padding(horizontal = PokerTheme.spacing.medium),
+                    role = Role.Button,
+                ).semantics {
+                    if (contentDescription != null) {
+                        this.contentDescription = contentDescription
+                    }
+                }.padding(horizontal = PokerTheme.spacing.medium),
         contentAlignment = Alignment.Center,
     ) {
         ButtonContent(
