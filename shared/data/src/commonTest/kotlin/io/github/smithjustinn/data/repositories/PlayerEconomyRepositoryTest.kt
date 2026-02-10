@@ -11,6 +11,7 @@ import io.github.smithjustinn.domain.models.GamePowerUp
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.runTest
 import kotlin.test.AfterTest
@@ -139,6 +140,8 @@ class PlayerEconomyRepositoryTest {
             assertFalse(repository.isItemUnlocked("item_1"))
 
             repository.unlockItem("item_1")
+            // Wait for propagation
+            repository.unlockedItemIds.first { it.contains("item_1") }
             assertTrue(repository.isItemUnlocked("item_1"))
         }
 
@@ -161,6 +164,8 @@ class PlayerEconomyRepositoryTest {
                     assertEquals(200L, first)
                 }
             }
+            // Wait for propagation
+            repo2.unlockedItemIds.first { it.contains("perm_item_1") }
             assertTrue(repo2.isItemUnlocked("perm_item_1"))
         }
 
