@@ -10,6 +10,7 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.models.Suit
 import kotlinx.collections.immutable.PersistentList
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
@@ -189,17 +190,17 @@ object MemoryGameLogic {
     }
 
     fun resetErrorCards(state: MemoryGameState): MemoryGameState {
-        var currentCards = state.cards
-        var changed = false
-
-        currentCards.forEachIndexed { index, card ->
-            if (card.isError) {
-                currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false))
-                changed = true
+        val newCards =
+            state.cards.mutate { list ->
+                for (index in list.indices) {
+                    val card = list[index]
+                    if (card.isError) {
+                        list[index] = card.copy(isFaceUp = false, isError = false)
+                    }
+                }
             }
-        }
 
-        return if (changed) state.copy(cards = currentCards) else state
+        return if (newCards !== state.cards) state.copy(cards = newCards) else state
     }
 
     fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState {
