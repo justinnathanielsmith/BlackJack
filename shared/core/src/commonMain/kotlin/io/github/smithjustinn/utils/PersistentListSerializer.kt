@@ -23,7 +23,7 @@ open class PersistentListSerializer<T>(
         encoder: Encoder,
         value: PersistentList<T>,
     ) {
-        delegateSerializer.serialize(encoder, value.toList())
+        delegateSerializer.serialize(encoder, value)
     }
 
     override fun deserialize(decoder: Decoder): PersistentList<T> =
