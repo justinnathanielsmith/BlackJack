@@ -26,6 +26,7 @@ private const val RIM_LIGHT_THRESHOLD = 0.1f
 private const val BORDER_SIZE_MULTIPLIER = 2f
 
 @Composable
+@Suppress("ktlint:compose:state-param-check")
 fun CardShadowLayer(
     elevation: State<Dp>,
     yOffset: State<Dp>,
@@ -54,6 +55,7 @@ fun CardShadowLayer(
 }
 
 @Composable
+@Suppress("ktlint:compose:state-param-check")
 fun Modifier.cardBorder(
     rotation: State<Float>,
     visualState: CardVisualState,
@@ -68,31 +70,43 @@ fun Modifier.cardBorder(
         val currentRotation = rotation.value
 
         if (currentRotation <= HALF_ROTATION) {
-            val (width, color) = when {
-                visualState.isRecentlyMatched -> 2.dp to primaryColor
-                visualState.isMatched -> 1.dp to primaryColor.copy(alpha = MEDIUM_ALPHA)
-                visualState.isError -> 3.dp to errorColor
-                else -> 1.dp to lightGray.copy(alpha = HALF_ALPHA)
-            }
+            val (width, color) =
+                when {
+                    visualState.isRecentlyMatched -> 2.dp to primaryColor
+                    visualState.isMatched -> 1.dp to primaryColor.copy(alpha = MEDIUM_ALPHA)
+                    visualState.isError -> 3.dp to errorColor
+                    else -> 1.dp to lightGray.copy(alpha = HALF_ALPHA)
+                }
 
             drawRoundRect(
                 color = color,
                 size = size,
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(CORNER_RADIUS_DP.dp.toPx()),
-                style = Stroke(width = width.toPx())
+                cornerRadius =
+                    androidx.compose.ui.geometry
+                        .CornerRadius(CORNER_RADIUS_DP.dp.toPx()),
+                style = Stroke(width = width.toPx()),
             )
         } else {
             val rimLightAlpha = (1f - (abs(currentRotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
             val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
 
             val width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp)
-            val color = if (rimLightAlpha > RIM_LIGHT_THRESHOLD) rimLightColor else Color.White.copy(alpha = SUBTLE_ALPHA)
+            val color =
+                if (rimLightAlpha >
+                    RIM_LIGHT_THRESHOLD
+                ) {
+                    rimLightColor
+                } else {
+                    Color.White.copy(alpha = SUBTLE_ALPHA)
+                }
 
             drawRoundRect(
                 color = color,
                 size = size,
-                cornerRadius = androidx.compose.ui.geometry.CornerRadius(CORNER_RADIUS_DP.dp.toPx()),
-                style = Stroke(width = width.toPx())
+                cornerRadius =
+                    androidx.compose.ui.geometry
+                        .CornerRadius(CORNER_RADIUS_DP.dp.toPx()),
+                style = Stroke(width = width.toPx()),
             )
         }
     }

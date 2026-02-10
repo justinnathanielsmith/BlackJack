@@ -91,7 +91,7 @@ class DefaultShopComponent(
 
     override fun onBuyItemClicked(item: ShopItem) {
         scope.launch {
-            val result = buyItemUseCase(item.id, item.price)
+            val result = buyItemUseCase(item.id)
             if (result.isFailure) {
                 // Show error
                 val error =
