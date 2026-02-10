@@ -206,11 +206,7 @@ class PlayerEconomyRepositoryImpl(
         }
 
     override suspend fun isItemUnlocked(itemId: String): Boolean {
-        val current = getOrCreateEntity()
-        return current.unlockedItemIds
-            .split(",")
-            .filter { it.isNotBlank() }
-            .contains(itemId)
+        return unlockedItemIds.value.contains(itemId)
     }
 
     override suspend fun selectTheme(themeId: String) =
