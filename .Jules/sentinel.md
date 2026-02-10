@@ -63,3 +63,18 @@ This could lead to invalid game states (e.g., starting with negative time in Tim
 **Learning:** `DAILY_CHALLENGE` mode was intended to be deterministic across all players (same board for everyone), but the implementation allowed overriding the `seed` and `pairCount` through `GameArgs`. This meant a user could force a specific board layout (e.g., an extremely easy one or one already solved) using a Deep Link while still being in `DAILY_CHALLENGE` mode, potentially cheating on leaderboards.
 **Prevention:** Enforce domain-specific invariants at the game initialization boundary. For special modes like `DAILY_CHALLENGE`, explicitly ignore or validate external parameters that must be derived from the system's source of truth (like the date-based seed).
 
+
+## 2024-05-22: Parameter Tampering in BuyItemUseCase
+
+**Type:** Business Logic / Parameter Tampering
+**Severity:** MEDIUM
+**Component:** `shared/core` / `BuyItemUseCase`
+
+**Finding:**
+`BuyItemUseCase` accepted `cost` as a parameter from the UI layer (`DefaultShopComponent`).
+This allowed a potential attacker (or a bug in the UI) to purchase items for free or reduced cost by manipulating the `ShopItem` object passed to the use case.
+
+**Remediation:**
+1.  Refactored `BuyItemUseCase` to accept only `itemId`.
+2.  Injected `ShopItemRepository` into `BuyItemUseCase` to fetch the authoritative price.
+3.  Updated `DefaultShopComponent` to pass only `itemId`.

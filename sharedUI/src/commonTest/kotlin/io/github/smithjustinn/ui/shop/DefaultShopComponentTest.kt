@@ -41,7 +41,7 @@ class DefaultShopComponentTest {
     private val appGraph = mock<AppGraph>()
 
     // Use real use cases since they are final classes and cannot be mocked by Mokkery
-    private val buyItemUseCase = BuyItemUseCase(playerEconomyRepository)
+    private val buyItemUseCase = BuyItemUseCase(playerEconomyRepository, shopItemRepository)
     private val getPlayerBalanceUseCase = GetPlayerBalanceUseCase(playerEconomyRepository)
     private val getShopItemsUseCase = GetShopItemsUseCase(shopItemRepository)
     private val setActiveCosmeticUseCase = SetActiveCosmeticUseCase(playerEconomyRepository)
@@ -78,6 +78,7 @@ class DefaultShopComponentTest {
                     single { setActiveCosmeticUseCase }
                     single { playerEconomyRepository }
                     single { hapticsService }
+                    single { shopItemRepository }
                 },
             )
         }
@@ -94,6 +95,7 @@ class DefaultShopComponentTest {
             val item =
                 ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
 
+            everySuspend { shopItemRepository.getShopItems() } returns listOf(item)
             everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
             everySuspend { playerEconomyRepository.deductCurrency(100) } returns true
             everySuspend { playerEconomyRepository.unlockItem("item1") } returns Unit
@@ -120,6 +122,7 @@ class DefaultShopComponentTest {
             val item =
                 ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
 
+            everySuspend { shopItemRepository.getShopItems() } returns listOf(item)
             everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
             everySuspend { playerEconomyRepository.deductCurrency(100) } returns false
 
