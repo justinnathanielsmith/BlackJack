@@ -171,6 +171,7 @@ fun PlayingCard(
 }
 
 @Composable
+@Suppress("ktlint:compose:state-param-check")
 private fun CardContentSelectors(
     content: CardContent,
     rotation: State<Float>,
@@ -215,21 +216,24 @@ private fun rememberCardAnimations(
     val shakeOffset = rememberShakeAnimation(content.visualState.isError)
     val matchedGlowAlpha = rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)
 
-    val muckTranslationX = rememberMuckAnimation(
-        isMuckingEnabled && content.visualState.isMatched,
-        muckTargetOffset.x.toFloat(),
-        "muckTranslationX",
-    )
-    val muckTranslationY = rememberMuckAnimation(
-        isMuckingEnabled && content.visualState.isMatched,
-        muckTargetOffset.y.toFloat(),
-        "muckTranslationY",
-    )
-    val muckRotation = rememberMuckAnimation(
-        isMuckingEnabled && content.visualState.isMatched,
-        muckTargetRotation,
-        "muckRotation",
-    )
+    val muckTranslationX =
+        rememberMuckAnimation(
+            isMuckingEnabled && content.visualState.isMatched,
+            muckTargetOffset.x.toFloat(),
+            "muckTranslationX",
+        )
+    val muckTranslationY =
+        rememberMuckAnimation(
+            isMuckingEnabled && content.visualState.isMatched,
+            muckTargetOffset.y.toFloat(),
+            "muckTranslationY",
+        )
+    val muckRotation =
+        rememberMuckAnimation(
+            isMuckingEnabled && content.visualState.isMatched,
+            muckTargetRotation,
+            "muckRotation",
+        )
 
     val shadowAnim = rememberShadowAnimation(content.visualState, isHovered)
 
@@ -321,22 +325,25 @@ private fun rememberShadowAnimation(
             else -> ELEVATION_DEFAULT.dp
         }
 
-    val shadowElevation = animateDpAsState(
-        targetValue = targetElevation,
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = "shadowElevation",
-    )
+    val shadowElevation =
+        animateDpAsState(
+            targetValue = targetElevation,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "shadowElevation",
+        )
 
-    val shadowYOffset = animateDpAsState(
-        targetValue = (targetElevation.value / SHADOW_OFFSET_DIVISOR).dp,
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-        label = "shadowYOffset",
-    )
+    val shadowYOffset =
+        animateDpAsState(
+            targetValue = (targetElevation.value / SHADOW_OFFSET_DIVISOR).dp,
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+            label = "shadowYOffset",
+        )
 
     return shadowElevation to shadowYOffset
 }
 
 @Composable
+@Suppress("ktlint:compose:state-param-check")
 private fun CardContainer(
     modifier: Modifier = Modifier,
     visuals: CardContainerVisuals,
