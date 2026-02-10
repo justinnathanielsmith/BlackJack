@@ -13,9 +13,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
@@ -73,11 +77,12 @@ object CardBacks {
         backgroundColor: Color = theme.backColorHex?.toColor() ?: theme.back.getPreferredColor(),
         rotation: Float = 0f,
     ) {
+        val rotationState = rememberUpdatedState(rotation)
         Box(modifier = modifier) {
             CardBack(
                 theme = theme.back,
                 backColor = backgroundColor,
-                rotation = rotation,
+                rotation = rotationState,
             )
         }
     }
@@ -107,41 +112,43 @@ object CardBacks {
 internal fun CardBack(
     theme: CardBackTheme,
     backColor: Color,
-    rotation: Float,
+    rotation: State<Float>,
 ) {
-    val rimLightAlpha = (1f - (abs(rotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
-    val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
+    val rimLightBrush = remember {
+        Brush.horizontalGradient(
+            colors =
+                listOf(
+                    Color.Transparent,
+                    Color.White,
+                    Color.Transparent,
+                ),
+        )
+    }
 
     Box(
         modifier =
             Modifier
                 .fillMaxSize()
-                .graphicsLayer { rotationY = FULL_ROTATION },
+                .graphicsLayer { rotationY = FULL_ROTATION }
+                .drawWithContent {
+                    drawContent()
+
+                    val currentRotation = rotation.value
+                    val rimLightAlpha = (1f - (abs(currentRotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
+
+                    if (rimLightAlpha > 0f) {
+                        drawRect(
+                            brush = rimLightBrush,
+                            alpha = rimLightAlpha * HIGH_ALPHA,
+                        )
+                    }
+                },
     ) {
         when (theme) {
             CardBackTheme.GEOMETRIC -> GeometricCardBack(backColor)
             CardBackTheme.CLASSIC -> ClassicCardBack(backColor)
             CardBackTheme.PATTERN -> PatternCardBack(backColor)
             CardBackTheme.POKER -> PokerCardBack(backColor)
-        }
-
-        // Rim light overlay on the back
-        if (rimLightAlpha > 0f) {
-            Box(
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .background(
-                            Brush.horizontalGradient(
-                                colors =
-                                    listOf(
-                                        Color.Transparent,
-                                        rimLightColor,
-                                        Color.Transparent,
-                                    ),
-                            ),
-                        ),
-            )
         }
     }
 }

@@ -17,3 +17,7 @@
 ## 2026-02-08 - FQNs in Function Parameters and Linting
 **Learning:** Using fully qualified names (FQNs) in function parameters can lead to brittle code and linting violations (like MaxLineLength) when combined with complex `remember` keys. It also violates project standards for explicit imports.
 **Action:** Always use explicit imports for types used in function signatures and Composable parameters to keep signatures clean and maintainable.
+
+## 2026-02-09 - Deferring State Reads to Draw Phase
+**Learning:** Frequent animations (like rotation) cause recomposition every frame if the animated value is read in the composition phase. Passing `State<T>` to child composables and reading `.value` only inside `drawWithContent` or `graphicsLayer` skips composition and layout entirely.
+**Action:** When animating visual properties (color, rotation, alpha) that don't affect layout size, pass `State<T>` and read it inside drawing modifiers.
