@@ -188,7 +188,7 @@ private fun CardContentSelectors(
         CardBack(
             theme = theme.back,
             backColor = backColor,
-            rotation = rotation.value,
+            rotation = rotation,
         )
     }
 }
