@@ -2,10 +2,12 @@ package io.github.smithjustinn.domain
 
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.utils.CoroutineDispatchers
+import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Job
 import kotlinx.coroutines.channels.Channel
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -23,16 +25,21 @@ class GameStateSyncManager(
     private val onSave: (MemoryGameState, Long) -> Unit,
 ) {
     private val syncChannel = Channel<SyncRequest>(Channel.CONFLATED)
-    private var debounceJob: Job? = null
     private val mutex = Mutex()
     private var lastSavedState: MemoryGameState? = null
     private var lastSavedTime: Long? = null
+    private var lastProcessedRequestTime: Long = 0L
 
     init {
         scope.launch(dispatchers.default) {
-            syncChannel.receiveAsFlow().collect { request ->
-                handleRequest(request)
-            }
+            @OptIn(FlowPreview::class)
+            syncChannel.receiveAsFlow()
+                .debounce(DEBOUNCE_DELAY_MS)
+                .collect { request ->
+                    mutex.withLock {
+                        performSave(request.state, request.time, request.queuedAt)
+                    }
+                }
         }
     }
 
@@ -47,9 +54,10 @@ class GameStateSyncManager(
     ) {
         if (priority == Priority.HIGH) {
             // Immediate save for high priority
+            val now = Clock.System.now().toEpochMilliseconds()
             scope.launch(dispatchers.mainImmediate) {
                 mutex.withLock {
-                    performSave(state, time)
+                    performSave(state, time, now)
                 }
             }
         } else {
@@ -58,21 +66,14 @@ class GameStateSyncManager(
         }
     }
 
-    private suspend fun handleRequest(request: SyncRequest) {
-        debounceJob?.cancel()
-        debounceJob =
-            scope.launch(dispatchers.default) {
-                delay(DEBOUNCE_DELAY_MS)
-                mutex.withLock {
-                    performSave(request.state, request.time)
-                }
-            }
-    }
-
     private fun performSave(
         state: MemoryGameState,
         time: Long,
+        requestTimestamp: Long,
     ) {
+        if (requestTimestamp < lastProcessedRequestTime) return
+        lastProcessedRequestTime = requestTimestamp
+
         if (state == lastSavedState && time == lastSavedTime) return
 
         onSave(state, time)
@@ -87,9 +88,9 @@ class GameStateSyncManager(
         state: MemoryGameState,
         time: Long,
     ) {
-        debounceJob?.cancel()
+        val now = Clock.System.now().toEpochMilliseconds()
         mutex.withLock {
-            performSave(state, time)
+            performSave(state, time, now)
         }
     }
 
@@ -101,6 +102,7 @@ class GameStateSyncManager(
     private data class SyncRequest(
         val state: MemoryGameState,
         val time: Long,
+        val queuedAt: Long = Clock.System.now().toEpochMilliseconds(),
     )
 
     companion object {
