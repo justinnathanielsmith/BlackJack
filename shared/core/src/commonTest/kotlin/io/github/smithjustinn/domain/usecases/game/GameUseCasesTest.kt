@@ -7,6 +7,7 @@ import dev.mokkery.everySuspend
 import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.verifySuspend
+import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.repositories.GameStateRepository
@@ -35,6 +36,20 @@ class GameUseCasesTest {
         val seed = 12345L
         val state1 = useCase(pairCount = 8, seed = seed)
         val state2 = useCase(pairCount = 8, seed = seed)
+        assertEquals(state1.cards, state2.cards)
+    }
+
+    @Test
+    fun testStartNewGameUseCase_dailyChallenge_ignoresSeed() {
+        val useCase = StartNewGameUseCase()
+        val seed1 = 12345L
+        val seed2 = 67890L
+
+        val state1 = useCase(pairCount = 8, mode = GameMode.DAILY_CHALLENGE, seed = seed1)
+        val state2 = useCase(pairCount = 8, mode = GameMode.DAILY_CHALLENGE, seed = seed2)
+
+        // Fixed: The seed is ignored for Daily Challenge, so the boards should be identical
+        // (based on the current date).
         assertEquals(state1.cards, state2.cards)
     }
 

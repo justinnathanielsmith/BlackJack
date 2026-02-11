@@ -205,9 +205,7 @@ class PlayerEconomyRepositoryImpl(
             }
         }
 
-    override suspend fun isItemUnlocked(itemId: String): Boolean {
-        return unlockedItemIds.value.contains(itemId)
-    }
+    override suspend fun isItemUnlocked(itemId: String): Boolean = unlockedItemIds.value.contains(itemId)
 
     override suspend fun selectTheme(themeId: String) =
         writeMutex.withLock {
