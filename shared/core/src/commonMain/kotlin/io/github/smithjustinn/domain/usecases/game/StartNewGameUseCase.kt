@@ -7,6 +7,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoringConfig
 import kotlin.random.Random
+import kotlin.time.Clock
 
 /**
  * Use case to initialize a new memory game state.
@@ -19,9 +20,17 @@ open class StartNewGameUseCase {
         difficulty: DifficultyType = DifficultyType.CASUAL,
         seed: Long? = null,
     ): MemoryGameState {
-        val finalSeed = seed ?: Random.nextLong()
+        val (finalPairCount, finalSeed) =
+            if (mode == GameMode.DAILY_CHALLENGE) {
+                // Enforce Daily Challenge invariants: Date-based seed, standard size
+                val dailySeed = Clock.System.now().toEpochMilliseconds() / (24 * 60 * 60 * 1000)
+                8 to dailySeed
+            } else {
+                pairCount to (seed ?: Random.nextLong())
+            }
+
         val random = Random(finalSeed)
-        val baseState = MemoryGameLogic.createInitialState(pairCount, config, mode, difficulty, random)
+        val baseState = MemoryGameLogic.createInitialState(finalPairCount, config, mode, difficulty, random)
 
         val activeMutators =
             if (mode == GameMode.DAILY_CHALLENGE) {
