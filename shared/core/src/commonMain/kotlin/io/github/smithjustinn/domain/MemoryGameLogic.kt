@@ -12,6 +12,7 @@ import io.github.smithjustinn.domain.models.Suit
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
 
@@ -278,19 +279,26 @@ object MemoryGameActions {
 }
 
 /**
- * Extension to update multiple cards by their IDs in a single pass if possible,
- * or sequentially for simplicity while maintaining immutability.
+ * Extension to update multiple cards by their IDs in a single pass using a builder.
  */
 private inline fun PersistentList<CardState>.updateByIds(
     vararg ids: Int,
     crossinline transform: (CardState) -> CardState,
 ): PersistentList<CardState> {
-    var result = this
-    ids.forEach { id ->
-        val index = result.indexOfFirst { it.id == id }
-        if (index != -1) {
-            result = result.set(index, transform(result[index]))
+    return this.mutate { list ->
+        val iterator = list.listIterator()
+        while (iterator.hasNext()) {
+            val item = iterator.next()
+            var found = false
+            for (id in ids) {
+                if (id == item.id) {
+                    found = true
+                    break
+                }
+            }
+            if (found) {
+                iterator.set(transform(item))
+            }
         }
     }
-    return result
 }
