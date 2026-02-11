@@ -2,16 +2,16 @@ package io.github.smithjustinn.domain
 
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.utils.CoroutineDispatchers
-import kotlin.time.Clock
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.FlowPreview
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlin.time.Clock
 
 /**
  * Manages the persistence of game state with an optimized strategy:
@@ -33,7 +33,8 @@ class GameStateSyncManager(
     init {
         scope.launch(dispatchers.default) {
             @OptIn(FlowPreview::class)
-            syncChannel.receiveAsFlow()
+            syncChannel
+                .receiveAsFlow()
                 .debounce(DEBOUNCE_DELAY_MS)
                 .collect { request ->
                     mutex.withLock {
