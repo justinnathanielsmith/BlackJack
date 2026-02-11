@@ -109,21 +109,23 @@ object CardBacks {
 }
 
 @Composable
+@Suppress("ktlint:compose:state-param-check")
 internal fun CardBack(
     theme: CardBackTheme,
     backColor: Color,
     rotation: State<Float>,
 ) {
-    val rimLightBrush = remember {
-        Brush.horizontalGradient(
-            colors =
-                listOf(
-                    Color.Transparent,
-                    Color.White,
-                    Color.Transparent,
-                ),
-        )
-    }
+    val rimLightBrush =
+        remember {
+            Brush.horizontalGradient(
+                colors =
+                    listOf(
+                        Color.Transparent,
+                        Color.White,
+                        Color.Transparent,
+                    ),
+            )
+        }
 
     Box(
         modifier =

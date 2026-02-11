@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -252,43 +253,41 @@ private fun BackButton(
     compact: Boolean = false,
 ) {
     val size = if (compact) 40.dp else 48.dp
-    // Let's use PokerButton style (Chip) but with Icon.
 
-    // We can reuse PokerChip logic but passing custom content is not easy with current PokerChip.
-    // I will implement it here using similar style.
-
-    // Actually, let's use the Chip shape style but with the Icon.
-
-    Surface(
+    IconButton(
         onClick = onClick,
-        shape = CircleShape,
-        color = PokerTheme.colors.tacticalRed,
-        shadowElevation = PokerTheme.spacing.small,
-        modifier = modifier.size(size),
+        modifier = modifier,
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            // Dashed border effect (simplified for icon button)
-            Canvas(modifier = Modifier.matchParentSize()) {
-                val strokeWidth = size.toPx() * STROKE_WIDTH_FACTOR
-                drawCircle(
-                    color = Color.White,
-                    style =
-                        Stroke(
-                            width = strokeWidth,
-                            pathEffect =
-                                PathEffect
-                                    .dashPathEffect(floatArrayOf(DASH_ON, DASH_OFF), 0f),
-                        ),
-                    radius = this.size.minDimension / 2 * RADIUS_FACTOR,
+        Surface(
+            shape = CircleShape,
+            color = PokerTheme.colors.tacticalRed,
+            shadowElevation = PokerTheme.spacing.small,
+            modifier = Modifier.size(size),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                // Dashed border effect (simplified for icon button)
+                Canvas(modifier = Modifier.matchParentSize()) {
+                    val strokeWidth = size.toPx() * STROKE_WIDTH_FACTOR
+                    drawCircle(
+                        color = Color.White,
+                        style =
+                            Stroke(
+                                width = strokeWidth,
+                                pathEffect =
+                                    PathEffect
+                                        .dashPathEffect(floatArrayOf(DASH_ON, DASH_OFF), 0f),
+                            ),
+                        radius = this.size.minDimension / 2 * RADIUS_FACTOR,
+                    )
+                }
+
+                Icon(
+                    AppIcons.ArrowBack,
+                    contentDescription = stringResource(Res.string.back_content_description),
+                    tint = PokerTheme.colors.goldenYellow,
+                    modifier = Modifier.size(if (compact) 20.dp else 24.dp),
                 )
             }
-
-            Icon(
-                AppIcons.ArrowBack,
-                contentDescription = stringResource(Res.string.back_content_description),
-                tint = PokerTheme.colors.goldenYellow,
-                modifier = Modifier.size(if (compact) 20.dp else 24.dp),
-            )
         }
     }
 }
@@ -299,20 +298,24 @@ private fun RestartButton(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
-    Surface(
+    IconButton(
         onClick = onClick,
-        shape = PokerTheme.shapes.medium,
-        color = PokerTheme.colors.oakWood,
-        shadowElevation = PokerTheme.spacing.extraSmall,
-        modifier = modifier.size(if (compact) 40.dp else 48.dp),
+        modifier = modifier,
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                AppIcons.Restart,
-                contentDescription = stringResource(Res.string.restart_content_description),
-                tint = PokerTheme.colors.goldenYellow,
-                modifier = Modifier.size(if (compact) 20.dp else 24.dp),
-            )
+        Surface(
+            shape = PokerTheme.shapes.medium,
+            color = PokerTheme.colors.oakWood,
+            shadowElevation = PokerTheme.spacing.extraSmall,
+            modifier = Modifier.size(if (compact) 40.dp else 48.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    AppIcons.Restart,
+                    contentDescription = stringResource(Res.string.restart_content_description),
+                    tint = PokerTheme.colors.goldenYellow,
+                    modifier = Modifier.size(if (compact) 20.dp else 24.dp),
+                )
+            }
         }
     }
 }
@@ -324,27 +327,31 @@ private fun MuteButton(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
-    Surface(
+    IconButton(
         onClick = onClick,
-        shape = PokerTheme.shapes.medium,
-        color = PokerTheme.colors.oakWood,
-        shadowElevation = PokerTheme.spacing.extraSmall,
-        modifier = modifier.size(if (compact) 40.dp else 48.dp),
+        modifier = modifier,
     ) {
-        Box(contentAlignment = Alignment.Center) {
-            Icon(
-                if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
-                contentDescription =
-                    stringResource(
-                        if (isAudioEnabled) {
-                            Res.string.mute_content_description
-                        } else {
-                            Res.string.unmute_content_description
-                        },
-                    ),
-                tint = if (isAudioEnabled) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed,
-                modifier = Modifier.size(if (compact) 20.dp else 24.dp),
-            )
+        Surface(
+            shape = PokerTheme.shapes.medium,
+            color = PokerTheme.colors.oakWood,
+            shadowElevation = PokerTheme.spacing.extraSmall,
+            modifier = Modifier.size(if (compact) 40.dp else 48.dp),
+        ) {
+            Box(contentAlignment = Alignment.Center) {
+                Icon(
+                    if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
+                    contentDescription =
+                        stringResource(
+                            if (isAudioEnabled) {
+                                Res.string.mute_content_description
+                            } else {
+                                Res.string.unmute_content_description
+                            },
+                        ),
+                    tint = if (isAudioEnabled) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed,
+                    modifier = Modifier.size(if (compact) 20.dp else 24.dp),
+                )
+            }
         }
     }
 }
