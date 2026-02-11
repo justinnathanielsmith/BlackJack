@@ -12,7 +12,6 @@ import io.github.smithjustinn.domain.models.Suit
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.random.Random
 
@@ -284,8 +283,8 @@ object MemoryGameActions {
 private inline fun PersistentList<CardState>.updateByIds(
     vararg ids: Int,
     crossinline transform: (CardState) -> CardState,
-): PersistentList<CardState> {
-    return this.mutate { list ->
+): PersistentList<CardState> =
+    this.mutate { list ->
         val iterator = list.listIterator()
         while (iterator.hasNext()) {
             val item = iterator.next()
@@ -301,4 +300,3 @@ private inline fun PersistentList<CardState>.updateByIds(
             }
         }
     }
-}

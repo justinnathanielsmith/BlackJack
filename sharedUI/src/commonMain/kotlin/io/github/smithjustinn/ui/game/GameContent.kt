@@ -34,6 +34,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.game_double_or_nothing
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.HeatAppColors
 import io.github.smithjustinn.theme.LocalAppColors
 import io.github.smithjustinn.theme.PokerTheme
@@ -190,6 +191,7 @@ private fun GameTopBarContent(
 ) {
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
+    val hapticsService = graph.hapticsService
 
     GameTopBar(
         state =
@@ -215,23 +217,26 @@ private fun GameTopBarContent(
                 isHeatMode = state.isHeatMode,
             ),
         onBackClick =
-            remember(component, audioService) {
+            remember(component, audioService, hapticsService) {
                 {
+                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onBack()
                 }
             },
         onRestartClick =
-            remember(component, audioService) {
+            remember(component, audioService, hapticsService) {
                 {
+                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onRestart()
                     audioService.startMusic()
                 }
             },
         onMuteClick =
-            remember(component, audioService) {
+            remember(component, audioService, hapticsService) {
                 {
+                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.onToggleAudio()
                 }
