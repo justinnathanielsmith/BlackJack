@@ -56,7 +56,7 @@ class GameStateMachine(
             syncManager.sync(initialState, internalTimeSeconds, GameStateSyncManager.Priority.HIGH)
         }
 
-        // Fix: If we are resuming a game with mismatched or too many flipped cards, we need to schedule their reset.
+        // If we are resuming a game with mismatched or too many flipped cards, we need to schedule their reset.
         // Also clear lastMatchedIds to avoid showing stale match animations on resume.
         val cards = initialState.cards
         val faceUpUnmatched = cards.count { it.isFaceUp && !it.isMatched }
