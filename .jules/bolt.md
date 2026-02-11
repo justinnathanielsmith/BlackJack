@@ -21,3 +21,7 @@
 ## 2026-02-09 - Deferring State Reads to Draw Phase
 **Learning:** Frequent animations (like rotation) cause recomposition every frame if the animated value is read in the composition phase. Passing `State<T>` to child composables and reading `.value` only inside `drawWithContent` or `graphicsLayer` skips composition and layout entirely.
 **Action:** When animating visual properties (color, rotation, alpha) that don't affect layout size, pass `State<T>` and read it inside drawing modifiers.
+
+## 2024-05-22 - [Optimized TimeProgressBar Animation]
+**Learning:** Animated values in Compose (e.g., `animateFloatAsState`) cause recomposition on every frame if read in the composition scope. Using `Modifier.layout` (or `graphicsLayer`) allows reading the state value inside the layout/draw phase, skipping the composition phase entirely.
+**Action:** When animating layout properties like width/height based on state, prefer `Modifier.layout` over `Modifier.width`/`fillMaxWidth` to avoid recomposition loops.

@@ -35,10 +35,12 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import kotlin.math.roundToInt
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
@@ -355,7 +357,7 @@ private fun TimeProgressBar(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
-    val progress by animateFloatAsState(
+    val progressState = animateFloatAsState(
         targetValue = (time.toFloat() / maxTime.toFloat()).coerceIn(0f, 1f),
         animationSpec = spring(stiffness = Spring.StiffnessLow),
     )
@@ -371,7 +373,15 @@ private fun TimeProgressBar(
         Box(
             modifier =
                 Modifier
-                    .fillMaxWidth(progress)
+                    // Bolt: Use layout modifier to update width without recomposition during animation
+                    .layout { measurable, constraints ->
+                        val progress = progressState.value
+                        val width = (constraints.maxWidth * progress).roundToInt()
+                        val placeable = measurable.measure(constraints.copy(minWidth = width, maxWidth = width))
+                        layout(width, placeable.height) {
+                            placeable.place(0, 0)
+                        }
+                    }
                     .fillMaxHeight()
                     .shadow(
                         elevation = if (isLowTime) PokerTheme.spacing.none else PokerTheme.spacing.medium,
