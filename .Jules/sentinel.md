@@ -78,3 +78,17 @@ This allowed a potential attacker (or a bug in the UI) to purchase items for fre
 1.  Refactored `BuyItemUseCase` to accept only `itemId`.
 2.  Injected `ShopItemRepository` into `BuyItemUseCase` to fetch the authoritative price.
 3.  Updated `DefaultShopComponent` to pass only `itemId`.
+
+## 2026-02-09 - [Leaderboard Validation Vulnerability]
+**Vulnerability:** Input Validation
+**Severity:** MEDIUM
+**Component:** `shared/core` / `LeaderboardEntry`
+
+**Finding:**
+`LeaderboardEntry` lacked input validation, allowing the creation of entries with negative scores, times, moves, or invalid pair counts.
+This could lead to a corrupted leaderboard and potential logic errors in the UI or stats calculations.
+
+**Remediation:**
+1.  Added `init` block to `LeaderboardEntry` with strict `require` checks.
+2.  Validated `pairCount > 0`, `score >= 0`, `timeSeconds >= 0`, and `moves >= 0`.
+3.  Verified with unit tests in `LeaderboardEntryTest.kt`.
