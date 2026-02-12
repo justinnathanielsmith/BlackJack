@@ -15,4 +15,11 @@ data class LeaderboardEntry(
     val moves: Int,
     val timestamp: Instant,
     val gameMode: GameMode = GameMode.TIME_ATTACK,
-)
+) {
+    init {
+        require(pairCount > 0) { "Pair count must be positive" }
+        require(score >= 0) { "Score cannot be negative" }
+        require(timeSeconds >= 0) { "Time cannot be negative" }
+        require(moves >= 0) { "Moves cannot be negative" }
+    }
+}
