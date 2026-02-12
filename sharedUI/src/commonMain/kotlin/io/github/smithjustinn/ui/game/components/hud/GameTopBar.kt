@@ -41,7 +41,6 @@ import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import kotlin.math.roundToInt
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.GameMode
@@ -54,6 +53,7 @@ import io.github.smithjustinn.resources.unmute_content_description
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
+import kotlin.math.roundToInt
 
 @Composable
 fun GameTopBar(
@@ -364,10 +364,11 @@ private fun TimeProgressBar(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
-    val progressState = animateFloatAsState(
-        targetValue = (time.toFloat() / maxTime.toFloat()).coerceIn(0f, 1f),
-        animationSpec = spring(stiffness = Spring.StiffnessLow),
-    )
+    val progressState =
+        animateFloatAsState(
+            targetValue = (time.toFloat() / maxTime.toFloat()).coerceIn(0f, 1f),
+            animationSpec = spring(stiffness = Spring.StiffnessLow),
+        )
 
     Box(
         modifier =
@@ -388,8 +389,7 @@ private fun TimeProgressBar(
                         layout(width, placeable.height) {
                             placeable.place(0, 0)
                         }
-                    }
-                    .fillMaxHeight()
+                    }.fillMaxHeight()
                     .shadow(
                         elevation = if (isLowTime) PokerTheme.spacing.none else PokerTheme.spacing.medium,
                         shape = CircleShape,

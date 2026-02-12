@@ -10,7 +10,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -66,25 +66,37 @@ internal fun GridBackground(
 
     // Dynamic Spotlight Animation
     val infiniteTransition = rememberInfiniteTransition(label = "spotlight")
-    val spotlightX by infiniteTransition.animateFloat(
-        initialValue = SPOTLIGHT_X_START,
-        targetValue = SPOTLIGHT_X_END,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(durationMillis = SPOTLIGHT_DURATION_MS, easing = FastOutSlowInEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "spotlightX",
-    )
+    // Bolt: Use State<Float> instead of delegated property to defer reads to draw phase
+    val spotlightXState =
+        infiniteTransition.animateFloat(
+            initialValue = SPOTLIGHT_X_START,
+            targetValue = SPOTLIGHT_X_END,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(durationMillis = SPOTLIGHT_DURATION_MS, easing = FastOutSlowInEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "spotlightX",
+        )
 
     Box(
         modifier =
-            modifier.drawBehind {
-                drawFeltBackground(backgroundColor)
-                drawSpotlight(spotlightX, spotlightColor)
-                drawVignette()
-                drawNoiseTexture()
-                drawTableBorder(spacing.medium.toPx(), spacing.small.toPx())
+            modifier.drawWithCache {
+                // Bolt: Generate noise points only when size changes, avoiding allocation on every frame
+                val random = Random(FELT_TEXTURE_SEED)
+                val points =
+                    List(FELT_TEXTURE_POINT_COUNT) {
+                        Offset(random.nextFloat() * size.width, random.nextFloat() * size.height)
+                    }
+
+                onDrawBehind {
+                    drawFeltBackground(backgroundColor)
+                    // Bolt: Read state inside draw phase to skip recomposition
+                    drawSpotlight(spotlightXState.value, spotlightColor)
+                    drawVignette()
+                    drawNoiseTexture(points)
+                    drawTableBorder(spacing.medium.toPx(), spacing.small.toPx())
+                }
             },
     )
 }
@@ -123,12 +135,7 @@ private fun DrawScope.drawVignette() {
     )
 }
 
-private fun DrawScope.drawNoiseTexture() {
-    val random = Random(FELT_TEXTURE_SEED)
-    val points =
-        List(FELT_TEXTURE_POINT_COUNT) {
-            Offset(random.nextFloat() * size.width, random.nextFloat() * size.height)
-        }
+private fun DrawScope.drawNoiseTexture(points: List<Offset>) {
     drawPoints(
         points = points,
         pointMode = PointMode.Points,
