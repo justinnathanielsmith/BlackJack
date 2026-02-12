@@ -30,6 +30,7 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.NeonCyan
 import io.github.smithjustinn.theme.NeonMagenta
 import io.github.smithjustinn.theme.NeonYellow
@@ -170,6 +171,7 @@ private fun BoxScope.GameResultsOverlay(
         elapsedTimeSeconds = state.elapsedTimeSeconds,
         scoreBreakdown = state.game.scoreBreakdown,
         onPlayAgain = {
+            hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
             audioService.playEffect(AudioService.SoundEffect.CLICK)
             component.onRestart()
             audioService.startMusic()
