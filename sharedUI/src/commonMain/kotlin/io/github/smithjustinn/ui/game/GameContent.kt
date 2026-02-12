@@ -351,8 +351,15 @@ private fun BoxScope.GameHUD(
 
 @Composable
 private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
+    val hapticsService = LocalAppGraph.current.hapticsService
+    val audioService = LocalAppGraph.current.audioService
+
     Button(
-        onClick = onDoubleDown,
+        onClick = {
+            hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+            audioService.playEffect(AudioService.SoundEffect.CLICK)
+            onDoubleDown()
+        },
         colors =
             ButtonDefaults.buttonColors(
                 containerColor = PokerTheme.colors.tacticalRed,
