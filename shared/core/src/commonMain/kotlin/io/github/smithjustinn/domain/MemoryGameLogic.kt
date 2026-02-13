@@ -1,5 +1,6 @@
 package io.github.smithjustinn.domain
 
+import io.github.smithjustinn.domain.ScoringCalculator.MatchScoreResult
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.DifficultyType
@@ -19,6 +20,12 @@ import kotlin.random.Random
  * Pure logic for the Memory Match game.
  */
 object MemoryGameLogic {
+    const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
+
+    private object GameConstants {
+        const val MIRAGE_MOVE_INTERVAL = 5
+    }
+
     fun createInitialState(
         pairCount: Int,
         config: ScoringConfig = ScoringConfig(),
@@ -109,50 +116,82 @@ object MemoryGameLogic {
 
         val config = state.config
         val comboFactor = state.comboMultiplier * state.comboMultiplier
-        val matchBasePoints = config.baseMatchPoints
-        val matchComboBonus = comboFactor * config.comboBonusPoints
-        val matchTotalPoints = matchBasePoints + matchComboBonus
+        val matchBasePoints = config.baseMatchPoints.toInt()
+        val matchComboBonus = (comboFactor * config.comboBonusPoints).toInt()
+        val matchTotalPoints = (matchBasePoints + matchComboBonus).toLong()
 
         val isMilestone = matchesFound > 0 && matchesFound % config.matchMilestoneInterval == 0
         val potentialPot = state.currentPot + matchTotalPoints
 
         val scoreResult =
             ScoringCalculator.calculateMatchScore(
-                currentScore = if (isMilestone || isWon) state.score + potentialPot else state.score,
+                currentScore = if (isMilestone || isWon) state.score + potentialPot.toInt() else state.score,
                 isDoubleDownActive = state.isDoubleDownActive,
                 matchBasePoints = 0, // Points are in the pot now
                 matchComboBonus = 0,
                 isWon = isWon,
             )
 
+        val newState =
+            createMatchSuccessState(
+                state = state,
+                newCards = newCards,
+                isWon = isWon,
+                moves = moves,
+                scoreResult = scoreResult,
+                potentialPot = potentialPot,
+                matchTotalPoints = matchTotalPoints.toInt(),
+                matchBasePoints = matchBasePoints,
+                matchComboBonus = matchComboBonus,
+                matchesFound = matchesFound,
+                isMilestone = isMilestone,
+                firstId = first.id,
+                secondId = second.id,
+            )
+
+        return newState to ScoringCalculator.determineSuccessEvent(isWon, state.comboMultiplier, config)
+    }
+
+    private fun createMatchSuccessState(
+        state: MemoryGameState,
+        newCards: PersistentList<CardState>,
+        isWon: Boolean,
+        moves: Int,
+        scoreResult: MatchScoreResult,
+        potentialPot: Long,
+        matchTotalPoints: Int,
+        matchBasePoints: Int,
+        matchComboBonus: Int,
+        matchesFound: Int,
+        isMilestone: Boolean,
+        firstId: Int,
+        secondId: Int,
+    ): MemoryGameState {
         val comment =
             GameCommentGenerator.generateMatchComment(
                 moves = moves,
                 matchesFound = matchesFound,
                 totalPairs = state.pairCount,
                 comboMultiplier = state.comboMultiplier,
-                config = config,
+                config = state.config,
                 isDoubleDownActive = state.isDoubleDownActive,
             )
 
-        val newState =
-            state.copy(
-                cards = newCards,
-                isGameWon = isWon,
-                isGameOver = isWon,
-                moves = moves,
-                score = scoreResult.finalScore,
-                currentPot = if (isMilestone || isWon) 0 else potentialPot,
-                totalBasePoints = state.totalBasePoints + matchBasePoints,
-                totalComboBonus = state.totalComboBonus + matchComboBonus,
-                totalDoubleDownBonus = scoreResult.ddBonus,
-                comboMultiplier = state.comboMultiplier + 1,
-                isDoubleDownActive = state.isDoubleDownActive && !isWon,
-                matchComment = comment,
-                lastMatchedIds = persistentListOf(first.id, second.id),
-            )
-
-        return newState to ScoringCalculator.determineSuccessEvent(isWon, state.comboMultiplier, config)
+        return state.copy(
+            cards = newCards,
+            isGameWon = isWon,
+            isGameOver = isWon,
+            moves = moves,
+            score = scoreResult.finalScore,
+            currentPot = if (isMilestone || isWon) 0 else potentialPot.toInt(),
+            totalBasePoints = state.totalBasePoints + matchBasePoints,
+            totalComboBonus = state.totalComboBonus + matchComboBonus,
+            totalDoubleDownBonus = scoreResult.ddBonus,
+            comboMultiplier = state.comboMultiplier + 1,
+            isDoubleDownActive = state.isDoubleDownActive && !isWon,
+            matchComment = comment,
+            lastMatchedIds = persistentListOf(firstId, secondId),
+        )
     }
 
     private fun handleMatchFailure(
@@ -222,25 +261,34 @@ object MemoryGameLogic {
         elapsedTimeSeconds: Long,
     ): MemoryGameState = ScoringCalculator.applyFinalBonuses(state, elapsedTimeSeconds)
 
-    const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
-}
-
-/**
- * Secondary actions and mutators for the Memory Match game.
- */
-object MemoryGameActions {
-    private const val MIRAGE_MOVE_INTERVAL = 5
-
-    fun resetErrorCards(state: MemoryGameState): MemoryGameState = MemoryGameLogic.resetErrorCards(state)
-
-    fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState = MemoryGameLogic.resetUnmatchedCards(state)
+    // Helper to update multiple cards by their IDs efficiently
+    private inline fun PersistentList<CardState>.updateByIds(
+        vararg ids: Int,
+        crossinline transform: (CardState) -> CardState,
+    ): PersistentList<CardState> =
+        this.mutate { list ->
+            val iterator = list.listIterator()
+            while (iterator.hasNext()) {
+                val item = iterator.next()
+                var found = false
+                for (id in ids) {
+                    if (id == item.id) {
+                        found = true
+                        break
+                    }
+                }
+                if (found) {
+                    iterator.set(transform(item))
+                }
+            }
+        }
 
     fun activateDoubleDown(state: MemoryGameState): MemoryGameState {
         val unmatchedPairs = state.cards.count { !it.isMatched } / 2
         val isEligible =
             state.comboMultiplier >= state.config.heatModeThreshold &&
                 !state.isDoubleDownActive &&
-                unmatchedPairs >= MemoryGameLogic.MIN_PAIRS_FOR_DOUBLE_DOWN
+                unmatchedPairs >= MIN_PAIRS_FOR_DOUBLE_DOWN
 
         return if (isEligible) state.copy(isDoubleDownActive = true) else state
     }
@@ -253,7 +301,7 @@ object MemoryGameActions {
             .takeIf {
                 it.activeMutators.contains(DailyChallengeMutator.MIRAGE) &&
                     it.moves > 0 &&
-                    it.moves % MIRAGE_MOVE_INTERVAL == 0
+                    it.moves % GameConstants.MIRAGE_MOVE_INTERVAL == 0
             }?.let { handleMirageSwap(it, random) } ?: state
 
     private fun handleMirageSwap(
@@ -278,25 +326,18 @@ object MemoryGameActions {
 }
 
 /**
- * Extension to update multiple cards by their IDs in a single pass using a builder.
+ * Secondary actions and mutators for the Memory Match game.
+ * Restored for backward compatibility.
  */
-private inline fun PersistentList<CardState>.updateByIds(
-    vararg ids: Int,
-    crossinline transform: (CardState) -> CardState,
-): PersistentList<CardState> =
-    this.mutate { list ->
-        val iterator = list.listIterator()
-        while (iterator.hasNext()) {
-            val item = iterator.next()
-            var found = false
-            for (id in ids) {
-                if (id == item.id) {
-                    found = true
-                    break
-                }
-            }
-            if (found) {
-                iterator.set(transform(item))
-            }
-        }
-    }
+object MemoryGameActions {
+    fun resetErrorCards(state: MemoryGameState): MemoryGameState = MemoryGameLogic.resetErrorCards(state)
+
+    fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState = MemoryGameLogic.resetUnmatchedCards(state)
+
+    fun activateDoubleDown(state: MemoryGameState): MemoryGameState = MemoryGameLogic.activateDoubleDown(state)
+
+    fun applyMutators(
+        state: MemoryGameState,
+        random: Random = Random,
+    ): MemoryGameState = MemoryGameLogic.applyMutators(state, random)
+}
