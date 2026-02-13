@@ -29,6 +29,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
@@ -143,8 +145,23 @@ fun PlayingCard(
         )
     val suitColor = calculateSuitColor(content.suit, areSuitsMultiColored, theme.skin)
 
+    val description =
+        remember(content.visualState.isFaceUp, content.visualState.isMatched, content.rank, content.suit) {
+            if (content.visualState.isFaceUp || content.visualState.isMatched) {
+                val rankName = content.rank.name.lowercase().replaceFirstChar { it.uppercase() }
+                val suitName = content.suit.name.lowercase().replaceFirstChar { it.uppercase() }
+                val base = "$rankName of $suitName"
+                if (content.visualState.isMatched) "$base, Matched" else base
+            } else {
+                "Card Back"
+            }
+        }
+
     CardContainer(
-        modifier = modifier.offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) },
+        modifier =
+            modifier
+                .offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) }
+                .semantics { contentDescription = description },
         visuals =
             CardContainerVisuals(
                 visualState = content.visualState,
