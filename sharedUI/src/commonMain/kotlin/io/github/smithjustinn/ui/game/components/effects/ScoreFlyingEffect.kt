@@ -99,6 +99,16 @@ private const val EASING_Y1 = 0.0f
 private const val EASING_X2 = 0.2f
 private const val EASING_Y2 = 1.0f
 
+private val ParticleColors =
+    listOf(
+        Color(GOLD_COLOR),
+        Color(BRASS_COLOR),
+        Color.White,
+        Color(PALE_GOLD_COLOR),
+    )
+
+private val FlyingParticleEasing = CubicBezierEasing(EASING_X1, EASING_Y1, EASING_X2, EASING_Y2)
+
 private fun generateParticles(
     startPos: Offset,
     targetPos: Offset,
@@ -111,13 +121,7 @@ private fun generateParticles(
             targetPos = targetPos,
             startTime = now,
             duration = (BASE_DURATION_MS + Random.nextInt(RANDOM_DURATION_MS)).milliseconds,
-            color =
-                listOf(
-                    Color(GOLD_COLOR),
-                    Color(BRASS_COLOR),
-                    Color.White,
-                    Color(PALE_GOLD_COLOR),
-                ).random(),
+            color = ParticleColors.random(),
             size = BASE_SIZE + Random.nextFloat() * RANDOM_SIZE,
             delay = (i * DELAY_FACTOR_MS + Random.nextInt(RANDOM_DELAY_MS)).milliseconds,
         )
@@ -129,7 +133,8 @@ private fun DrawScope.drawParticle(point: FlyingPoint) {
 
     if (activeTime.isPositive()) {
         val progress = (activeTime / point.duration).coerceIn(0.0, 1.0).toFloat()
-        val easedProgress = CubicBezierEasing(EASING_X1, EASING_Y1, EASING_X2, EASING_Y2).transform(progress)
+        // Bolt: Reusing static easing instance to avoid allocation on every frame
+        val easedProgress = FlyingParticleEasing.transform(progress)
 
         // More pronounced arc/wobble
         val sideVelocity = if (point.id % 2 == 0L) 1f else -1f
