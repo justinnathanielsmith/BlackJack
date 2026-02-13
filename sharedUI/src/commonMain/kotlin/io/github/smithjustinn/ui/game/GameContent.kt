@@ -56,11 +56,14 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import org.jetbrains.compose.resources.stringResource
 
-private const val SHAKE_RESET_OFFSET = 0f
-private const val STEAM_DURATION_MS = 1200
-private const val COMPACT_HEIGHT_THRESHOLD_DP = 500
-private const val DOUBLE_DOWN_BOTTOM_PADDING_DP = 100
-private const val SPEECH_BUBBLE_TOP_PADDING_DP = 80
+private object LayoutConstants {
+    const val SHAKE_RESET_OFFSET = 0f
+    const val STEAM_DURATION_MS = 1200
+    const val COMPACT_HEIGHT_THRESHOLD_DP = 500
+    const val DOUBLE_DOWN_BOTTOM_PADDING_DP = 100
+    const val SPEECH_BUBBLE_TOP_PADDING_DP = 80
+    const val MUTATOR_INDICATORS_TOP_OFFSET_DP = 60
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -70,7 +73,7 @@ fun GameContent(
 ) {
     val state by component.state.collectAsState()
     val scope = rememberCoroutineScope()
-    val shakeOffset = remember { Animatable(SHAKE_RESET_OFFSET) }
+    val shakeOffset = remember { Animatable(LayoutConstants.SHAKE_RESET_OFFSET) }
     var showSteam by remember { mutableStateOf(false) }
 
     GameEventHandler(
@@ -81,7 +84,7 @@ fun GameContent(
                 runShakeAnimation(shakeOffset)
             }
             scope.launch {
-                delay(STEAM_DURATION_MS.toLong())
+                delay(LayoutConstants.STEAM_DURATION_MS.toLong())
                 showSteam = false
             }
         },
@@ -94,7 +97,7 @@ fun GameContent(
                 showSteam = true
                 scope.launch { runShakeAnimation(shakeOffset) }
                 scope.launch {
-                    delay(STEAM_DURATION_MS.toLong())
+                    delay(LayoutConstants.STEAM_DURATION_MS.toLong())
                     showSteam = false
                 }
             },
@@ -129,7 +132,7 @@ private fun GameMainScreenWrapper(
                     .graphicsLayer { translationX = shakeOffset },
         ) {
             val isLandscape = maxWidth > maxHeight
-            val isCompactHeight = maxHeight < COMPACT_HEIGHT_THRESHOLD_DP.dp
+            val isCompactHeight = maxHeight < LayoutConstants.COMPACT_HEIGHT_THRESHOLD_DP.dp
             val useCompactUI = isLandscape && isCompactHeight
 
             Box(modifier = Modifier.fillMaxSize()) {
@@ -193,6 +196,35 @@ private fun GameTopBarContent(
     val audioService = graph.audioService
     val hapticsService = graph.hapticsService
 
+    // Hoist event handlers to keep the call site clean
+    val onBackClick =
+        remember(component, audioService, hapticsService) {
+            {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onBack()
+            }
+        }
+
+    val onRestartClick =
+        remember(component, audioService, hapticsService) {
+            {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onRestart()
+                audioService.startMusic()
+            }
+        }
+
+    val onMuteClick =
+        remember(component, audioService, hapticsService) {
+            {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                audioService.playEffect(AudioService.SoundEffect.CLICK)
+                component.onToggleAudio()
+            }
+        }
+
     GameTopBar(
         state =
             GameTopBarState(
@@ -216,31 +248,9 @@ private fun GameTopBarContent(
                 currentPot = state.game.currentPot,
                 isHeatMode = state.isHeatMode,
             ),
-        onBackClick =
-            remember(component, audioService, hapticsService) {
-                {
-                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onBack()
-                }
-            },
-        onRestartClick =
-            remember(component, audioService, hapticsService) {
-                {
-                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onRestart()
-                    audioService.startMusic()
-                }
-            },
-        onMuteClick =
-            remember(component, audioService, hapticsService) {
-                {
-                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.onToggleAudio()
-                }
-            },
+        onBackClick = onBackClick,
+        onRestartClick = onRestartClick,
+        onMuteClick = onMuteClick,
         onScorePositioned = onScorePositioned,
     )
 }
@@ -331,7 +341,10 @@ private fun BoxScope.GameHUD(
         modifier =
             Modifier
                 .align(Alignment.TopStart)
-                .padding(top = SPEECH_BUBBLE_TOP_PADDING_DP.dp + 60.dp, start = PokerTheme.spacing.medium),
+                .padding(
+                    top = (LayoutConstants.SPEECH_BUBBLE_TOP_PADDING_DP + LayoutConstants.MUTATOR_INDICATORS_TOP_OFFSET_DP).dp,
+                    start = PokerTheme.spacing.medium,
+                ),
         compact = useCompactUI,
     )
 
@@ -344,7 +357,7 @@ private fun BoxScope.GameHUD(
         modifier =
             Modifier
                 .align(Alignment.TopCenter)
-                .padding(top = SPEECH_BUBBLE_TOP_PADDING_DP.dp)
+                .padding(top = LayoutConstants.SPEECH_BUBBLE_TOP_PADDING_DP.dp)
                 .widthIn(max = 600.dp),
     )
 }
@@ -368,7 +381,7 @@ private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
         modifier =
             Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = DOUBLE_DOWN_BOTTOM_PADDING_DP.dp, end = 16.dp),
+                .padding(bottom = LayoutConstants.DOUBLE_DOWN_BOTTOM_PADDING_DP.dp, end = 16.dp),
         elevation =
             ButtonDefaults.buttonElevation(
                 defaultElevation = 6.dp,
