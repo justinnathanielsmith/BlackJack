@@ -92,3 +92,17 @@ This could lead to a corrupted leaderboard and potential logic errors in the UI 
 1.  Added `init` block to `LeaderboardEntry` with strict `require` checks.
 2.  Validated `pairCount > 0`, `score >= 0`, `timeSeconds >= 0`, and `moves >= 0`.
 3.  Verified with unit tests in `LeaderboardEntryTest.kt`.
+
+## 2026-02-09 - [Unauthorized Cosmetic Equipment]
+**Vulnerability:** IDOR / Logic Bypass
+**Severity:** MEDIUM
+**Component:** `shared/core` / `SetActiveCosmeticUseCase`
+
+**Finding:**
+`SetActiveCosmeticUseCase` allowed equipping any cosmetic item (theme, skin, music, powerup) without checking if the user actually owned/unlocked it.
+This would allow an attacker (or a bug) to bypass the economy system.
+
+**Remediation:**
+1.  Updated `SetActiveCosmeticUseCase` to enforce ownership check using `playerEconomyRepository.isItemUnlocked(itemId)`.
+2.  Explicitly allowed default items (e.g., `CardBackTheme.GEOMETRIC`) to be equipped even if not in the unlocked list.
+3.  Added `SetActiveCosmeticUseCaseSecurityTest` to verify the fix and prevent regression.
