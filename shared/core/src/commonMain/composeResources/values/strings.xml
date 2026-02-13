@@ -217,4 +217,28 @@
     <string name="debug_ad_status_showing">Ad Loaded. Showing...</string>
     <string name="debug_ad_status_reward_earned">Reward Earned: %1$d</string>
     <string name="debug_ad_status_error">Error: %1$s</string>
+
+    <!-- Accessibility -->
+    <string name="card_face_down">Card face down</string>
+    <string name="card_name_format">%1$s of %2$s</string>
+    <string name="card_matched_format">Matched %1$s</string>
+
+    <string name="rank_ace">Ace</string>
+    <string name="rank_two">Two</string>
+    <string name="rank_three">Three</string>
+    <string name="rank_four">Four</string>
+    <string name="rank_five">Five</string>
+    <string name="rank_six">Six</string>
+    <string name="rank_seven">Seven</string>
+    <string name="rank_eight">Eight</string>
+    <string name="rank_nine">Nine</string>
+    <string name="rank_ten">Ten</string>
+    <string name="rank_jack">Jack</string>
+    <string name="rank_queen">Queen</string>
+    <string name="rank_king">King</string>
+
+    <string name="suit_hearts">Hearts</string>
+    <string name="suit_diamonds">Diamonds</string>
+    <string name="suit_clubs">Clubs</string>
+    <string name="suit_spades">Spades</string>
 </resources>

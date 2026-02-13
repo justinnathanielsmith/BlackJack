@@ -29,14 +29,39 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.card_face_down
+import io.github.smithjustinn.resources.card_matched_format
+import io.github.smithjustinn.resources.card_name_format
+import io.github.smithjustinn.resources.rank_ace
+import io.github.smithjustinn.resources.rank_eight
+import io.github.smithjustinn.resources.rank_five
+import io.github.smithjustinn.resources.rank_four
+import io.github.smithjustinn.resources.rank_jack
+import io.github.smithjustinn.resources.rank_king
+import io.github.smithjustinn.resources.rank_nine
+import io.github.smithjustinn.resources.rank_queen
+import io.github.smithjustinn.resources.rank_seven
+import io.github.smithjustinn.resources.rank_six
+import io.github.smithjustinn.resources.rank_ten
+import io.github.smithjustinn.resources.rank_three
+import io.github.smithjustinn.resources.rank_two
+import io.github.smithjustinn.resources.suit_clubs
+import io.github.smithjustinn.resources.suit_diamonds
+import io.github.smithjustinn.resources.suit_hearts
+import io.github.smithjustinn.resources.suit_spades
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
+import org.jetbrains.compose.resources.StringResource
+import org.jetbrains.compose.resources.stringResource
 import kotlin.math.roundToInt
 
 // Animation durations (milliseconds)
@@ -143,6 +168,20 @@ fun PlayingCard(
         )
     val suitColor = calculateSuitColor(content.suit, areSuitsMultiColored, theme.skin)
 
+    val contentDescription =
+        if (content.visualState.isFaceUp || content.visualState.isMatched) {
+            val rankName = stringResource(getRankResource(content.rank))
+            val suitName = stringResource(getSuitResource(content.suit))
+            val cardName = stringResource(Res.string.card_name_format, rankName, suitName)
+            if (content.visualState.isMatched) {
+                stringResource(Res.string.card_matched_format, cardName)
+            } else {
+                cardName
+            }
+        } else {
+            stringResource(Res.string.card_face_down)
+        }
+
     CardContainer(
         modifier = modifier.offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) },
         visuals =
@@ -158,6 +197,7 @@ fun PlayingCard(
         muckTranslationY = animations.muckTranslationY,
         muckRotation = animations.muckRotation,
         backColor = backColor,
+        contentDescription = contentDescription,
         interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
     ) {
         CardContentSelectors(
@@ -351,6 +391,7 @@ private fun CardContainer(
     muckTranslationY: State<Float>,
     muckRotation: State<Float>,
     backColor: Color,
+    contentDescription: String,
     interactions: CardInteractions,
     content: @Composable () -> Unit,
 ) {
@@ -390,7 +431,13 @@ private fun CardContainer(
         Card(
             onClick = interactions.onClick,
             interactionSource = interactions.interactionSource,
-            modifier = Modifier.fillMaxSize().cardBorder(visuals.rotation, visuals.visualState),
+            modifier =
+                Modifier
+                    .fillMaxSize()
+                    .cardBorder(visuals.rotation, visuals.visualState)
+                    .semantics {
+                        this.contentDescription = contentDescription
+                    },
             shape = RoundedCornerShape(12.dp),
             colors =
                 CardDefaults.cardColors(
@@ -404,3 +451,28 @@ private fun CardContainer(
         }
     }
 }
+
+private fun getRankResource(rank: Rank): StringResource =
+    when (rank) {
+        Rank.Ace -> Res.string.rank_ace
+        Rank.Two -> Res.string.rank_two
+        Rank.Three -> Res.string.rank_three
+        Rank.Four -> Res.string.rank_four
+        Rank.Five -> Res.string.rank_five
+        Rank.Six -> Res.string.rank_six
+        Rank.Seven -> Res.string.rank_seven
+        Rank.Eight -> Res.string.rank_eight
+        Rank.Nine -> Res.string.rank_nine
+        Rank.Ten -> Res.string.rank_ten
+        Rank.Jack -> Res.string.rank_jack
+        Rank.Queen -> Res.string.rank_queen
+        Rank.King -> Res.string.rank_king
+    }
+
+private fun getSuitResource(suit: Suit): StringResource =
+    when (suit) {
+        Suit.Hearts -> Res.string.suit_hearts
+        Suit.Diamonds -> Res.string.suit_diamonds
+        Suit.Clubs -> Res.string.suit_clubs
+        Suit.Spades -> Res.string.suit_spades
+    }
