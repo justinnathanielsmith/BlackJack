@@ -20,6 +20,7 @@ class SetActiveCosmeticUseCase(
                 ShopItemType.CARD_SKIN -> itemId == CardSymbolTheme.CLASSIC.id
                 ShopItemType.MUSIC -> itemId == GameMusic.DEFAULT.id
                 ShopItemType.POWER_UP -> itemId == GamePowerUp.NONE.id
+                ShopItemType.FEATURE -> false
             }
 
         // SECURITY: Prevent unauthorized equipping of locked items
@@ -30,6 +31,7 @@ class SetActiveCosmeticUseCase(
             ShopItemType.CARD_SKIN -> playerEconomyRepository.selectSkin(itemId)
             ShopItemType.MUSIC -> playerEconomyRepository.selectMusic(itemId)
             ShopItemType.POWER_UP -> playerEconomyRepository.selectPowerUp(itemId)
+            ShopItemType.FEATURE -> { /* Features are not equipped, they are just unlocked */ }
         }
     }
 }

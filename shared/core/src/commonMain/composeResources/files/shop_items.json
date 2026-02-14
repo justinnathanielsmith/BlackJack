@@ -233,7 +233,7 @@
     "name": "Four Color Deck",
     "description": "Unlock unique colors for all four card suits (Red, Blue, Green, Black).",
     "price": 800,
-    "type": "CARD_SKIN",
+    "type": "FEATURE",
     "isConsumable": false
   }
 ]

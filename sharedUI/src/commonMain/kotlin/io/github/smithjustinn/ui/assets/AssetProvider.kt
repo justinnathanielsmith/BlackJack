@@ -10,6 +10,12 @@ import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
@@ -71,6 +77,9 @@ object AssetProvider {
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
+                shopItemId == "feature_four_color_suits" -> {
+                    FourColorPreview(modifier = Modifier.fillMaxSize())
+                }
                 else -> {
                     // Unknown ID - render empty box
                     Box(modifier = Modifier.fillMaxSize())
@@ -111,6 +120,48 @@ object AssetProvider {
                 suit = Suit.Spades,
                 suitColor = suitColor,
                 theme = theme,
+            )
+        }
+    }
+
+    @Composable
+    private fun FourColorPreview(modifier: Modifier = Modifier) {
+        Column(
+            modifier = modifier.background(Color.White).padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(modifier = Modifier.weight(1f)) {
+                SuitBox(Suit.Hearts, Color(0xFFD32F2F), Modifier.weight(1f))
+                SuitBox(Suit.Diamonds, Color(0xFF1976D2), Modifier.weight(1f))
+            }
+            Row(modifier = Modifier.weight(1f)) {
+                SuitBox(Suit.Clubs, Color(0xFF388E3C), Modifier.weight(1f))
+                SuitBox(Suit.Spades, Color(0xFF212121), Modifier.weight(1f))
+            }
+        }
+    }
+
+    @Composable
+    private fun SuitBox(
+        suit: Suit,
+        color: Color,
+        modifier: Modifier = Modifier,
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text =
+                    when (suit) {
+                        Suit.Hearts -> "♥"
+                        Suit.Diamonds -> "♦"
+                        Suit.Clubs -> "♣"
+                        Suit.Spades -> "♠"
+                    },
+                color = color,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
             )
         }
     }
