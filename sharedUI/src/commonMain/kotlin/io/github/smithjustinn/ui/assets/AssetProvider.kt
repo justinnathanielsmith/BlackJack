@@ -13,24 +13,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.game.components.cards.CardBack
 import io.github.smithjustinn.ui.game.components.cards.CardFace
 import io.github.smithjustinn.ui.game.components.cards.ShimmerEffect
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
+import io.github.smithjustinn.utils.Constants
 
 /**
  * AssetProvider provides Composable previews for shop items.
  * Maps shopItemId strings to their visual representations.
  */
 object AssetProvider {
+    private const val PREVIEW_PADDING = 8
+    private const val CORNER_RADIUS = 12
+    private const val PREVIEW_FONT_SIZE = 24
+
     /**
      * Resolves a CardBackTheme from a shop item ID.
      */
@@ -60,7 +68,9 @@ object AssetProvider {
             modifier =
                 modifier
                     .aspectRatio(CARD_ASPECT_RATIO)
-                    .padding(8.dp),
+                    .padding(PokerTheme.spacing.small)
+                    .clip(PokerTheme.shapes.medium)
+                    .background(Color.White),
         ) {
             when {
                 backTheme != null -> {
@@ -78,7 +88,7 @@ object AssetProvider {
                         modifier = Modifier.fillMaxSize(),
                     )
                 }
-                shopItemId == "feature_four_color_suits" -> {
+                shopItemId == Constants.FEATURE_FOUR_COLOR_SUITS -> {
                     FourColorPreview(modifier = Modifier.fillMaxSize())
                 }
                 else -> {
@@ -128,7 +138,7 @@ object AssetProvider {
     @Composable
     private fun FourColorPreview(modifier: Modifier = Modifier) {
         Column(
-            modifier = modifier.background(Color.White).padding(8.dp),
+            modifier = modifier.background(Color.White).padding(PokerTheme.spacing.small),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.weight(1f)) {
@@ -155,14 +165,13 @@ object AssetProvider {
             Text(
                 text =
                     when (suit) {
-                        Suit.Hearts -> "♥"
-                        Suit.Diamonds -> "♦"
-                        Suit.Clubs -> "♣"
-                        Suit.Spades -> "♠"
+                        Suit.Hearts -> suit.symbol
+                        Suit.Diamonds -> suit.symbol
+                        Suit.Clubs -> suit.symbol
+                        Suit.Spades -> suit.symbol
                     },
                 color = color,
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
+                style = PokerTheme.typography.headlineSmall.copy(fontWeight = FontWeight.Bold),
             )
         }
     }

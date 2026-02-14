@@ -147,13 +147,13 @@ object CardFaces {
     ) {
         Card(
             modifier = modifier.fillMaxSize(),
-            shape = RoundedCornerShape(12.dp),
+            shape = PokerTheme.shapes.medium,
             colors =
                 CardDefaults.cardColors(
                     containerColor = Color.White,
                 ),
         ) {
-            Box(modifier = Modifier.fillMaxSize().padding(4.dp)) {
+            Box(modifier = Modifier.fillMaxSize().padding(PokerTheme.spacing.extraSmall)) {
                 content()
             }
         }
@@ -204,7 +204,7 @@ internal fun NeonCardFace(
             blurRadius = 8f,
         )
 
-    Box(modifier = Modifier.fillMaxSize().padding(4.dp)) {
+    Box(modifier = Modifier.fillMaxSize().padding(PokerTheme.spacing.extraSmall)) {
         // Center Rank
         Text(
             text = rank.symbol,
@@ -285,7 +285,7 @@ internal fun RetroCardFace(
             fontWeight = FontWeight.Bold,
         )
 
-    Box(modifier = Modifier.fillMaxSize().padding(4.dp)) {
+    Box(modifier = Modifier.fillMaxSize().padding(PokerTheme.spacing.extraSmall)) {
         // Corners like a command prompt
         Text(
             text = "${rank.symbol} ${suit.symbol}",
@@ -382,7 +382,7 @@ internal fun CyberpunkCardFace(
 ) {
     val glitchColor = if (suitColor == Color.Black) Color.DarkGray else Color.Magenta
 
-    Box(modifier = Modifier.fillMaxSize().padding(4.dp)) {
+    Box(modifier = Modifier.fillMaxSize().padding(PokerTheme.spacing.extraSmall)) {
         // Glitchy Center Rank
         // Offset shadow
         Text(
@@ -527,7 +527,7 @@ internal fun MinimalCardFace(
             text = suit.symbol,
             color = suitColor.copy(alpha = MODERATE_ALPHA),
             style = MaterialTheme.typography.titleMedium.copy(fontSize = getFontSize(FONT_SIZE_LARGE)),
-            modifier = Modifier.align(Alignment.TopStart).padding(4.dp),
+            modifier = Modifier.align(Alignment.TopStart).padding(PokerTheme.spacing.extraSmall),
         )
 
         Text(
@@ -537,7 +537,7 @@ internal fun MinimalCardFace(
             modifier =
                 Modifier
                     .align(Alignment.BottomEnd)
-                    .padding(4.dp)
+                    .padding(PokerTheme.spacing.extraSmall)
                     .graphicsLayer { rotationZ = FULL_ROTATION },
         )
     }
@@ -599,7 +599,7 @@ internal fun PokerCardFace(
             fontWeight = FontWeight.SemiBold,
         )
 
-    Box(modifier = Modifier.fillMaxSize().padding(8.dp)) {
+    Box(modifier = Modifier.fillMaxSize().padding(PokerTheme.spacing.small)) {
         // Top Left Jumbo Index
         PokerCardCornerIndex(
             rank = rank,

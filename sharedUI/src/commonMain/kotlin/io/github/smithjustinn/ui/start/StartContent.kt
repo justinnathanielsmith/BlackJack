@@ -390,8 +390,8 @@ private fun WalletBadge(
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            modifier = Modifier.padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
+            modifier = Modifier.padding(horizontal = PokerTheme.spacing.medium),
         ) {
             Icon(
                 imageVector = ShopIcons.CasinoChip,

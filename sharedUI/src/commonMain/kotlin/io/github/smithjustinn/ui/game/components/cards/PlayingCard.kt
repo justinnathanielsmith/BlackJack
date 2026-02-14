@@ -245,12 +245,12 @@ private fun CardContentSelectors(
             if (wasSeen && isThirdEyeEnabled && !content.visualState.isMatched) {
                 Icon(
                     imageVector = AppIcons.Visibility,
-                    contentDescription = "Card previously seen",
+                    contentDescription = stringResource(Res.string.settings_enable_third_eye),
                     modifier =
                         Modifier
                             .align(Alignment.TopEnd)
-                            .padding(4.dp)
-                            .size(16.dp),
+                            .padding(PokerTheme.spacing.extraSmall)
+                            .size(PokerTheme.spacing.medium),
                     tint = PokerTheme.colors.goldenYellow.copy(alpha = MODERATE_ALPHA),
                 )
             }
@@ -467,7 +467,7 @@ private fun CardContainer(
                     .semantics {
                         this.contentDescription = contentDescription
                     },
-            shape = RoundedCornerShape(12.dp),
+            shape = PokerTheme.shapes.medium,
             colors =
                 CardDefaults.cardColors(
                     containerColor = if (isFaceUpVisual) Color.White else backColor,

@@ -108,7 +108,7 @@ fun SettingsContent(
                         Modifier
                             .fillMaxSize()
                             .verticalScroll(rememberScrollState())
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                            .padding(horizontal = PokerTheme.spacing.large, vertical = PokerTheme.spacing.medium)
                             .widthIn(max = 600.dp)
                             .align(Alignment.TopCenter),
                     verticalArrangement = Arrangement.spacedBy(20.dp),
@@ -181,7 +181,7 @@ private fun SettingsAudioSection(
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp),
+            modifier = Modifier.padding(vertical = PokerTheme.spacing.small),
             color = Color.White.copy(alpha = 0.1f),
         )
 
@@ -203,7 +203,7 @@ private fun SettingsAudioSection(
         }
 
         HorizontalDivider(
-            modifier = Modifier.padding(vertical = 8.dp),
+            modifier = Modifier.padding(vertical = PokerTheme.spacing.small),
             color = Color.White.copy(alpha = 0.1f),
         )
 
@@ -241,7 +241,7 @@ private fun SettingsAppearanceSection(
 
             if (state.isFourColorUnlocked && state.isThirdEyeUnlocked) {
                 HorizontalDivider(
-                    modifier = Modifier.padding(vertical = 8.dp),
+                    modifier = Modifier.padding(vertical = PokerTheme.spacing.small),
                     color = Color.White.copy(alpha = 0.1f),
                 )
             }
@@ -271,7 +271,7 @@ private fun SettingsResetSection(
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -328,7 +328,7 @@ private fun VolumeSlider(
                 .fillMaxWidth()
                 .padding(top = 8.dp),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
     ) {
         Icon(
             imageVector = volumeIcon,
@@ -374,7 +374,7 @@ private fun SettingsToggle(
                     role = Role.Switch,
                 ),
         verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.spacedBy(16.dp),
+        horizontalArrangement = Arrangement.spacedBy(PokerTheme.spacing.medium),
     ) {
         Column(modifier = Modifier.weight(1f)) {
             Text(
