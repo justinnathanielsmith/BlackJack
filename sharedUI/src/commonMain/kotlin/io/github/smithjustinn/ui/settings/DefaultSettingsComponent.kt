@@ -46,18 +46,22 @@ class DefaultSettingsComponent(
             settingsRepository.isPeekEnabled,
             settingsRepository.isWalkthroughCompleted,
             settingsRepository.areSuitsMultiColored,
+            settingsRepository.isThirdEyeEnabled,
             appGraph.playerEconomyRepository.unlockedItemIds,
             audioSettingsFlow,
-        ) { peek, walkthrough, multiColor, unlocked, audio ->
+        ) { values ->
+            @Suppress("UNCHECKED_CAST")
             SettingsState(
-                isPeekEnabled = peek,
-                isWalkthroughCompleted = walkthrough,
-                areSuitsMultiColored = multiColor,
-                isFourColorUnlocked = unlocked.contains("feature_four_color_suits"),
-                isSoundEnabled = audio.isSoundEnabled,
-                isMusicEnabled = audio.isMusicEnabled,
-                soundVolume = audio.soundVolume,
-                musicVolume = audio.musicVolume,
+                isPeekEnabled = values[0] as Boolean,
+                isWalkthroughCompleted = values[1] as Boolean,
+                areSuitsMultiColored = values[2] as Boolean,
+                isThirdEyeEnabled = values[3] as Boolean,
+                isFourColorUnlocked = (values[4] as Set<String>).contains("feature_four_color_suits"),
+                isThirdEyeUnlocked = (values[4] as Set<String>).contains("feature_third_eye"),
+                isSoundEnabled = (values[5] as AudioSettings).isSoundEnabled,
+                isMusicEnabled = (values[5] as AudioSettings).isMusicEnabled,
+                soundVolume = (values[5] as AudioSettings).soundVolume,
+                musicVolume = (values[5] as AudioSettings).musicVolume,
             )
         }.stateIn(
             scope = scope,
@@ -109,6 +113,12 @@ class DefaultSettingsComponent(
     override fun toggleSuitsMultiColored(enabled: Boolean) {
         scope.launch {
             settingsRepository.setSuitsMultiColored(enabled)
+        }
+    }
+
+    override fun toggleThirdEyeEnabled(enabled: Boolean) {
+        scope.launch {
+            settingsRepository.setThirdEyeEnabled(enabled)
         }
     }
 

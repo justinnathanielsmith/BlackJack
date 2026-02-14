@@ -15,16 +15,20 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
@@ -59,6 +63,7 @@ import io.github.smithjustinn.resources.suit_diamonds
 import io.github.smithjustinn.resources.suit_hearts
 import io.github.smithjustinn.resources.suit_spades
 import io.github.smithjustinn.theme.PokerTheme
+import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -151,6 +156,8 @@ fun PlayingCard(
     backColor: Color = PokerTheme.colors.feltGreen,
     theme: CardTheme = CardTheme(),
     areSuitsMultiColored: Boolean = false,
+    wasSeen: Boolean = false,
+    isThirdEyeEnabled: Boolean = false,
     muckTargetOffset: IntOffset = IntOffset(0, MUCK_TARGET_Y_FALLBACK), // Default to flying off bottom
     muckTargetRotation: Float = 15f,
     isMuckingEnabled: Boolean = true,
@@ -206,6 +213,8 @@ fun PlayingCard(
             suitColor = suitColor,
             theme = theme,
             backColor = backColor,
+            wasSeen = wasSeen,
+            isThirdEyeEnabled = isThirdEyeEnabled,
         )
     }
 }
@@ -218,18 +227,34 @@ private fun CardContentSelectors(
     suitColor: Color,
     theme: CardTheme,
     backColor: Color,
+    wasSeen: Boolean,
+    isThirdEyeEnabled: Boolean,
 ) {
     val showFace by remember { derivedStateOf { rotation.value <= HALF_ROTATION } }
 
-    if (showFace) {
-        CardFace(rank = content.rank, suit = content.suit, suitColor = suitColor, theme = theme.skin)
-        if (content.visualState.isRecentlyMatched) ShimmerEffect()
-    } else {
-        CardBack(
-            theme = theme.back,
-            backColor = backColor,
-            rotation = rotation,
-        )
+    Box(modifier = Modifier.fillMaxSize()) {
+        if (showFace) {
+            CardFace(rank = content.rank, suit = content.suit, suitColor = suitColor, theme = theme.skin)
+            if (content.visualState.isRecentlyMatched) ShimmerEffect()
+        } else {
+            CardBack(
+                theme = theme.back,
+                backColor = backColor,
+                rotation = rotation,
+            )
+            // Show "Third Eye" indicator if card was seen and feature is enabled
+            if (wasSeen && isThirdEyeEnabled && !content.visualState.isMatched) {
+                Icon(
+                    imageVector = AppIcons.Visibility,
+                    contentDescription = "Card previously seen",
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .padding(4.dp)
+                        .size(16.dp),
+                    tint = PokerTheme.colors.goldenYellow.copy(alpha = MODERATE_ALPHA),
+                )
+            }
+        }
     }
 }
 

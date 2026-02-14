@@ -35,7 +35,7 @@ abstract class AppDatabase : RoomDatabase() {
 
     @Suppress("MagicNumber")
     companion object {
-        const val DATABASE_VERSION = 2
+        const val DATABASE_VERSION = 3
     }
 }
 

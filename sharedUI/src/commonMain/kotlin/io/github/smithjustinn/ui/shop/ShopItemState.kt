@@ -9,4 +9,6 @@ sealed class ShopItemState {
     data object Owned : ShopItemState()
 
     data object Equipped : ShopItemState()
+
+    data object UnlockedFeature : ShopItemState()
 }

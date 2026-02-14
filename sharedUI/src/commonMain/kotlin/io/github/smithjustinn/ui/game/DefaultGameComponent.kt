@@ -77,8 +77,9 @@ class DefaultGameComponent(
                     settings.isWalkthroughCompleted,
                     settings.isMusicEnabled,
                     settings.isSoundEnabled,
-                ) { peek, walkthrough, music, sound ->
-                    GameSettingsState(peek, walkthrough, music, sound)
+                    settings.isThirdEyeEnabled,
+                ) { peek, walkthrough, music, sound, thirdEye ->
+                    GameSettingsState(peek, walkthrough, music, sound, thirdEye)
                 }
 
             launch {
@@ -89,6 +90,7 @@ class DefaultGameComponent(
                             showWalkthrough = !settingsState.walkthrough,
                             isMusicEnabled = settingsState.music,
                             isSoundEnabled = settingsState.sound,
+                            isThirdEyeEnabled = settingsState.thirdEye,
                         )
                     }
                 }
@@ -557,6 +559,7 @@ class DefaultGameComponent(
         val walkthrough: Boolean,
         val music: Boolean,
         val sound: Boolean,
+        val thirdEye: Boolean,
     )
 
     companion object {

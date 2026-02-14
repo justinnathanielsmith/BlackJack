@@ -460,7 +460,7 @@ object AppIcons {
                         curveToRelative(1.73f, 4.39f, 6.0f, 7.5f, 11.0f, 7.5f)
                         curveToRelative(1.55f, 0.0f, 3.03f, -0.3f, 4.38f, -0.84f)
                         lineToRelative(0.42f, 0.42f)
-                        lineTo(19.73f, 22.0f)
+                        lineTo(19.73f,  22.0f)
                         lineTo(21.0f, 20.73f)
                         lineTo(3.27f, 3.0f)
                         lineTo(2.0f, 4.27f)
@@ -486,7 +486,44 @@ object AppIcons {
                 .also { _visibilityOff = it }
         }
 
+    private var _visibility: ImageVector? = null
+    val Visibility: ImageVector
+        get() {
+            _visibility?.let { return it }
+            return ImageVector
+                .Builder(
+                    name = "Visibility",
+                    defaultWidth = 24.0.dp,
+                    defaultHeight = 24.0.dp,
+                    viewportWidth = 24.0f,
+                    viewportHeight = 24.0f,
+                ).apply {
+                    path(fill = SolidColor(Color.Black)) {
+                        moveTo(12.0f, 4.5f)
+                        curveTo(7.0f, 4.5f, 2.73f, 7.61f, 1.0f, 12.0f)
+                        curveToRelative(1.73f, 4.39f, 6.0f, 7.5f, 11.0f, 7.5f)
+                        reflectiveCurveToRelative(9.27f, -3.11f, 11.0f, -7.5f)
+                        curveToRelative(-1.73f, -4.39f, -6.0f, -7.5f, -11.0f, -7.5f)
+                        close()
+                        moveTo(12.0f, 17.0f)
+                        curveToRelative(-2.76f, 0.0f, -5.0f, -2.24f, -5.0f, -5.0f)
+                        reflectiveCurveToRelative(2.24f, -5.0f, 5.0f, -5.0f)
+                        reflectiveCurveToRelative(5.0f, 2.24f, 5.0f, 5.0f)
+                        reflectiveCurveToRelative(-2.24f, 5.0f, -5.0f, 5.0f)
+                        close()
+                        moveTo(12.0f, 9.0f)
+                        curveToRelative(-1.66f, 0.0f, -3.0f, 1.34f, -3.0f, 3.0f)
+                        reflectiveCurveToRelative(1.34f, 3.0f, 3.0f, 3.0f)
+                        reflectiveCurveToRelative(3.0f, -1.34f, 3.0f, -3.0f)
+                        reflectiveCurveToRelative(-1.34f, -3.0f, -3.0f, -3.0f)
+                        close()
+                    }
+                }.build()
+                .also { _visibility = it }
+        }
+
     private var _swapHoriz: ImageVector? = null
+
     val SwapHoriz: ImageVector
         get() {
             _swapHoriz?.let { return it }

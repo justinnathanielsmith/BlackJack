@@ -125,6 +125,8 @@
     <string name="settings_game_music_desc">Play background music during gameplay</string>
     <string name="settings_enable_peek">Enable Memory Peek</string>
     <string name="settings_enable_peek_desc">Show cards briefly at the start of the game</string>
+    <string name="settings_enable_third_eye">Memory Aid</string>
+    <string name="settings_enable_third_eye_desc">Mark cards you've previously seen during the game</string>
     <string name="settings_reset_walkthrough">Reset Walkthrough</string>
     <string name="settings_reset_walkthrough_desc">Show the tutorial again on the next game</string>
     <string name="settings_reset">Reset</string>
@@ -179,6 +181,7 @@
     <string name="shop_bankroll_description">Bankroll</string>
     <string name="shop_item_active">ACTIVE</string>
     <string name="shop_item_equip">EQUIP</string>
+    <string name="shop_item_unlocked">UNLOCKED</string>
     <string name="shop_item_price_format">$%1$d</string>
     <string name="shop_balance_format">$%1$d</string>
 

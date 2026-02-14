@@ -1,15 +1,24 @@
 package io.github.smithjustinn.ui.assets
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.material3.Text
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
@@ -53,7 +62,9 @@ object AssetProvider {
             modifier =
                 modifier
                     .aspectRatio(CARD_ASPECT_RATIO)
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White),
         ) {
             when {
                 backTheme != null -> {
@@ -70,6 +81,9 @@ object AssetProvider {
                         theme = symbolTheme,
                         modifier = Modifier.fillMaxSize(),
                     )
+                }
+                shopItemId == "feature_four_color_suits" -> {
+                    FourColorPreview(modifier = Modifier.fillMaxSize())
                 }
                 else -> {
                     // Unknown ID - render empty box
@@ -111,6 +125,48 @@ object AssetProvider {
                 suit = Suit.Spades,
                 suitColor = suitColor,
                 theme = theme,
+            )
+        }
+    }
+
+    @Composable
+    private fun FourColorPreview(modifier: Modifier = Modifier) {
+        Column(
+            modifier = modifier.background(Color.White).padding(8.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            Row(modifier = Modifier.weight(1f)) {
+                SuitBox(Suit.Hearts, Color(0xFFD32F2F), Modifier.weight(1f))
+                SuitBox(Suit.Diamonds, Color(0xFF1976D2), Modifier.weight(1f))
+            }
+            Row(modifier = Modifier.weight(1f)) {
+                SuitBox(Suit.Clubs, Color(0xFF388E3C), Modifier.weight(1f))
+                SuitBox(Suit.Spades, Color(0xFF212121), Modifier.weight(1f))
+            }
+        }
+    }
+
+    @Composable
+    private fun SuitBox(
+        suit: Suit,
+        color: Color,
+        modifier: Modifier = Modifier,
+    ) {
+        Box(
+            modifier = modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center,
+        ) {
+            Text(
+                text =
+                    when (suit) {
+                        Suit.Hearts -> "♥"
+                        Suit.Diamonds -> "♦"
+                        Suit.Clubs -> "♣"
+                        Suit.Spades -> "♠"
+                    },
+                color = color,
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
             )
         }
     }
