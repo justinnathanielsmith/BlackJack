@@ -609,15 +609,7 @@ class MemoryGameLogicTest {
         assertEquals(GameDomainEvent.HeatShieldUsed, event)
         assertFalse(s2.isHeatShieldAvailable)
         assertEquals(5, s2.comboMultiplier) // Combo should be preserved
-        // Pot should NOT be reduced (Logic: moves++, so pot doesn't change? Wait, logic says pot penalty skipped)
-        assertEquals(1010, s2.currentPot)
-        // Logic:
-        // if (state.isHeatShieldAvailable && state.comboMultiplier > 0) {
-        //     return state.copy(..., currentPot = state.currentPot (unchanged), ...)
-        // }
-        // Ah, flipCard calls handleMatchFailure.
-        // handleMatchFailure returns state.copy(moves = state.moves + 1, ...)
-        // It does NOT change currentPot.
+        // Pot should NOT be reduced when Heat Shield is used
         assertEquals(1000, s2.currentPot)
     }
 }

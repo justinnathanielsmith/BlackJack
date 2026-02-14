@@ -137,6 +137,8 @@ class GameStateMachine(
 
     private fun StateMachineBuilder.handleGameWon(flippedState: MemoryGameState) {
         +GameEffect.PlayFlipSound
+        +GameEffect.VibrateMatch
+        +GameEffect.PlayMatchSound
         stopTimer()
         val finalState = MemoryGameLogic.applyFinalBonuses(flippedState, internalTimeSeconds)
         transition { finalState }
