@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
@@ -240,44 +239,49 @@ internal fun PixelCardFace(
             Text(
                 text = rank.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold
-                ),
+                style =
+                    MaterialTheme.typography.labelSmall.copy(
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                    ),
             )
             Text(
                 text = suit.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(FONT_SIZE_SMALL),
-                    fontFamily = FontFamily.Monospace
-                ),
+                style =
+                    MaterialTheme.typography.labelSmall.copy(
+                        fontSize = getFontSize(FONT_SIZE_SMALL),
+                        fontFamily = FontFamily.Monospace,
+                    ),
             )
         }
 
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(2.dp)
-                .graphicsLayer { rotationZ = FULL_ROTATION }
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(2.dp)
+                    .graphicsLayer { rotationZ = FULL_ROTATION },
         ) {
             Text(
                 text = rank.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
-                    fontFamily = FontFamily.Monospace,
-                    fontWeight = FontWeight.Bold
-                ),
+                style =
+                    MaterialTheme.typography.labelSmall.copy(
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontFamily = FontFamily.Monospace,
+                        fontWeight = FontWeight.Bold,
+                    ),
             )
             Text(
                 text = suit.symbol,
                 color = suitColor,
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(FONT_SIZE_SMALL),
-                    fontFamily = FontFamily.Monospace
-                ),
+                style =
+                    MaterialTheme.typography.labelSmall.copy(
+                        fontSize = getFontSize(FONT_SIZE_SMALL),
+                        fontFamily = FontFamily.Monospace,
+                    ),
             )
         }
     }
@@ -297,13 +301,13 @@ internal fun FuturisticCardFace(
             drawCircle(
                 color = techColor.copy(alpha = 0.05f),
                 radius = size.minDimension / 2,
-                center = center
+                center = center,
             )
             drawCircle(
                 color = techColor.copy(alpha = 0.1f),
                 radius = size.minDimension / 2.5f,
                 center = center,
-                style = Stroke(width = 1.dp.toPx())
+                style = Stroke(width = 1.dp.toPx()),
             )
         }
 
@@ -325,40 +329,45 @@ internal fun FuturisticCardFace(
             Text(
                 text = "ID: ${rank.symbol}",
                 color = techColor.copy(alpha = 0.6f),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(8f),
-                    fontFamily = FontFamily.Monospace
-                ),
+                style =
+                    MaterialTheme.typography.labelSmall.copy(
+                        fontSize = getFontSize(8f),
+                        fontFamily = FontFamily.Monospace,
+                    ),
             )
             Text(
                 text = suit.symbol,
                 color = techColor,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = getFontSize(FONT_SIZE_LARGE),
-                ),
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontSize = getFontSize(FONT_SIZE_LARGE),
+                    ),
             )
         }
 
         Column(
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(4.dp)
-                .graphicsLayer { rotationZ = FULL_ROTATION }
+            modifier =
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(4.dp)
+                    .graphicsLayer { rotationZ = FULL_ROTATION },
         ) {
             Text(
                 text = "TYPE: ${suit.name.uppercase()}",
                 color = techColor.copy(alpha = 0.6f),
-                style = MaterialTheme.typography.labelSmall.copy(
-                    fontSize = getFontSize(8f),
-                    fontFamily = FontFamily.Monospace
-                ),
+                style =
+                    MaterialTheme.typography.labelSmall.copy(
+                        fontSize = getFontSize(8f),
+                        fontFamily = FontFamily.Monospace,
+                    ),
             )
             Text(
                 text = suit.symbol,
                 color = techColor,
-                style = MaterialTheme.typography.titleMedium.copy(
-                    fontSize = getFontSize(FONT_SIZE_LARGE),
-                ),
+                style =
+                    MaterialTheme.typography.titleMedium.copy(
+                        fontSize = getFontSize(FONT_SIZE_LARGE),
+                    ),
             )
         }
     }

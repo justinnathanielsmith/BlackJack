@@ -586,15 +586,18 @@ class MemoryGameLogicTest {
         val newState = MemoryGameActions.applyMutators(state)
 
         assertEquals(initialCards, newState.cards, "Cards should NOT have been swapped")
+    }
+
     @Test
     fun `handleMatchFailure should consume Heat Shield and prevent combo reset`() {
         val pairCount = 4
         // Initial state with Heat Shield and some combo
-        var state = MemoryGameLogic.createInitialState(pairCount).copy(
-            isHeatShieldAvailable = true,
-            comboMultiplier = 5,
-            currentPot = 1000
-        )
+        var state =
+            MemoryGameLogic.createInitialState(pairCount).copy(
+                isHeatShieldAvailable = true,
+                comboMultiplier = 5,
+                currentPot = 1000,
+            )
 
         val firstCard = state.cards[0]
         val nonMatchCard = state.cards.first { it.suit != firstCard.suit || it.rank != firstCard.rank }

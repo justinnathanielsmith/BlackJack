@@ -61,7 +61,6 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
-import io.github.smithjustinn.utils.Constants
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 

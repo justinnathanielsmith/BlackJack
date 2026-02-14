@@ -11,6 +11,7 @@ sealed class GameDomainEvent {
     data object TheNutsAchieved : GameDomainEvent()
 
     data object MatchFailure : GameDomainEvent()
+
     data object HeatShieldUsed : GameDomainEvent()
 
     data object GameWon : GameDomainEvent()

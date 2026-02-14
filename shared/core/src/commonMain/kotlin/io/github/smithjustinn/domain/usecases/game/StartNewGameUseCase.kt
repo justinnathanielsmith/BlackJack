@@ -32,14 +32,15 @@ open class StartNewGameUseCase {
             }
 
         val random = Random(finalSeed)
-        val baseState = MemoryGameLogic.createInitialState(
-            pairCount = finalPairCount,
-            config = config,
-            mode = mode,
-            difficulty = difficulty,
-            isHeatShieldEnabled = isHeatShieldEnabled,
-            random = random
-        )
+        val baseState =
+            MemoryGameLogic.createInitialState(
+                pairCount = finalPairCount,
+                config = config,
+                mode = mode,
+                difficulty = difficulty,
+                isHeatShieldAvailable = isHeatShieldEnabled,
+                random = random,
+            )
 
         val activeMutators =
             if (mode == GameMode.DAILY_CHALLENGE) {

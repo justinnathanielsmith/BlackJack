@@ -36,7 +36,6 @@ import io.github.smithjustinn.utils.Constants
  * Maps shopItemId strings to their visual representations.
  */
 object AssetProvider {
-
     /**
      * Resolves a CardBackTheme from a shop item ID.
      */

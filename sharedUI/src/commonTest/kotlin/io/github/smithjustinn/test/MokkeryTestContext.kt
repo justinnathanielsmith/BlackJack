@@ -113,6 +113,8 @@ class MokkeryTestContext(
         every { settingsRepository.soundVolume } returns MutableStateFlow(0.8f)
         every { settingsRepository.musicVolume } returns MutableStateFlow(0.5f)
         every { settingsRepository.areSuitsMultiColored } returns MutableStateFlow(false)
+        every { settingsRepository.isThirdEyeEnabled } returns MutableStateFlow(false)
+        every { settingsRepository.isHeatShieldEnabled } returns MutableStateFlow(false)
 
         every { playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
         every { playerEconomyRepository.selectedThemeId } returns MutableStateFlow("GEOMETRIC")

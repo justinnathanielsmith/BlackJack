@@ -180,10 +180,11 @@ private fun BoxScope.GameResultsOverlay(
         onShareReplay = {
             audioService.playEffect(AudioService.SoundEffect.CLICK)
             val seed = state.game.seed ?: 0L
-            val link = "${Constants.DEEP_LINK_PREFIX}?" +
-                "${Constants.QUERY_PARAM_MODE}=${state.game.mode}&" +
-                "${Constants.QUERY_PARAM_PAIRS}=${state.game.pairCount}&" +
-                "${Constants.QUERY_PARAM_SEED}=$seed"
+            val link =
+                "${Constants.DEEP_LINK_PREFIX}?" +
+                    "${Constants.QUERY_PARAM_MODE}=${state.game.mode}&" +
+                    "${Constants.QUERY_PARAM_PAIRS}=${state.game.pairCount}&" +
+                    "${Constants.QUERY_PARAM_SEED}=$seed"
             scope.launch {
                 clipboardManager.setText(AnnotatedString(link))
             }

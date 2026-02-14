@@ -39,7 +39,8 @@ abstract class AppDatabase : RoomDatabase() {
         val MIGRATION_3_4 =
             object : androidx.room.migration.Migration(3, 4) {
                 override fun migrate(connection: androidx.sqlite.SQLiteConnection) {
-                    connection.prepare("ALTER TABLE settings ADD COLUMN isHeatShieldEnabled INTEGER NOT NULL DEFAULT 0")
+                    connection
+                        .prepare("ALTER TABLE settings ADD COLUMN isHeatShieldEnabled INTEGER NOT NULL DEFAULT 0")
                         .use { it.step() }
                 }
             }

@@ -18,7 +18,6 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -42,7 +41,6 @@ import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.resources.Res
-import io.github.smithjustinn.resources.settings_enable_third_eye
 import io.github.smithjustinn.resources.card_face_down
 import io.github.smithjustinn.resources.card_matched_format
 import io.github.smithjustinn.resources.card_name_format
@@ -59,6 +57,7 @@ import io.github.smithjustinn.resources.rank_six
 import io.github.smithjustinn.resources.rank_ten
 import io.github.smithjustinn.resources.rank_three
 import io.github.smithjustinn.resources.rank_two
+import io.github.smithjustinn.resources.settings_enable_third_eye
 import io.github.smithjustinn.resources.suit_clubs
 import io.github.smithjustinn.resources.suit_diamonds
 import io.github.smithjustinn.resources.suit_hearts
