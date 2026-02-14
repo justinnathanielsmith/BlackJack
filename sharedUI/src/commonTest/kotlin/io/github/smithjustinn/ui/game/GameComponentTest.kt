@@ -97,17 +97,24 @@ class GameComponentTest : BaseComponentTest() {
                 )
 
             everySuspend { context.gameStateRepository.getSavedGameState() } returns
-                SavedGame(savedGame, 0L)
+                SavedGame(savedGame, 60L)
 
             component = createComponent(lifecycle, forceNewGame = false)
             testDispatcher.scheduler.runCurrent()
 
             component.onFlipCard(1)
-            testDispatcher.scheduler.advanceUntilIdle()
+            testDispatcher.scheduler.runCurrent()
+            component.onFlipCard(2)
+            testDispatcher.scheduler.runCurrent()
 
             assertTrue(
                 component.state.value.game.cards
                     .find { it.id == 1 }
+                    ?.isFaceUp == true,
+            )
+            assertTrue(
+                component.state.value.game.cards
+                    .find { it.id == 2 }
                     ?.isFaceUp == true,
             )
             verifySuspend { context.gameStateRepository.saveGameState(any(), any()) }

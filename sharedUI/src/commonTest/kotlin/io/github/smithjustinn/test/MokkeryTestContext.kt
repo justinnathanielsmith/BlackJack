@@ -126,6 +126,7 @@ class MokkeryTestContext(
         // Repository defaults
         everySuspend { gameStateRepository.getSavedGameState() } returns null
         everySuspend { gameStateRepository.saveGameState(any(), any()) } returns Unit
+        everySuspend { gameStateRepository.clearSavedGameState() } returns Unit
         everySuspend { gameStatsRepository.getStatsForDifficulty(any()) } returns
             MutableStateFlow(null)
         every { gameStatsRepository.getAllStats() } returns MutableStateFlow(emptyList())
