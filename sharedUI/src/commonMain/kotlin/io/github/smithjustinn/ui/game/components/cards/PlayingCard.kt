@@ -295,7 +295,11 @@ private fun rememberCardAnimations(
 private fun rememberFlipAnimation(isFaceUp: Boolean) =
     animateFloatAsState(
         targetValue = if (isFaceUp) 0f else FULL_ROTATION,
-        animationSpec = tween(durationMillis = FLIP_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
+        animationSpec =
+            spring(
+                dampingRatio = Spring.DampingRatioLowBouncy,
+                stiffness = Spring.StiffnessLow,
+            ),
         label = "cardFlip",
     )
 
