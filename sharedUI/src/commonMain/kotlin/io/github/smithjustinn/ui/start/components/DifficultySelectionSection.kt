@@ -14,6 +14,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
@@ -93,50 +94,64 @@ private fun DifficultySelector(
             verticalAlignment = Alignment.CenterVertically,
         ) {
             state.difficulties.forEach { level ->
-                val chipColor =
-                    when (level.pairs) {
-                        PAIRS_EASY -> PokerTheme.colors.softBlue
-                        PAIRS_MEDIUM -> PokerTheme.colors.tacticalRed
-                        PAIRS_HARD -> PokerTheme.colors.bonusGreen
-                        else -> Color.Black
-                    }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.extraSmall),
-                ) {
-                    val difficultyName = stringResource(level.type.displayNameRes)
-                    val pairsDescription = stringResource(Res.string.pairs_format, level.pairs)
-                    val description = "$pairsDescription, $difficultyName"
-
-                    PokerChip(
-                        text = level.pairs.toString(),
-                        contentColor = chipColor,
-                        isSelected = state.selectedDifficulty == level,
-                        onClick = { onDifficultySelected(level) },
-                        contentDescription = description,
-                    )
-
-                    Text(
-                        text = stringResource(level.type.displayNameRes),
-                        style = PokerTheme.typography.labelSmall,
-                        color =
-                            if (state.selectedDifficulty == level) {
-                                PokerTheme.colors.goldenYellow
-                            } else {
-                                PokerTheme.colors.goldenYellow.copy(alpha = 0.6f)
-                            },
-                        fontWeight =
-                            if (state.selectedDifficulty == level) {
-                                FontWeight.Bold
-                            } else {
-                                FontWeight.Normal
-                            },
-                        textAlign = TextAlign.Center,
-                    )
-                }
+                DifficultyItem(
+                    level = level,
+                    isSelected = state.selectedDifficulty == level,
+                    onSelected = onDifficultySelected,
+                )
             }
         }
+    }
+}
+
+@Composable
+private fun DifficultyItem(
+    level: DifficultyLevel,
+    isSelected: Boolean,
+    onSelected: (DifficultyLevel) -> Unit,
+) {
+    val chipColor =
+        when (level.pairs) {
+            PAIRS_EASY -> PokerTheme.colors.softBlue
+            PAIRS_MEDIUM -> PokerTheme.colors.tacticalRed
+            PAIRS_HARD -> PokerTheme.colors.bonusGreen
+            else -> Color.Black
+        }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.extraSmall),
+    ) {
+        val difficultyName = stringResource(level.type.displayNameRes)
+        val pairsDescription = stringResource(Res.string.pairs_format, level.pairs)
+        val description = "$pairsDescription, $difficultyName"
+
+        PokerChip(
+            text = level.pairs.toString(),
+            contentColor = chipColor,
+            isSelected = isSelected,
+            onClick = { onSelected(level) },
+            contentDescription = description,
+        )
+
+        Text(
+            text = difficultyName,
+            style = PokerTheme.typography.labelSmall,
+            modifier = Modifier.clearAndSetSemantics { },
+            color =
+                if (isSelected) {
+                    PokerTheme.colors.goldenYellow
+                } else {
+                    PokerTheme.colors.goldenYellow.copy(alpha = 0.6f)
+                },
+            fontWeight =
+                if (isSelected) {
+                    FontWeight.Bold
+                } else {
+                    FontWeight.Normal
+                },
+            textAlign = TextAlign.Center,
+        )
     }
 }
 
