@@ -106,3 +106,17 @@ This would allow an attacker (or a bug) to bypass the economy system.
 1.  Updated `SetActiveCosmeticUseCase` to enforce ownership check using `playerEconomyRepository.isItemUnlocked(itemId)`.
 2.  Explicitly allowed default items (e.g., `CardBackTheme.GEOMETRIC`) to be equipped even if not in the unlocked list.
 3.  Added `SetActiveCosmeticUseCaseSecurityTest` to verify the fix and prevent regression.
+
+## 2026-02-12 - [Denial of Service via Unbounded Pair Count]
+**Vulnerability:** Input Validation / DoS
+**Severity:** HIGH
+**Component:** `shared/core` / `StartNewGameUseCase`
+
+**Finding:**
+`StartNewGameUseCase` did not validate `pairCount` when initializing a standard game.
+A malicious actor (e.g., via deep link) could request an excessively large `pairCount`, potentially causing a Denial of Service (DoS) due to memory exhaustion or creating an unwinnable game state (since max unique pairs is 26).
+
+**Remediation:**
+1.  Enforced strict range check `require(pairCount in 1..26)` in `StartNewGameUseCase`.
+2.  Defined `MAX_PAIR_COUNT = 26` constant based on available card assets.
+3.  Verified with unit tests in `GameUseCasesTest`.

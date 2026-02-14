@@ -26,6 +26,7 @@ open class StartNewGameUseCase {
                 val dailySeed = Clock.System.now().toEpochMilliseconds() / MILLIS_IN_DAY
                 DAILY_CHALLENGE_PAIR_COUNT to dailySeed
             } else {
+                require(pairCount in 1..MAX_PAIR_COUNT) { "Pair count must be between 1 and $MAX_PAIR_COUNT" }
                 pairCount to (seed ?: Random.nextLong())
             }
 
@@ -57,6 +58,7 @@ open class StartNewGameUseCase {
     }
 
     companion object {
+        const val MAX_PAIR_COUNT = 26
         private const val DAILY_CHALLENGE_PAIR_COUNT = 8
         private const val MILLIS_IN_SECOND = 1000L
         private const val SECONDS_IN_MINUTE = 60L
