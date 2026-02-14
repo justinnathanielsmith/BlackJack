@@ -127,6 +127,8 @@
     <string name="settings_enable_peek_desc">Show cards briefly at the start of the game</string>
     <string name="settings_enable_third_eye">Memory Aid</string>
     <string name="settings_enable_third_eye_desc">Mark cards you've previously seen during the game</string>
+    <string name="settings_enable_heat_shield">Heat Shield</string>
+    <string name="settings_enable_heat_shield_desc">Prevents combo break on first mistake</string>
     <string name="settings_reset_walkthrough">Reset Walkthrough</string>
     <string name="settings_reset_walkthrough_desc">Show the tutorial again on the next game</string>
     <string name="settings_reset">Reset</string>

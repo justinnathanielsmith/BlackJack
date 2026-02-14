@@ -39,6 +39,8 @@ sealed class GameEffect {
 
     data object VibrateHeat : GameEffect()
 
+    data object HeatShieldUsed : GameEffect()
+
     data class TimerUpdate(
         val seconds: Long,
     ) : GameEffect()

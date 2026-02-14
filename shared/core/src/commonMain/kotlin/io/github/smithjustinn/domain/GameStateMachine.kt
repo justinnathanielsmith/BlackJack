@@ -129,6 +129,7 @@ class GameStateMachine(
                     GameDomainEvent.MatchFailure -> handleMismatchEvent(flippedState)
                     GameDomainEvent.GameWon -> handleGameWon(flippedState)
                     GameDomainEvent.GameOver -> handleGameOver()
+                    GameDomainEvent.HeatShieldUsed -> handleHeatShieldUsed(flippedState)
                     null -> {}
                 }
             }
@@ -195,6 +196,14 @@ class GameStateMachine(
             dispatch(GameAction.ProcessMismatch)
         }
         transition { MemoryGameActions.applyMutators(it) }
+    }
+
+    private fun StateMachineBuilder.handleHeatShieldUsed(flippedState: MemoryGameState) {
+        +GameEffect.PlayFlipSound
+        +GameEffect.HeatShieldUsed
+        // Does not reset combo or pot.
+        // Just updates state which already has shield removed.
+        transition { flippedState }
     }
 
     private fun handleDoubleDown() {

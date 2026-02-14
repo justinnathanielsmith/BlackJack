@@ -33,6 +33,7 @@ object MemoryGameLogic {
         config: ScoringConfig = ScoringConfig(),
         mode: GameMode = GameMode.TIME_ATTACK,
         difficulty: DifficultyType = DifficultyType.CASUAL,
+        isHeatShieldAvailable: Boolean = false,
         random: Random = Random,
     ): MemoryGameState {
         val allPossibleCards =
@@ -61,6 +62,7 @@ object MemoryGameLogic {
             config = config,
             mode = mode,
             difficulty = difficulty,
+            isHeatShieldAvailable = isHeatShieldAvailable,
         )
     }
 
@@ -253,6 +255,15 @@ private fun handleMatchFailure(
     second: CardState,
 ): Pair<MemoryGameState, GameDomainEvent?> {
     val errorCards = state.cards.updateByIds(first.id, second.id) { it.copy(isError = true) }
+
+    if (state.isHeatShieldAvailable && state.comboMultiplier > 0) {
+        return state.copy(
+            isHeatShieldAvailable = false,
+            moves = state.moves + 1,
+            cards = errorCards,
+            lastMatchedIds = persistentListOf(),
+        ) to GameDomainEvent.HeatShieldUsed
+    }
 
     if (state.isDoubleDownActive) {
         return state.copy(

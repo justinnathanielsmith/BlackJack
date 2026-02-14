@@ -47,6 +47,7 @@ class DefaultSettingsComponent(
             settingsRepository.isWalkthroughCompleted,
             settingsRepository.areSuitsMultiColored,
             settingsRepository.isThirdEyeEnabled,
+            settingsRepository.isHeatShieldEnabled,
             appGraph.playerEconomyRepository.unlockedItemIds,
             audioSettingsFlow,
         ) { values ->
@@ -56,12 +57,14 @@ class DefaultSettingsComponent(
                 isWalkthroughCompleted = values[1] as Boolean,
                 areSuitsMultiColored = values[2] as Boolean,
                 isThirdEyeEnabled = values[3] as Boolean,
-                isFourColorUnlocked = (values[4] as Set<String>).contains("feature_four_color_suits"),
-                isThirdEyeUnlocked = (values[4] as Set<String>).contains("feature_third_eye"),
-                isSoundEnabled = (values[5] as AudioSettings).isSoundEnabled,
-                isMusicEnabled = (values[5] as AudioSettings).isMusicEnabled,
-                soundVolume = (values[5] as AudioSettings).soundVolume,
-                musicVolume = (values[5] as AudioSettings).musicVolume,
+                isHeatShieldEnabled = values[4] as Boolean,
+                isFourColorUnlocked = (values[5] as Set<String>).contains("feature_four_color_suits"),
+                isThirdEyeUnlocked = (values[5] as Set<String>).contains("feature_third_eye"),
+                isHeatShieldUnlocked = (values[5] as Set<String>).contains("feature_heat_shield"),
+                isSoundEnabled = (values[6] as AudioSettings).isSoundEnabled,
+                isMusicEnabled = (values[6] as AudioSettings).isMusicEnabled,
+                soundVolume = (values[6] as AudioSettings).soundVolume,
+                musicVolume = (values[6] as AudioSettings).musicVolume,
             )
         }.stateIn(
             scope = scope,
@@ -119,6 +122,12 @@ class DefaultSettingsComponent(
     override fun toggleThirdEyeEnabled(enabled: Boolean) {
         scope.launch {
             settingsRepository.setThirdEyeEnabled(enabled)
+        }
+    }
+
+    override fun toggleHeatShieldEnabled(enabled: Boolean) {
+        scope.launch {
+            settingsRepository.setHeatShieldEnabled(enabled)
         }
     }
 

@@ -35,7 +35,7 @@ val androidUiModule =
                     name = dbFile.absolutePath,
                 ).setDriver(BundledSQLiteDriver())
                 .setQueryCoroutineContext(Dispatchers.IO)
-                .fallbackToDestructiveMigration(dropAllTables = true)
+                .addMigrations(AppDatabase.MIGRATION_3_4)
                 .build()
         }
     }

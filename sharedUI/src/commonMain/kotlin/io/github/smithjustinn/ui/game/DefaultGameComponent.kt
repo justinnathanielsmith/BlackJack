@@ -78,8 +78,16 @@ class DefaultGameComponent(
                     settings.isMusicEnabled,
                     settings.isSoundEnabled,
                     settings.isThirdEyeEnabled,
-                ) { peek, walkthrough, music, sound, thirdEye ->
-                    GameSettingsState(peek, walkthrough, music, sound, thirdEye)
+                    settings.isHeatShieldEnabled,
+                ) { values: Array<Boolean> ->
+                    GameSettingsState(
+                        peek = values[0],
+                        walkthrough = values[1],
+                        music = values[2],
+                        sound = values[3],
+                        thirdEye = values[4],
+                        heatShield = values[5],
+                    )
                 }
 
             launch {
@@ -91,6 +99,7 @@ class DefaultGameComponent(
                             isMusicEnabled = settingsState.music,
                             isSoundEnabled = settingsState.sound,
                             isThirdEyeEnabled = settingsState.thirdEye,
+                            isHeatShieldEnabled = settingsState.heatShield,
                         )
                     }
                 }
@@ -309,6 +318,7 @@ class DefaultGameComponent(
                     pairCount = pairCount,
                     mode = mode,
                     difficulty = difficulty,
+                    isHeatShieldEnabled = _state.value.isHeatShieldEnabled,
                     seed = seed,
                 )
 
@@ -340,6 +350,7 @@ class DefaultGameComponent(
             GameEffect.VibrateHeat to GameUiEvent.VibrateHeat,
             GameEffect.VibrateWarning to GameUiEvent.VibrateWarning,
             GameEffect.VibrateTick to GameUiEvent.VibrateTick,
+            GameEffect.HeatShieldUsed to GameUiEvent.VibrateHeat, // Re-use heat vibration for now
         )
 
     private fun handleTimerUpdate(effect: GameEffect.TimerUpdate) {
@@ -560,6 +571,7 @@ class DefaultGameComponent(
         val music: Boolean,
         val sound: Boolean,
         val thirdEye: Boolean,
+        val heatShield: Boolean,
     )
 
     companion object {

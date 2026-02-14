@@ -46,6 +46,8 @@ import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
 import io.github.smithjustinn.resources.settings
 import io.github.smithjustinn.resources.settings_appearance
+import io.github.smithjustinn.resources.settings_enable_heat_shield
+import io.github.smithjustinn.resources.settings_enable_heat_shield_desc
 import io.github.smithjustinn.resources.settings_enable_peek
 import io.github.smithjustinn.resources.settings_enable_peek_desc
 import io.github.smithjustinn.resources.settings_enable_third_eye
@@ -225,7 +227,7 @@ private fun SettingsAppearanceSection(
     audioService: AudioService,
     component: SettingsComponent,
 ) {
-    if (state.isFourColorUnlocked || state.isThirdEyeUnlocked) {
+    if (state.isFourColorUnlocked || state.isThirdEyeUnlocked || state.isHeatShieldUnlocked) {
         AppCard(title = stringResource(Res.string.settings_appearance)) {
             if (state.isFourColorUnlocked) {
                 SettingsToggle(
@@ -254,6 +256,25 @@ private fun SettingsAppearanceSection(
                     onCheckedChange = {
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.toggleThirdEyeEnabled(it)
+                    },
+                )
+            }
+
+            if (state.isHeatShieldUnlocked) {
+                if (state.isFourColorUnlocked || state.isThirdEyeUnlocked) {
+                    HorizontalDivider(
+                        modifier = Modifier.padding(vertical = PokerTheme.spacing.small),
+                        color = Color.White.copy(alpha = 0.1f),
+                    )
+                }
+
+                SettingsToggle(
+                    title = stringResource(Res.string.settings_enable_heat_shield),
+                    description = stringResource(Res.string.settings_enable_heat_shield_desc),
+                    checked = state.isHeatShieldEnabled,
+                    onCheckedChange = {
+                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.toggleHeatShieldEnabled(it)
                     },
                 )
             }

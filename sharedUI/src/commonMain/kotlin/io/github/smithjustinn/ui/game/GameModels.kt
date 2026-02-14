@@ -18,6 +18,7 @@ data class GameUIState(
     val cardTheme: CardTheme = CardTheme(),
     val areSuitsMultiColored: Boolean = false,
     val isThirdEyeEnabled: Boolean = false,
+    val isHeatShieldEnabled: Boolean = false,
     val showComboExplosion: Boolean = false,
     val showTimeGain: Boolean = false,
     val showTimeLoss: Boolean = false,

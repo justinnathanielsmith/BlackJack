@@ -18,6 +18,7 @@ open class StartNewGameUseCase {
         config: ScoringConfig = ScoringConfig(),
         mode: GameMode = GameMode.TIME_ATTACK,
         difficulty: DifficultyType = DifficultyType.CASUAL,
+        isHeatShieldEnabled: Boolean = false,
         seed: Long? = null,
     ): MemoryGameState {
         val (finalPairCount, finalSeed) =
@@ -31,7 +32,7 @@ open class StartNewGameUseCase {
             }
 
         val random = Random(finalSeed)
-        val baseState = MemoryGameLogic.createInitialState(finalPairCount, config, mode, difficulty, random)
+        val baseState = MemoryGameLogic.createInitialState(finalPairCount, config, mode, difficulty, isHeatShieldEnabled, random)
 
         val activeMutators =
             if (mode == GameMode.DAILY_CHALLENGE) {

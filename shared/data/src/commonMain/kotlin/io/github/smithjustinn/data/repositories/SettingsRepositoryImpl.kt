@@ -102,6 +102,15 @@ class SettingsRepositoryImpl(
                 initialValue = false,
             )
 
+    override val isHeatShieldEnabled: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.isHeatShieldEnabled ?: false }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = false,
+            )
+
     override suspend fun setPeekEnabled(enabled: Boolean) =
         writeMutex.withLock {
             val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
@@ -148,5 +157,11 @@ class SettingsRepositoryImpl(
         writeMutex.withLock {
             val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
             dao.saveSettings(current.copy(isThirdEyeEnabled = enabled))
+        }
+
+    override suspend fun setHeatShieldEnabled(enabled: Boolean) =
+        writeMutex.withLock {
+            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
+            dao.saveSettings(current.copy(isHeatShieldEnabled = enabled))
         }
 }

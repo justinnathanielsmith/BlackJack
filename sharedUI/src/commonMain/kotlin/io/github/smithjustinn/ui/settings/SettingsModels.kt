@@ -11,6 +11,8 @@ data class SettingsUIState(
     val isFourColorUnlocked: Boolean = false,
     val isThirdEyeEnabled: Boolean = false,
     val isThirdEyeUnlocked: Boolean = false,
+    val isHeatShieldEnabled: Boolean = false,
+    val isHeatShieldUnlocked: Boolean = false,
 )
 
 sealed class SettingsUiEvent {

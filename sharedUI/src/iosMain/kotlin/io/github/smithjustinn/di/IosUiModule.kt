@@ -33,7 +33,7 @@ val iosUiModule =
                     factory = { AppDatabaseConstructor.initialize() },
                 ).setDriver(BundledSQLiteDriver())
                 .setQueryCoroutineContext(Dispatchers.IO)
-                .fallbackToDestructiveMigration(dropAllTables = true)
+                .addMigrations(AppDatabase.MIGRATION_3_4)
                 .build()
         }
     }

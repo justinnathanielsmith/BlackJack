@@ -35,7 +35,14 @@ abstract class AppDatabase : RoomDatabase() {
 
     @Suppress("MagicNumber")
     companion object {
-        const val DATABASE_VERSION = 3
+        const val DATABASE_VERSION = 4
+        val MIGRATION_3_4 =
+            object : androidx.room.migration.Migration(3, 4) {
+                override fun migrate(connection: androidx.sqlite.SQLiteConnection) {
+                    connection.prepare("ALTER TABLE settings ADD COLUMN isHeatShieldEnabled INTEGER NOT NULL DEFAULT 0")
+                        .use { it.step() }
+                }
+            }
     }
 }
 

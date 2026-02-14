@@ -21,6 +21,8 @@ interface SettingsComponent {
 
     fun toggleThirdEyeEnabled(enabled: Boolean)
 
+    fun toggleHeatShieldEnabled(enabled: Boolean)
+
     fun resetWalkthrough()
 
     fun onBack()

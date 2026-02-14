@@ -24,7 +24,7 @@ class GameUseCasesTest {
     @Test
     fun testStartNewGameUseCase() {
         val useCase = StartNewGameUseCase()
-        val state = useCase(pairCount = 8)
+        val state = useCase(pairCount = 8, isHeatShieldEnabled = false)
         assertEquals(8, state.pairCount)
         assertEquals(16, state.cards.size)
         assertEquals(0, state.score)
@@ -35,8 +35,8 @@ class GameUseCasesTest {
     fun testStartNewGameUseCase_seeded() {
         val useCase = StartNewGameUseCase()
         val seed = 12345L
-        val state1 = useCase(pairCount = 8, seed = seed)
-        val state2 = useCase(pairCount = 8, seed = seed)
+        val state1 = useCase(pairCount = 8, seed = seed, isHeatShieldEnabled = false)
+        val state2 = useCase(pairCount = 8, seed = seed, isHeatShieldEnabled = false)
         assertEquals(state1.cards, state2.cards)
     }
 
@@ -46,8 +46,8 @@ class GameUseCasesTest {
         val seed1 = 12345L
         val seed2 = 67890L
 
-        val state1 = useCase(pairCount = 8, mode = GameMode.DAILY_CHALLENGE, seed = seed1)
-        val state2 = useCase(pairCount = 8, mode = GameMode.DAILY_CHALLENGE, seed = seed2)
+        val state1 = useCase(pairCount = 8, mode = GameMode.DAILY_CHALLENGE, seed = seed1, isHeatShieldEnabled = false)
+        val state2 = useCase(pairCount = 8, mode = GameMode.DAILY_CHALLENGE, seed = seed2, isHeatShieldEnabled = false)
 
         // Fixed: The seed is ignored for Daily Challenge, so the boards should be identical
         // (based on the current date).
@@ -58,7 +58,7 @@ class GameUseCasesTest {
     fun testStartNewGameUseCase_invalidPairCount() {
         val useCase = StartNewGameUseCase()
         assertFailsWith<IllegalArgumentException> {
-            useCase(pairCount = 100)
+            useCase(pairCount = 100, isHeatShieldEnabled = false)
         }
     }
 
@@ -66,7 +66,7 @@ class GameUseCasesTest {
     fun testStartNewGameUseCase_invalidPairCount_negative() {
         val useCase = StartNewGameUseCase()
         assertFailsWith<IllegalArgumentException> {
-            useCase(pairCount = -1)
+            useCase(pairCount = -1, isHeatShieldEnabled = false)
         }
     }
 
@@ -129,7 +129,7 @@ class GameUseCasesTest {
     @Test
     fun testFlipCardUseCase() {
         val useCase = FlipCardUseCase()
-        val state = StartNewGameUseCase().invoke(4)
+        val state = StartNewGameUseCase().invoke(4, isHeatShieldEnabled = false)
         val result = useCase(state, state.cards[0].id)
         assertEquals(true, result.first.cards[0].isFaceUp)
     }

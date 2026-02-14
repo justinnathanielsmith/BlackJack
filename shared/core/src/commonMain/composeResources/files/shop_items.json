@@ -291,5 +291,13 @@
     "price": 2000,
     "type": "FEATURE",
     "isConsumable": false
+  },
+  {
+    "id": "feature_heat_shield",
+    "name": "Heat Shield",
+    "description": "Prevents your combo from breaking on the first mistake of the game.",
+    "price": 1500,
+    "type": "FEATURE",
+    "isConsumable": false
   }
 ]
