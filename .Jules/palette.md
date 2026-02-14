@@ -21,3 +21,6 @@
 
 ### Wallet Accessibility
 - **Semantic Grouping**: When a custom component like `WalletBadge` displays multiple pieces of info (icon + text), use `Modifier.semantics { contentDescription = "..." }` on the container to provide a clear, unified description for screen readers (e.g., "Wallet: 1,000").
+
+### Redundant Labels
+- **Clearing Semantics**: When a custom component (like `PokerChip`) already includes all necessary information in its `contentDescription` (e.g., "6 pairs, Easy"), redundant text labels below it should be hidden from accessibility services using `Modifier.clearAndSetSemantics { }` to prevent double announcement and confusion during navigation.
