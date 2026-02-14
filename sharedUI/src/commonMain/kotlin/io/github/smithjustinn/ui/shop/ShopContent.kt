@@ -47,6 +47,7 @@ import io.github.smithjustinn.resources.shop_balance_format
 import io.github.smithjustinn.resources.shop_bankroll_description
 import io.github.smithjustinn.resources.shop_item_active
 import io.github.smithjustinn.resources.shop_item_equip
+import io.github.smithjustinn.resources.shop_item_unlocked
 import io.github.smithjustinn.resources.shop_item_price_format
 import io.github.smithjustinn.resources.shop_title
 import io.github.smithjustinn.services.AudioService
@@ -206,6 +207,7 @@ private fun ShopItemsGrid(
                 when (item.type) {
                     ShopItemType.THEME -> item.id == state.activeThemeId
                     ShopItemType.CARD_SKIN -> item.id == state.activeSkinId
+                    ShopItemType.FEATURE -> false // Features are not equippable
                     else -> false
                 }
 
@@ -213,6 +215,7 @@ private fun ShopItemsGrid(
             val shopItemState =
                 when {
                     isEquipped -> ShopItemState.Equipped
+                    isUnlocked && item.type == ShopItemType.FEATURE -> ShopItemState.UnlockedFeature
                     isUnlocked -> ShopItemState.Owned
                     else -> ShopItemState.Locked(item.price, state.balance >= item.price)
                 }
@@ -237,8 +240,9 @@ fun ShopItemCard(
     modifier: Modifier = Modifier,
 ) {
     val isEquipped = shopItemState is ShopItemState.Equipped
-    val isOwned = shopItemState is ShopItemState.Owned || isEquipped
-    val canClick = !isEquipped
+    val isUnlockedFeature = shopItemState is ShopItemState.UnlockedFeature
+    val isOwned = shopItemState is ShopItemState.Owned || isEquipped || isUnlockedFeature
+    val canClick = !isEquipped && !isUnlockedFeature
 
     AppCard(
         modifier =
@@ -362,6 +366,16 @@ private fun ShopActionButton(
                 modifier = modifier,
             )
         }
+        is ShopItemState.UnlockedFeature -> {
+            PokerButton(
+                text = stringResource(Res.string.shop_item_unlocked),
+                onClick = {},
+                enabled = false,
+                containerColor = PokerTheme.colors.bonusGreen.copy(alpha = 0.4f),
+                contentColor = Color.White,
+                modifier = modifier,
+            )
+        }
         is ShopItemState.Locked -> {
             PokerButton(
                 text = stringResource(Res.string.shop_item_price_format, shopItemState.price),
@@ -379,5 +393,6 @@ private fun getCardBackgroundColor(shopItemState: ShopItemState): Color =
     when (shopItemState) {
         is ShopItemState.Equipped -> PokerTheme.colors.surface.copy(alpha = 0.95f)
         is ShopItemState.Owned -> PokerTheme.colors.surface.copy(alpha = 0.85f)
+        is ShopItemState.UnlockedFeature -> PokerTheme.colors.surface.copy(alpha = 0.95f)
         is ShopItemState.Locked -> PokerTheme.colors.surface
     }

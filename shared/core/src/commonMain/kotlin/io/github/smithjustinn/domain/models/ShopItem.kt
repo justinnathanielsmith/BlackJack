@@ -8,6 +8,7 @@ enum class ShopItemType {
     CARD_SKIN,
     MUSIC,
     POWER_UP,
+    FEATURE,
 }
 
 @Serializable

@@ -179,6 +179,7 @@
     <string name="shop_bankroll_description">Bankroll</string>
     <string name="shop_item_active">ACTIVE</string>
     <string name="shop_item_equip">EQUIP</string>
+    <string name="shop_item_unlocked">UNLOCKED</string>
     <string name="shop_item_price_format">$%1$d</string>
     <string name="shop_balance_format">$%1$d</string>
 
