@@ -155,27 +155,25 @@ object MemoryGameLogic {
         return newState to ScoringCalculator.determineSuccessEvent(isWon, state.comboMultiplier, config)
     }
 
-    private fun handleMatchFailure(
+    private fun createMatchSuccessState(
         state: MemoryGameState,
-        first: CardState,
-        second: CardState,
-    ): Pair<MemoryGameState, GameDomainEvent?> {
-        val errorCards = state.cards.updateByIds(first.id, second.id) { it.copy(isError = true) }
-
-        if (state.isDoubleDownActive) {
-            return state.copy(
-                score = 0,
-                isGameOver = true,
-                isGameWon = false,
-                isDoubleDownActive = false,
-                isBusted = true,
-                cards = errorCards,
-                lastMatchedIds = persistentListOf(first.id, second.id),
-            ) to GameDomainEvent.GameOver
-        }
-
-        val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
-        val newPot = (state.currentPot - penalty).coerceAtLeast(0)
+        newCards: PersistentList<CardState>,
+        isWon: Boolean,
+        moves: Int,
+        scoringUpdate: MatchScoringUpdate,
+        matchesFound: Int,
+        firstId: Int,
+        secondId: Int,
+    ): MemoryGameState {
+        val comment =
+            GameCommentGenerator.generateMatchComment(
+                moves = moves,
+                matchesFound = matchesFound,
+                totalPairs = state.pairCount,
+                comboMultiplier = state.comboMultiplier,
+                config = state.config,
+                isDoubleDownActive = state.isDoubleDownActive,
+            )
 
         return state.copy(
             moves = state.moves + 1,
@@ -249,27 +247,80 @@ object MemoryGameLogic {
             .takeIf {
                 it.activeMutators.contains(DailyChallengeMutator.MIRAGE) &&
                     it.moves > 0 &&
-                    it.moves % MIRAGE_MOVE_INTERVAL == 0
+                    it.moves % GameConstants.MIRAGE_MOVE_INTERVAL == 0
             }?.let { handleMirageSwap(it, random) } ?: state
+}
 
-    private fun handleMirageSwap(
-        state: MemoryGameState,
-        random: Random,
-    ): MemoryGameState {
-        val unmatchedIndices = state.cards.mapIndexedNotNull { index, card -> index.takeUnless { card.isMatched } }
-        if (unmatchedIndices.size < PAIR_SIZE) return state
+private fun checkForMatch(
+    state: MemoryGameState,
+    activeCards: List<CardState>,
+): Pair<MemoryGameState, GameDomainEvent?> {
+    val (first, second) = activeCards.takeIf { it.size == 2 } ?: return state to null
 
-        val (idx1, idx2) = unmatchedIndices.shuffled(random)
-        val newCards =
-            state.cards
-                .toMutableList()
-                .apply {
-                    val temp = this[idx1]
-                    this[idx1] = this[idx2]
-                    this[idx2] = temp
-                }.toPersistentList()
+    return if (first.suit == second.suit && first.rank == second.rank) {
+        MemoryGameLogic.handleMatchSuccess(state, first, second)
+    } else {
+        handleMatchFailure(state, first, second)
+    }
+}
 
-        return state.copy(cards = newCards)
+private fun handleMatchFailure(
+    state: MemoryGameState,
+    first: CardState,
+    second: CardState,
+): Pair<MemoryGameState, GameDomainEvent?> {
+    val errorCards = state.cards.updateByIds(first.id, second.id) { it.copy(isError = true) }
+
+    if (state.isDoubleDownActive) {
+        return state.copy(
+            score = 0,
+            isGameOver = true,
+            isGameWon = false,
+            isDoubleDownActive = false,
+            isBusted = true,
+            cards = errorCards,
+            lastMatchedIds = persistentListOf(first.id, second.id),
+        ) to GameDomainEvent.GameOver
+    }
+
+    val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
+    val newPot = (state.currentPot - penalty).coerceAtLeast(0)
+
+    return state.copy(
+        moves = state.moves + 1,
+        comboMultiplier = 0,
+        score = state.score.coerceAtLeast(0),
+        currentPot = newPot,
+        isGameOver = false,
+        isDoubleDownActive = false,
+        cards = errorCards,
+        lastMatchedIds = persistentListOf(),
+    ) to GameDomainEvent.MatchFailure
+}
+
+fun resetErrorCards(state: MemoryGameState): MemoryGameState {
+    val newCards =
+        state.cards.mutate { list ->
+            for (index in list.indices) {
+                val card = list[index]
+                if (card.isError) {
+                    list[index] = card.copy(isFaceUp = false, isError = false, wasSeen = true)
+                }
+            }
+        }
+
+    return if (newCards !== state.cards) state.copy(cards = newCards) else state
+}
+
+fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState {
+    var currentCards = state.cards
+    var changed = false
+
+    currentCards.forEachIndexed { index, card ->
+        if (!card.isMatched && card.isFaceUp) {
+            currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false, wasSeen = true))
+            changed = true
+        }
     }
 
     fun resetErrorCards(state: MemoryGameState): MemoryGameState {
@@ -318,6 +369,26 @@ object MemoryGameActions {
         state: MemoryGameState,
         random: Random = Random,
     ): MemoryGameState = MemoryGameLogic.applyMutators(state, random)
+}
+
+private fun handleMirageSwap(
+    state: MemoryGameState,
+    random: Random,
+): MemoryGameState {
+    val unmatchedIndices = state.cards.mapIndexedNotNull { index, card -> index.takeUnless { card.isMatched } }
+    if (unmatchedIndices.size < 2) return state
+
+    val (idx1, idx2) = unmatchedIndices.shuffled(random)
+    val newCards =
+        state.cards
+            .toMutableList()
+            .apply {
+                val temp = this[idx1]
+                this[idx1] = this[idx2]
+                this[idx2] = temp
+            }.toPersistentList()
+
+    return state.copy(cards = newCards)
 }
 
 // Helper to update multiple cards by their IDs efficiently
