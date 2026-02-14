@@ -163,8 +163,7 @@ private fun StartScreenLayout(
         modifier =
             modifier
                 .fillMaxSize()
-                .statusBarsPadding()
-                .navigationBarsPadding(),
+                .statusBarsPadding(),
     ) {
         val headerAlphaValue = headerAlpha.value
         val headerModifier = Modifier.graphicsLayer { alpha = headerAlphaValue }
@@ -229,7 +228,7 @@ private fun BoxScope.StartTopActions(
     // Top End Action Row
     Row(
         modifier =
-            Modifier
+            modifier
                 .align(Alignment.TopEnd)
                 .padding(spacing.medium),
         horizontalArrangement = Arrangement.spacedBy(spacing.small),
