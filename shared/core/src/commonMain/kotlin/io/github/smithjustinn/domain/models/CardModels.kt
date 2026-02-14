@@ -42,4 +42,5 @@ data class CardState(
     val isFaceUp: Boolean = false,
     val isMatched: Boolean = false,
     val isError: Boolean = false,
+    val wasSeen: Boolean = false,
 )

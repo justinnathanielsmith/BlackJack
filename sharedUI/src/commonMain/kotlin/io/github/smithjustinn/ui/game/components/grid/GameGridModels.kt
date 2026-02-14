@@ -34,6 +34,7 @@ internal data class GridCardState(
 internal data class GridSettings(
     val cardTheme: CardTheme = CardTheme(),
     val areSuitsMultiColored: Boolean = false,
+    val isThirdEyeEnabled: Boolean = false,
     val showComboExplosion: Boolean = false,
 )
 

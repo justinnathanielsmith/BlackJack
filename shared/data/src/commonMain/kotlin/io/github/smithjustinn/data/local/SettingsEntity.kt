@@ -14,4 +14,5 @@ data class SettingsEntity(
     val soundVolume: Float = 1.0f,
     val musicVolume: Float = 1.0f,
     val areSuitsMultiColored: Boolean = false,
+    val isThirdEyeEnabled: Boolean = false,
 )

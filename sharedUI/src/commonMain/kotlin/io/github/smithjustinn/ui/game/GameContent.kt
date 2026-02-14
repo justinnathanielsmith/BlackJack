@@ -294,10 +294,11 @@ private fun GameMainContent(
         }
 
     val gridSettings =
-        remember(state.cardTheme, state.areSuitsMultiColored, state.showComboExplosion) {
+        remember(state.cardTheme, state.areSuitsMultiColored, state.isThirdEyeEnabled, state.showComboExplosion) {
             GridSettings(
                 cardTheme = state.cardTheme,
                 areSuitsMultiColored = state.areSuitsMultiColored,
+                isThirdEyeEnabled = state.isThirdEyeEnabled,
                 showComboExplosion = state.showComboExplosion,
             )
         }
