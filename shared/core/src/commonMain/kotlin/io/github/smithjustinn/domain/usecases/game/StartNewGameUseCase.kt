@@ -23,8 +23,8 @@ open class StartNewGameUseCase {
         val (finalPairCount, finalSeed) =
             if (mode == GameMode.DAILY_CHALLENGE) {
                 // Enforce Daily Challenge invariants: Date-based seed, standard size
-                val dailySeed = Clock.System.now().toEpochMilliseconds() / (24 * 60 * 60 * 1000)
-                8 to dailySeed
+                val dailySeed = Clock.System.now().toEpochMilliseconds() / MILLIS_IN_DAY
+                DAILY_CHALLENGE_PAIR_COUNT to dailySeed
             } else {
                 pairCount to (seed ?: Random.nextLong())
             }
@@ -57,6 +57,13 @@ open class StartNewGameUseCase {
     }
 
     companion object {
+        private const val DAILY_CHALLENGE_PAIR_COUNT = 8
+        private const val MILLIS_IN_SECOND = 1000L
+        private const val SECONDS_IN_MINUTE = 60L
+        private const val MINUTES_IN_HOUR = 60L
+        private const val HOURS_IN_DAY = 24L
+        private const val MILLIS_IN_DAY = HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLIS_IN_SECOND
+
         private const val BLACKOUT_CHANCE = 0.50f
         private const val MIRAGE_CHANCE = 0.40f
     }

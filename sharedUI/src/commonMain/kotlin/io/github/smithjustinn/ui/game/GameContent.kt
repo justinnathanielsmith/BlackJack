@@ -336,13 +336,19 @@ private fun BoxScope.GameHUD(
         )
     }
 
+    val mutatorTopPadding =
+        (
+            LayoutConstants.SPEECH_BUBBLE_TOP_PADDING_DP +
+                LayoutConstants.MUTATOR_INDICATORS_TOP_OFFSET_DP
+        ).dp
+
     MutatorIndicators(
         activeMutators = state.game.activeMutators,
         modifier =
             Modifier
                 .align(Alignment.TopStart)
                 .padding(
-                    top = (LayoutConstants.SPEECH_BUBBLE_TOP_PADDING_DP + LayoutConstants.MUTATOR_INDICATORS_TOP_OFFSET_DP).dp,
+                    top = mutatorTopPadding,
                     start = PokerTheme.spacing.medium,
                 ),
         compact = useCompactUI,

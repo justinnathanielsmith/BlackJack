@@ -140,7 +140,7 @@ class MemoryGameLogicTest {
         val (state1, _) = MemoryGameLogic.flipCard(initialState, firstCard.id)
         val (state2, _) = MemoryGameLogic.flipCard(state1, secondCard.id)
 
-        val state3 = MemoryGameLogic.resetErrorCards(state2)
+        val state3 = resetErrorCards(state2)
 
         assertFalse(state3.cards.any { it.isError })
         assertFalse(state3.cards.any { it.isFaceUp })
