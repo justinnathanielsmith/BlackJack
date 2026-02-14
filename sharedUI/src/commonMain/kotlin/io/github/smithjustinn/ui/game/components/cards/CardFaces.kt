@@ -139,7 +139,6 @@ object CardFaces {
             FuturisticCardFace(
                 rank = Rank.Ace,
                 suit = Suit.Spades,
-                suitColor = Color.Black,
                 getFontSize = { getPreviewFontSize(it) },
             )
         }
@@ -210,7 +209,7 @@ internal fun CardFace(
             CardSymbolTheme.ELEGANT -> ElegantCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.CYBERPUNK -> CyberpunkCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.PIXEL -> PixelCardFace(rank, suit, suitColor, ::getFontSize)
-            CardSymbolTheme.FUTURISTIC -> FuturisticCardFace(rank, suit, suitColor, ::getFontSize)
+            CardSymbolTheme.FUTURISTIC -> FuturisticCardFace(rank, suit, ::getFontSize)
         }
     }
 }
@@ -288,7 +287,6 @@ internal fun PixelCardFace(
 internal fun FuturisticCardFace(
     rank: Rank,
     suit: Suit,
-    suitColor: Color,
     getFontSize: (Float) -> TextUnit,
 ) {
     val techColor = if (suit.isRed) Color(0xFFFF5722) else Color(0xFF03A9F4)

@@ -256,40 +256,44 @@ private fun handleMatchFailure(
 ): Pair<MemoryGameState, GameDomainEvent?> {
     val errorCards = state.cards.updateByIds(first.id, second.id) { it.copy(isError = true) }
 
-    if (state.isHeatShieldAvailable && state.comboMultiplier > 0) {
-        return state.copy(
-            isHeatShieldAvailable = false,
-            moves = state.moves + 1,
-            cards = errorCards,
-            lastMatchedIds = persistentListOf(),
-        ) to GameDomainEvent.HeatShieldUsed
+    return when {
+        state.isHeatShieldAvailable && state.comboMultiplier > 0 -> {
+            state.copy(
+                isHeatShieldAvailable = false,
+                moves = state.moves + 1,
+                cards = errorCards,
+                lastMatchedIds = persistentListOf(),
+            ) to GameDomainEvent.HeatShieldUsed
+        }
+
+        state.isDoubleDownActive -> {
+            state.copy(
+                score = 0,
+                isGameOver = true,
+                isGameWon = false,
+                isDoubleDownActive = false,
+                isBusted = true,
+                cards = errorCards,
+                lastMatchedIds = persistentListOf(first.id, second.id),
+            ) to GameDomainEvent.GameOver
+        }
+
+        else -> {
+            val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
+            val newPot = (state.currentPot - penalty).coerceAtLeast(0)
+
+            state.copy(
+                moves = state.moves + 1,
+                comboMultiplier = 0,
+                score = state.score.coerceAtLeast(0),
+                currentPot = newPot,
+                isGameOver = false,
+                isDoubleDownActive = false,
+                cards = errorCards,
+                lastMatchedIds = persistentListOf(),
+            ) to GameDomainEvent.MatchFailure
+        }
     }
-
-    if (state.isDoubleDownActive) {
-        return state.copy(
-            score = 0,
-            isGameOver = true,
-            isGameWon = false,
-            isDoubleDownActive = false,
-            isBusted = true,
-            cards = errorCards,
-            lastMatchedIds = persistentListOf(first.id, second.id),
-        ) to GameDomainEvent.GameOver
-    }
-
-    val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
-    val newPot = (state.currentPot - penalty).coerceAtLeast(0)
-
-    return state.copy(
-        moves = state.moves + 1,
-        comboMultiplier = 0,
-        score = state.score.coerceAtLeast(0),
-        currentPot = newPot,
-        isGameOver = false,
-        isDoubleDownActive = false,
-        cards = errorCards,
-        lastMatchedIds = persistentListOf(),
-    ) to GameDomainEvent.MatchFailure
 }
 
 private fun handleMirageSwap(
