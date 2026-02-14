@@ -249,7 +249,6 @@ class DefaultGameComponent(
                 dispatchers = dispatchers,
                 initialState = initialState,
                 initialTimeSeconds = initialTime,
-                earnCurrencyUseCase = appGraph.earnCurrencyUseCase,
                 onSaveState = { state, time -> saveGame(state, time) },
                 isResumed = isResumed,
             ).also { machine ->
@@ -334,6 +333,7 @@ class DefaultGameComponent(
             GameEffect.PlayMatchSound -> handleMatchSound()
             GameEffect.GameOver -> handleGameLost()
             is GameEffect.GameWon -> handleGameWon(effect.finalState)
+            is GameEffect.EarnCurrency -> handleEarnCurrency(effect)
             else -> effectToEventMap[effect]?.let { _events.tryEmit(it) }
         }
     }
@@ -396,6 +396,12 @@ class DefaultGameComponent(
                 delay(GameConstants.COMBO_EXPLOSION_DURATION_MS)
                 _state.update { it.copy(showComboExplosion = false) }
             }
+        }
+    }
+
+    private fun handleEarnCurrency(effect: GameEffect.EarnCurrency) {
+        scope.launch {
+            appGraph.earnCurrencyUseCase.execute(effect.amount)
         }
     }
 

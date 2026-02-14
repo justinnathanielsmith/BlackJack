@@ -68,4 +68,8 @@ sealed class GameEffect {
     data class GameWon(
         val finalState: MemoryGameState,
     ) : GameEffect()
+
+    data class EarnCurrency(
+        val amount: Long,
+    ) : GameEffect()
 }

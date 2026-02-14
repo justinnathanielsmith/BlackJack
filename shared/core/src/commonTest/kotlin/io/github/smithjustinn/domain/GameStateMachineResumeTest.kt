@@ -6,7 +6,6 @@ import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
-import io.github.smithjustinn.domain.usecases.economy.EarnCurrencyUseCase
 import io.github.smithjustinn.test.BaseLogicTest
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -126,17 +125,12 @@ class GameStateMachineResumeTest : BaseLogicTest() {
     private fun createStateMachine(
         initialState: MemoryGameState = MemoryGameState(mode = GameMode.TIME_ATTACK),
         initialTimeSeconds: Long = initialTime,
-        earnCurrencyUseCase: EarnCurrencyUseCase =
-            mock<EarnCurrencyUseCase>().also {
-                everySuspend { it.execute(any()) } returns Unit
-            },
         onSaveState: (MemoryGameState, Long) -> Unit = { _, _ -> },
     ) = GameStateMachine(
         scope = testScope,
         dispatchers = testDispatchers,
         initialState = initialState,
         initialTimeSeconds = initialTimeSeconds,
-        earnCurrencyUseCase = earnCurrencyUseCase,
         onSaveState = onSaveState,
         isResumed = true,
     )
