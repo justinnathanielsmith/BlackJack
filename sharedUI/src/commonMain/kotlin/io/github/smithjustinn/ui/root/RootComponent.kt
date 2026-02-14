@@ -25,6 +25,7 @@ import io.github.smithjustinn.ui.start.DefaultStartComponent
 import io.github.smithjustinn.ui.start.StartComponent
 import io.github.smithjustinn.ui.stats.DefaultStatsComponent
 import io.github.smithjustinn.ui.stats.StatsComponent
+import io.github.smithjustinn.utils.Constants
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
@@ -96,15 +97,15 @@ class DefaultRootComponent(
 
     // Url format: memorymatch://game?mode=TIME_ATTACK&pairs=8&seed=12345
     private fun handleDeepLink(url: String) {
-        if (!url.startsWith("memorymatch://game")) return
+        if (!url.startsWith(Constants.DEEP_LINK_PREFIX)) return
 
         try {
-            val modeStr = url.getQueryParameter("mode")
-            val pairsStr = url.getQueryParameter("pairs")
-            val seedStr = url.getQueryParameter("seed")
+            val modeStr = url.getQueryParameter(Constants.QUERY_PARAM_MODE)
+            val pairsStr = url.getQueryParameter(Constants.QUERY_PARAM_PAIRS)
+            val seedStr = url.getQueryParameter(Constants.QUERY_PARAM_SEED)
 
             val mode = modeStr?.let { GameMode.valueOf(it) } ?: GameMode.TIME_ATTACK
-            val pairs = (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT).coerceIn(2, 52)
+            val pairs = (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT).coerceIn(GameArgs.MIN_PAIRS, GameArgs.MAX_PAIRS)
             val seed = seedStr?.toLongOrNull()
 
             @OptIn(DelicateDecomposeApi::class)

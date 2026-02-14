@@ -48,8 +48,8 @@ fun ScoreBreakdownSection(
             ),
     ) {
         Column(
-            modifier = Modifier.padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(8.dp),
+            modifier = Modifier.padding(PokerTheme.spacing.medium),
+            verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
         ) {
             Text(
                 text = stringResource(Res.string.score_breakdown_title).uppercase(),

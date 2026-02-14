@@ -40,6 +40,7 @@ import io.github.smithjustinn.ui.game.components.effects.CardFountainOverlay
 import io.github.smithjustinn.ui.game.components.effects.ConfettiEffect
 import io.github.smithjustinn.ui.game.components.hud.NewHighScoreSnackbar
 import io.github.smithjustinn.ui.game.components.hud.ResultsCard
+import io.github.smithjustinn.utils.Constants
 import kotlinx.coroutines.launch
 
 private const val HEAT_TRANSITION_DURATION_MS = 800
@@ -179,7 +180,10 @@ private fun BoxScope.GameResultsOverlay(
         onShareReplay = {
             audioService.playEffect(AudioService.SoundEffect.CLICK)
             val seed = state.game.seed ?: 0L
-            val link = "memorymatch://game?mode=${state.game.mode}&pairs=${state.game.pairCount}&seed=$seed"
+            val link = "${Constants.DEEP_LINK_PREFIX}?" +
+                "${Constants.QUERY_PARAM_MODE}=${state.game.mode}&" +
+                "${Constants.QUERY_PARAM_PAIRS}=${state.game.pairCount}&" +
+                "${Constants.QUERY_PARAM_SEED}=$seed"
             scope.launch {
                 clipboardManager.setText(AnnotatedString(link))
             }

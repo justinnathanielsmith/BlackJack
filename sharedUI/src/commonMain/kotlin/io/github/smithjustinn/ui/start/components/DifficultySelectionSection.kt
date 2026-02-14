@@ -79,7 +79,7 @@ private fun DifficultySelector(
     onDifficultySelected: (DifficultyLevel) -> Unit,
 ) {
     Column(
-        verticalArrangement = Arrangement.spacedBy(8.dp),
+        verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
     ) {
         Text(
             text = stringResource(Res.string.select_difficulty),

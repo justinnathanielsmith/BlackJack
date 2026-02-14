@@ -10,7 +10,14 @@ data class GameArgs(
     val forceNewGame: Boolean,
     val seed: Long? = null,
 ) {
+    companion object {
+        const val MIN_PAIRS = 2
+        const val MAX_PAIRS = 52
+    }
+
     init {
-        require(pairCount in 2..52) { "pairCount must be between 2 and 52" }
+        require(pairCount in MIN_PAIRS..MAX_PAIRS) {
+            "pairCount must be between $MIN_PAIRS and $MAX_PAIRS"
+        }
     }
 }

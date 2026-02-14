@@ -14,6 +14,7 @@ import io.github.smithjustinn.domain.repositories.GameStateRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 
 class GameUseCasesTest {
@@ -51,6 +52,22 @@ class GameUseCasesTest {
         // Fixed: The seed is ignored for Daily Challenge, so the boards should be identical
         // (based on the current date).
         assertEquals(state1.cards, state2.cards)
+    }
+
+    @Test
+    fun testStartNewGameUseCase_invalidPairCount() {
+        val useCase = StartNewGameUseCase()
+        assertFailsWith<IllegalArgumentException> {
+            useCase(pairCount = 100)
+        }
+    }
+
+    @Test
+    fun testStartNewGameUseCase_invalidPairCount_negative() {
+        val useCase = StartNewGameUseCase()
+        assertFailsWith<IllegalArgumentException> {
+            useCase(pairCount = -1)
+        }
     }
 
     @Test

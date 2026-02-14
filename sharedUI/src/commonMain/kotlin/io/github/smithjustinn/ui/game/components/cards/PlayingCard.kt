@@ -42,6 +42,7 @@ import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.settings_enable_third_eye
 import io.github.smithjustinn.resources.card_face_down
 import io.github.smithjustinn.resources.card_matched_format
 import io.github.smithjustinn.resources.card_name_format
@@ -71,7 +72,6 @@ import kotlin.math.roundToInt
 
 // Animation durations (milliseconds)
 private const val SHAKE_ANIMATION_DURATION_MS = 50
-private const val FLIP_ANIMATION_DURATION_MS = 400
 private const val GLOW_ANIMATION_DURATION_MS = 1000
 
 // Animation values
@@ -246,11 +246,12 @@ private fun CardContentSelectors(
             if (wasSeen && isThirdEyeEnabled && !content.visualState.isMatched) {
                 Icon(
                     imageVector = AppIcons.Visibility,
-                    contentDescription = "Card previously seen",
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(16.dp),
+                    contentDescription = stringResource(Res.string.settings_enable_third_eye),
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(PokerTheme.spacing.extraSmall)
+                            .size(PokerTheme.spacing.medium),
                     tint = PokerTheme.colors.goldenYellow.copy(alpha = MODERATE_ALPHA),
                 )
             }
@@ -467,7 +468,7 @@ private fun CardContainer(
                     .semantics {
                         this.contentDescription = contentDescription
                     },
-            shape = RoundedCornerShape(12.dp),
+            shape = PokerTheme.shapes.medium,
             colors =
                 CardDefaults.cardColors(
                     containerColor = if (isFaceUpVisual) Color.White else backColor,
