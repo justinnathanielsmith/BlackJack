@@ -38,9 +38,12 @@ class AndroidHapticsServiceImpl(
             vibrator?.vibrate(effect)
         } else {
             when (type) {
-                HapticFeedbackType.LIGHT -> vibrate(longArrayOf(0, 10), intArrayOf(0, 150))
-                HapticFeedbackType.HEAVY -> vibrate(longArrayOf(0, 50), intArrayOf(0, 255))
-                HapticFeedbackType.LONG_PRESS -> vibrate(longArrayOf(0, 100), intArrayOf(0, 255))
+                HapticFeedbackType.LIGHT ->
+                    vibrate(longArrayOf(0, LIGHT_DURATION), intArrayOf(0, TICK_AMPLITUDE))
+                HapticFeedbackType.HEAVY ->
+                    vibrate(longArrayOf(0, MATCH_DURATION), intArrayOf(0, MAX_AMPLITUDE))
+                HapticFeedbackType.LONG_PRESS ->
+                    vibrate(longArrayOf(0, MISMATCH_DURATION), intArrayOf(0, MAX_AMPLITUDE))
             }
         }
     }
@@ -103,6 +106,7 @@ class AndroidHapticsServiceImpl(
         private const val MATCH_DURATION = 50L
         private const val MISMATCH_DURATION = 100L
         private const val TICK_DURATION = 10L
+        private const val LIGHT_DURATION = 10L
         private const val TICK_AMPLITUDE = 150
         private const val WARNING_DURATION = 200L
         private const val HEAT_DURATION = 150L

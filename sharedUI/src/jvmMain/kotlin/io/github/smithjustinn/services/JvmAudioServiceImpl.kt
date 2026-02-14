@@ -44,8 +44,11 @@ class JvmAudioServiceImpl(
         try {
             Platform.startup {}
         } catch (e: IllegalStateException) {
-            // Already initialized
-        } catch (e: Exception) {
+            // Already initialized - safe to ignore
+            logger.d(e) { "JavaFX Platform already initialized" }
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
             logger.e(e) { "Error initializing JavaFX toolkit" }
         }
 
@@ -95,7 +98,9 @@ class JvmAudioServiceImpl(
                 player.volume = soundVolume.toDouble()
                 players[resource] = player
                 player
-            } catch (e: Exception) {
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception,
+            ) {
                 logger.e(e) { "Error pre-loading sound resource: $resource" }
                 null
             }
@@ -158,7 +163,9 @@ class JvmAudioServiceImpl(
                 if (isMusicRequested && isMusicEnabled) {
                     musicPlayer?.play()
                 }
-            } catch (e: Exception) {
+            } catch (
+                @Suppress("TooGenericExceptionCaught") e: Exception,
+            ) {
                 logger.e(e) { "Error starting music" }
             }
         }

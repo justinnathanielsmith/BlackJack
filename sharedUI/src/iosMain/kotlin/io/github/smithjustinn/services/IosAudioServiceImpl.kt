@@ -175,29 +175,7 @@ class IosAudioServiceImpl(
             scope.launch {
                 try {
                     if (musicPlayer == null) {
-                        val player =
-                            withContext(Dispatchers.Default) {
-                                val name = getString(AudioService.MUSIC)
-                                val path = "$name.m4a"
-                                val bytes = Res.readBytes("files/$path")
-                                if (bytes.isNotEmpty()) {
-                                    val data =
-                                        bytes.usePinned { pinned ->
-                                            NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
-                                        }
-                                    AVAudioPlayer(data = data, error = null).apply {
-                                        numberOfLoops = -1
-                                        prepareToPlay()
-                                    }
-                                } else {
-                                    null
-                                }
-                            }
-
-                        if (player != null) {
-                            musicPlayer = player
-                            musicPlayer?.volume = musicVolume
-                        }
+                        musicPlayer = createMusicPlayer()
                     }
 
                     if (isMusicRequested && isMusicEnabled) {
@@ -212,6 +190,26 @@ class IosAudioServiceImpl(
                 }
             }
     }
+
+    private suspend fun createMusicPlayer(): AVAudioPlayer? =
+        withContext(Dispatchers.Default) {
+            val name = getString(AudioService.MUSIC)
+            val path = "$name.m4a"
+            val bytes = Res.readBytes("files/$path")
+            if (bytes.isNotEmpty()) {
+                val data =
+                    bytes.usePinned { pinned ->
+                        NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                    }
+                AVAudioPlayer(data = data, error = null).apply {
+                    numberOfLoops = -1
+                    volume = musicVolume
+                    prepareToPlay()
+                }
+            } else {
+                null
+            }
+        }
 
     private fun actuallyStopMusic() {
         musicLoadingJob?.cancel()
