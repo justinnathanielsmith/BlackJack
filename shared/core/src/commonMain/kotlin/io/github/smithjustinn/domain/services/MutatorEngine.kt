@@ -1,6 +1,5 @@
 package io.github.smithjustinn.domain.services
 
-import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.MemoryGameState
 import kotlinx.collections.immutable.toPersistentList
