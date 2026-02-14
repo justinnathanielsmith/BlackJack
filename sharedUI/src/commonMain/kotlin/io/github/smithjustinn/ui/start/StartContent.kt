@@ -15,7 +15,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
@@ -204,55 +203,57 @@ private fun BoxScope.StartTopActions(
 ) {
     val spacing = PokerTheme.spacing
 
-    // Top Start Action Row
-    Row(
-        modifier =
-            modifier
-                .align(Alignment.TopStart)
-                .padding(spacing.medium),
-    ) {
-        MedallionIcon(
-            icon = ShopIcons.ShoppingCart,
-            onClick = onShopClick,
-            applyGlimmer = true,
-            tint = PokerTheme.colors.goldenYellow,
-            contentDescription = stringResource(Res.string.shop_title),
-        )
+    Box(modifier = modifier.fillMaxSize()) {
+        // Top Start Action Row
+        Row(
+            modifier =
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(spacing.medium),
+        ) {
+            MedallionIcon(
+                icon = ShopIcons.ShoppingCart,
+                onClick = onShopClick,
+                applyGlimmer = true,
+                tint = PokerTheme.colors.goldenYellow,
+                contentDescription = stringResource(Res.string.shop_title),
+            )
 
-        WalletBadge(
-            amount = totalBalance,
-            modifier = Modifier.padding(start = spacing.small),
-        )
-    }
+            WalletBadge(
+                amount = totalBalance,
+                modifier = Modifier.padding(start = spacing.small),
+            )
+        }
 
-    // Top End Action Row
-    Row(
-        modifier =
-            modifier
-                .align(Alignment.TopEnd)
-                .padding(spacing.medium),
-        horizontalArrangement = Arrangement.spacedBy(spacing.small),
-    ) {
-        MedallionIcon(
-            icon = AppIcons.Trophy,
-            onClick = onStatsClick,
-            applyGlimmer = true,
-            tint = PokerTheme.colors.silver,
-            contentDescription = stringResource(Res.string.stats),
-        )
-        MedallionIcon(
-            icon = AppIcons.Settings,
-            onClick = onSettingsClick,
-            applyGlimmer = true,
-            contentDescription = stringResource(Res.string.settings),
-        )
-        MedallionIcon(
-            icon = AppIcons.VisibilityOff,
-            onClick = onDebugClick,
-            applyGlimmer = false,
-            tint = Color.Red,
-            contentDescription = stringResource(Res.string.debug),
-        )
+        // Top End Action Row
+        Row(
+            modifier =
+                Modifier
+                    .align(Alignment.TopEnd)
+                    .padding(spacing.medium),
+            horizontalArrangement = Arrangement.spacedBy(spacing.small),
+        ) {
+            MedallionIcon(
+                icon = AppIcons.Trophy,
+                onClick = onStatsClick,
+                applyGlimmer = true,
+                tint = PokerTheme.colors.silver,
+                contentDescription = stringResource(Res.string.stats),
+            )
+            MedallionIcon(
+                icon = AppIcons.Settings,
+                onClick = onSettingsClick,
+                applyGlimmer = true,
+                contentDescription = stringResource(Res.string.settings),
+            )
+            MedallionIcon(
+                icon = AppIcons.VisibilityOff,
+                onClick = onDebugClick,
+                applyGlimmer = false,
+                tint = Color.Red,
+                contentDescription = stringResource(Res.string.debug),
+            )
+        }
     }
 }
 

@@ -267,6 +267,47 @@ private fun GameTopBarContent(
 }
 
 @Composable
+private fun rememberGridCardState(state: GameUIState) =
+    remember(state.game.cards, state.game.lastMatchedIds, state.isPeeking) {
+        GridCardState(
+            cards = state.game.cards,
+            lastMatchedIds = state.game.lastMatchedIds,
+            isPeeking = state.isPeeking,
+        )
+    }
+
+@Composable
+private fun rememberGridSettings(state: GameUIState) =
+    remember(state.cardTheme, state.areSuitsMultiColored, state.isThirdEyeEnabled, state.showComboExplosion) {
+        GridSettings(
+            cardTheme = state.cardTheme,
+            areSuitsMultiColored = state.areSuitsMultiColored,
+            isThirdEyeEnabled = state.isThirdEyeEnabled,
+            showComboExplosion = state.showComboExplosion,
+        )
+    }
+
+@Composable
+private fun rememberGameHUDState(state: GameUIState) =
+    remember(
+        state.game.comboMultiplier,
+        state.isMegaBonus,
+        state.isHeatMode,
+        state.game.activeMutators,
+        state.isDoubleDownAvailable,
+        state.game.matchComment,
+    ) {
+        GameHUDState(
+            comboMultiplier = state.game.comboMultiplier,
+            isMegaBonus = state.isMegaBonus,
+            isHeatMode = state.isHeatMode,
+            activeMutators = state.game.activeMutators,
+            isDoubleDownAvailable = state.isDoubleDownAvailable,
+            matchComment = state.game.matchComment,
+        )
+    }
+
+@Composable
 private fun GameMainContent(
     state: GameUIState,
     component: GameComponent,
@@ -274,34 +315,11 @@ private fun GameMainContent(
     scorePosition: Offset,
     modifier: Modifier = Modifier,
 ) {
-    val onCardClick =
-        remember(component) {
-            { cardId: Int -> component.onFlipCard(cardId) }
-        }
+    val onCardClick = remember(component) { { cardId: Int -> component.onFlipCard(cardId) } }
+    val onDoubleDown = remember(component) { { component.onDoubleDown() } }
 
-    val onDoubleDown =
-        remember(component) {
-            { component.onDoubleDown() }
-        }
-
-    val gridCardState =
-        remember(state.game.cards, state.game.lastMatchedIds, state.isPeeking) {
-            GridCardState(
-                cards = state.game.cards,
-                lastMatchedIds = state.game.lastMatchedIds,
-                isPeeking = state.isPeeking,
-            )
-        }
-
-    val gridSettings =
-        remember(state.cardTheme, state.areSuitsMultiColored, state.isThirdEyeEnabled, state.showComboExplosion) {
-            GridSettings(
-                cardTheme = state.cardTheme,
-                areSuitsMultiColored = state.areSuitsMultiColored,
-                isThirdEyeEnabled = state.isThirdEyeEnabled,
-                showComboExplosion = state.showComboExplosion,
-            )
-        }
+    val gridCardState = rememberGridCardState(state)
+    val gridSettings = rememberGridSettings(state)
 
     Box(modifier = modifier.fillMaxSize()) {
         GameGrid(
@@ -311,28 +329,8 @@ private fun GameMainContent(
             scorePositionInRoot = scorePosition,
         )
 
-        // Bolt: Extract HUD state to prevent recomposition on every timer update
-        val hudState =
-            remember(
-                state.game.comboMultiplier,
-                state.isMegaBonus,
-                state.isHeatMode,
-                state.game.activeMutators,
-                state.isDoubleDownAvailable,
-                state.game.matchComment,
-            ) {
-                GameHUDState(
-                    comboMultiplier = state.game.comboMultiplier,
-                    isMegaBonus = state.isMegaBonus,
-                    isHeatMode = state.isHeatMode,
-                    activeMutators = state.game.activeMutators,
-                    isDoubleDownAvailable = state.isDoubleDownAvailable,
-                    matchComment = state.game.matchComment,
-                )
-            }
-
         GameHUD(
-            state = hudState,
+            state = rememberGameHUDState(state),
             useCompactUI = useCompactUI,
             onDoubleDown = onDoubleDown,
         )

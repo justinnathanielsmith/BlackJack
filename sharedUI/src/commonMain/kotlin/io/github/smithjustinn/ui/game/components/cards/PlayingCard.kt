@@ -71,7 +71,6 @@ import kotlin.math.roundToInt
 
 // Animation durations (milliseconds)
 private const val SHAKE_ANIMATION_DURATION_MS = 50
-private const val FLIP_ANIMATION_DURATION_MS = 400
 private const val GLOW_ANIMATION_DURATION_MS = 1000
 
 // Animation values
@@ -247,10 +246,11 @@ private fun CardContentSelectors(
                 Icon(
                     imageVector = AppIcons.Visibility,
                     contentDescription = "Card previously seen",
-                    modifier = Modifier
-                        .align(Alignment.TopEnd)
-                        .padding(4.dp)
-                        .size(16.dp),
+                    modifier =
+                        Modifier
+                            .align(Alignment.TopEnd)
+                            .padding(4.dp)
+                            .size(16.dp),
                     tint = PokerTheme.colors.goldenYellow.copy(alpha = MODERATE_ALPHA),
                 )
             }

@@ -47,8 +47,8 @@ import io.github.smithjustinn.resources.shop_balance_format
 import io.github.smithjustinn.resources.shop_bankroll_description
 import io.github.smithjustinn.resources.shop_item_active
 import io.github.smithjustinn.resources.shop_item_equip
-import io.github.smithjustinn.resources.shop_item_unlocked
 import io.github.smithjustinn.resources.shop_item_price_format
+import io.github.smithjustinn.resources.shop_item_unlocked
 import io.github.smithjustinn.resources.shop_title
 import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticFeedbackType

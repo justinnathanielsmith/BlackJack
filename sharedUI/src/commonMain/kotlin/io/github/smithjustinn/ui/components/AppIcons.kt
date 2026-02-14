@@ -460,7 +460,7 @@ object AppIcons {
                         curveToRelative(1.73f, 4.39f, 6.0f, 7.5f, 11.0f, 7.5f)
                         curveToRelative(1.55f, 0.0f, 3.03f, -0.3f, 4.38f, -0.84f)
                         lineToRelative(0.42f, 0.42f)
-                        lineTo(19.73f,  22.0f)
+                        lineTo(19.73f, 22.0f)
                         lineTo(21.0f, 20.73f)
                         lineTo(3.27f, 3.0f)
                         lineTo(2.0f, 4.27f)

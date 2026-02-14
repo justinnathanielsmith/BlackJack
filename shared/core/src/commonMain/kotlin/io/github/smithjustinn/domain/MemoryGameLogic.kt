@@ -301,10 +301,12 @@ fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState {
  */
 object MemoryGameActions {
     fun resetErrorCards(state: MemoryGameState): MemoryGameState =
-        io.github.smithjustinn.domain.resetErrorCards(state)
+        io.github.smithjustinn.domain
+            .resetErrorCards(state)
 
     fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState =
-        io.github.smithjustinn.domain.resetUnmatchedCards(state)
+        io.github.smithjustinn.domain
+            .resetUnmatchedCards(state)
 
     fun activateDoubleDown(state: MemoryGameState): MemoryGameState = MemoryGameLogic.activateDoubleDown(state)
 
