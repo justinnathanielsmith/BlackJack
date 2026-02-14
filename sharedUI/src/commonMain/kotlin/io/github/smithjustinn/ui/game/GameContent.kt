@@ -30,7 +30,9 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.domain.models.MatchComment
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.game_double_or_nothing
 import io.github.smithjustinn.services.AudioService
@@ -64,6 +66,15 @@ private object LayoutConstants {
     const val SPEECH_BUBBLE_TOP_PADDING_DP = 80
     const val MUTATOR_INDICATORS_TOP_OFFSET_DP = 60
 }
+
+private data class GameHUDState(
+    val comboMultiplier: Int,
+    val isMegaBonus: Boolean,
+    val isHeatMode: Boolean,
+    val activeMutators: Set<DailyChallengeMutator>,
+    val isDoubleDownAvailable: Boolean,
+    val matchComment: MatchComment?,
+)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -299,8 +310,28 @@ private fun GameMainContent(
             scorePositionInRoot = scorePosition,
         )
 
+        // Bolt: Extract HUD state to prevent recomposition on every timer update
+        val hudState =
+            remember(
+                state.game.comboMultiplier,
+                state.isMegaBonus,
+                state.isHeatMode,
+                state.game.activeMutators,
+                state.isDoubleDownAvailable,
+                state.game.matchComment,
+            ) {
+                GameHUDState(
+                    comboMultiplier = state.game.comboMultiplier,
+                    isMegaBonus = state.isMegaBonus,
+                    isHeatMode = state.isHeatMode,
+                    activeMutators = state.game.activeMutators,
+                    isDoubleDownAvailable = state.isDoubleDownAvailable,
+                    matchComment = state.game.matchComment,
+                )
+            }
+
         GameHUD(
-            state = state,
+            state = hudState,
             useCompactUI = useCompactUI,
             onDoubleDown = onDoubleDown,
         )
@@ -315,15 +346,15 @@ private fun GameMainContent(
 
 @Composable
 private fun BoxScope.GameHUD(
-    state: GameUIState,
+    state: GameHUDState,
     useCompactUI: Boolean,
     onDoubleDown: () -> Unit,
 ) {
-    if (state.game.comboMultiplier > 1) {
+    if (state.comboMultiplier > 1) {
         ComboBadge(
             state =
                 ComboBadgeState(
-                    combo = state.game.comboMultiplier,
+                    combo = state.comboMultiplier,
                     isMegaBonus = state.isMegaBonus,
                     isHeatMode = state.isHeatMode,
                 ),
@@ -343,7 +374,7 @@ private fun BoxScope.GameHUD(
         ).dp
 
     MutatorIndicators(
-        activeMutators = state.game.activeMutators,
+        activeMutators = state.activeMutators,
         modifier =
             Modifier
                 .align(Alignment.TopStart)
@@ -359,7 +390,7 @@ private fun BoxScope.GameHUD(
     }
 
     DealerSpeechBubble(
-        matchComment = state.game.matchComment,
+        matchComment = state.matchComment,
         modifier =
             Modifier
                 .align(Alignment.TopCenter)
