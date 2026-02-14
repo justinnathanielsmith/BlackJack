@@ -112,6 +112,7 @@ class DefaultGameComponent(
             launch {
                 if (args.mode == GameMode.TIME_ATTACK) {
                     val adUnitId =
+                        @Suppress("TooGenericExceptionCaught")
                         try {
                             getString(Res.string.ad_unit_id)
                         } catch (e: Exception) {
