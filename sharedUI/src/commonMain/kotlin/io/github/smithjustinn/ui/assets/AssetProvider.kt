@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
@@ -16,11 +18,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.PokerTheme
+import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.game.components.cards.CardBack
 import io.github.smithjustinn.ui.game.components.cards.CardFace
 import io.github.smithjustinn.ui.game.components.cards.ShimmerEffect
@@ -85,6 +89,9 @@ object AssetProvider {
                 shopItemId == Constants.FEATURE_FOUR_COLOR_SUITS -> {
                     FourColorPreview(modifier = Modifier.fillMaxSize())
                 }
+                shopItemId == Constants.FEATURE_THIRD_EYE -> {
+                    ThirdEyePreview(modifier = Modifier.fillMaxSize())
+                }
                 else -> {
                     // Unknown ID - render empty box
                     Box(modifier = Modifier.fillMaxSize())
@@ -143,6 +150,26 @@ object AssetProvider {
                 SuitBox(Suit.Clubs, Color(0xFF388E3C), Modifier.weight(1f))
                 SuitBox(Suit.Spades, Color(0xFF212121), Modifier.weight(1f))
             }
+        }
+    }
+
+    @Composable
+    private fun ThirdEyePreview(modifier: Modifier = Modifier) {
+        Box(
+            modifier = modifier.background(Color.White),
+            contentAlignment = Alignment.Center,
+        ) {
+            CardBack(
+                theme = CardBackTheme.GEOMETRIC,
+                backColor = PokerTheme.colors.feltGreen,
+                rotation = rememberUpdatedState(180f),
+            )
+            Icon(
+                imageVector = AppIcons.Visibility,
+                contentDescription = null,
+                modifier = Modifier.size(48.dp),
+                tint = PokerTheme.colors.goldenYellow,
+            )
         }
     }
 
