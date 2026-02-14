@@ -76,16 +76,9 @@ fun PokerButton(
         label = "scale",
     )
 
-    val finalContainerColor = if (isPrimary) PokerTheme.colors.goldenYellow else containerColor
-    val finalContentColor = if (isPrimary) PokerTheme.colors.feltGreenDark else contentColor
+    val buttonColors = rememberPokerButtonColors(isPrimary, containerColor, contentColor, enabled)
     val shadowElevation = if (isPrimary) PRIMARY_SHADOW_ELEVATION_DP.dp else PokerTheme.spacing.extraSmall
-    val border =
-        if (isPrimary) {
-            BorderStroke(PRIMARY_BORDER_WIDTH_DP.dp, PokerTheme.colors.goldenYellow.copy(alpha = PRIMARY_BORDER_ALPHA))
-        } else {
-            null
-        }
-
+    val border = rememberPokerButtonBorder(isPrimary)
     val hapticsService = LocalAppGraph.current.hapticsService
 
     Box(
@@ -96,7 +89,7 @@ fun PokerButton(
                 .shadow(if (enabled) shadowElevation else 0.dp, PokerTheme.shapes.medium)
                 .clip(PokerTheme.shapes.medium)
                 .then(if (border != null && enabled) Modifier.border(border, PokerTheme.shapes.medium) else Modifier)
-                .background(if (enabled) finalContainerColor else finalContainerColor.copy(alpha = 0.5f))
+                .background(buttonColors.container)
                 .clickable(
                     enabled = enabled,
                     onClick = {
@@ -107,9 +100,7 @@ fun PokerButton(
                     },
                     role = Role.Button,
                 ).semantics {
-                    if (contentDescription != null) {
-                        this.contentDescription = contentDescription
-                    }
+                    contentDescription?.let { this.contentDescription = it }
                 }.padding(horizontal = PokerTheme.spacing.medium),
         contentAlignment = Alignment.Center,
     ) {
@@ -117,11 +108,41 @@ fun PokerButton(
             text = text,
             leadingIcon = leadingIcon,
             trailingIcon = trailingIcon,
-            contentColor = if (enabled) finalContentColor else finalContentColor.copy(alpha = 0.5f),
+            contentColor = buttonColors.content,
             applyGlimmer = applyGlimmer && enabled,
         )
     }
 }
+
+private data class PokerButtonColors(
+    val container: Color,
+    val content: Color,
+)
+
+@Composable
+private fun rememberPokerButtonColors(
+    isPrimary: Boolean,
+    containerColor: Color,
+    contentColor: Color,
+    enabled: Boolean,
+): PokerButtonColors {
+    val container = if (isPrimary) PokerTheme.colors.goldenYellow else containerColor
+    val content = if (isPrimary) PokerTheme.colors.feltGreenDark else contentColor
+
+    return if (enabled) {
+        PokerButtonColors(container, content)
+    } else {
+        PokerButtonColors(container.copy(alpha = 0.5f), content.copy(alpha = 0.5f))
+    }
+}
+
+@Composable
+private fun rememberPokerButtonBorder(isPrimary: Boolean): BorderStroke? =
+    if (isPrimary) {
+        BorderStroke(PRIMARY_BORDER_WIDTH_DP.dp, PokerTheme.colors.goldenYellow.copy(alpha = PRIMARY_BORDER_ALPHA))
+    } else {
+        null
+    }
 
 @Composable
 private fun ButtonContent(
