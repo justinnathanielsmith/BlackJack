@@ -9,6 +9,8 @@ data class SettingsUIState(
     val musicVolume: Float = 1.0f,
     val areSuitsMultiColored: Boolean = false,
     val isFourColorUnlocked: Boolean = false,
+    val isThirdEyeEnabled: Boolean = false,
+    val isThirdEyeUnlocked: Boolean = false,
 )
 
 sealed class SettingsUiEvent {

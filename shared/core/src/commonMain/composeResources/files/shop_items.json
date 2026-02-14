@@ -235,5 +235,13 @@
     "price": 800,
     "type": "FEATURE",
     "isConsumable": false
+  },
+  {
+    "id": "feature_third_eye",
+    "name": "Third Eye",
+    "description": "Unlocks a memory aid that marks cards you've already seen.",
+    "price": 2000,
+    "type": "FEATURE",
+    "isConsumable": false
   }
 ]

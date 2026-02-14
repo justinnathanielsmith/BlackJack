@@ -48,6 +48,8 @@ import io.github.smithjustinn.resources.settings
 import io.github.smithjustinn.resources.settings_appearance
 import io.github.smithjustinn.resources.settings_enable_peek
 import io.github.smithjustinn.resources.settings_enable_peek_desc
+import io.github.smithjustinn.resources.settings_enable_third_eye
+import io.github.smithjustinn.resources.settings_enable_third_eye_desc
 import io.github.smithjustinn.resources.settings_four_color_deck
 import io.github.smithjustinn.resources.settings_four_color_deck_desc
 import io.github.smithjustinn.resources.settings_game_music
@@ -223,17 +225,38 @@ private fun SettingsAppearanceSection(
     audioService: AudioService,
     component: SettingsComponent,
 ) {
-    if (state.isFourColorUnlocked) {
+    if (state.isFourColorUnlocked || state.isThirdEyeUnlocked) {
         AppCard(title = stringResource(Res.string.settings_appearance)) {
-            SettingsToggle(
-                title = stringResource(Res.string.settings_four_color_deck),
-                description = stringResource(Res.string.settings_four_color_deck_desc),
-                checked = state.areSuitsMultiColored,
-                onCheckedChange = {
-                    audioService.playEffect(AudioService.SoundEffect.CLICK)
-                    component.toggleSuitsMultiColored(it)
-                },
-            )
+            if (state.isFourColorUnlocked) {
+                SettingsToggle(
+                    title = stringResource(Res.string.settings_four_color_deck),
+                    description = stringResource(Res.string.settings_four_color_deck_desc),
+                    checked = state.areSuitsMultiColored,
+                    onCheckedChange = {
+                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.toggleSuitsMultiColored(it)
+                    },
+                )
+            }
+
+            if (state.isFourColorUnlocked && state.isThirdEyeUnlocked) {
+                HorizontalDivider(
+                    modifier = Modifier.padding(vertical = 8.dp),
+                    color = Color.White.copy(alpha = 0.1f),
+                )
+            }
+
+            if (state.isThirdEyeUnlocked) {
+                SettingsToggle(
+                    title = stringResource(Res.string.settings_enable_third_eye),
+                    description = stringResource(Res.string.settings_enable_third_eye_desc),
+                    checked = state.isThirdEyeEnabled,
+                    onCheckedChange = {
+                        audioService.playEffect(AudioService.SoundEffect.CLICK)
+                        component.toggleThirdEyeEnabled(it)
+                    },
+                )
+            }
         }
     }
 }

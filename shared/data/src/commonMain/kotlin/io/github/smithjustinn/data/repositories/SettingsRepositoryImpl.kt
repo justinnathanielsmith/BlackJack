@@ -93,6 +93,15 @@ class SettingsRepositoryImpl(
                 initialValue = false,
             )
 
+    override val isThirdEyeEnabled: StateFlow<Boolean> =
+        settingsFlow
+            .map { it?.isThirdEyeEnabled ?: false }
+            .stateIn(
+                scope = scope,
+                started = SharingStarted.Eagerly,
+                initialValue = false,
+            )
+
     override suspend fun setPeekEnabled(enabled: Boolean) =
         writeMutex.withLock {
             val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
@@ -133,5 +142,11 @@ class SettingsRepositoryImpl(
         writeMutex.withLock {
             val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
             dao.saveSettings(current.copy(areSuitsMultiColored = enabled))
+        }
+
+    override suspend fun setThirdEyeEnabled(enabled: Boolean) =
+        writeMutex.withLock {
+            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
+            dao.saveSettings(current.copy(isThirdEyeEnabled = enabled))
         }
 }

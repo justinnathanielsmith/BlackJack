@@ -10,6 +10,7 @@ interface SettingsRepository {
     val soundVolume: StateFlow<Float>
     val musicVolume: StateFlow<Float>
     val areSuitsMultiColored: StateFlow<Boolean>
+    val isThirdEyeEnabled: StateFlow<Boolean>
 
     suspend fun setPeekEnabled(enabled: Boolean)
 
@@ -24,4 +25,6 @@ interface SettingsRepository {
     suspend fun setMusicVolume(volume: Float)
 
     suspend fun setSuitsMultiColored(enabled: Boolean)
+
+    suspend fun setThirdEyeEnabled(enabled: Boolean)
 }

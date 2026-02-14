@@ -273,7 +273,7 @@ fun resetErrorCards(state: MemoryGameState): MemoryGameState {
             for (index in list.indices) {
                 val card = list[index]
                 if (card.isError) {
-                    list[index] = card.copy(isFaceUp = false, isError = false)
+                    list[index] = card.copy(isFaceUp = false, isError = false, wasSeen = true)
                 }
             }
         }
@@ -287,7 +287,7 @@ fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState {
 
     currentCards.forEachIndexed { index, card ->
         if (!card.isMatched && card.isFaceUp) {
-            currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false))
+            currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false, wasSeen = true))
             changed = true
         }
     }

@@ -19,6 +19,8 @@ interface SettingsComponent {
 
     fun toggleSuitsMultiColored(enabled: Boolean)
 
+    fun toggleThirdEyeEnabled(enabled: Boolean)
+
     fun resetWalkthrough()
 
     fun onBack()
