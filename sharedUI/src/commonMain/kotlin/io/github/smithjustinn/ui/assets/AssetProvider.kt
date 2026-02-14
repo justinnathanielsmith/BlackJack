@@ -1,13 +1,16 @@
 package io.github.smithjustinn.ui.assets
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardBackTheme
@@ -53,7 +56,9 @@ object AssetProvider {
             modifier =
                 modifier
                     .aspectRatio(CARD_ASPECT_RATIO)
-                    .padding(8.dp),
+                    .padding(8.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color.White),
         ) {
             when {
                 backTheme != null -> {

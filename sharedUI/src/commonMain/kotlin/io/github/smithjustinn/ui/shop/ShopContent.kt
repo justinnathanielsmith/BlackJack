@@ -377,7 +377,7 @@ private fun ShopActionButton(
 @Composable
 private fun getCardBackgroundColor(shopItemState: ShopItemState): Color =
     when (shopItemState) {
-        is ShopItemState.Equipped -> PokerTheme.colors.surface.copy(alpha = 0.8f)
-        is ShopItemState.Owned -> PokerTheme.colors.surface.copy(alpha = 0.5f)
+        is ShopItemState.Equipped -> PokerTheme.colors.surface.copy(alpha = 0.95f)
+        is ShopItemState.Owned -> PokerTheme.colors.surface.copy(alpha = 0.85f)
         is ShopItemState.Locked -> PokerTheme.colors.surface
     }
