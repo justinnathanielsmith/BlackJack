@@ -14,6 +14,12 @@ complexity:
   CyclomaticComplexMethod:
     active: true
     threshold: 15 # Strict for logic, but allows for complex UI state switching
+  LongMethod:
+    active: true
+    threshold: 40 # Stricter limit for domain logic
+    excludes: ['**/test/**', '**/commonTest/**', '**/androidTest/**']
+    ignoreAnnotated:
+      - 'androidx.compose.runtime.Composable'
 
 naming:
   active: true

@@ -26,37 +26,10 @@ open class SaveGameResultUseCase(
         gameMode: GameMode,
     ): Result<Unit> =
         runCatching {
-            // Stats are currently per difficulty, we might want to separate them by mode too in the future
             val currentStats = gameStatsRepository.getStatsForDifficulty(pairCount).firstOrNull()
+            val updatedStats = calculateUpdatedStats(currentStats, pairCount, score, timeSeconds)
 
-            val newBestScore =
-                if (currentStats == null ||
-                    score > currentStats.bestScore
-                ) {
-                    score
-                } else {
-                    currentStats.bestScore
-                }
-            val newBestTime =
-                if (currentStats == null ||
-                    currentStats.bestTimeSeconds == 0L ||
-                    timeSeconds < currentStats.bestTimeSeconds
-                ) {
-                    timeSeconds
-                } else {
-                    currentStats.bestTimeSeconds
-                }
-
-            val newGamesPlayed = (currentStats?.gamesPlayed ?: 0) + 1
-
-            gameStatsRepository.updateStats(
-                GameStats(
-                    pairCount = pairCount,
-                    bestScore = newBestScore,
-                    bestTimeSeconds = newBestTime,
-                    gamesPlayed = newGamesPlayed,
-                ),
-            )
+            gameStatsRepository.updateStats(updatedStats)
 
             leaderboardRepository.addEntry(
                 LeaderboardEntry(
@@ -71,4 +44,32 @@ open class SaveGameResultUseCase(
         }.onFailure { e ->
             logger.e(e) { "Failed to save game result via use case" }
         }
+
+    private fun calculateUpdatedStats(
+        current: GameStats?,
+        pairCount: Int,
+        score: Int,
+        time: Long,
+    ): GameStats {
+        val newBestScore =
+            if (current == null || score > current.bestScore) {
+                score
+            } else {
+                current.bestScore
+            }
+
+        val newBestTime =
+            if (current == null || current.bestTimeSeconds == 0L || time < current.bestTimeSeconds) {
+                time
+            } else {
+                current.bestTimeSeconds
+            }
+
+        return GameStats(
+            pairCount = pairCount,
+            bestScore = newBestScore,
+            bestTimeSeconds = newBestTime,
+            gamesPlayed = (current?.gamesPlayed ?: 0) + 1,
+        )
+    }
 }

@@ -58,17 +58,7 @@ object ScoringCalculator {
         if (!state.isGameWon) return state
 
         val config = state.config
-
-        // Time Bonus
-        val timeBonus =
-            if (state.mode == GameMode.TIME_ATTACK) {
-                // In Time Attack, remaining time is the bonus
-                (elapsedTimeSeconds * TIME_ATTACK_BONUS_MULTIPLIER).toInt()
-            } else {
-                (state.pairCount * config.timeBonusPerPair - (elapsedTimeSeconds * config.timePenaltyPerSecond))
-                    .coerceAtLeast(0)
-                    .toInt()
-            }
+        val timeBonus = calculateTimeBonus(state, elapsedTimeSeconds, config)
 
         // Move Efficiency Bonus (dominant factor)
         val moveEfficiency = state.pairCount.toDouble() / state.moves.toDouble()
@@ -76,19 +66,8 @@ object ScoringCalculator {
 
         val totalScore = state.score + timeBonus + moveBonus
 
-        val earnedCurrency =
-            if (state.mode == GameMode.DAILY_CHALLENGE) {
-                (totalScore / CURRENCY_DIVISOR) + DAILY_CHALLENGE_CURRENCY_BONUS
-            } else {
-                ((totalScore / CURRENCY_DIVISOR) * state.difficulty.payoutMultiplier).toInt()
-            }
-
-        val dailyChallengeBonus =
-            if (state.mode == GameMode.DAILY_CHALLENGE) {
-                DAILY_CHALLENGE_CURRENCY_BONUS
-            } else {
-                0
-            }
+        val earnedCurrency = calculateEarnedCurrency(state, totalScore)
+        val dailyChallengeBonus = if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
 
         return state.copy(
             score = totalScore,
@@ -105,6 +84,29 @@ object ScoringCalculator {
                 ),
         )
     }
+
+    private fun calculateTimeBonus(
+        state: MemoryGameState,
+        elapsedTimeSeconds: Long,
+        config: ScoringConfig,
+    ): Int =
+        if (state.mode == GameMode.TIME_ATTACK) {
+            (elapsedTimeSeconds * TIME_ATTACK_BONUS_MULTIPLIER).toInt()
+        } else {
+            (state.pairCount * config.timeBonusPerPair - (elapsedTimeSeconds * config.timePenaltyPerSecond))
+                .coerceAtLeast(0)
+                .toInt()
+        }
+
+    private fun calculateEarnedCurrency(
+        state: MemoryGameState,
+        totalScore: Int,
+    ): Int =
+        if (state.mode == GameMode.DAILY_CHALLENGE) {
+            (totalScore / CURRENCY_DIVISOR) + DAILY_CHALLENGE_CURRENCY_BONUS
+        } else {
+            ((totalScore / CURRENCY_DIVISOR) * state.difficulty.payoutMultiplier).toInt()
+        }
 
     /**
      * Determines which game event to fire based on the match result.
