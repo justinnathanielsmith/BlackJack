@@ -30,6 +30,8 @@ enum class CardSymbolTheme(
     RETRO("skin_retro"),
     ELEGANT("skin_elegant"),
     CYBERPUNK("skin_cyberpunk"),
+    PIXEL("skin_pixel"),
+    FUTURISTIC("skin_futuristic"),
     ;
 
     companion object {

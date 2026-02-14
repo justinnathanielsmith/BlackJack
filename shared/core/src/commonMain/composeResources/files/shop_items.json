@@ -212,6 +212,54 @@
     "isConsumable": false
   },
   {
+    "id": "skin_neon",
+    "name": "Neon Face",
+    "description": "Glowing neon card design.",
+    "price": 1000,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_retro",
+    "name": "Retro Face",
+    "description": "Classic 80s computer aesthetic.",
+    "price": 800,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_elegant",
+    "name": "Elegant Face",
+    "description": "Sophisticated and minimal serif design.",
+    "price": 1200,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_cyberpunk",
+    "name": "Cyberpunk Face",
+    "description": "High-tech, glitchy card design.",
+    "price": 1500,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_pixel",
+    "name": "Pixel Face",
+    "description": "Retro 8-bit pixelated card face.",
+    "price": 1200,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
+    "id": "skin_futuristic",
+    "name": "Futuristic Face",
+    "description": "Sleek, data-driven card interface.",
+    "price": 1500,
+    "type": "CARD_SKIN",
+    "isConsumable": false
+  },
+  {
     "id": "powerup_timebank",
     "name": "Time Bank",
     "description": "Add 10 seconds to the clock.",

@@ -123,6 +123,28 @@ object CardFaces {
         }
 
     @Composable
+    fun Pixel(modifier: Modifier = Modifier) =
+        PreviewContainer(modifier) {
+            PixelCardFace(
+                rank = Rank.Ace,
+                suit = Suit.Spades,
+                suitColor = Color.Black,
+                getFontSize = { getPreviewFontSize(it) },
+            )
+        }
+
+    @Composable
+    fun Futuristic(modifier: Modifier = Modifier) =
+        PreviewContainer(modifier) {
+            FuturisticCardFace(
+                rank = Rank.Ace,
+                suit = Suit.Spades,
+                suitColor = Color.Black,
+                getFontSize = { getPreviewFontSize(it) },
+            )
+        }
+
+    @Composable
     fun Render(
         theme: CardTheme,
         rank: Rank,
@@ -187,6 +209,159 @@ internal fun CardFace(
             CardSymbolTheme.RETRO -> RetroCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.ELEGANT -> ElegantCardFace(rank, suit, suitColor, ::getFontSize)
             CardSymbolTheme.CYBERPUNK -> CyberpunkCardFace(rank, suit, suitColor, ::getFontSize)
+            CardSymbolTheme.PIXEL -> PixelCardFace(rank, suit, suitColor, ::getFontSize)
+            CardSymbolTheme.FUTURISTIC -> FuturisticCardFace(rank, suit, suitColor, ::getFontSize)
+        }
+    }
+}
+
+@Composable
+internal fun PixelCardFace(
+    rank: Rank,
+    suit: Suit,
+    suitColor: Color,
+    getFontSize: (Float) -> TextUnit,
+) {
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Blocky Rank in Center
+        Text(
+            text = rank.symbol,
+            color = suitColor,
+            style =
+                MaterialTheme.typography.displayLarge.copy(
+                    fontWeight = FontWeight.ExtraBold,
+                    fontSize = getFontSize(FONT_SIZE_HUGE),
+                    fontFamily = FontFamily.Monospace,
+                ),
+            modifier = Modifier.align(Alignment.Center),
+        )
+
+        // Pixelated Corners
+        Column(modifier = Modifier.align(Alignment.TopStart).padding(2.dp)) {
+            Text(
+                text = rank.symbol,
+                color = suitColor,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                ),
+            )
+            Text(
+                text = suit.symbol,
+                color = suitColor,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = getFontSize(FONT_SIZE_SMALL),
+                    fontFamily = FontFamily.Monospace
+                ),
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(2.dp)
+                .graphicsLayer { rotationZ = FULL_ROTATION }
+        ) {
+            Text(
+                text = rank.symbol,
+                color = suitColor,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                    fontFamily = FontFamily.Monospace,
+                    fontWeight = FontWeight.Bold
+                ),
+            )
+            Text(
+                text = suit.symbol,
+                color = suitColor,
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = getFontSize(FONT_SIZE_SMALL),
+                    fontFamily = FontFamily.Monospace
+                ),
+            )
+        }
+    }
+}
+
+@Composable
+internal fun FuturisticCardFace(
+    rank: Rank,
+    suit: Suit,
+    suitColor: Color,
+    getFontSize: (Float) -> TextUnit,
+) {
+    val techColor = if (suit.isRed) Color(0xFFFF5722) else Color(0xFF03A9F4)
+
+    Box(modifier = Modifier.fillMaxSize()) {
+        // Circular background element
+        Canvas(modifier = Modifier.fillMaxSize().padding(10.dp)) {
+            drawCircle(
+                color = techColor.copy(alpha = 0.05f),
+                radius = size.minDimension / 2,
+                center = center
+            )
+            drawCircle(
+                color = techColor.copy(alpha = 0.1f),
+                radius = size.minDimension / 2.5f,
+                center = center,
+                style = Stroke(width = 1.dp.toPx())
+            )
+        }
+
+        // Clean Rank in Center
+        Text(
+            text = rank.symbol,
+            color = techColor,
+            style =
+                MaterialTheme.typography.displayLarge.copy(
+                    fontWeight = FontWeight.Light,
+                    fontSize = getFontSize(FONT_SIZE_HERO),
+                    fontFamily = FontFamily.SansSerif,
+                ),
+            modifier = Modifier.align(Alignment.Center),
+        )
+
+        // Corner Indices with "Data" feel
+        Column(modifier = Modifier.align(Alignment.TopStart).padding(4.dp)) {
+            Text(
+                text = "ID: ${rank.symbol}",
+                color = techColor.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = getFontSize(8f),
+                    fontFamily = FontFamily.Monospace
+                ),
+            )
+            Text(
+                text = suit.symbol,
+                color = techColor,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = getFontSize(FONT_SIZE_LARGE),
+                ),
+            )
+        }
+
+        Column(
+            modifier = Modifier
+                .align(Alignment.BottomEnd)
+                .padding(4.dp)
+                .graphicsLayer { rotationZ = FULL_ROTATION }
+        ) {
+            Text(
+                text = "TYPE: ${suit.name.uppercase()}",
+                color = techColor.copy(alpha = 0.6f),
+                style = MaterialTheme.typography.labelSmall.copy(
+                    fontSize = getFontSize(8f),
+                    fontFamily = FontFamily.Monospace
+                ),
+            )
+            Text(
+                text = suit.symbol,
+                color = techColor,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontSize = getFontSize(FONT_SIZE_LARGE),
+                ),
+            )
         }
     }
 }
