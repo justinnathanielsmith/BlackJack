@@ -23,4 +23,5 @@ object Constants {
     // Feature IDs
     const val FEATURE_FOUR_COLOR_SUITS = "feature_four_color_suits"
     const val FEATURE_THIRD_EYE = "feature_third_eye"
+    const val FEATURE_HEAT_SHIELD = "feature_heat_shield"
 }

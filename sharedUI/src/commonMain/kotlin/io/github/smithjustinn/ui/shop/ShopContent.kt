@@ -33,6 +33,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -60,6 +61,7 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
+import io.github.smithjustinn.utils.Constants
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
@@ -259,9 +261,10 @@ fun ShopItemCard(
                 null
             },
     ) {
+        val spacing = PokerTheme.spacing
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier.padding(16.dp).heightIn(min = 280.dp),
+            modifier = Modifier.padding(spacing.medium).heightIn(min = 280.dp),
         ) {
             ShopItemPreview(
                 itemId = item.id,
@@ -269,7 +272,7 @@ fun ShopItemCard(
                 modifier = Modifier.fillMaxWidth(),
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(spacing.medium))
 
             ShopItemInfo(
                 name = item.name,
@@ -278,7 +281,7 @@ fun ShopItemCard(
             )
 
             Spacer(modifier = Modifier.weight(1f))
-            Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(spacing.medium))
 
             ShopActionButton(
                 shopItemState = shopItemState,

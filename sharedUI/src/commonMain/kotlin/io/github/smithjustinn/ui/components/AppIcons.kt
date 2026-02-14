@@ -558,6 +558,32 @@ object AppIcons {
                 }.build()
                 .also { _swapHoriz = it }
         }
+
+    private var _shield: ImageVector? = null
+    val Shield: ImageVector
+        get() {
+            _shield?.let { return it }
+            return ImageVector
+                .Builder(
+                    name = "Shield",
+                    defaultWidth = 24.0.dp,
+                    defaultHeight = 24.0.dp,
+                    viewportWidth = 24.0f,
+                    viewportHeight = 24.0f,
+                ).apply {
+                    path(fill = SolidColor(Color.Black)) {
+                        moveTo(12.0f, 1.0f)
+                        lineTo(3.0f, 5.0f)
+                        verticalLineToRelative(6.0f)
+                        curveToRelative(0.0f, 5.55f, 3.84f, 10.74f, 9.0f, 12.0f)
+                        curveToRelative(5.16f, -1.26f, 9.0f, -6.45f, 9.0f, -12.0f)
+                        verticalLineTo(5.0f)
+                        lineToRelative(-9.0f, -4.0f)
+                        close()
+                    }
+                }.build()
+                .also { _shield = it }
+        }
 }
 
 object ShopIcons {

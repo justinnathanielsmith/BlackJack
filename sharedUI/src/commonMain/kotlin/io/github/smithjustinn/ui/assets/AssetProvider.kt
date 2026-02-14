@@ -90,7 +90,20 @@ object AssetProvider {
                     FourColorPreview(modifier = Modifier.fillMaxSize())
                 }
                 shopItemId == Constants.FEATURE_THIRD_EYE -> {
-                    ThirdEyePreview(modifier = Modifier.fillMaxSize())
+                    IconOnCardPreview(
+                        icon = AppIcons.Visibility,
+                        backColor = PokerTheme.colors.feltGreen,
+                        rotation = 180f,
+                        modifier = Modifier.fillMaxSize(),
+                    )
+                }
+                shopItemId == Constants.FEATURE_HEAT_SHIELD -> {
+                    IconOnCardPreview(
+                        icon = AppIcons.Shield,
+                        backColor = PokerTheme.colors.tacticalRed,
+                        rotation = 0f,
+                        modifier = Modifier.fillMaxSize(),
+                    )
                 }
                 else -> {
                     // Unknown ID - render empty box
@@ -139,7 +152,7 @@ object AssetProvider {
     @Composable
     private fun FourColorPreview(modifier: Modifier = Modifier) {
         Column(
-            modifier = modifier.background(Color.White).padding(PokerTheme.spacing.small),
+            modifier = modifier.padding(PokerTheme.spacing.small),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Row(modifier = Modifier.weight(1f)) {
@@ -154,18 +167,23 @@ object AssetProvider {
     }
 
     @Composable
-    private fun ThirdEyePreview(modifier: Modifier = Modifier) {
+    private fun IconOnCardPreview(
+        icon: androidx.compose.ui.graphics.vector.ImageVector,
+        backColor: Color,
+        rotation: Float,
+        modifier: Modifier = Modifier,
+    ) {
         Box(
-            modifier = modifier.background(Color.White),
+            modifier = modifier,
             contentAlignment = Alignment.Center,
         ) {
             CardBack(
                 theme = CardBackTheme.GEOMETRIC,
-                backColor = PokerTheme.colors.feltGreen,
-                rotation = rememberUpdatedState(180f),
+                backColor = backColor,
+                rotation = rememberUpdatedState(rotation),
             )
             Icon(
-                imageVector = AppIcons.Visibility,
+                imageVector = icon,
                 contentDescription = null,
                 modifier = Modifier.size(48.dp),
                 tint = PokerTheme.colors.goldenYellow,
