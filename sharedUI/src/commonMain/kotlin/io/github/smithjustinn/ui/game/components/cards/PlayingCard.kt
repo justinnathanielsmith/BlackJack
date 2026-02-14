@@ -42,6 +42,7 @@ import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.settings_enable_third_eye
 import io.github.smithjustinn.resources.card_face_down
 import io.github.smithjustinn.resources.card_matched_format
 import io.github.smithjustinn.resources.card_name_format
