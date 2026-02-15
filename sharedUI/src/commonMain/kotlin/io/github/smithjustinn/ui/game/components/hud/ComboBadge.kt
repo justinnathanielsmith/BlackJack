@@ -18,16 +18,17 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Canvas
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -72,34 +73,36 @@ fun ComboBadge(
         exit = fadeOut() + scaleOut(),
         modifier = modifier,
     ) {
-        val comboPulseScale by infiniteTransition.animateFloat(
-            initialValue = 1f,
-            targetValue =
-                when {
-                    state.isHeatMode -> if (compact) PULSE_SCALE_HEAT_COMPACT else PULSE_SCALE_HEAT
-                    else -> if (compact) PULSE_SCALE_DEFAULT_COMPACT else PULSE_SCALE_DEFAULT
-                },
-            animationSpec =
-                infiniteRepeatable(
-                    animation = tween(COMBO_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
-                    repeatMode = RepeatMode.Reverse,
-                ),
-            label = "comboPulse",
-        )
+        val comboPulseScaleState =
+            infiniteTransition.animateFloat(
+                initialValue = 1f,
+                targetValue =
+                    when {
+                        state.isHeatMode -> if (compact) PULSE_SCALE_HEAT_COMPACT else PULSE_SCALE_HEAT
+                        else -> if (compact) PULSE_SCALE_DEFAULT_COMPACT else PULSE_SCALE_DEFAULT
+                    },
+                animationSpec =
+                    infiniteRepeatable(
+                        animation = tween(COMBO_ANIMATION_DURATION_MS, easing = FastOutSlowInEasing),
+                        repeatMode = RepeatMode.Reverse,
+                    ),
+                label = "comboPulse",
+            )
 
         ComboBadgeContent(
             state = state,
             compact = compact,
-            pulseScale = comboPulseScale,
+            pulseScale = comboPulseScaleState,
         )
     }
 }
 
 @Composable
+@Suppress("ktlint:compose:state-param-check")
 private fun ComboBadgeContent(
     state: ComboBadgeState,
     compact: Boolean,
-    pulseScale: Float,
+    pulseScale: State<Float>,
     modifier: Modifier = Modifier,
 ) {
     val colors = PokerTheme.colors
@@ -117,7 +120,13 @@ private fun ComboBadgeContent(
     val chipCount = (state.combo - 1).coerceIn(1, MAX_CHIPS_IN_STACK)
 
     Box(
-        modifier = modifier.scale(pulseScale),
+        modifier =
+            modifier.graphicsLayer {
+                // Bolt: Defer state read to graphicsLayer to skip recomposition on every animation frame
+                val scale = pulseScale.value
+                scaleX = scale
+                scaleY = scale
+            },
         contentAlignment = Alignment.BottomCenter,
     ) {
         // Render the stack of chips
