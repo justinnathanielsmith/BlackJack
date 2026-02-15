@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.TextUnit
@@ -36,7 +37,7 @@ fun GlimmerText(
                     fontWeight = FontWeight.Black,
                     color = Color.Black.copy(alpha = 0.5f),
                 ),
-            modifier = Modifier.offset(x = 2.dp, y = 2.dp),
+            modifier = Modifier.offset(x = 2.dp, y = 2.dp).clearAndSetSemantics { },
         )
         // Main Glimmer Layer
         Text(
