@@ -18,20 +18,20 @@ When generating a new feature, follow the [**Feature Creation Checklist**][featu
 ## 🏗️ 2. Build & Test Commands
 
 ### 🧪 Running Tests
-Use the provided helper script:
+Use the Memory-Match CLI:
 ```bash
-./run_tests.sh
+./mm.py test all
 ```
 
 Or specific modules:
-* Shared: `./gradlew :sharedUI:allTests`
-* Android: `./gradlew :androidApp:testDebugUnitTest`
-* Desktop: `./gradlew :desktopApp:test`
+* Shared: `./mm.py test shared`
+* Android: `./mm.py test android`
+* Desktop: `./mm.py test desktop`
 
 ### 🏗 Building & Running
-* Build All: `./gradlew build`
-* Run Android: `./gradlew :androidApp:installDebug`
-* Run Desktop: `./gradlew :desktopApp:run`
+* Run Android: `./mm.py build android --run`
+* Run Desktop: `./mm.py build desktop --run`
+* Compile Metadata: `./mm.py build metadata`
 
 ---
 
@@ -48,6 +48,23 @@ Or specific modules:
 ## 🧹 4. Maintenance
 * Clean: `./gradlew clean`
 * Refresh Dependencies: `./gradlew build --refresh-dependencies`
+
+---
+
+## 🛠️ 5. Memory-Match CLI (mm.py)
+
+The `mm.py` Python script is the unified entry point for project operations.
+
+### 📦 Key Commands
+- **Task Management**: `./mm.py task new <type> <name>`
+  - Creates a new worktree and branch.
+  - Syncs config files automatically.
+- **AI Context**: `./mm.py context`
+  - Generates a high-signal summary of changes and impacted modules.
+- **Finalize Task**: `./mm.py done`
+  - Runs linting/formatting and suggests a commit message.
+- **Sync**: `./mm.py sync`
+  - Syncs config files across all workspaces.
 
 
 [def]: .agent/rules/
