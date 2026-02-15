@@ -31,7 +31,7 @@ Your [build.gradle.kts](../build.gradle.kts#L21-L69) already has good Kover conf
 
 2. **Class Pattern Exclusions**:
    - Generated classes (`*Generated*`, `*_Factory`, `*_Impl`, `*_Module`)
-   - DI classes (`*.di.*`, `*MetroFactory*`)
+   - DI classes (`*.di.*`, `*Koin*`)
    - Resource classes (`Res`, `Res$*`)
    - Compose singletons (`*.ComposableSingletons*`)
    - Component scopes (`*ComponentScopeKt*`)
@@ -238,7 +238,7 @@ kover {
                     
                     // DI patterns
                     "*.di.*",
-                    "*MetroFactory*",
+                    "*Koin*",
                     
                     // Resource classes
                     "Res",

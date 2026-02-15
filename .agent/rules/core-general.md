@@ -43,6 +43,7 @@ Before generating code, you **MUST** align with:
 - `viewModelScope` -> Use `componentScope` (Decompose lifecycle scope).
 - `java.*` / `android.*` in shared code -> Use `kotlinx.*` or `expect/actual`.
 - `expect/actual` for complex logic -> Use `interface` + DI instead.
+- Metro DI -> Use Koin 4.1.1+.
 - Hardcoded Strings -> Use `Res.string.my_key`.
 - `!!` -> Use `requireNotNull` or `?.`.
 - Logic in UI -> Move to `Component` or `UseCase`.

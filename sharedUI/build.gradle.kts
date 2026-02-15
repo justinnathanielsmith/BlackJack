@@ -19,8 +19,8 @@ kotlin {
 
     android {
         namespace = "io.github.smithjustinn"
-        compileSdk = 36
-        minSdk = 26
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
         androidResources.enable = true
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
     }
@@ -66,36 +66,14 @@ kotlin {
             implementation(libs.ktor.client.okhttp)
 
             // JavaFX Media for .m4a support on Desktop
-            implementation(libs.javafx.media)
-            implementation(libs.javafx.graphics)
-            implementation(libs.javafx.base)
-
-            implementation(libs.javafx.swing)
-
-            // Determine current OS and Architecture to include the correct JavaFX natives
-            val osName = System.getProperty("os.name").lowercase(Locale.getDefault())
-            val osArch = System.getProperty("os.arch").lowercase(Locale.getDefault())
-
-            val isMac = osName.contains("mac")
-            val isWin = osName.contains("windows")
-            val isLinux = osName.contains("linux")
-            val isArm64 = osArch.contains("aarch64") || osArch.contains("arm64")
-
-            val classifier =
-                when {
-                    isMac && isArm64 -> "mac-aarch64"
-                    isMac -> "mac"
-                    isWin -> "win"
-                    isLinux -> "linux"
-                    else -> "mac" // Fallback
-                }
-
             val jfxVersion = libs.versions.javafx.get()
-            implementation("org.openjfx:javafx-media:$jfxVersion:$classifier")
-            implementation("org.openjfx:javafx-graphics:$jfxVersion:$classifier")
-            implementation("org.openjfx:javafx-base:$jfxVersion:$classifier")
-            implementation("org.openjfx:javafx-controls:$jfxVersion:$classifier")
-            implementation("org.openjfx:javafx-swing:$jfxVersion:$classifier")
+            val classifier = getJavafxClassifier()
+            
+            val jfxModules = listOf("media", "graphics", "base", "controls", "swing")
+            jfxModules.forEach { module ->
+                implementation("org.openjfx:javafx-$module:$jfxVersion")
+                implementation("org.openjfx:javafx-$module:$jfxVersion:$classifier")
+            }
         }
 
         iosMain.dependencies {
@@ -114,6 +92,18 @@ kotlin {
                 }
             }
         }
+}
+
+fun getJavafxClassifier(): String {
+    val osName = System.getProperty("os.name").lowercase()
+    val osArch = System.getProperty("os.arch").lowercase()
+    
+    return when {
+        osName.contains("mac") -> if (osArch.contains("aarch64") || osArch.contains("arm64")) "mac-aarch64" else "mac"
+        osName.contains("win") -> "win"
+        osName.contains("linux") -> "linux"
+        else -> "mac"
+    }
 }
 
 dependencies {

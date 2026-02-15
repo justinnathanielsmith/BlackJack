@@ -100,7 +100,7 @@ kover {
             }
             verify {
                 rule("Minimum coverage") {
-                    minBound(80)  // Updated to 80% - currently at 90.9%
+                    minBound(85)  // Updated to 85% - currently at 90.9%
                 }
             }
         }
@@ -110,28 +110,29 @@ kover {
 detekt {
     toolVersion = libs.versions.detekt.get()
 
-    // Configure source directories for KMP
+    // Dynamic source configuration for KMP modules
     source.setFrom(
         files(
-            "shared/core/src/commonMain/kotlin",
-            "shared/core/src/commonTest/kotlin",
-            "shared/data/src/commonMain/kotlin",
-            "shared/data/src/commonTest/kotlin",
-            "sharedUI/src/commonMain/kotlin",
-            "sharedUI/src/commonTest/kotlin",
-            "sharedUI/src/androidMain/kotlin",
-            "sharedUI/src/iosMain/kotlin",
-            "sharedUI/src/jvmMain/kotlin",
-            "androidApp/src/main/kotlin",
-            "desktopApp/src/main/kotlin",
-        ),
+            subprojects.flatMap { subproject ->
+                listOf(
+                    "src/commonMain/kotlin",
+                    "src/commonTest/kotlin",
+                    "src/androidMain/kotlin",
+                    "src/iosMain/kotlin",
+                    "src/jvmMain/kotlin",
+                    "src/main/kotlin" // For androidApp and desktopApp
+                ).map { subproject.file(it) }
+            }.filter { it.exists() }
+        )
     )
 
     config.setFrom("config/detekt/detekt.yml")
     baseline = file("config/detekt/baseline.xml")
     buildUponDefaultConfig = true
     parallel = true
+    allRules = true
 }
+
 
 subprojects {
     apply(plugin = "com.diffplug.spotless")

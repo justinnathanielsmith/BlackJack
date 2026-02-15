@@ -108,7 +108,7 @@ The following are now excluded (as they should be):
 - UI packages: `io.github.smithjustinn.ui.*`, `theme.*`
 
 ### Generated Code
-- Metro DI (`*MetroFactory*`, `*_Module`)
+- Koin DI (`*Koin*`, `*_Module`)
 - Room database (`*Dao_Impl*`, `*Database_Impl*`)
 - Resources (`Res`, `Res$*`)
 - Compose singletons (`*.ComposableSingletons*`)

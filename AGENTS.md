@@ -35,7 +35,17 @@ Or specific modules:
 
 ---
 
-## 🧹 3. Maintenance
+## 💡 3. Key Idioms & Standards (2026)
+
+*   **DI**: Koin 4.1.1+ (via `AppGraph` facade for UI).
+*   **State**: Use `PersistentList` / `PersistentMap` for UI State.
+*   **Logic**: Prefer `takeIf`, `when` (exhaustive), and `forEach` idioms.
+*   **DI Access**: Use `context(Service)` for dependency access in domain logic.
+*   **Navigation**: Decompose with `componentScope`.
+
+---
+
+## 🧹 4. Maintenance
 * Clean: `./gradlew clean`
 * Refresh Dependencies: `./gradlew build --refresh-dependencies`
 

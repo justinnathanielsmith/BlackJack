@@ -9,6 +9,7 @@ globs: ["**/*UI.kt", "**/*Screen.kt", "**/*Component.kt", "**/*Content.kt", "**/
 - **Adaptive Layouts**: Always check `WindowSizeClass`.
 - **Slot APIs**: Use `@Composable` lambdas for flexible content.
 - **Modifiers**: The **first** optional parameter must be `modifier`.
+- **Strong Skipping**: Use `PersistentList` and other immutable collections in UI `State` models to ensure stability and enable strong skipping.
 - Maintain Unidirectional Data Flow (UDF).
 
 ## 🔊 UI Events (Audio, Haptics, Nav)

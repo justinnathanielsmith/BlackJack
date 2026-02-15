@@ -12,6 +12,13 @@ All Kotlin code must adhere to 2026 standards.
 - **No Wildcard Imports**: Never use wildcard imports (`import package.*`). Always use explicit imports for clarity and to prevent namespace pollution.
 - **No Fully Qualified Names (FQNs)**: Never use FQNs in code. Always import the type and use its simple name. If there is a name collision, use an alias (`import package.Type as TypeAlias`).
 
+## 🛠 Preferred Idioms (2026)
+
+- **Expressive Guarding**: Use `takeIf` and `takeUnless` for concise validation.
+- **Pattern Matching**: Exhaustive `when` blocks are mandatory for sealed classes/interfaces.
+- **Iteration**: Prefer `forEach` or `onEach` for side-effect-heavy loops.
+- **Immutability**: Always prefer `PersistentList`, `PersistentMap`, and `PersistentSet` from `kotlinx.collections.immutable` for state models.
+
 ## Context Parameters
 ```kotlin
 // ✅ DO
@@ -29,6 +36,7 @@ when (val response = api.get()) {
     is Success -> showContent(response.data)
 }
 ```
+
 
 ## Multi-Dollar Strings
 Use `$$` for JSON or Regex strings to avoid escaping curly braces.

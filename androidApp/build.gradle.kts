@@ -7,11 +7,11 @@ plugins {
 
 android {
     namespace = "io.github.smithjustinn.androidApp"
-    compileSdk = 36
+    compileSdk = libs.versions.android.compileSdk.get().toInt()
 
     defaultConfig {
-        minSdk = 26
-        targetSdk = 36
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        targetSdk = libs.versions.android.targetSdk.get().toInt()
 
         applicationId = "io.github.smithjustinn.androidApp"
         versionCode = 1

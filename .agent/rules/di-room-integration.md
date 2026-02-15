@@ -1,13 +1,13 @@
 ---
 trigger: glob
 globs: ["**/*Database.kt", "**/*Dao.kt", "**/*Entity.kt", "**/*Schema*"]
-description: Metro DI & Room Integration
+description: Koin DI & Room Integration
 ---
 
-# Metro DI & Room Integration
-- **Platform Modules:** - Define an `expect fun platformModule()` in `commonMain`.
-  - In `androidMain`, the actual module should provide `RoomDatabase.Builder<AppDatabase>` using the Android Context.
+# Koin DI & Room Integration
+- **Platform Modules:** Define an `expect fun platformModule(): Module` in `commonMain`.
+  - In `androidMain`, the actual module provides `RoomDatabase.Builder<AppDatabase>` using the Android Context.
   - In `iosMain`, provide the builder directly.
-- **Dependency Injection:** - The `AppDatabase` instance should be a `@Singleton` in the `commonMain` Metro component.
-  - DAOs should be provided by calling `db.daoName()` within the Metro module.
-- **Agent Instruction:** "Do not use Koin. If the project uses Metro, ensure that new DAOs are exposed via the central `Component` interface so they can be injected into ScreenModels."
+- **Dependency Injection:** The `AppDatabase` instance should be a `single` in the `commonMain` Koin module.
+  - DAOs should be provided as `single` by calling `get<AppDatabase>().daoName()`.
+- **Agent Instruction:** Use Koin for all dependency injection. Ensure new DAOs are registered in `DataModule.kt` or equivalent.

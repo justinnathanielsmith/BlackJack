@@ -11,7 +11,7 @@ globs: ["**/*.kt"]
 
 ## 2. Abstraction Strategy
 - **Interfaces + DI > Expect/Actual**:
-    - **Prefer**: Defining an `interface` in `commonMain` and injecting the implementation via Metro DI.
+    - **Prefer**: Defining an `interface` in `commonMain` and injecting the implementation via Koin DI.
     - **Avoid**: Logic-heavy `expect` classes which are hard to test and maintain.
     - **Use Expect/Actual Only For**: Simple platform bridges (e.g. `expect fun getPlatformName(): String`).
 

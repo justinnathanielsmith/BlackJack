@@ -10,6 +10,11 @@ compose-rules = "0.5.6"
 detekt = "1.23.8"
 kover = "0.9.4"
 
+# Android SDK
+android-compileSdk = "36"
+android-minSdk = "26"
+android-targetSdk = "36"
+
 # UI & Compose
 compose-multiplatform = "1.10.0"
 material3 = "1.10.0-alpha05"

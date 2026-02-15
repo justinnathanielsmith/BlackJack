@@ -9,7 +9,7 @@ class MemoryMatchApp : Application() {
     override fun onCreate() {
         super.onCreate()
         MobileAds.initialize(this)
-        appGraph.logger.i { "Logging initialized via Metro with Kermit" }
+        appGraph.logger.i { "Logging initialized via Koin with Kermit" }
     }
 
     val appGraph: AppGraph by lazy {
