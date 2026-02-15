@@ -42,8 +42,11 @@ style:
     active: true
     excludes: ['**/test/**', '**/commonTest/**', '**/androidTest/**', '**/ui/**', '**/*Screen.kt', '**/theme/**']
     ignoreEnums: true
-    ignoreNumbers: ['-1', '0', '1', '2', '0.5', '100']
+    ignoreNumbers: ['-1', '0', '1', '2'] # Removed 0.5 and 100 to force constants for percentages/divisors
+    ignorePropertyDeclaration: true # Allows 'const val X = 100' but flags 'if (x > 100)'
     ignoreAnnotated: ['androidx.compose.runtime.Composable']
+  UnnecessaryParentheses:
+    active: true
   # UnusedPrivateMember: Removed/Split in Detekt 2.0 - relying on compiler warnings or specific rule updates
 
 performance:

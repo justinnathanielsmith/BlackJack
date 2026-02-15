@@ -13,6 +13,7 @@ object ScoringCalculator {
     private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
     private const val DAILY_CHALLENGE_CURRENCY_BONUS = 500
     private const val CURRENCY_DIVISOR = 100
+    private const val DOUBLE_DOWN_MULTIPLIER = 2
 
     data class MatchScoreResult(
         val finalScore: Int,
@@ -31,21 +32,21 @@ object ScoringCalculator {
     ): MatchScoreResult {
         val matchPoints = matchBasePoints + matchComboBonus
 
-        return if (isWon && isDoubleDownActive) {
-            val totalWithoutBonus = currentScore + matchPoints
-            val finalScore = totalWithoutBonus * 2
-            MatchScoreResult(
-                finalScore = finalScore,
-                ddBonus = finalScore - totalWithoutBonus,
-            )
-        } else {
-            val multiplier = if (isDoubleDownActive) 2 else 1
-            val matchTotal = matchPoints * multiplier
-            MatchScoreResult(
-                finalScore = currentScore + matchTotal,
-                ddBonus = if (isDoubleDownActive) matchTotal / 2 else 0,
+        if (isWon && isDoubleDownActive) {
+            val totalBeforeMultiplier = currentScore + matchPoints
+            return MatchScoreResult(
+                finalScore = totalBeforeMultiplier * DOUBLE_DOWN_MULTIPLIER,
+                ddBonus = totalBeforeMultiplier,
             )
         }
+
+        val multiplier = if (isDoubleDownActive) DOUBLE_DOWN_MULTIPLIER else 1
+        val matchTotal = matchPoints * multiplier
+
+        return MatchScoreResult(
+            finalScore = currentScore + matchTotal,
+            ddBonus = if (isDoubleDownActive) matchPoints else 0,
+        )
     }
 
     /**
