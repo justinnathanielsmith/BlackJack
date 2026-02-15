@@ -11,6 +11,7 @@ import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
@@ -164,10 +165,12 @@ fun PlayingCard(
 ) {
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
+    val isPressed by interactionSource.collectIsPressedAsState()
     val animations =
         rememberCardAnimations(
             content = content,
             isHovered = isHovered,
+            isPressed = isPressed,
             muckTargetOffset = muckTargetOffset,
             muckTargetRotation = muckTargetRotation,
             isMuckingEnabled = isMuckingEnabled,
@@ -260,6 +263,7 @@ private fun CardContentSelectors(
 
 private const val MATCHED_SCALE = 0.4f
 private const val PULSE_SCALE = 1.05f
+private const val PRESSED_SCALE = 0.95f
 private const val DEFAULT_SCALE = 1f
 private const val MUCK_DURATION_MS = 600
 private const val ELEVATION_RECENTLY_MATCHED = 12
@@ -272,12 +276,13 @@ private const val SHADOW_OFFSET_DIVISOR = 3
 private fun rememberCardAnimations(
     content: CardContent,
     isHovered: Boolean,
+    isPressed: Boolean,
     muckTargetOffset: IntOffset,
     muckTargetRotation: Float,
     isMuckingEnabled: Boolean,
 ): CardAnimations {
     val rotation = rememberFlipAnimation(content.visualState.isFaceUp)
-    val scale = rememberPulseAnimation(content.visualState, isHovered)
+    val scale = rememberPulseAnimation(content.visualState, isHovered, isPressed)
     val shakeOffset = rememberShakeAnimation(content.visualState.isError)
     val matchedGlowAlpha = rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)
 
@@ -300,7 +305,7 @@ private fun rememberCardAnimations(
             "muckRotation",
         )
 
-    val shadowAnim = rememberShadowAnimation(content.visualState, isHovered)
+    val shadowAnim = rememberShadowAnimation(content.visualState, isHovered, isPressed)
 
     return CardAnimations(
         rotation = rotation,
@@ -332,10 +337,12 @@ private fun rememberFlipAnimation(isFaceUp: Boolean) =
 private fun rememberPulseAnimation(
     visualState: CardVisualState,
     isHovered: Boolean,
+    isPressed: Boolean,
 ) = animateFloatAsState(
     targetValue =
         when {
             visualState.isMatched -> MATCHED_SCALE
+            isPressed && !visualState.isFaceUp -> PRESSED_SCALE
             visualState.isRecentlyMatched || (isHovered && !visualState.isFaceUp) -> PULSE_SCALE
             else -> DEFAULT_SCALE
         },
@@ -385,11 +392,13 @@ private fun rememberMuckAnimation(
 private fun rememberShadowAnimation(
     visualState: CardVisualState,
     isHovered: Boolean,
+    isPressed: Boolean,
 ): Pair<State<Dp>, State<Dp>> {
     val targetElevation =
         when {
             visualState.isRecentlyMatched -> ELEVATION_RECENTLY_MATCHED.dp
             visualState.isMatched -> ELEVATION_MATCHED.dp
+            isPressed && !visualState.isFaceUp -> ELEVATION_DEFAULT.dp
             visualState.isFaceUp || isHovered -> ELEVATION_HOVERED.dp
             else -> ELEVATION_DEFAULT.dp
         }
