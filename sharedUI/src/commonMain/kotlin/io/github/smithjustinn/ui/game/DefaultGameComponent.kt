@@ -432,11 +432,7 @@ class DefaultGameComponent(
 
         appGraph.adService.showRewardedAd { bonusSeconds ->
             scope.launch {
-                val currentTime = _state.value.elapsedTimeSeconds
-                val newTime = TimeAttackLogic.addBonusTime(currentTime, bonusSeconds)
-
-                // Directly update the elapsed time in UI state
-                _state.update { it.copy(elapsedTimeSeconds = newTime) }
+                gameStateMachine?.dispatch(GameAction.AddTime(bonusSeconds))
 
                 // Update cooldown
                 lastAdShownTimestamp = Clock.System.now().toEpochMilliseconds()

@@ -19,6 +19,10 @@ sealed class GameAction {
 
     data object ProcessMismatch : GameAction()
 
+    data class AddTime(
+        val seconds: Int,
+    ) : GameAction()
+
     data object Tick : GameAction()
 
     data object Restart : GameAction()
