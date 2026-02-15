@@ -266,6 +266,21 @@ class GameStateMachineTest : BaseLogicTest() {
             assertTrue(machine.state.value.isBusted, "State should be marked as Busted")
         }
 
+    @Test
+    fun `AddTime action updates timer`() =
+        runTest {
+            val machine = createStateMachine()
+            val bonus = 10
+
+            machine.effects.test {
+                machine.dispatch(GameAction.AddTime(bonus))
+
+                val effect = awaitItem()
+                assertTrue(effect is GameEffect.TimerUpdate)
+                assertEquals(INITIAL_TIME + bonus, effect.seconds)
+            }
+        }
+
     private fun createStateMachine(
         initialState: MemoryGameState = MemoryGameState(mode = GameMode.TIME_ATTACK),
         initialTimeSeconds: Long = INITIAL_TIME,

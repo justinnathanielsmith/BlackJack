@@ -93,6 +93,7 @@ class GameStateMachine(
                     is GameAction.DoubleDown -> handleDoubleDown()
                     is GameAction.ProcessMismatch -> handleProcessMismatch()
                     is GameAction.ScanCards -> handleScanCards(action)
+                    is GameAction.AddTime -> handleAddTime(action)
                     is GameAction.Tick -> handleTick()
                     is GameAction.Restart -> { /* Handled by UI */ }
                     is GameAction.ClearComment -> updateState(_state.value.copy(matchComment = null))
@@ -264,6 +265,16 @@ class GameStateMachine(
                         }.toPersistentList()
                 updateState(latestState.copy(cards = hiddenCards))
             }
+    }
+
+    private fun handleAddTime(action: GameAction.AddTime) {
+        val result =
+            gameStateMachine(_state.value, internalTimeSeconds) {
+                val newTime = (internalTimeSeconds + action.seconds).coerceAtLeast(0)
+                updateTime { newTime }
+                +GameEffect.TimerUpdate(newTime)
+            }
+        applyResult(result)
     }
 
     private fun handleTick() {
