@@ -39,6 +39,8 @@ import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -210,7 +212,12 @@ private fun ValueBadge(
             ),
         color = color.copy(alpha = 0.15f),
         border = BorderStroke(1.dp, color.copy(alpha = 0.3f)),
-        modifier = modifier.offset(y = if (compact) 0.dp else (-4).dp),
+        modifier =
+            modifier
+                .offset(y = if (compact) 0.dp else (-4).dp)
+                .semantics(mergeDescendants = true) {
+                    contentDescription = "$label: $value"
+                },
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
