@@ -1,6 +1,7 @@
 package io.github.smithjustinn.ui.game
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.AnimationVector1D
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxScope
@@ -115,21 +116,23 @@ fun GameContent(
             },
         )
 
+        // Bolt: Pass shakeOffset object to defer read to draw phase
         GameMainScreenWrapper(
             state = state,
             component = component,
-            shakeOffset = shakeOffset.value,
+            shakeOffset = shakeOffset,
             showSteam = showSteam,
             modifier = modifier,
         )
     }
 }
 
+// Bolt: Pass Animatable instead of Float to read .value inside graphicsLayer, avoiding composition during animation
 @Composable
 private fun GameMainScreenWrapper(
     state: GameUIState,
     component: GameComponent,
-    shakeOffset: Float,
+    shakeOffset: Animatable<Float, AnimationVector1D>,
     showSteam: Boolean,
     modifier: Modifier = Modifier,
 ) {
@@ -141,7 +144,7 @@ private fun GameMainScreenWrapper(
             modifier =
                 modifier
                     .fillMaxSize()
-                    .graphicsLayer { translationX = shakeOffset },
+                    .graphicsLayer { translationX = shakeOffset.value },
         ) {
             val isLandscape = maxWidth > maxHeight
             val isCompactHeight = maxHeight < LayoutConstants.COMPACT_HEIGHT_THRESHOLD_DP.dp
