@@ -57,10 +57,11 @@ object MatchEvaluator {
     fun resetErrorCards(state: MemoryGameState): MemoryGameState {
         val newCards =
             state.cards.mutate { list ->
-                for (index in list.indices) {
-                    val card = list[index]
+                val iterator = list.listIterator()
+                while (iterator.hasNext()) {
+                    val card = iterator.next()
                     if (card.isError) {
-                        list[index] = card.copy(isFaceUp = false, isError = false, wasSeen = true)
+                        iterator.set(card.copy(isFaceUp = false, isError = false, wasSeen = true))
                     }
                 }
             }
@@ -72,17 +73,18 @@ object MatchEvaluator {
      * Resets all unmatched cards back to face-down.
      */
     fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState {
-        var currentCards = state.cards
-        var changed = false
-
-        currentCards.forEachIndexed { index, card ->
-            if (!card.isMatched && card.isFaceUp) {
-                currentCards = currentCards.set(index, card.copy(isFaceUp = false, isError = false, wasSeen = true))
-                changed = true
+        val newCards =
+            state.cards.mutate { list ->
+                val iterator = list.listIterator()
+                while (iterator.hasNext()) {
+                    val card = iterator.next()
+                    if (!card.isMatched && card.isFaceUp) {
+                        iterator.set(card.copy(isFaceUp = false, isError = false, wasSeen = true))
+                    }
+                }
             }
-        }
 
-        return if (changed) state.copy(cards = currentCards) else state
+        return if (newCards !== state.cards) state.copy(cards = newCards) else state
     }
 
     /**
@@ -206,42 +208,63 @@ object MatchEvaluator {
 
         return when {
             state.isHeatShieldAvailable && state.comboMultiplier > 0 -> {
-                state.copy(
-                    isHeatShieldAvailable = false,
-                    moves = state.moves + 1,
-                    cards = errorCards,
-                    lastMatchedIds = persistentListOf(),
-                ) to GameDomainEvent.HeatShieldUsed
+                createHeatShieldUsedState(state, errorCards) to GameDomainEvent.HeatShieldUsed
             }
 
             state.isDoubleDownActive -> {
-                state.copy(
-                    score = 0,
-                    isGameOver = true,
-                    isGameWon = false,
-                    isDoubleDownActive = false,
-                    isBusted = true,
-                    cards = errorCards,
-                    lastMatchedIds = persistentListOf(first.id, second.id),
-                ) to GameDomainEvent.GameOver
+                createBustedState(state, errorCards, first.id, second.id) to GameDomainEvent.GameOver
             }
 
             else -> {
-                val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
-                val newPot = (state.currentPot - penalty).coerceAtLeast(0)
-
-                state.copy(
-                    moves = state.moves + 1,
-                    comboMultiplier = 0,
-                    score = state.score.coerceAtLeast(0),
-                    currentPot = newPot,
-                    isGameOver = false,
-                    isDoubleDownActive = false,
-                    cards = errorCards,
-                    lastMatchedIds = persistentListOf(),
-                ) to GameDomainEvent.MatchFailure
+                createStandardFailureState(state, errorCards) to GameDomainEvent.MatchFailure
             }
         }
+    }
+
+    private fun createHeatShieldUsedState(
+        state: MemoryGameState,
+        errorCards: PersistentList<CardState>,
+    ): MemoryGameState =
+        state.copy(
+            isHeatShieldAvailable = false,
+            moves = state.moves + 1,
+            cards = errorCards,
+            lastMatchedIds = persistentListOf(),
+        )
+
+    private fun createBustedState(
+        state: MemoryGameState,
+        errorCards: PersistentList<CardState>,
+        firstId: Int,
+        secondId: Int,
+    ): MemoryGameState =
+        state.copy(
+            score = 0,
+            isGameOver = true,
+            isGameWon = false,
+            isDoubleDownActive = false,
+            isBusted = true,
+            cards = errorCards,
+            lastMatchedIds = persistentListOf(firstId, secondId),
+        )
+
+    private fun createStandardFailureState(
+        state: MemoryGameState,
+        errorCards: PersistentList<CardState>,
+    ): MemoryGameState {
+        val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
+        val newPot = (state.currentPot - penalty).coerceAtLeast(0)
+
+        return state.copy(
+            moves = state.moves + 1,
+            comboMultiplier = 0,
+            score = state.score.coerceAtLeast(0),
+            currentPot = newPot,
+            isGameOver = false,
+            isDoubleDownActive = false,
+            cards = errorCards,
+            lastMatchedIds = persistentListOf(),
+        )
     }
 }
 
@@ -254,14 +277,7 @@ private inline fun PersistentList<CardState>.updateByIds(
         val iterator = list.listIterator()
         while (iterator.hasNext()) {
             val item = iterator.next()
-            var found = false
-            for (id in ids) {
-                if (id == item.id) {
-                    found = true
-                    break
-                }
-            }
-            if (found) {
+            if (item.id in ids) {
                 iterator.set(transform(item))
             }
         }
