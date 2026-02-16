@@ -87,7 +87,7 @@ internal const val FULL_ROTATION = 180f
 
 internal const val VERY_LOW_ALPHA = 0.15f
 internal const val LOW_ALPHA = 0.2f
-internal const val SUBTLE_ALPHA = 0.3f
+internal const val SUBTLE_ALPHA = 0.6f
 internal const val MEDIUM_ALPHA = 0.4f
 internal const val HALF_ALPHA = 0.5f
 internal const val MODERATE_ALPHA = 0.6f
@@ -262,7 +262,7 @@ private fun CardContentSelectors(
 }
 
 private const val MATCHED_SCALE = 0.4f
-private const val PULSE_SCALE = 1.05f
+private const val PULSE_SCALE = 1.15f
 private const val PRESSED_SCALE = 0.95f
 private const val DEFAULT_SCALE = 1f
 private const val MUCK_DURATION_MS = 600

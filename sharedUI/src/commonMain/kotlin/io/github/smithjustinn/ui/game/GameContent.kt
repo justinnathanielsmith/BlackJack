@@ -41,6 +41,7 @@ import io.github.smithjustinn.theme.HeatAppColors
 import io.github.smithjustinn.theme.LocalAppColors
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AdaptiveDensity
+import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.game.components.effects.ParticleEmbers
 import io.github.smithjustinn.ui.game.components.effects.SteamEffect
 import io.github.smithjustinn.ui.game.components.grid.GameGrid
@@ -400,36 +401,21 @@ private fun BoxScope.GameHUD(
 
 @Composable
 private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
-    val hapticsService = LocalAppGraph.current.hapticsService
     val audioService = LocalAppGraph.current.audioService
 
-    Button(
+    PokerButton(
+        text = stringResource(Res.string.game_double_or_nothing),
         onClick = {
-            hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
             audioService.playEffect(AudioService.SoundEffect.CLICK)
             onDoubleDown()
         },
-        colors =
-            ButtonDefaults.buttonColors(
-                containerColor = PokerTheme.colors.tacticalRed,
-                contentColor = PokerTheme.colors.goldenYellow,
-            ),
+        containerColor = PokerTheme.colors.tacticalRed,
+        contentColor = PokerTheme.colors.goldenYellow,
         modifier =
             Modifier
                 .align(Alignment.BottomEnd)
                 .padding(bottom = LayoutConstants.DOUBLE_DOWN_BOTTOM_PADDING_DP.dp, end = 16.dp),
-        elevation =
-            ButtonDefaults.buttonElevation(
-                defaultElevation = 6.dp,
-                pressedElevation = 2.dp,
-            ),
-    ) {
-        Text(
-            text = stringResource(Res.string.game_double_or_nothing),
-            style = PokerTheme.typography.labelMedium,
-            fontWeight = FontWeight.Bold,
-        )
-    }
+    )
 }
 
 @Composable
