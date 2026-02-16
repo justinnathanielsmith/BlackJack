@@ -17,6 +17,7 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.ad_unit_id
+import io.github.smithjustinn.utils.Constants
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
@@ -71,14 +72,26 @@ class DefaultGameComponent(
         }
         scope.launch {
             val settings = appGraph.settingsRepository
+            val unlockedIds = appGraph.playerEconomyRepository.unlockedItemIds
+
+            val validThirdEye =
+                combine(settings.isThirdEyeEnabled, unlockedIds) { enabled, ids ->
+                    enabled && ids.contains(Constants.FEATURE_THIRD_EYE)
+                }
+
+            val validHeatShield =
+                combine(settings.isHeatShieldEnabled, unlockedIds) { enabled, ids ->
+                    enabled && ids.contains(Constants.FEATURE_HEAT_SHIELD)
+                }
+
             val settingsFlow =
                 combine(
                     settings.isPeekEnabled,
                     settings.isWalkthroughCompleted,
                     settings.isMusicEnabled,
                     settings.isSoundEnabled,
-                    settings.isThirdEyeEnabled,
-                    settings.isHeatShieldEnabled,
+                    validThirdEye,
+                    validHeatShield,
                 ) { values: Array<Boolean> ->
                     GameSettingsState(
                         peek = values[0],
