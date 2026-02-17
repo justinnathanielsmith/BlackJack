@@ -65,7 +65,6 @@ class GameComponentTest : BaseComponentTest() {
 
             testDispatcher.scheduler.runCurrent()
             val state = component.state.value
-            println("DEBUG: isPeeking=${state.isPeeking}, isPeekFeatureEnabled=${state.isPeekFeatureEnabled}")
             assertFalse(state.isPeeking, "Should not be peeking during initialization test. State: $state")
         }
 
