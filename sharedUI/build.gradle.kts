@@ -1,6 +1,5 @@
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import org.jetbrains.kotlin.gradle.plugin.mpp.KotlinNativeTarget
-import java.util.Locale
 
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
@@ -19,8 +18,14 @@ kotlin {
 
     android {
         namespace = "io.github.smithjustinn"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
         androidResources.enable = true
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
     }
@@ -68,7 +73,7 @@ kotlin {
             // JavaFX Media for .m4a support on Desktop
             val jfxVersion = libs.versions.javafx.get()
             val classifier = getJavafxClassifier()
-            
+
             val jfxModules = listOf("media", "graphics", "base", "controls", "swing")
             jfxModules.forEach { module ->
                 implementation("org.openjfx:javafx-$module:$jfxVersion")
@@ -97,7 +102,7 @@ kotlin {
 fun getJavafxClassifier(): String {
     val osName = System.getProperty("os.name").lowercase()
     val osArch = System.getProperty("os.arch").lowercase()
-    
+
     return when {
         osName.contains("mac") -> if (osArch.contains("aarch64") || osArch.contains("arm64")) "mac-aarch64" else "mac"
         osName.contains("win") -> "win"
