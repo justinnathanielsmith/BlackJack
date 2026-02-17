@@ -5,6 +5,8 @@
 
     <application
         android:name=".MemoryMatchApp"
+        android:allowBackup="false"
+        android:fullBackupContent="false"
         android:icon="@mipmap/ic_launcher"
         android:label="Memory Match"
         android:theme="@style/Theme.App.Starting">
