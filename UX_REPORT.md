@@ -1,57 +1,83 @@
-# UX & Design Report
+# UX & Design Report: Memory Match
 
-## The Quick Win
-**Action Taken:** Added a "Press" state animation to `PlayingCard`.
-**Impact:** Cards now scale down slightly (to 0.95x) when touched, providing immediate tactile feedback before the flip animation begins. This reduces the perception of latency and makes the game feel more responsive and "physical".
+## 1. The Quick Win (Implemented)
+**Action:** Added immediate Haptic Feedback to Card Flips.
+**Impact:** Players now receive zero-latency tactile confirmation when tapping a card, even before the flip animation or game logic processes. This significantly improves the "tightness" of the game feel, especially on mobile devices.
+**Location:** `sharedUI/.../ui/game/GameContent.kt` in `GameMainContent`.
 
-## The UX Friction Report
+## 2. Platform Nuance
+The current implementation leans heavily on Material 3 (`Scaffold`, `Card`, `Button`). While this ensures a modern look on Android:
 
-### Platform Nuance
-*   **Material 3 on iOS:** The game heavily relies on Material 3 components (`Scaffold`, `Card`, `Button`). While functional, these can feel "foreign" on iOS.
-    *   **Recommendation:** Consider using a custom design system or `compose-cupertino` for iOS targets to match platform expectations (e.g., swipe-back gestures, native-style toggles).
-    *   **Shadows:** The default Material elevation shadows are quite heavy. On iOS, shadows are typically more diffuse and subtle.
-    *   **Ripples:** The ripple effect is distinctly Android. On iOS, touch interactions often use opacity changes or scale (which we've now added!) rather than ripples.
+*   **iOS:** The Material aesthetic (elevation shadows, specific ripple effects) can feel "foreign".
+    *   *Recommendation:* Consider using a custom `PokerCard` composable that draws its own shadow/border instead of relying on `CardDefaults.elevation` which renders differently on Skia/iOS.
+    *   *Recommendation:* Ensure the "Swipe Back" gesture is supported if using a navigation library, as standard `BackHandler` only captures the hardware/software back button event.
+*   **Desktop:**
+    *   *Observation:* `PlayingCard.kt` correctly uses `interactionSource.collectIsHoveredAsState()` to provide mouse-over feedback (scale/elevation). This is excellent.
+    *   *Recommendation:* Ensure keyboard navigation (Tab/Arrow keys) works for grid traversal. `LazyVerticalGrid` supports this natively, but focus indicators might need to be styled explicitly if the default system focus ring clashes with the poker theme.
 
-### Game Feel & Juice
-*   **Audio/Haptic Latency:** Currently, audio and haptics are triggered by `GameEventHandler` observing the state machine loop. This introduces a round-trip delay (UI Click -> Intent -> State Update -> Event -> Audio).
-    *   **Friction:** This slight delay disconnects the action (touch) from the feedback (sound).
-    *   **Fix:** Trigger "click" sounds and "light" haptics *immediately* in the `onClick` lambda within `GameContent.kt`, reserving the Event loop for game-logic sounds (like "Match" or "Win").
-*   **Shake Animation:** The current error shake is a simple X-axis translation.
-    *   **Juice Idea:** Add a slight Z-rotation (wobble) combined with the translation to make the error feel more organic and "cartoony".
+## 3. Game Feel & Juice
+The game already features a strong set of "juicy" interactions:
+*   **Animations:** Spring-based flips, pulses on hover, shakes on error, and the "Muck" (fly away) animation are high quality.
+*   **Particles:** `ExplosionEffect` and `ScoreFlyingEffect` add great reward feedback.
+*   **Haptics:** Now present on Top Bar actions (Back, Restart, Mute) and Card interactions.
 
-### Accessibility
-*   **Screen Readers:** `PlayingCard` uses `contentDescription` correctly for face-up cards.
-    *   **Improvement:** For face-down cards, adding "Double tap to reveal" or indicating the grid position (e.g., "Card 1 of 16") would help users build a mental map of the grid.
-*   **Focus Order:** Ensure the `LazyVerticalGrid` traversal order is logical (Row-major).
+**Suggestion:**
+*   **Audio:** Ensure the "Flip" sound plays immediately alongside the haptic feedback. Currently, it might be tied to the state update loop. Moving the sound trigger to the `onClick` lambda (alongside haptics) would guarantee sync.
 
-## The Polished Code Suggestion
+## 4. UX Friction Points
+*   **Error Feedback:** When a mismatch occurs, the cards "Shake".
+    *   *Friction:* If the user looks away or blinks, they might miss the shake.
+    *   *Suggestion:* Briefly tint the card background `TacticalRed` (with low alpha) during the error state to provide a persistent visual cue until the cards flip back.
+*   **Touch Targets:** The grid adapts to screen size, but on very small screens or dense grids (High difficulty), card touch targets might shrink.
+    *   *Suggestion:* Ensure a minimum touch target size (48dp) even if the visual card is smaller, by expanding the hit test area in the `GridItem` layout.
 
-### 1. Zero-Latency Feedback
-Refactor `GameContent.kt` to trigger immediate feedback.
+## 5. Polished Code Suggestion: Standardized Bounce Click
+To standardize the "press" feel across the app (beyond just Cards), consider this reusable Modifier. It unifies the scale animation and haptic feedback.
 
 ```kotlin
-// In GameContent.kt
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.composed
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalHapticFeedback
+import androidx.compose.ui.hapticfeedback.HapticFeedbackType
 
-val onCardClick = remember(component) {
-    { cardId: Int ->
-        // 1. Immediate Feedback
-        hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
-        audioService.playEffect(AudioService.SoundEffect.FLIP) // Or a generic click
+fun Modifier.bounceClick(
+    scaleDown: Float = 0.95f,
+    onClick: () -> Unit
+) = composed {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val scale by animateFloatAsState(if (isPressed) scaleDown else 1f, label = "bounce")
+    val haptics = LocalHapticFeedback.current
 
-        // 2. Game Logic
-        component.onFlipCard(cardId)
-    }
+    this
+        .graphicsLayer {
+            scaleX = scale
+            scaleY = scale
+        }
+        .clickable(
+            interactionSource = interactionSource,
+            indication = null, // Disable default ripple if desired, or keep it
+            onClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LongPress) // Or Light
+                onClick()
+            }
+        )
 }
 ```
-
-### 2. IOS-Style Touch Interaction (Implemented)
-We added this to `PlayingCard.kt`:
-
+Usage:
 ```kotlin
-val isPressed by interactionSource.collectIsPressedAsState()
-
-val scale by animateFloatAsState(
-    targetValue = if (isPressed) 0.95f else 1f,
-    animationSpec = spring(stiffness = Spring.StiffnessMedium)
-)
+Box(
+    modifier = Modifier
+        .size(100.dp)
+        .bounceClick { /* action */ }
+) {
+    // Content
+}
 ```

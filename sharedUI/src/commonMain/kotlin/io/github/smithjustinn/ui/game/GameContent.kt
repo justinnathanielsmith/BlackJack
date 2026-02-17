@@ -315,7 +315,14 @@ private fun GameMainContent(
     scorePosition: Offset,
     modifier: Modifier = Modifier,
 ) {
-    val onCardClick = remember(component) { { cardId: Int -> component.onFlipCard(cardId) } }
+    val hapticsService = LocalAppGraph.current.hapticsService
+    val onCardClick =
+        remember(component, hapticsService) {
+            { cardId: Int ->
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                component.onFlipCard(cardId)
+            }
+        }
     val onDoubleDown = remember(component) { { component.onDoubleDown() } }
 
     val gridCardState = rememberGridCardState(state)
