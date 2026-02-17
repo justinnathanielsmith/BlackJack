@@ -36,7 +36,9 @@ import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.role
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
@@ -336,12 +338,20 @@ private fun MedallionIcon(
                 MEDALLION_BORDER_WIDTH_DP.dp,
                 colors.goldenYellow.copy(alpha = MEDALLION_BORDER_ALPHA),
             ),
-        modifier = modifier.size(MEDALLION_SIZE_DP.dp),
+        modifier =
+            modifier
+                .size(MEDALLION_SIZE_DP.dp)
+                .semantics(mergeDescendants = true) {
+                    if (contentDescription != null) {
+                        this.contentDescription = contentDescription
+                    }
+                    role = Role.Button
+                },
     ) {
         Box(contentAlignment = Alignment.Center) {
             Icon(
                 imageVector = icon,
-                contentDescription = contentDescription,
+                contentDescription = null,
                 tint = if (applyGlimmer) Color.White else tint,
                 modifier =
                     Modifier
@@ -384,7 +394,7 @@ private fun WalletBadge(
         modifier =
             modifier
                 .height(MEDALLION_SIZE_DP.dp)
-                .semantics {
+                .semantics(mergeDescendants = true) {
                     contentDescription = "$walletLabel: $formattedAmount"
                 },
     ) {
