@@ -21,4 +21,9 @@ data class ShopItem(
     val isConsumable: Boolean = false,
     val hexColor: String? = null,
     val isVisible: Boolean = true,
-)
+) {
+    init {
+        require(price >= 0) { "Price cannot be negative" }
+        require(name.isNotBlank()) { "Name cannot be blank" }
+    }
+}
