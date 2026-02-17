@@ -2,6 +2,7 @@ package io.github.smithjustinn.domain
 
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.domain.models.MatchScoreResult
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoreBreakdown
 import io.github.smithjustinn.domain.models.ScoringConfig
@@ -15,11 +16,6 @@ object ScoringCalculator {
     private const val CURRENCY_DIVISOR = 100
     private const val DOUBLE_DOWN_MULTIPLIER = 2
 
-    data class MatchScoreResult(
-        val finalScore: Int,
-        val ddBonus: Int,
-    )
-
     /**
      * Calculates the score for a single match, accounting for combos and Double Down.
      */
@@ -31,21 +27,20 @@ object ScoringCalculator {
         isWon: Boolean,
     ): MatchScoreResult {
         val matchPoints = matchBasePoints + matchComboBonus
-
-        if (isWon && isDoubleDownActive) {
-            val totalBeforeMultiplier = currentScore + matchPoints
-            return MatchScoreResult(
-                finalScore = totalBeforeMultiplier * DOUBLE_DOWN_MULTIPLIER,
-                ddBonus = totalBeforeMultiplier,
-            )
-        }
-
         val multiplier = if (isDoubleDownActive) DOUBLE_DOWN_MULTIPLIER else 1
-        val matchTotal = matchPoints * multiplier
+
+        val (finalScore, ddBonus) =
+            if (isWon && isDoubleDownActive) {
+                val totalBeforeMultiplier = currentScore + matchPoints
+                totalBeforeMultiplier * multiplier to totalBeforeMultiplier
+            } else {
+                val matchTotal = matchPoints * multiplier
+                currentScore + matchTotal to if (isDoubleDownActive) matchPoints else 0
+            }
 
         return MatchScoreResult(
-            finalScore = currentScore + matchTotal,
-            ddBonus = if (isDoubleDownActive) matchPoints else 0,
+            finalScore = finalScore,
+            ddBonus = ddBonus,
         )
     }
 
@@ -94,7 +89,7 @@ object ScoringCalculator {
         if (state.mode == GameMode.TIME_ATTACK) {
             (elapsedTimeSeconds * TIME_ATTACK_BONUS_MULTIPLIER).toInt()
         } else {
-            (state.pairCount * config.timeBonusPerPair - (elapsedTimeSeconds * config.timePenaltyPerSecond))
+            (state.pairCount * config.timeBonusPerPair - elapsedTimeSeconds * config.timePenaltyPerSecond)
                 .coerceAtLeast(0)
                 .toInt()
         }
@@ -104,9 +99,9 @@ object ScoringCalculator {
         totalScore: Int,
     ): Int =
         if (state.mode == GameMode.DAILY_CHALLENGE) {
-            (totalScore / CURRENCY_DIVISOR) + DAILY_CHALLENGE_CURRENCY_BONUS
+            totalScore / CURRENCY_DIVISOR + DAILY_CHALLENGE_CURRENCY_BONUS
         } else {
-            ((totalScore / CURRENCY_DIVISOR) * state.difficulty.payoutMultiplier).toInt()
+            (totalScore / CURRENCY_DIVISOR * state.difficulty.payoutMultiplier).toInt()
         }
 
     /**

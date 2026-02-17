@@ -47,6 +47,10 @@ style:
     ignoreAnnotated: ['androidx.compose.runtime.Composable']
   UnnecessaryParentheses:
     active: true
+  ReturnCount:
+    active: true
+    max: 2
+    excludeGuardClauses: true
   # UnusedPrivateMember: Removed/Split in Detekt 2.0 - relying on compiler warnings or specific rule updates
 
 performance:
