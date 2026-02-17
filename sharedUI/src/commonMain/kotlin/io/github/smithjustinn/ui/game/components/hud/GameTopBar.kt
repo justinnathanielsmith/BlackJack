@@ -86,7 +86,9 @@ fun GameTopBar(
                 ),
         ) {
             TopBarMainRow(
-                state = state,
+                compact = state.compact,
+                score = state.bankedScore,
+                isAudioEnabled = state.isAudioEnabled,
                 onBackClick = onBackClick,
                 onRestartClick = onRestartClick,
                 onMuteClick = onMuteClick,
@@ -105,9 +107,12 @@ fun GameTopBar(
     }
 }
 
+// Bolt: Flatten parameters to skip recomposition when GameTopBarState.time updates every second
 @Composable
 private fun TopBarMainRow(
-    state: GameTopBarState,
+    compact: Boolean,
+    score: Int,
+    isAudioEnabled: Boolean,
     onBackClick: () -> Unit,
     onRestartClick: () -> Unit,
     onMuteClick: () -> Unit,
@@ -119,14 +124,14 @@ private fun TopBarMainRow(
         // Left: Back Button
         BackButton(
             onClick = onBackClick,
-            compact = state.compact,
+            compact = compact,
             modifier = Modifier.align(Alignment.CenterStart),
         )
 
         // Center: Score
         ScoringDisplay(
-            score = state.bankedScore,
-            compact = state.compact,
+            score = score,
+            compact = compact,
             modifier =
                 remember(onScorePositioned) {
                     // Bolt: Prevent recreating Modifier.onGloballyPositioned on every recomposition
@@ -140,10 +145,10 @@ private fun TopBarMainRow(
 
         // Right: Controls
         ControlButtons(
-            isAudioEnabled = state.isAudioEnabled,
+            isAudioEnabled = isAudioEnabled,
             onMuteClick = onMuteClick,
             onRestartClick = onRestartClick,
-            compact = state.compact,
+            compact = compact,
             showRestart = true,
             modifier = Modifier.align(Alignment.CenterEnd),
         )
