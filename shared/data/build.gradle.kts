@@ -11,8 +11,14 @@ plugins {
 kotlin {
     androidLibrary {
         namespace = "io.github.smithjustinn.data"
-        compileSdk = libs.versions.android.compileSdk.get().toInt()
-        minSdk = libs.versions.android.minSdk.get().toInt()
+        compileSdk =
+            libs.versions.android.compileSdk
+                .get()
+                .toInt()
+        minSdk =
+            libs.versions.android.minSdk
+                .get()
+                .toInt()
     }
     jvm()
     iosX64()

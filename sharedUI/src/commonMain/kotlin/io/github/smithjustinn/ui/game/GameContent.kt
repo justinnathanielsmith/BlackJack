@@ -10,11 +10,8 @@ import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
@@ -28,7 +25,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
@@ -319,7 +315,14 @@ private fun GameMainContent(
     scorePosition: Offset,
     modifier: Modifier = Modifier,
 ) {
-    val onCardClick = remember(component) { { cardId: Int -> component.onFlipCard(cardId) } }
+    val hapticsService = LocalAppGraph.current.hapticsService
+    val onCardClick =
+        remember(component, hapticsService) {
+            { cardId: Int ->
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                component.onFlipCard(cardId)
+            }
+        }
     val onDoubleDown = remember(component) { { component.onDoubleDown() } }
 
     val gridCardState = rememberGridCardState(state)
