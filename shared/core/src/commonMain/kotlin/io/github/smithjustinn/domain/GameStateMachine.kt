@@ -4,6 +4,8 @@ import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.services.MatchEvaluator
+import io.github.smithjustinn.domain.services.MutatorEngine
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -176,7 +178,7 @@ class GameStateMachine(
             +GameEffect.TimerUpdate(internalTimeSeconds + bonus)
             +GameEffect.TimeGain(bonus)
         }
-        transition { MemoryGameActions.applyMutators(it) }
+        transition { MutatorEngine.applyMutators(it) }
     }
 
     private fun StateMachineBuilder.handleMismatchEvent(flippedState: MemoryGameState) {
@@ -194,7 +196,7 @@ class GameStateMachine(
             delay(delayMs)
             dispatch(GameAction.ProcessMismatch)
         }
-        transition { MemoryGameActions.applyMutators(it) }
+        transition { MutatorEngine.applyMutators(it) }
     }
 
     private fun StateMachineBuilder.handleHeatShieldUsed(flippedState: MemoryGameState) {
@@ -208,7 +210,7 @@ class GameStateMachine(
     private fun handleDoubleDown() {
         val result =
             gameStateMachine(_state.value, internalTimeSeconds) {
-                val newState = MemoryGameActions.activateDoubleDown(_state.value)
+                val newState = MatchEvaluator.activateDoubleDown(_state.value)
                 if (newState != _state.value) {
                     transition { newState }
                     +GameEffect.VibrateHeat
@@ -238,7 +240,7 @@ class GameStateMachine(
                     }
                 }
 
-                transition { MemoryGameActions.resetUnmatchedCards(currentState) }
+                transition { MatchEvaluator.resetUnmatchedCards(currentState) }
             }
         applyResult(result)
     }

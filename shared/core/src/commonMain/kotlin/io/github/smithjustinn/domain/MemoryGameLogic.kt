@@ -69,6 +69,7 @@ object MemoryGameLogic {
  *
  * @deprecated Use [MatchEvaluator] and [MutatorEngine] directly
  */
+@Deprecated("Use [MatchEvaluator] and [MutatorEngine] directly")
 object MemoryGameActions {
     fun resetErrorCards(state: MemoryGameState): MemoryGameState = MatchEvaluator.resetErrorCards(state)
 
