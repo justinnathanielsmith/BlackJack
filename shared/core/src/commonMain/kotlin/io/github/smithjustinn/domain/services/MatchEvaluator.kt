@@ -26,7 +26,8 @@ object MatchEvaluator {
         state: MemoryGameState,
         cardId: Int,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        val index = state.cards.indexOfFirst { it.id == cardId }
+        val cardAtIndex = state.cards.getOrNull(cardId)
+        val index = if (cardAtIndex?.id == cardId) cardId else state.cards.indexOfFirst { it.id == cardId }
         val cardToFlip = state.cards.getOrNull(index)
 
         if (!canFlip(state, cardToFlip)) {
