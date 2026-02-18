@@ -41,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
@@ -66,7 +67,6 @@ import io.github.smithjustinn.resources.suit_clubs
 import io.github.smithjustinn.resources.suit_diamonds
 import io.github.smithjustinn.resources.suit_hearts
 import io.github.smithjustinn.resources.suit_spades
-import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
@@ -170,12 +170,13 @@ fun PlayingCard(
     onClick: () -> Unit = {},
 ) {
     val haptics = LocalAppGraph.current.hapticsService
-    val wrappedOnClick = remember(onClick, haptics) {
-        {
-            haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
-            onClick()
+    val wrappedOnClick =
+        remember(onClick, haptics) {
+            {
+                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+                onClick()
+            }
         }
-    }
 
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
@@ -293,7 +294,7 @@ private data class AnimationTargetState(
     val isMatched: Boolean,
     val isRecentlyMatched: Boolean,
     val isPressed: Boolean,
-    val isHovered: Boolean
+    val isHovered: Boolean,
 )
 
 @Composable
@@ -305,52 +306,55 @@ private fun rememberCardAnimations(
     muckTargetRotation: Float,
     isMuckingEnabled: Boolean,
 ): CardAnimations {
-    val targetState = remember(content.visualState, isHovered, isPressed) {
-        AnimationTargetState(
-            isFaceUp = content.visualState.isFaceUp,
-            isMatched = content.visualState.isMatched,
-            isRecentlyMatched = content.visualState.isRecentlyMatched,
-            isPressed = isPressed,
-            isHovered = isHovered
-        )
-    }
+    val targetState =
+        remember(content.visualState, isHovered, isPressed) {
+            AnimationTargetState(
+                isFaceUp = content.visualState.isFaceUp,
+                isMatched = content.visualState.isMatched,
+                isRecentlyMatched = content.visualState.isRecentlyMatched,
+                isPressed = isPressed,
+                isHovered = isHovered,
+            )
+        }
 
     val transition = updateTransition(targetState, label = "cardTransition")
 
-    val rotation = transition.animateFloat(
-        transitionSpec = {
-            spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessLow,
-            )
-        },
-        label = "rotation"
-    ) { state ->
-        if (state.isFaceUp) 0f else FULL_ROTATION
-    }
-
-    val scale = transition.animateFloat(
-        transitionSpec = {
-            if (initialState.isFaceUp != targetState.isFaceUp) {
-                keyframes {
-                    durationMillis = FLIP_DURATION_MS
-                    1.0f at 0
-                    FLIP_POP_SCALE at (FLIP_DURATION_MS / 2)
-                    1.0f at FLIP_DURATION_MS
-                }
-            } else {
-                spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
-            }
-        },
-        label = "scale"
-    ) { state ->
-        when {
-            state.isMatched -> MATCHED_SCALE
-            state.isPressed && !state.isFaceUp -> PRESSED_SCALE
-            state.isRecentlyMatched || (state.isHovered && !state.isFaceUp) -> PULSE_SCALE
-            else -> DEFAULT_SCALE
+    val rotation =
+        transition.animateFloat(
+            transitionSpec = {
+                spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow,
+                )
+            },
+            label = "rotation",
+        ) { state ->
+            if (state.isFaceUp) 0f else FULL_ROTATION
         }
-    }
+
+    val scale =
+        transition.animateFloat(
+            transitionSpec = {
+                if (initialState.isFaceUp != targetState.isFaceUp) {
+                    keyframes {
+                        durationMillis = FLIP_DURATION_MS
+                        1.0f at 0
+                        FLIP_POP_SCALE at FLIP_DURATION_MS / 2
+                        1.0f at FLIP_DURATION_MS
+                    }
+                } else {
+                    spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+                }
+            },
+            label = "scale",
+        ) { state ->
+            when {
+                state.isMatched -> MATCHED_SCALE
+                state.isPressed && !state.isFaceUp -> PRESSED_SCALE
+                state.isRecentlyMatched || state.isHovered && !state.isFaceUp -> PULSE_SCALE
+                else -> DEFAULT_SCALE
+            }
+        }
 
     val shakeOffset = rememberShakeAnimation(content.visualState.isError)
     val matchedGlowAlpha = rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)

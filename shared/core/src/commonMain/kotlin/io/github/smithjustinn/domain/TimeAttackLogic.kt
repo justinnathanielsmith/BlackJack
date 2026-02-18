@@ -12,7 +12,7 @@ object TimeAttackLogic {
     fun calculateInitialTime(
         pairCount: Int,
         config: ScoringConfig,
-    ): Long = config.timeAttackInitialTimeMap[pairCount] ?: (pairCount * TIME_PER_PAIR_FALLBACK)
+    ): Long = config.timeAttackInitialTimeMap[pairCount] ?: pairCount * TIME_PER_PAIR_FALLBACK
 
     /**
      * Logic for calculating time gain based on combo and config.

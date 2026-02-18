@@ -100,7 +100,7 @@ fun GameBackground(
                 baseColor = NeonCyan,
                 accentColor = NeonMagenta,
                 highlightColor = NeonYellow,
-                height = (250 + (comboMultiplier * 10)).coerceAtMost(500).dp,
+                height = (250 + comboMultiplier * 10).coerceAtMost(500).dp,
                 modifier = Modifier.align(Alignment.BottomCenter),
             )
         }

@@ -102,7 +102,7 @@ private class CelebrationCard(
         // Appearance animation (Pop in)
         scale =
             if (activeTime < POP_IN_DURATION) {
-                (activeTime / POP_IN_DURATION) * physics.targetScale
+                activeTime / POP_IN_DURATION * physics.targetScale
             } else {
                 physics.targetScale
             }
@@ -151,7 +151,7 @@ fun CardFountainOverlay(
                             card = card,
                             physics =
                                 CelebrationPhysics(
-                                    initialX = (widthPx / 2f) - cardWidthPx / 2f,
+                                    initialX = widthPx / 2f - cardWidthPx / 2f,
                                     initialY = heightPx,
                                     vx0 = cos(radians) * speed,
                                     vy0 = sin(radians) * speed,

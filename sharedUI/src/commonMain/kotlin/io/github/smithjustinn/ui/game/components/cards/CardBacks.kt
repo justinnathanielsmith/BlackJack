@@ -136,7 +136,7 @@ internal fun CardBack(
                     drawContent()
 
                     val currentRotation = rotation.value
-                    val rimLightAlpha = (1f - (abs(currentRotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
+                    val rimLightAlpha = (1f - abs(currentRotation - HALF_ROTATION) / HALF_ROTATION).coerceIn(0f, 1f)
 
                     if (rimLightAlpha > 0f) {
                         drawRect(
@@ -266,7 +266,7 @@ internal fun PatternCardBack(baseColor: Color) {
                 val xPos = x * step
                 path.quadraticTo(
                     xPos + step / 2,
-                    yPos + (if (x % HALF_DIVISOR == 0) step / HALF_DIVISOR else -step / HALF_DIVISOR),
+                    yPos + if (x % HALF_DIVISOR == 0) step / HALF_DIVISOR else -step / HALF_DIVISOR,
                     xPos + step,
                     yPos,
                 )

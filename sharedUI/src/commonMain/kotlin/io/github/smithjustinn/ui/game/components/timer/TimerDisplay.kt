@@ -226,7 +226,7 @@ private fun StandardTimerDisplay(
                 text = formatTime(state.time),
                 style =
                     MaterialTheme.typography.titleLarge.copy(
-                        fontSize = (if (visuals.layout == TimerLayout.COMPACT) 16.sp else 20.sp),
+                        fontSize = if (visuals.layout == TimerLayout.COMPACT) 16.sp else 20.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 0.5.sp,
                     ),

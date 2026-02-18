@@ -111,7 +111,7 @@ class DoubleDownLogicTest {
 
         // Calculate Expected
         val comboFactor = 3 * 3 // 9
-        val matchPoints = basePoints + (comboFactor * comboBonus) // 100 + 450 = 550
+        val matchPoints = basePoints + comboFactor * comboBonus // 100 + 450 = 550
         val preDoubleScore = startScore + matchPoints // 1550
         val expectedScore = preDoubleScore * 2 // 3100
 

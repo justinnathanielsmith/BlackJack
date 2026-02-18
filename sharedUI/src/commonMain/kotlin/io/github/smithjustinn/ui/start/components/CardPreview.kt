@@ -191,7 +191,7 @@ private fun CardStack(
     ) {
         PreviewCard(
             Suit.Hearts,
-            (-BASE_ROTATION * fanMultiplier) + rotation,
+            -BASE_ROTATION * fanMultiplier + rotation,
             CARD_FRONT_Z_INDEX,
             backTheme,
             symbolTheme,
@@ -199,7 +199,7 @@ private fun CardStack(
         )
         PreviewCard(
             Suit.Spades,
-            (BASE_ROTATION * fanMultiplier) - rotation,
+            BASE_ROTATION * fanMultiplier - rotation,
             CARD_BACK_Z_INDEX,
             backTheme,
             symbolTheme,
