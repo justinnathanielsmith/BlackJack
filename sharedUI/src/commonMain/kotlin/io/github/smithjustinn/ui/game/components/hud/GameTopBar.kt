@@ -265,10 +265,11 @@ private fun BackButton(
     compact: Boolean = false,
 ) {
     val size = if (compact) 40.dp else 48.dp
+    val contentDesc = stringResource(Res.string.back_content_description)
 
     IconButton(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics { contentDescription = contentDesc },
     ) {
         Surface(
             shape = CircleShape,
@@ -295,7 +296,7 @@ private fun BackButton(
 
                 Icon(
                     AppIcons.ArrowBack,
-                    contentDescription = stringResource(Res.string.back_content_description),
+                    contentDescription = null,
                     tint = PokerTheme.colors.goldenYellow,
                     modifier = Modifier.size(if (compact) 20.dp else 24.dp),
                 )
@@ -310,9 +311,10 @@ private fun RestartButton(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
+    val contentDesc = stringResource(Res.string.restart_content_description)
     IconButton(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics { contentDescription = contentDesc },
     ) {
         Surface(
             shape = PokerTheme.shapes.medium,
@@ -323,7 +325,7 @@ private fun RestartButton(
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     AppIcons.Restart,
-                    contentDescription = stringResource(Res.string.restart_content_description),
+                    contentDescription = null,
                     tint = PokerTheme.colors.goldenYellow,
                     modifier = Modifier.size(if (compact) 20.dp else 24.dp),
                 )
@@ -339,9 +341,18 @@ private fun MuteButton(
     modifier: Modifier = Modifier,
     compact: Boolean = false,
 ) {
+    val contentDesc =
+        stringResource(
+            if (isAudioEnabled) {
+                Res.string.mute_content_description
+            } else {
+                Res.string.unmute_content_description
+            },
+        )
+
     IconButton(
         onClick = onClick,
-        modifier = modifier,
+        modifier = modifier.semantics { contentDescription = contentDesc },
     ) {
         Surface(
             shape = PokerTheme.shapes.medium,
@@ -352,14 +363,7 @@ private fun MuteButton(
             Box(contentAlignment = Alignment.Center) {
                 Icon(
                     if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
-                    contentDescription =
-                        stringResource(
-                            if (isAudioEnabled) {
-                                Res.string.mute_content_description
-                            } else {
-                                Res.string.unmute_content_description
-                            },
-                        ),
+                    contentDescription = null,
                     tint = if (isAudioEnabled) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed,
                     modifier = Modifier.size(if (compact) 20.dp else 24.dp),
                 )
