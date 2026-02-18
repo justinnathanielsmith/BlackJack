@@ -67,7 +67,6 @@ import io.github.smithjustinn.resources.suit_clubs
 import io.github.smithjustinn.resources.suit_diamonds
 import io.github.smithjustinn.resources.suit_hearts
 import io.github.smithjustinn.resources.suit_spades
-import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
@@ -340,7 +339,7 @@ private fun rememberCardAnimations(
                     keyframes {
                         durationMillis = FLIP_DURATION_MS
                         1.0f at 0
-                        FLIP_POP_SCALE at (FLIP_DURATION_MS / 2)
+                        FLIP_POP_SCALE at FLIP_DURATION_MS / 2
                         1.0f at FLIP_DURATION_MS
                     }
                 } else {
@@ -352,7 +351,7 @@ private fun rememberCardAnimations(
             when {
                 state.isMatched -> MATCHED_SCALE
                 state.isPressed && !state.isFaceUp -> PRESSED_SCALE
-                state.isRecentlyMatched || (state.isHovered && !state.isFaceUp) -> PULSE_SCALE
+                state.isRecentlyMatched || state.isHovered && !state.isFaceUp -> PULSE_SCALE
                 else -> DEFAULT_SCALE
             }
         }

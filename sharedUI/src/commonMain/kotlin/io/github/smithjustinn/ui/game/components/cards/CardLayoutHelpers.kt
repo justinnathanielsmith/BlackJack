@@ -84,10 +84,10 @@ fun Modifier.cardBorder(
                 style = Stroke(width = width.toPx()),
             )
         } else {
-            val rimLightAlpha = (1f - (abs(currentRotation - HALF_ROTATION) / HALF_ROTATION)).coerceIn(0f, 1f)
+            val rimLightAlpha = (1f - abs(currentRotation - HALF_ROTATION) / HALF_ROTATION).coerceIn(0f, 1f)
             val rimLightColor = Color.White.copy(alpha = rimLightAlpha * HIGH_ALPHA)
 
-            val width = (2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp)
+            val width = 2.dp + (rimLightAlpha * BORDER_SIZE_MULTIPLIER).dp
             val color =
                 if (rimLightAlpha >
                     RIM_LIGHT_THRESHOLD

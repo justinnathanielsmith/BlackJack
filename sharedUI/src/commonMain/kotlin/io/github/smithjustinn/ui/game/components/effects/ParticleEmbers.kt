@@ -77,7 +77,7 @@ private class EmberParticle(
         } * MAX_ALPHA
     }
 
-    fun isDead(): Boolean = y < OFF_SCREEN_THRESHOLD || life >= maxLife || (x == INITIAL_X && y == INITIAL_Y)
+    fun isDead(): Boolean = y < OFF_SCREEN_THRESHOLD || life >= maxLife || x == INITIAL_X && y == INITIAL_Y
 }
 
 @Composable

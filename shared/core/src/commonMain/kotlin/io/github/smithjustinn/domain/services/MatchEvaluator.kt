@@ -30,26 +30,33 @@ object MatchEvaluator {
         val index = if (cardAtIndex?.id == cardId) cardId else state.cards.indexOfFirst { it.id == cardId }
         val cardToFlip = state.cards.getOrNull(index)
 
-        return when {
-            state.isGameOver || cardToFlip == null || cardToFlip.isFaceUp || cardToFlip.isMatched -> state to null
-            state.cards.count { it.isFaceUp && !it.isMatched } >= MatchConstants.PAIR_SIZE -> state to null
-            else -> {
-                val newCards = state.cards.set(index, cardToFlip.copy(isFaceUp = true))
-                val faceUpCountBefore = state.cards.count { it.isFaceUp && !it.isMatched }
-                val newState =
-                    state.copy(
-                        cards = newCards,
-                        lastMatchedIds = if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
-                    )
-
-                val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
-                when (activeCards.size) {
-                    MatchConstants.SINGLE_CARD -> newState to GameDomainEvent.CardFlipped
-                    MatchConstants.PAIR_SIZE -> checkForMatch(newState, activeCards)
-                    else -> newState to null
-                }
-            }
+        if (!canFlip(state, cardToFlip)) {
+            return state to null
         }
+
+        // Proceed with flip
+        val newCards = state.cards.set(index, cardToFlip!!.copy(isFaceUp = true))
+        val faceUpCountBefore = state.cards.count { it.isFaceUp && !it.isMatched }
+        val newState =
+            state.copy(
+                cards = newCards,
+                lastMatchedIds = if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
+            )
+
+        val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
+        return when (activeCards.size) {
+            MatchConstants.SINGLE_CARD -> newState to GameDomainEvent.CardFlipped
+            MatchConstants.PAIR_SIZE -> checkForMatch(newState, activeCards)
+            else -> newState to null
+        }
+    }
+
+    private fun canFlip(state: MemoryGameState, card: CardState?): Boolean {
+        if (state.isGameOver) return false
+        if (card == null || card.isFaceUp || card.isMatched) return false
+
+        val faceUpCount = state.cards.count { it.isFaceUp && !it.isMatched }
+        return faceUpCount < MatchConstants.PAIR_SIZE
     }
 
     /**
@@ -124,29 +131,7 @@ object MatchEvaluator {
         val isWon = matchesFound == state.pairCount
         val moves = state.moves + 1
 
-        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
-        val matchBasePoints = state.config.baseMatchPoints.toLong()
-        val matchComboBonus = (comboFactor * state.config.comboBonusPoints).coerceAtMost(Int.MAX_VALUE.toLong())
-        val matchTotalPoints = matchBasePoints + matchComboBonus
-
-        val isMilestone = matchesFound > 0 && matchesFound % state.config.matchMilestoneInterval == 0
-        val potentialPot = (state.currentPot + matchTotalPoints).coerceAtMost(Int.MAX_VALUE.toLong())
-
-        val scoringUpdate =
-            MatchScoringUpdate(
-                matchBasePoints = matchBasePoints.toInt(),
-                matchComboBonus = matchComboBonus.toInt(),
-                potentialPot = potentialPot,
-                isMilestone = isMilestone,
-                scoreResult =
-                    ScoreKeeper.calculateMatchScore(
-                        currentScore = if (isMilestone || isWon) state.score + potentialPot.toInt() else state.score,
-                        isDoubleDownActive = state.isDoubleDownActive,
-                        matchBasePoints = 0,
-                        matchComboBonus = 0,
-                        isWon = isWon,
-                    ),
-            )
+        val scoringUpdate = calculateMatchScoring(state, isWon, matchesFound)
 
         val newState =
             createMatchSuccessState(
@@ -163,40 +148,32 @@ object MatchEvaluator {
         return newState to ScoreKeeper.determineSuccessEvent(isWon, state.comboMultiplier, state.config)
     }
 
-    private fun createMatchSuccessState(
+    private fun calculateMatchScoring(
         state: MemoryGameState,
-        newCards: PersistentList<CardState>,
         isWon: Boolean,
-        moves: Int,
-        scoringUpdate: MatchScoringUpdate,
         matchesFound: Int,
-        firstId: Int,
-        secondId: Int,
-    ): MemoryGameState {
-        val comment =
-            GameCommentGenerator.generateMatchComment(
-                moves = moves,
-                matchesFound = matchesFound,
-                totalPairs = state.pairCount,
-                comboMultiplier = state.comboMultiplier,
-                config = state.config,
-                isDoubleDownActive = state.isDoubleDownActive,
-            )
+    ): MatchScoringUpdate {
+        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
+        val matchBasePoints = state.config.baseMatchPoints.toLong()
+        val matchComboBonus = (comboFactor * state.config.comboBonusPoints).coerceAtMost(Int.MAX_VALUE.toLong())
+        val matchTotalPoints = matchBasePoints + matchComboBonus
 
-        return state.copy(
-            cards = newCards,
-            isGameWon = isWon,
-            isGameOver = isWon,
-            moves = moves,
-            score = scoringUpdate.scoreResult.finalScore,
-            currentPot = if (scoringUpdate.isMilestone || isWon) 0 else scoringUpdate.potentialPot.toInt(),
-            totalBasePoints = state.totalBasePoints + scoringUpdate.matchBasePoints,
-            totalComboBonus = state.totalComboBonus + scoringUpdate.matchComboBonus,
-            totalDoubleDownBonus = scoringUpdate.scoreResult.ddBonus,
-            comboMultiplier = state.comboMultiplier + 1,
-            isDoubleDownActive = state.isDoubleDownActive && !isWon,
-            matchComment = comment,
-            lastMatchedIds = persistentListOf(firstId, secondId),
+        val isMilestone = matchesFound > 0 && matchesFound % state.config.matchMilestoneInterval == 0
+        val potentialPot = (state.currentPot + matchTotalPoints).coerceAtMost(Int.MAX_VALUE.toLong())
+
+        return MatchScoringUpdate(
+            matchBasePoints = matchBasePoints.toInt(),
+            matchComboBonus = matchComboBonus.toInt(),
+            potentialPot = potentialPot,
+            isMilestone = isMilestone,
+            scoreResult =
+                ScoreKeeper.calculateMatchScore(
+                    currentScore = if (isMilestone || isWon) state.score + potentialPot.toInt() else state.score,
+                    isDoubleDownActive = state.isDoubleDownActive,
+                    matchBasePoints = 0,
+                    matchComboBonus = 0,
+                    isWon = isWon,
+                ),
         )
     }
 
@@ -211,62 +188,99 @@ object MatchEvaluator {
             state.isHeatShieldAvailable && state.comboMultiplier > 0 -> {
                 createHeatShieldUsedState(state, errorCards) to GameDomainEvent.HeatShieldUsed
             }
-
             state.isDoubleDownActive -> {
                 createBustedState(state, errorCards, first.id, second.id) to GameDomainEvent.GameOver
             }
-
             else -> {
                 createStandardFailureState(state, errorCards) to GameDomainEvent.MatchFailure
             }
         }
     }
+}
 
-    private fun createHeatShieldUsedState(
-        state: MemoryGameState,
-        errorCards: PersistentList<CardState>,
-    ): MemoryGameState =
-        state.copy(
-            isHeatShieldAvailable = false,
-            moves = state.moves + 1,
-            cards = errorCards,
-            lastMatchedIds = persistentListOf(),
+// Private helper functions moved out of MatchEvaluator to reduce function count
+
+private fun createMatchSuccessState(
+    state: MemoryGameState,
+    newCards: PersistentList<CardState>,
+    isWon: Boolean,
+    moves: Int,
+    scoringUpdate: MatchScoringUpdate,
+    matchesFound: Int,
+    firstId: Int,
+    secondId: Int,
+): MemoryGameState {
+    val comment =
+        GameCommentGenerator.generateMatchComment(
+            moves = moves,
+            matchesFound = matchesFound,
+            totalPairs = state.pairCount,
+            comboMultiplier = state.comboMultiplier,
+            config = state.config,
+            isDoubleDownActive = state.isDoubleDownActive,
         )
 
-    private fun createBustedState(
-        state: MemoryGameState,
-        errorCards: PersistentList<CardState>,
-        firstId: Int,
-        secondId: Int,
-    ): MemoryGameState =
-        state.copy(
-            score = 0,
-            isGameOver = true,
-            isGameWon = false,
-            isDoubleDownActive = false,
-            isBusted = true,
-            cards = errorCards,
-            lastMatchedIds = persistentListOf(firstId, secondId),
-        )
+    return state.copy(
+        cards = newCards,
+        isGameWon = isWon,
+        isGameOver = isWon,
+        moves = moves,
+        score = scoringUpdate.scoreResult.finalScore,
+        currentPot = if (scoringUpdate.isMilestone || isWon) 0 else scoringUpdate.potentialPot.toInt(),
+        totalBasePoints = state.totalBasePoints + scoringUpdate.matchBasePoints,
+        totalComboBonus = state.totalComboBonus + scoringUpdate.matchComboBonus,
+        totalDoubleDownBonus = scoringUpdate.scoreResult.ddBonus,
+        comboMultiplier = state.comboMultiplier + 1,
+        isDoubleDownActive = state.isDoubleDownActive && !isWon,
+        matchComment = comment,
+        lastMatchedIds = persistentListOf(firstId, secondId),
+    )
+}
 
-    private fun createStandardFailureState(
-        state: MemoryGameState,
-        errorCards: PersistentList<CardState>,
-    ): MemoryGameState {
-        val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
-        val newPot = (state.currentPot - penalty).coerceAtLeast(0)
+private fun createHeatShieldUsedState(
+    state: MemoryGameState,
+    errorCards: PersistentList<CardState>,
+): MemoryGameState =
+    state.copy(
+        isHeatShieldAvailable = false,
+        moves = state.moves + 1,
+        cards = errorCards,
+        lastMatchedIds = persistentListOf(),
+    )
 
-        return state.copy(
-            moves = state.moves + 1,
-            comboMultiplier = 0,
-            score = state.score.coerceAtLeast(0),
-            currentPot = newPot,
-            isGameOver = false,
-            isDoubleDownActive = false,
-            cards = errorCards,
-            lastMatchedIds = persistentListOf(),
-        )
-    }
+private fun createBustedState(
+    state: MemoryGameState,
+    errorCards: PersistentList<CardState>,
+    firstId: Int,
+    secondId: Int,
+): MemoryGameState =
+    state.copy(
+        score = 0,
+        isGameOver = true,
+        isGameWon = false,
+        isDoubleDownActive = false,
+        isBusted = true,
+        cards = errorCards,
+        lastMatchedIds = persistentListOf(firstId, secondId),
+    )
+
+private fun createStandardFailureState(
+    state: MemoryGameState,
+    errorCards: PersistentList<CardState>,
+): MemoryGameState {
+    val penalty = (state.currentPot * state.config.potMismatchPenalty).toInt()
+    val newPot = (state.currentPot - penalty).coerceAtLeast(0)
+
+    return state.copy(
+        moves = state.moves + 1,
+        comboMultiplier = 0,
+        score = state.score.coerceAtLeast(0),
+        currentPot = newPot,
+        isGameOver = false,
+        isDoubleDownActive = false,
+        cards = errorCards,
+        lastMatchedIds = persistentListOf(),
+    )
 }
 
 // Helper to update multiple cards by their IDs efficiently

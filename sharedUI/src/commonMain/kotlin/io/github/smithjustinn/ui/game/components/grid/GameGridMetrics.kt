@@ -98,9 +98,9 @@ private fun calculateWideMetrics(
     val maxCols = minOf(cardCount, MAX_GRID_COLS_WIDE)
     for (cols in MIN_GRID_COLS_WIDE..maxCols) {
         val rows = ceil(cardCount.toFloat() / cols).toInt()
-        val wBasedCardWidth = (availableWidth - (spacing * (cols - 1))) / cols
+        val wBasedCardWidth = (availableWidth - spacing * (cols - 1)) / cols
         val hFromW = wBasedCardWidth / CARD_ASPECT_RATIO
-        val hFromH = (availableHeight - (spacing * (rows - 1))) / rows
+        val hFromH = (availableHeight - spacing * (rows - 1)) / rows
         val possibleHeight = if (hFromW < hFromH) hFromW else hFromH
 
         if (possibleHeight > maxCardHeight) {
@@ -110,7 +110,7 @@ private fun calculateWideMetrics(
     }
 
     val finalCardWidth = maxCardHeight * CARD_ASPECT_RATIO
-    val calculatedWidth = (finalCardWidth * bestCols) + (spacing * (bestCols - 1)) + hPadding
+    val calculatedWidth = finalCardWidth * bestCols + spacing * (bestCols - 1) + hPadding
     return GridMetrics(GridCells.Fixed(bestCols), calculatedWidth.coerceAtMost(screenWidth))
 }
 
@@ -125,7 +125,7 @@ private fun calculatePortraitMetrics(
     val hPadding = if (isWide) PADDING_PORTRAIT_H_WIDE else PADDING_PORTRAIT_H_DEFAULT
     val vPadding = if (isCompactHeight) PADDING_PORTRAIT_V_COMPACT else PADDING_PORTRAIT_V_DEFAULT
 
-    val availableWidth = screenWidth - (hPadding * 2)
+    val availableWidth = screenWidth - hPadding * 2
     val availableHeight = screenHeight - vPadding
 
     val cols =
@@ -136,12 +136,12 @@ private fun calculatePortraitMetrics(
         }
     val rows = ceil(cardCount.toFloat() / cols).toInt()
 
-    val maxW = (availableWidth - (spacing * (cols - 1))) / cols
-    val maxH = (availableHeight - (spacing * (rows - 1))) / rows
+    val maxW = (availableWidth - spacing * (cols - 1)) / cols
+    val maxH = (availableHeight - spacing * (rows - 1)) / rows
 
     val wFromH = maxH * CARD_ASPECT_RATIO
     val finalCardWidth = minOf(maxW, wFromH).coerceAtLeast(MIN_CARD_WIDTH_DP.dp)
-    val calculatedWidth = (finalCardWidth * cols) + (spacing * (cols - 1)) + (hPadding * 2)
+    val calculatedWidth = finalCardWidth * cols + spacing * (cols - 1) + hPadding * 2
 
     return GridMetrics(GridCells.Fixed(cols), calculatedWidth.coerceAtMost(screenWidth))
 }

@@ -147,8 +147,8 @@ private fun DrawScope.drawWave(
         // Combined sine waves for organic look
         val y =
             yOffset +
-                sin((x / width * 2 * PI * frequency) + phase) * amplitude +
-                sin((x / width * PI * frequency * 0.5) - phase) * (amplitude * 0.5f)
+                sin(x / width * 2 * PI * frequency + phase) * amplitude +
+                sin(x / width * PI * frequency * 0.5 - phase) * (amplitude * 0.5f)
         path.lineTo(x, y.toFloat())
     }
 

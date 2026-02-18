@@ -318,7 +318,7 @@ private fun rememberCardMuckTarget(
 ): CardMuckTarget {
     val (fanRotation, fanSpreadX) =
         remember(index, totalCards) {
-            val relativeIndex = (index.toFloat() / (totalCards - 1).coerceAtLeast(1)) - CENTER_OFFSET_FRACTION
+            val relativeIndex = index.toFloat() / (totalCards - 1).coerceAtLeast(1) - CENTER_OFFSET_FRACTION
             val rotation = relativeIndex * FAN_ANGLE_MAX
             val spreadX = relativeIndex * FAN_SPREAD_MAX
             rotation to spreadX
@@ -336,7 +336,7 @@ private fun rememberCardMuckTarget(
             with(density) {
                 val muckTarget =
                     Offset(
-                        (maxWidth.toPx() / 2) + fanSpreadX.dp.toPx(),
+                        maxWidth.toPx() / 2 + fanSpreadX.dp.toPx(),
                         screenHeight.toPx() - MUCK_BOTTOM_OFFSET_DP.dp.toPx(),
                     )
                 layoutInfo?.let { info ->
