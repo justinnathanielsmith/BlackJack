@@ -2,8 +2,8 @@ package io.github.smithjustinn.domain.services
 
 import io.github.smithjustinn.domain.GameCommentGenerator
 import io.github.smithjustinn.domain.models.CardState
-import io.github.smithjustinn.domain.models.MatchScoreResult
 import io.github.smithjustinn.domain.models.GameDomainEvent
+import io.github.smithjustinn.domain.models.MatchScoreResult
 import io.github.smithjustinn.domain.models.MemoryGameState
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate

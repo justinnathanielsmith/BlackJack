@@ -4,7 +4,6 @@ import kotlin.test.Test
 import kotlin.test.assertFailsWith
 
 class ShopItemTest {
-
     @Test
     fun `init should throw exception when price is negative`() {
         assertFailsWith<IllegalArgumentException> {
@@ -13,7 +12,7 @@ class ShopItemTest {
                 name = "Test Item",
                 description = "Test Description",
                 price = -100,
-                type = ShopItemType.THEME
+                type = ShopItemType.THEME,
             )
         }
     }
@@ -26,7 +25,7 @@ class ShopItemTest {
                 name = "   ",
                 description = "Test Description",
                 price = 100,
-                type = ShopItemType.THEME
+                type = ShopItemType.THEME,
             )
         }
     }
@@ -38,7 +37,7 @@ class ShopItemTest {
             name = "Test Item",
             description = "Test Description",
             price = 0,
-            type = ShopItemType.THEME
+            type = ShopItemType.THEME,
         )
     }
 }
