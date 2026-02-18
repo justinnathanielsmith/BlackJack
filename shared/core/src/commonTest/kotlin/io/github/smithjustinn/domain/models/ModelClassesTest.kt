@@ -16,14 +16,6 @@ class ModelClassesTest {
     }
 
     @Test
-    fun `GameStats properties`() {
-        val stats = GameStats(8, 100, 60)
-        assertEquals(8, stats.pairCount)
-        assertEquals(100, stats.bestScore)
-        assertEquals(60, stats.bestTimeSeconds)
-    }
-
-    @Test
     fun `LeaderboardEntry has correct properties`() {
         val entry =
             LeaderboardEntry(

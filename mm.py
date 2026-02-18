@@ -6,6 +6,7 @@ import sys
 import shutil
 import threading
 import time
+import re
 from pathlib import Path
 from datetime import datetime
 
@@ -64,6 +65,11 @@ class Spinner:
             self.thread.join()
 
 # --- Utility Functions ---
+
+def validate_task_name(name):
+    if not re.match(r'^[a-zA-Z0-9_-]+$', name):
+        error(f"Invalid task name '{name}'. Only alphanumeric characters, hyphens, and underscores are allowed.")
+    return name
 
 def log(msg, color=Colors.BLUE):
     print(f"{Colors.GRAY}•{Colors.NC} {color}{Colors.BOLD}{msg}{Colors.NC}")
@@ -219,7 +225,7 @@ def handle_task(args):
     sub = args.subcommand
     if sub == "new":
         task_type = args.type
-        name = args.name
+        name = validate_task_name(args.name)
         branch = f"{task_type}/{name}"
         target_dir = safe_path_join(WORKTREES_DIR, name)
         
@@ -287,6 +293,7 @@ def handle_task(args):
             except (ValueError, IndexError):
                 error("Invalid selection.")
 
+        validate_task_name(name)
         target_dir = safe_path_join(WORKTREES_DIR, name)
         if str(target_dir) in os.getcwd():
             error("Cannot remove the current worktree.")
