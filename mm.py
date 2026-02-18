@@ -119,6 +119,24 @@ def get_project_root():
 PROJECT_ROOT = get_project_root()
 WORKTREES_DIR = PROJECT_ROOT.parent / "worktrees"
 
+def safe_path_join(base, *paths):
+    try:
+        # Resolve the base directory to an absolute path
+        base_resolved = base.resolve()
+
+        # Join the paths and resolve the final path
+        final_path = base.joinpath(*paths).resolve()
+
+        # Check if the final path is within the base directory
+        # We check if base_resolved is a parent of final_path
+        # OR if they are the same directory (though unlikely for a task)
+        if base_resolved != final_path and base_resolved not in final_path.parents:
+            error(f"Security Error: Path traversal detected. Target '{final_path}' is outside '{base_resolved}'.")
+
+        return final_path
+    except Exception as e:
+        error(f"Invalid path: {e}")
+
 # --- Command Handlers ---
 
 def handle_build(args):
@@ -203,7 +221,7 @@ def handle_task(args):
         task_type = args.type
         name = args.name
         branch = f"{task_type}/{name}"
-        target_dir = WORKTREES_DIR / name
+        target_dir = safe_path_join(WORKTREES_DIR, name)
         
         if target_dir.exists():
             error(f"Worktree directory already exists: {target_dir}")
@@ -269,7 +287,7 @@ def handle_task(args):
             except (ValueError, IndexError):
                 error("Invalid selection.")
 
-        target_dir = WORKTREES_DIR / name
+        target_dir = safe_path_join(WORKTREES_DIR, name)
         if str(target_dir) in os.getcwd():
             error("Cannot remove the current worktree.")
         
