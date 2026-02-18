@@ -67,6 +67,7 @@ import io.github.smithjustinn.resources.suit_clubs
 import io.github.smithjustinn.resources.suit_diamonds
 import io.github.smithjustinn.resources.suit_hearts
 import io.github.smithjustinn.resources.suit_spades
+import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
