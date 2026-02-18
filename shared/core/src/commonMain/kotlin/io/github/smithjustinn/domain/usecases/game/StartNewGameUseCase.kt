@@ -1,7 +1,7 @@
 package io.github.smithjustinn.domain.usecases.game
 
-import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
+import io.github.smithjustinn.domain.services.GameFactory
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
@@ -33,7 +33,7 @@ open class StartNewGameUseCase {
 
         val random = Random(finalSeed)
         val baseState =
-            MemoryGameLogic.createInitialState(
+            GameFactory.createInitialState(
                 pairCount = finalPairCount,
                 config = config,
                 mode = mode,
