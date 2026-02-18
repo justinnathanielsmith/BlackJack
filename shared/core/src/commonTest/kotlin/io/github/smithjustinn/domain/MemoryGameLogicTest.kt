@@ -6,6 +6,7 @@ import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.ScoringConfig
+import io.github.smithjustinn.domain.services.MutatorEngine
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.comment_bad_beat
 import io.github.smithjustinn.resources.comment_boom
@@ -497,7 +498,7 @@ class MemoryGameLogicTest {
 
         // Use a fixed seed for random to ensure predictability if needed,
         // but here we just want to see if they changed.
-        val newState = MemoryGameActions.applyMutators(state, Random(42))
+        val newState = MutatorEngine.applyMutators(state, Random(42))
 
         assertFalse(initialCards == newState.cards, "Cards should have been swapped")
         assertEquals(initialCards.size, newState.cards.size)
@@ -517,7 +518,7 @@ class MemoryGameLogicTest {
             )
         val initialCards = state.cards
 
-        val newState = MemoryGameActions.applyMutators(state)
+        val newState = MutatorEngine.applyMutators(state)
 
         assertEquals(initialCards, newState.cards, "Cards should NOT have been swapped")
     }
@@ -583,7 +584,7 @@ class MemoryGameLogicTest {
             )
         val initialCards = state.cards
 
-        val newState = MemoryGameActions.applyMutators(state)
+        val newState = MutatorEngine.applyMutators(state)
 
         assertEquals(initialCards, newState.cards, "Cards should NOT have been swapped")
     }

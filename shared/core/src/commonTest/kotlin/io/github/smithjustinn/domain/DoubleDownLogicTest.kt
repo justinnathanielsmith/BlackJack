@@ -7,6 +7,7 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.models.Suit
+import io.github.smithjustinn.domain.services.MatchEvaluator
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -25,7 +26,7 @@ class DoubleDownLogicTest {
                 .copy(comboMultiplier = defaultConfig.heatModeThreshold) // Heat Mode ready
 
         // Act
-        val result = MemoryGameActions.activateDoubleDown(state)
+        val result = MatchEvaluator.activateDoubleDown(state)
 
         // Assert
         assertFalse(result.isDoubleDownActive, "Double Down should NOT activate with < 3 pairs")
@@ -40,7 +41,7 @@ class DoubleDownLogicTest {
                 .copy(comboMultiplier = defaultConfig.heatModeThreshold) // Heat Mode ready
 
         // Act
-        val result = MemoryGameActions.activateDoubleDown(state)
+        val result = MatchEvaluator.activateDoubleDown(state)
 
         // Assert
         assertTrue(result.isDoubleDownActive, "Double Down SHOULD activate with >= 3 pairs")
@@ -54,7 +55,7 @@ class DoubleDownLogicTest {
                 .createInitialState(pairCount = 4, config = defaultConfig)
                 .copy(comboMultiplier = defaultConfig.heatModeThreshold)
 
-        state = MemoryGameActions.activateDoubleDown(state)
+        state = MatchEvaluator.activateDoubleDown(state)
         assertTrue(state.isDoubleDownActive)
 
         // Find two mismatching cards
