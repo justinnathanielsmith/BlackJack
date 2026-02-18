@@ -5,15 +5,15 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 
 class GameStatsTest {
-
     @Test
     fun `init with valid inputs succeeds`() {
-        val stats = GameStats(
-            pairCount = 8,
-            bestScore = 100,
-            bestTimeSeconds = 60,
-            gamesPlayed = 5
-        )
+        val stats =
+            GameStats(
+                pairCount = 8,
+                bestScore = 100,
+                bestTimeSeconds = 60,
+                gamesPlayed = 5,
+            )
         assertEquals(8, stats.pairCount)
         assertEquals(100, stats.bestScore)
         assertEquals(60, stats.bestTimeSeconds)
@@ -26,7 +26,7 @@ class GameStatsTest {
             GameStats(
                 pairCount = 0,
                 bestScore = 100,
-                bestTimeSeconds = 60
+                bestTimeSeconds = 60,
             )
         }
     }
@@ -37,7 +37,7 @@ class GameStatsTest {
             GameStats(
                 pairCount = -1,
                 bestScore = 100,
-                bestTimeSeconds = 60
+                bestTimeSeconds = 60,
             )
         }
     }
@@ -48,7 +48,7 @@ class GameStatsTest {
             GameStats(
                 pairCount = 8,
                 bestScore = -1,
-                bestTimeSeconds = 60
+                bestTimeSeconds = 60,
             )
         }
     }
@@ -59,7 +59,7 @@ class GameStatsTest {
             GameStats(
                 pairCount = 8,
                 bestScore = 100,
-                bestTimeSeconds = -1
+                bestTimeSeconds = -1,
             )
         }
     }
@@ -71,7 +71,7 @@ class GameStatsTest {
                 pairCount = 8,
                 bestScore = 100,
                 bestTimeSeconds = 60,
-                gamesPlayed = -1
+                gamesPlayed = -1,
             )
         }
     }
