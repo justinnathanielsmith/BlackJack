@@ -2,8 +2,8 @@ package io.github.smithjustinn.domain.services
 
 import io.github.smithjustinn.domain.GameCommentGenerator
 import io.github.smithjustinn.domain.models.CardState
-import io.github.smithjustinn.domain.models.MatchScoreResult
 import io.github.smithjustinn.domain.models.GameDomainEvent
+import io.github.smithjustinn.domain.models.MatchScoreResult
 import io.github.smithjustinn.domain.models.MemoryGameState
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
@@ -26,7 +26,8 @@ object MatchEvaluator {
         state: MemoryGameState,
         cardId: Int,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        val index = state.cards.indexOfFirst { it.id == cardId }
+        val cardAtIndex = state.cards.getOrNull(cardId)
+        val index = if (cardAtIndex?.id == cardId) cardId else state.cards.indexOfFirst { it.id == cardId }
         val cardToFlip = state.cards.getOrNull(index)
 
         return when {
