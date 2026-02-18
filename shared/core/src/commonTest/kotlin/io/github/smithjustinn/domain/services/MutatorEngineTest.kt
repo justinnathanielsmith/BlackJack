@@ -13,42 +13,44 @@ import kotlin.test.assertNotEquals
 import kotlin.test.assertTrue
 
 class MutatorEngineTest {
-
-    private fun createCard(id: Int, isMatched: Boolean = false): CardState {
-        return CardState(
+    private fun createCard(
+        id: Int,
+        isMatched: Boolean = false,
+    ): CardState =
+        CardState(
             id = id,
             suit = Suit.Hearts, // Arbitrary suit
             rank = Rank.Ace, // Arbitrary rank
-            isMatched = isMatched
+            isMatched = isMatched,
         )
-    }
 
     private fun createGameState(
         moves: Int,
         activeMutators: Set<DailyChallengeMutator>,
-        cards: List<CardState>
-    ): MemoryGameState {
-        return MemoryGameState(
+        cards: List<CardState>,
+    ): MemoryGameState =
+        MemoryGameState(
             cards = persistentListOf(*cards.toTypedArray()),
             moves = moves,
             activeMutators = activeMutators,
-            pairCount = cards.size / 2
+            pairCount = cards.size / 2,
         )
-    }
 
     @Test
     fun applyMutators_shouldDoNothing_whenMirageNotActive() {
-        val cards = listOf(
-            createCard(1),
-            createCard(2),
-            createCard(3),
-            createCard(4)
-        )
-        val initialState = createGameState(
-            moves = 5,
-            activeMutators = emptySet(),
-            cards = cards
-        )
+        val cards =
+            listOf(
+                createCard(1),
+                createCard(2),
+                createCard(3),
+                createCard(4),
+            )
+        val initialState =
+            createGameState(
+                moves = 5,
+                activeMutators = emptySet(),
+                cards = cards,
+            )
 
         val newState = MutatorEngine.applyMutators(initialState)
 
@@ -57,17 +59,19 @@ class MutatorEngineTest {
 
     @Test
     fun applyMutators_shouldDoNothing_whenMovesNotMultipleOfInterval() {
-        val cards = listOf(
-            createCard(1),
-            createCard(2),
-            createCard(3),
-            createCard(4)
-        )
-        val initialState = createGameState(
-            moves = 4, // MIRAGE interval is 5
-            activeMutators = setOf(DailyChallengeMutator.MIRAGE),
-            cards = cards
-        )
+        val cards =
+            listOf(
+                createCard(1),
+                createCard(2),
+                createCard(3),
+                createCard(4),
+            )
+        val initialState =
+            createGameState(
+                moves = 4, // MIRAGE interval is 5
+                activeMutators = setOf(DailyChallengeMutator.MIRAGE),
+                cards = cards,
+            )
 
         val newState = MutatorEngine.applyMutators(initialState)
 
@@ -76,17 +80,19 @@ class MutatorEngineTest {
 
     @Test
     fun applyMutators_shouldDoNothing_whenMovesIsZero() {
-        val cards = listOf(
-            createCard(1),
-            createCard(2),
-            createCard(3),
-            createCard(4)
-        )
-        val initialState = createGameState(
-            moves = 0,
-            activeMutators = setOf(DailyChallengeMutator.MIRAGE),
-            cards = cards
-        )
+        val cards =
+            listOf(
+                createCard(1),
+                createCard(2),
+                createCard(3),
+                createCard(4),
+            )
+        val initialState =
+            createGameState(
+                moves = 0,
+                activeMutators = setOf(DailyChallengeMutator.MIRAGE),
+                cards = cards,
+            )
 
         val newState = MutatorEngine.applyMutators(initialState)
 
@@ -95,17 +101,19 @@ class MutatorEngineTest {
 
     @Test
     fun applyMutators_shouldDoNothing_whenInsufficientUnmatchedCards() {
-        val cards = listOf(
-            createCard(1, isMatched = true),
-            createCard(2, isMatched = true),
-            createCard(3, isMatched = true), // Only 1 unmatched card
-            createCard(4)
-        )
-        val initialState = createGameState(
-            moves = 5,
-            activeMutators = setOf(DailyChallengeMutator.MIRAGE),
-            cards = cards
-        )
+        val cards =
+            listOf(
+                createCard(1, isMatched = true),
+                createCard(2, isMatched = true),
+                createCard(3, isMatched = true), // Only 1 unmatched card
+                createCard(4),
+            )
+        val initialState =
+            createGameState(
+                moves = 5,
+                activeMutators = setOf(DailyChallengeMutator.MIRAGE),
+                cards = cards,
+            )
 
         val newState = MutatorEngine.applyMutators(initialState)
 
@@ -121,20 +129,22 @@ class MutatorEngineTest {
 
         val cards = listOf(card1, card2, card3, card4)
 
-        val initialState = createGameState(
-            moves = 5,
-            activeMutators = setOf(DailyChallengeMutator.MIRAGE),
-            cards = cards
-        )
+        val initialState =
+            createGameState(
+                moves = 5,
+                activeMutators = setOf(DailyChallengeMutator.MIRAGE),
+                cards = cards,
+            )
 
         val newState = MutatorEngine.applyMutators(initialState, Random(12345))
 
         assertNotEquals(initialState, newState)
 
         // Find indices that changed
-        val changedIndices = cards.indices.filter { i ->
-            initialState.cards[i] != newState.cards[i]
-        }
+        val changedIndices =
+            cards.indices.filter { i ->
+                initialState.cards[i] != newState.cards[i]
+            }
 
         // Assert exactly 2 cards changed positions
         assertEquals(2, changedIndices.size, "Exactly two cards should be swapped")
@@ -160,11 +170,12 @@ class MutatorEngineTest {
 
         val cards = listOf(card1, card2, card3, card4)
 
-        val initialState = createGameState(
-            moves = 5,
-            activeMutators = setOf(DailyChallengeMutator.MIRAGE),
-            cards = cards
-        )
+        val initialState =
+            createGameState(
+                moves = 5,
+                activeMutators = setOf(DailyChallengeMutator.MIRAGE),
+                cards = cards,
+            )
 
         // Use a random instance, exact seed doesn't matter for property check
         val newState = MutatorEngine.applyMutators(initialState, Random(1))
@@ -172,9 +183,10 @@ class MutatorEngineTest {
         assertNotEquals(initialState, newState)
 
         // Find indices that changed
-        val changedIndices = cards.indices.filter { i ->
-            initialState.cards[i] != newState.cards[i]
-        }
+        val changedIndices =
+            cards.indices.filter { i ->
+                initialState.cards[i] != newState.cards[i]
+            }
 
         // Assert exactly 2 cards changed positions
         assertEquals(2, changedIndices.size, "Exactly two cards should be swapped")
