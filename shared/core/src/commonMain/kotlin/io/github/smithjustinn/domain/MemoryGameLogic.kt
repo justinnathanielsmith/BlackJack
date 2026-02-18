@@ -21,6 +21,7 @@ import kotlin.random.Random
  * - [ScoreKeeper] for scoring
  * - [MutatorEngine] for mutators
  */
+@Deprecated("Use specialized services: GameFactory, MatchEvaluator, ScoreKeeper, MutatorEngine")
 object MemoryGameLogic {
     const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
 

@@ -124,18 +124,18 @@ object MatchEvaluator {
         val isWon = matchesFound == state.pairCount
         val moves = state.moves + 1
 
-        val comboFactor = state.comboMultiplier * state.comboMultiplier
-        val matchBasePoints = state.config.baseMatchPoints
-        val matchComboBonus = comboFactor * state.config.comboBonusPoints
-        val matchTotalPoints = (matchBasePoints + matchComboBonus).toLong()
+        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
+        val matchBasePoints = state.config.baseMatchPoints.toLong()
+        val matchComboBonus = (comboFactor * state.config.comboBonusPoints).coerceAtMost(Int.MAX_VALUE.toLong())
+        val matchTotalPoints = matchBasePoints + matchComboBonus
 
         val isMilestone = matchesFound > 0 && matchesFound % state.config.matchMilestoneInterval == 0
-        val potentialPot = state.currentPot + matchTotalPoints
+        val potentialPot = (state.currentPot + matchTotalPoints).coerceAtMost(Int.MAX_VALUE.toLong())
 
         val scoringUpdate =
             MatchScoringUpdate(
-                matchBasePoints = matchBasePoints,
-                matchComboBonus = matchComboBonus,
+                matchBasePoints = matchBasePoints.toInt(),
+                matchComboBonus = matchComboBonus.toInt(),
                 potentialPot = potentialPot,
                 isMilestone = isMilestone,
                 scoreResult =

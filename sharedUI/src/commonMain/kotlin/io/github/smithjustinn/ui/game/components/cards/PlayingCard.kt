@@ -5,10 +5,13 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.interaction.collectIsPressedAsState
@@ -38,6 +41,7 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
@@ -63,6 +67,7 @@ import io.github.smithjustinn.resources.suit_clubs
 import io.github.smithjustinn.resources.suit_diamonds
 import io.github.smithjustinn.resources.suit_hearts
 import io.github.smithjustinn.resources.suit_spades
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
@@ -73,6 +78,7 @@ import kotlin.math.roundToInt
 // Animation durations (milliseconds)
 private const val SHAKE_ANIMATION_DURATION_MS = 50
 private const val GLOW_ANIMATION_DURATION_MS = 1000
+private const val FLIP_DURATION_MS = 400
 
 // Animation values
 private const val SHAKE_OFFSET_PX = 10f
@@ -163,6 +169,15 @@ fun PlayingCard(
     isMuckingEnabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
+    val haptics = LocalAppGraph.current.hapticsService
+    val wrappedOnClick =
+        remember(onClick, haptics) {
+            {
+                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+                onClick()
+            }
+        }
+
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -207,7 +222,7 @@ fun PlayingCard(
         muckRotation = animations.muckRotation,
         backColor = backColor,
         contentDescription = contentDescription,
-        interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
+        interactions = CardInteractions(interactionSource = interactionSource, onClick = wrappedOnClick),
     ) {
         CardContentSelectors(
             content = content,
@@ -265,12 +280,22 @@ private const val MATCHED_SCALE = 0.4f
 private const val PULSE_SCALE = 1.15f
 private const val PRESSED_SCALE = 0.95f
 private const val DEFAULT_SCALE = 1f
+private const val FLIP_POP_SCALE = 1.1f
 private const val MUCK_DURATION_MS = 600
 private const val ELEVATION_RECENTLY_MATCHED = 12
 private const val ELEVATION_MATCHED = 0
 private const val ELEVATION_HOVERED = 16
 private const val ELEVATION_DEFAULT = 2
 private const val SHADOW_OFFSET_DIVISOR = 3
+
+// Helper class to encapsulate all states that drive animations
+private data class AnimationTargetState(
+    val isFaceUp: Boolean,
+    val isMatched: Boolean,
+    val isRecentlyMatched: Boolean,
+    val isPressed: Boolean,
+    val isHovered: Boolean,
+)
 
 @Composable
 private fun rememberCardAnimations(
@@ -281,8 +306,56 @@ private fun rememberCardAnimations(
     muckTargetRotation: Float,
     isMuckingEnabled: Boolean,
 ): CardAnimations {
-    val rotation = rememberFlipAnimation(content.visualState.isFaceUp)
-    val scale = rememberPulseAnimation(content.visualState, isHovered, isPressed)
+    val targetState =
+        remember(content.visualState, isHovered, isPressed) {
+            AnimationTargetState(
+                isFaceUp = content.visualState.isFaceUp,
+                isMatched = content.visualState.isMatched,
+                isRecentlyMatched = content.visualState.isRecentlyMatched,
+                isPressed = isPressed,
+                isHovered = isHovered,
+            )
+        }
+
+    val transition = updateTransition(targetState, label = "cardTransition")
+
+    val rotation =
+        transition.animateFloat(
+            transitionSpec = {
+                spring(
+                    dampingRatio = Spring.DampingRatioLowBouncy,
+                    stiffness = Spring.StiffnessLow,
+                )
+            },
+            label = "rotation",
+        ) { state ->
+            if (state.isFaceUp) 0f else FULL_ROTATION
+        }
+
+    val scale =
+        transition.animateFloat(
+            transitionSpec = {
+                if (initialState.isFaceUp != targetState.isFaceUp) {
+                    keyframes {
+                        durationMillis = FLIP_DURATION_MS
+                        1.0f at 0
+                        FLIP_POP_SCALE at (FLIP_DURATION_MS / 2)
+                        1.0f at FLIP_DURATION_MS
+                    }
+                } else {
+                    spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
+                }
+            },
+            label = "scale",
+        ) { state ->
+            when {
+                state.isMatched -> MATCHED_SCALE
+                state.isPressed && !state.isFaceUp -> PRESSED_SCALE
+                state.isRecentlyMatched || (state.isHovered && !state.isFaceUp) -> PULSE_SCALE
+                else -> DEFAULT_SCALE
+            }
+        }
+
     val shakeOffset = rememberShakeAnimation(content.visualState.isError)
     val matchedGlowAlpha = rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)
 
@@ -320,35 +393,6 @@ private fun rememberCardAnimations(
         shadowYOffset = shadowAnim.second,
     )
 }
-
-@Composable
-private fun rememberFlipAnimation(isFaceUp: Boolean) =
-    animateFloatAsState(
-        targetValue = if (isFaceUp) 0f else FULL_ROTATION,
-        animationSpec =
-            spring(
-                dampingRatio = Spring.DampingRatioLowBouncy,
-                stiffness = Spring.StiffnessLow,
-            ),
-        label = "cardFlip",
-    )
-
-@Composable
-private fun rememberPulseAnimation(
-    visualState: CardVisualState,
-    isHovered: Boolean,
-    isPressed: Boolean,
-) = animateFloatAsState(
-    targetValue =
-        when {
-            visualState.isMatched -> MATCHED_SCALE
-            isPressed && !visualState.isFaceUp -> PRESSED_SCALE
-            visualState.isRecentlyMatched || (isHovered && !visualState.isFaceUp) -> PULSE_SCALE
-            else -> DEFAULT_SCALE
-        },
-    animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow),
-    label = "pulse",
-)
 
 @Composable
 private fun rememberShakeAnimation(isError: Boolean): State<Float> {

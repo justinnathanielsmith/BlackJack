@@ -6,9 +6,9 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.State
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
@@ -32,11 +32,9 @@ fun CardShadowLayer(
     yOffset: State<Dp>,
     isRecentlyMatched: Boolean,
 ) {
-    val currentElevation = elevation.value
-    if (currentElevation <= 0.dp) return
-
     val glowColor = PokerTheme.colors.goldenYellow
     val baseShadowColor = if (isRecentlyMatched) glowColor else PokerTheme.colors.tableShadow
+    val shadowShape = remember { RoundedCornerShape(CORNER_RADIUS_DP.dp) }
 
     Box(
         modifier =
@@ -44,13 +42,12 @@ fun CardShadowLayer(
                 .fillMaxSize()
                 .graphicsLayer {
                     translationY = yOffset.value.toPx()
-                }.shadow(
-                    elevation = currentElevation,
-                    shape = RoundedCornerShape(CORNER_RADIUS_DP.dp),
-                    clip = false,
-                    ambientColor = baseShadowColor.copy(alpha = SHADOW_AMBIENT_ALPHA),
-                    spotColor = baseShadowColor.copy(alpha = SHADOW_SPOT_ALPHA),
-                ),
+                    shadowElevation = elevation.value.toPx()
+                    shape = shadowShape
+                    clip = false
+                    ambientShadowColor = baseShadowColor.copy(alpha = SHADOW_AMBIENT_ALPHA)
+                    spotShadowColor = baseShadowColor.copy(alpha = SHADOW_SPOT_ALPHA)
+                },
     )
 }
 
