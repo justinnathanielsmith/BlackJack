@@ -25,11 +25,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -122,8 +125,8 @@ private fun calculateTimerScale(
     infiniteTransition: InfiniteTransition,
     showTimeLoss: Boolean,
     isCriticalTime: Boolean,
-): Float {
-    val infinitePulseScale by infiniteTransition.animateFloat(
+): State<Float> {
+    val infinitePulseScaleState = infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = PULSE_SCALE_TARGET,
         animationSpec =
@@ -133,7 +136,7 @@ private fun calculateTimerScale(
             ),
     )
 
-    val lossPulseScale by animateFloatAsState(
+    val lossPulseScaleState = animateFloatAsState(
         targetValue = if (showTimeLoss) 1.2f else 1f,
         animationSpec =
             if (showTimeLoss) {
@@ -143,10 +146,14 @@ private fun calculateTimerScale(
             },
     )
 
-    return when {
-        showTimeLoss -> lossPulseScale
-        isCriticalTime -> infinitePulseScale
-        else -> 1f
+    return remember(showTimeLoss, isCriticalTime) {
+        derivedStateOf {
+            when {
+                showTimeLoss -> lossPulseScaleState.value
+                isCriticalTime -> infinitePulseScaleState.value
+                else -> 1f
+            }
+        }
     }
 }
 
@@ -170,7 +177,10 @@ private fun MinimalTimerDisplay(
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp,
                 ),
-            modifier = Modifier.scale(visuals.scale),
+            modifier = Modifier.graphicsLayer {
+                scaleX = visuals.scale.value
+                scaleY = visuals.scale.value
+            },
             color = visuals.color,
         )
 
@@ -226,13 +236,16 @@ private fun StandardTimerDisplay(
                 text = formatTime(state.time),
                 style =
                     MaterialTheme.typography.titleLarge.copy(
-                        fontSize = (if (visuals.layout == TimerLayout.COMPACT) 16.sp else 20.sp),
+                        fontSize = if (visuals.layout == TimerLayout.COMPACT) 16.sp else 20.sp,
                         fontWeight = FontWeight.Black,
                         letterSpacing = 0.5.sp,
                     ),
                 modifier =
                     Modifier
-                        .scale(visuals.scale)
+                        .graphicsLayer {
+                            scaleX = visuals.scale.value
+                            scaleY = visuals.scale.value
+                        }
                         .padding(bottom = 2.dp),
                 // Fine-tune vertical alignment
                 color = visuals.color,
