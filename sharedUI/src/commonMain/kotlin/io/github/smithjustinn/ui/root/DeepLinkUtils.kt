@@ -8,7 +8,7 @@ import io.ktor.http.Url
 data class DeepLinkParams(
     val mode: GameMode,
     val pairs: Int,
-    val seed: Long?
+    val seed: Long?,
 )
 
 object DeepLinkUtils {
@@ -23,16 +23,18 @@ object DeepLinkUtils {
             val pairsStr = urlParams[Constants.QUERY_PARAM_PAIRS]
             val seedStr = urlParams[Constants.QUERY_PARAM_SEED]
 
-            val mode = modeStr?.let {
-                try {
-                    GameMode.valueOf(it)
-                } catch (e: IllegalArgumentException) {
-                    GameMode.TIME_ATTACK
-                }
-            } ?: GameMode.TIME_ATTACK
+            val mode =
+                modeStr?.let {
+                    try {
+                        GameMode.valueOf(it)
+                    } catch (e: IllegalArgumentException) {
+                        GameMode.TIME_ATTACK
+                    }
+                } ?: GameMode.TIME_ATTACK
 
-            val pairs = (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT)
-                .coerceIn(GameArgs.MIN_PAIRS, GameArgs.MAX_PAIRS)
+            val pairs =
+                (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT)
+                    .coerceIn(GameArgs.MIN_PAIRS, GameArgs.MAX_PAIRS)
 
             val seed = seedStr?.toLongOrNull()
 
