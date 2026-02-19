@@ -299,4 +299,26 @@ class PlayerEconomyRepositoryTest {
                 repository.deductCurrency(-100L)
             }
         }
+
+    @Test
+    fun addCurrency_clamps_to_max_value_on_overflow() =
+        runTest(testDispatcher) {
+            val repository = createRepository(backgroundScope)
+            repository.balance.test {
+                assertEquals(0L, awaitItem())
+
+                // Add a large amount
+                val initialAmount = Long.MAX_VALUE - 100
+                repository.addCurrency(initialAmount)
+                assertEquals(initialAmount, awaitItem())
+
+                // Add more to overflow
+                val overflowAmount = 200L
+                repository.addCurrency(overflowAmount)
+
+                // This should be clamped to Long.MAX_VALUE
+                val newBalance = awaitItem()
+                assertEquals(Long.MAX_VALUE, newBalance, "Balance should be clamped to Long.MAX_VALUE")
+            }
+        }
 }
