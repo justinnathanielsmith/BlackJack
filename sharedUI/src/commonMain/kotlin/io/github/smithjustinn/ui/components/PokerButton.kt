@@ -4,12 +4,17 @@ import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.rememberInfiniteTransition
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -21,6 +26,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +47,7 @@ import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 
 private const val PULSE_SCALE_TARGET = 1.05f
+private const val PRESS_SCALE_TARGET = 0.95f
 private const val PULSE_ANIMATION_DURATION_MS = 1000
 private const val ICON_SIZE_DP = 20
 private const val ICON_SPACING_DP = 8
@@ -65,7 +72,7 @@ fun PokerButton(
     contentDescription: String? = null,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "poker_button_pulse")
-    val scale by infiniteTransition.animateFloat(
+    val pulseScale by infiniteTransition.animateFloat(
         initialValue = 1f,
         targetValue = if (isPulsing && enabled) PULSE_SCALE_TARGET else 1f,
         animationSpec =
@@ -73,7 +80,15 @@ fun PokerButton(
                 animation = tween(PULSE_ANIMATION_DURATION_MS, easing = LinearEasing),
                 repeatMode = RepeatMode.Reverse,
             ),
-        label = "scale",
+        label = "pulseScale",
+    )
+
+    val interactionSource = remember { MutableInteractionSource() }
+    val isPressed by interactionSource.collectIsPressedAsState()
+    val pressScale by animateFloatAsState(
+        targetValue = if (isPressed) PRESS_SCALE_TARGET else 1f,
+        animationSpec = spring(stiffness = Spring.StiffnessMedium),
+        label = "pressScale",
     )
 
     val buttonColors = rememberPokerButtonColors(isPrimary, containerColor, contentColor, enabled)
@@ -85,13 +100,14 @@ fun PokerButton(
         modifier =
             modifier
                 .height(BUTTON_HEIGHT_DP.dp)
-                .scale(scale)
+                .scale(pulseScale * pressScale)
                 .shadow(if (enabled) shadowElevation else 0.dp, PokerTheme.shapes.medium)
                 .clip(PokerTheme.shapes.medium)
                 .then(if (border != null && enabled) Modifier.border(border, PokerTheme.shapes.medium) else Modifier)
                 .background(buttonColors.container)
                 .clickable(
                     enabled = enabled,
+                    interactionSource = interactionSource,
                     onClick = {
                         hapticsService.performHapticFeedback(
                             if (isPrimary) HapticFeedbackType.HEAVY else HapticFeedbackType.LIGHT,
