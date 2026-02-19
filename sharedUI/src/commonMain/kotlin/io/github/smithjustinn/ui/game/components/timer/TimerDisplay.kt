@@ -126,25 +126,27 @@ private fun calculateTimerScale(
     showTimeLoss: Boolean,
     isCriticalTime: Boolean,
 ): State<Float> {
-    val infinitePulseScaleState = infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = PULSE_SCALE_TARGET,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(COLOR_TRANSITION_DURATION_MS, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-    )
+    val infinitePulseScaleState =
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = PULSE_SCALE_TARGET,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(COLOR_TRANSITION_DURATION_MS, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+        )
 
-    val lossPulseScaleState = animateFloatAsState(
-        targetValue = if (showTimeLoss) 1.2f else 1f,
-        animationSpec =
-            if (showTimeLoss) {
-                spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessMedium)
-            } else {
-                spring(stiffness = Spring.StiffnessLow)
-            },
-    )
+    val lossPulseScaleState =
+        animateFloatAsState(
+            targetValue = if (showTimeLoss) 1.2f else 1f,
+            animationSpec =
+                if (showTimeLoss) {
+                    spring(dampingRatio = Spring.DampingRatioHighBouncy, stiffness = Spring.StiffnessMedium)
+                } else {
+                    spring(stiffness = Spring.StiffnessLow)
+                },
+        )
 
     return remember(showTimeLoss, isCriticalTime) {
         derivedStateOf {
@@ -177,10 +179,11 @@ private fun MinimalTimerDisplay(
                     fontWeight = FontWeight.Black,
                     letterSpacing = 0.5.sp,
                 ),
-            modifier = Modifier.graphicsLayer {
-                scaleX = visuals.scale.value
-                scaleY = visuals.scale.value
-            },
+            modifier =
+                Modifier.graphicsLayer {
+                    scaleX = visuals.scale.value
+                    scaleY = visuals.scale.value
+                },
             color = visuals.color,
         )
 
@@ -245,8 +248,7 @@ private fun StandardTimerDisplay(
                         .graphicsLayer {
                             scaleX = visuals.scale.value
                             scaleY = visuals.scale.value
-                        }
-                        .padding(bottom = 2.dp),
+                        }.padding(bottom = 2.dp),
                 // Fine-tune vertical alignment
                 color = visuals.color,
                 maxLines = 1,

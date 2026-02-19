@@ -7,6 +7,7 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.services.MatchEvaluator
 import io.github.smithjustinn.domain.services.MutatorEngine
 import io.github.smithjustinn.utils.CoroutineDispatchers
+import io.github.smithjustinn.utils.TimeConstants
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
@@ -335,7 +336,7 @@ class GameStateMachine(
     private fun emitEffect(effect: GameEffect) = _effects.tryEmit(effect)
 
     companion object {
-        const val MISMATCH_DELAY_MS = 1000L
+        const val MISMATCH_DELAY_MS = TimeConstants.MILLIS_IN_SECOND
         private const val LOW_TIME_WARNING_THRESHOLD = 5L
     }
 }

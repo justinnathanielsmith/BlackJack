@@ -6,6 +6,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.services.GameFactory
+import io.github.smithjustinn.utils.TimeConstants
 import kotlin.random.Random
 import kotlin.time.Clock
 
@@ -24,7 +25,7 @@ open class StartNewGameUseCase {
         val (finalPairCount, finalSeed) =
             if (mode == GameMode.DAILY_CHALLENGE) {
                 // Enforce Daily Challenge invariants: Date-based seed, standard size
-                val dailySeed = Clock.System.now().toEpochMilliseconds() / MILLIS_IN_DAY
+                val dailySeed = Clock.System.now().toEpochMilliseconds() / TimeConstants.MILLIS_IN_DAY
                 DAILY_CHALLENGE_PAIR_COUNT to dailySeed
             } else {
                 require(pairCount in 1..MAX_PAIR_COUNT) { "Pair count must be between 1 and $MAX_PAIR_COUNT" }
@@ -69,11 +70,6 @@ open class StartNewGameUseCase {
     companion object {
         const val MAX_PAIR_COUNT = 26
         private const val DAILY_CHALLENGE_PAIR_COUNT = 8
-        private const val MILLIS_IN_SECOND = 1000L
-        private const val SECONDS_IN_MINUTE = 60L
-        private const val MINUTES_IN_HOUR = 60L
-        private const val HOURS_IN_DAY = 24L
-        private const val MILLIS_IN_DAY = HOURS_IN_DAY * MINUTES_IN_HOUR * SECONDS_IN_MINUTE * MILLIS_IN_SECOND
 
         private const val BLACKOUT_CHANCE = 0.50f
         private const val MIRAGE_CHANCE = 0.40f
