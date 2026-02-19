@@ -51,7 +51,10 @@ object MatchEvaluator {
         }
     }
 
-    private fun canFlip(state: MemoryGameState, card: CardState?): Boolean {
+    private fun canFlip(
+        state: MemoryGameState,
+        card: CardState?,
+    ): Boolean {
         if (state.isGameOver) return false
         if (card == null || card.isFaceUp || card.isMatched) return false
 

@@ -1,6 +1,7 @@
 package io.github.smithjustinn.domain
 
 import io.github.smithjustinn.utils.CoroutineDispatchers
+import io.github.smithjustinn.utils.TimeConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
@@ -33,6 +34,6 @@ class GameTimer(
     }
 
     companion object {
-        const val TIMER_TICK_INTERVAL_MS = 1000L
+        const val TIMER_TICK_INTERVAL_MS = TimeConstants.MILLIS_IN_SECOND
     }
 }
