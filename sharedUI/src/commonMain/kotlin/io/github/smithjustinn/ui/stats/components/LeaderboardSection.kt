@@ -5,11 +5,14 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -32,6 +35,7 @@ import io.github.smithjustinn.resources.stats_moves_header
 import io.github.smithjustinn.resources.stats_time_header
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
+import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.start.displayNameRes
 import io.github.smithjustinn.utils.formatTime
 import kotlinx.collections.immutable.ImmutableList
@@ -60,17 +64,26 @@ private fun LeaderboardList(
         LeaderboardInfoRow(level)
 
         if (entries.isEmpty()) {
-            Box(
+            Column(
                 modifier = Modifier.padding(vertical = PokerTheme.spacing.extraLarge).fillMaxWidth(),
-                contentAlignment = Alignment.Center,
+                horizontalAlignment = Alignment.CenterHorizontally,
             ) {
+                Icon(
+                    imageVector = AppIcons.Trophy,
+                    contentDescription = null,
+                    modifier = Modifier.size(48.dp),
+                    tint = PokerTheme.colors.onBackground.copy(alpha = 0.2f),
+                )
+
+                Spacer(modifier = Modifier.height(PokerTheme.spacing.small))
+
                 Text(
                     text = stringResource(Res.string.no_stats_yet),
                     style =
                         MaterialTheme.typography.bodyMedium.copy(
                             fontFamily = FontFamily.Serif,
                         ),
-                    color = Color.White.copy(alpha = 0.4f),
+                    color = PokerTheme.colors.onBackground.copy(alpha = 0.4f),
                 )
             }
         } else {
