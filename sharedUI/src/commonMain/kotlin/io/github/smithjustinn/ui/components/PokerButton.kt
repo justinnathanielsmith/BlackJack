@@ -71,9 +71,7 @@ fun PokerButton(
     applyGlimmer: Boolean = false,
     contentDescription: String? = null,
 ) {
-    val infiniteTransition = rememberInfiniteTransition(label = "poker_button_pulse")
-    // Optimization: Use State objects directly to avoid recomposition of the entire component
-    // when values change. We read the values inside graphicsLayer.
+    val infiniteTransition = rememberInfiniteTransition(label = "pokerButtonPulse")
     val pulseScaleState =
         infiniteTransition.animateFloat(
             initialValue = 1f,
@@ -104,8 +102,6 @@ fun PokerButton(
         modifier =
             modifier
                 .height(BUTTON_HEIGHT_DP.dp)
-                // Optimization: Use graphicsLayer to update scale in the draw phase instead of
-                // triggering recomposition every frame via Modifier.scale()
                 .graphicsLayer {
                     val scale = pulseScaleState.value * pressScaleState.value
                     scaleX = scale
