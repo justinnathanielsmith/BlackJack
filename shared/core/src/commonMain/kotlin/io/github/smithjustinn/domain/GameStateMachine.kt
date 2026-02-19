@@ -42,7 +42,7 @@ class GameStateMachine(
 
     private var internalTimeSeconds: Long = initialTimeSeconds
 
-    private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = 64)
+    private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = EFFECTS_BUFFER_CAPACITY)
     val effects: SharedFlow<GameEffect> = _effects.asSharedFlow()
 
     private val gameTimer = GameTimer(scope, dispatchers) { dispatch(GameAction.Tick) }
@@ -217,7 +217,7 @@ class GameStateMachine(
                     transition { newState }
                     +GameEffect.VibrateHeat
                     // Side effect that triggers another action
-                    scope.launch { dispatch(GameAction.ScanCards(durationMs = 2000)) }
+                    scope.launch { dispatch(GameAction.ScanCards(durationMs = DOUBLE_DOWN_SCAN_DURATION_MS)) }
                 }
             }
         applyResult(result)
@@ -339,5 +339,7 @@ class GameStateMachine(
     companion object {
         const val MISMATCH_DELAY_MS = TimeConstants.MILLIS_IN_SECOND
         private const val LOW_TIME_WARNING_THRESHOLD = 5L
+        private const val EFFECTS_BUFFER_CAPACITY = 64
+        private const val DOUBLE_DOWN_SCAN_DURATION_MS = 2000L
     }
 }
