@@ -51,6 +51,7 @@ kotlin {
             api(libs.koin.compose.viewmodel)
             implementation(libs.compottie)
             implementation(libs.compottie.resources)
+            implementation(libs.ktor.client.core)
         }
 
         commonTest.dependencies {

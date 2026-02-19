@@ -1,0 +1,72 @@
+Reusing configuration cache.
+> Task :sharedUI:convertXmlValueResourcesForJvmMain NO-SOURCE
+> Task :sharedUI:generateComposeResClass UP-TO-DATE
+> Task :sharedUI:kmpPartiallyResolvedDependenciesChecker
+> Task :sharedUI:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :sharedUI:convertXmlValueResourcesForCommonMain NO-SOURCE
+> Task :sharedUI:copyNonXmlValueResourcesForJvmMain NO-SOURCE
+> Task :sharedUI:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
+> Task :sharedUI:prepareComposeResourcesTaskForJvmMain NO-SOURCE
+> Task :shared:core:kmpPartiallyResolvedDependenciesChecker
+> Task :sharedUI:generateResourceAccessorsForJvmMain NO-SOURCE
+> Task :shared:core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:core:convertXmlValueResourcesForJvmMain NO-SOURCE
+> Task :shared:core:copyNonXmlValueResourcesForJvmMain NO-SOURCE
+> Task :sharedUI:copyNonXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :shared:core:copyNonXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :shared:core:prepareComposeResourcesTaskForJvmMain NO-SOURCE
+> Task :shared:core:generateResourceAccessorsForJvmMain NO-SOURCE
+> Task :sharedUI:prepareComposeResourcesTaskForCommonMain UP-TO-DATE
+> Task :shared:core:generateComposeResClass UP-TO-DATE
+> Task :shared:core:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
+> Task :shared:data:kmpPartiallyResolvedDependenciesChecker
+> Task :shared:data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :sharedUI:convertXmlValueResourcesForCommonTest NO-SOURCE
+> Task :sharedUI:convertXmlValueResourcesForJvmTest NO-SOURCE
+> Task :sharedUI:copyNonXmlValueResourcesForCommonTest NO-SOURCE
+> Task :sharedUI:generateResourceAccessorsForCommonMain UP-TO-DATE
+> Task :sharedUI:prepareComposeResourcesTaskForCommonTest NO-SOURCE
+> Task :sharedUI:generateResourceAccessorsForCommonTest NO-SOURCE
+> Task :shared:core:convertXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :sharedUI:assembleJvmMainResources UP-TO-DATE
+> Task :shared:core:prepareComposeResourcesTaskForCommonMain UP-TO-DATE
+> Task :sharedUI:generateActualResourceCollectorsForJvmMain UP-TO-DATE
+> Task :sharedUI:jvmProcessResources UP-TO-DATE
+> Task :sharedUI:copyNonXmlValueResourcesForJvmTest NO-SOURCE
+> Task :sharedUI:processJvmMainResources SKIPPED
+> Task :shared:core:generateResourceAccessorsForCommonMain UP-TO-DATE
+> Task :sharedUI:prepareComposeResourcesTaskForJvmTest NO-SOURCE
+> Task :sharedUI:koverFindJar UP-TO-DATE
+> Task :shared:core:assembleJvmMainResources UP-TO-DATE
+> Task :sharedUI:generateResourceAccessorsForJvmTest NO-SOURCE
+> Task :shared:core:jvmProcessResources UP-TO-DATE
+> Task :sharedUI:assembleJvmTestResources UP-TO-DATE
+> Task :shared:core:generateActualResourceCollectorsForJvmMain UP-TO-DATE
+> Task :shared:core:processJvmMainResources SKIPPED
+> Task :sharedUI:jvmTestProcessResources UP-TO-DATE
+> Task :sharedUI:processJvmTestResources SKIPPED
+> Task :shared:core:compileKotlinJvm UP-TO-DATE
+> Task :shared:core:compileJvmMainJava NO-SOURCE
+> Task :shared:core:jvmMainClasses UP-TO-DATE
+> Task :shared:core:jvmJar UP-TO-DATE
+> Task :shared:data:kspKotlinJvm UP-TO-DATE
+> Task :shared:data:copyRoomSchemas NO-SOURCE
+> Task :shared:data:jvmProcessResources NO-SOURCE
+> Task :shared:data:processJvmMainResources SKIPPED
+> Task :shared:data:compileKotlinJvm UP-TO-DATE
+> Task :shared:data:compileJvmMainJava NO-SOURCE
+> Task :shared:data:jvmMainClasses UP-TO-DATE
+> Task :shared:data:jvmJar UP-TO-DATE
+> Task :sharedUI:compileKotlinJvm UP-TO-DATE
+> Task :sharedUI:compileJvmMainJava NO-SOURCE
+> Task :sharedUI:jvmMainClasses UP-TO-DATE
+> Task :sharedUI:jvmJar UP-TO-DATE
+
+> Task :sharedUI:compileTestKotlinJvm
+w: file:///app/sharedUI/src/commonTest/kotlin/io/github/smithjustinn/ui/game/DefaultGameComponentTest.kt:113:38 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///app/sharedUI/src/commonTest/kotlin/io/github/smithjustinn/ui/shop/DefaultShopComponentTest.kt:112:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+w: file:///app/sharedUI/src/commonTest/kotlin/io/github/smithjustinn/ui/shop/DefaultShopComponentTest.kt:137:13 This declaration needs opt-in. Its usage should be marked with '@kotlinx.coroutines.ExperimentalCoroutinesApi' or '@OptIn(kotlinx.coroutines.ExperimentalCoroutinesApi::class)'
+
+> Task :sharedUI:compileJvmTestJava NO-SOURCE
+> Task :sharedUI:jvmTestClasses
+> Task :sharedUI:jvmTest

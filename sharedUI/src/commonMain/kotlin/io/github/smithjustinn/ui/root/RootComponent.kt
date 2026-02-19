@@ -30,8 +30,6 @@ import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
 
-private const val DEFAULT_PAIR_COUNT = 8
-
 interface RootComponent {
     val childStack: Value<ChildStack<*, Child>>
     val backHandler: BackHandler
@@ -97,28 +95,20 @@ class DefaultRootComponent(
 
     // Url format: memorymatch://game?mode=TIME_ATTACK&pairs=8&seed=12345
     private fun handleDeepLink(url: String) {
-        if (!url.startsWith(Constants.DEEP_LINK_PREFIX)) return
+        val params = DeepLinkUtils.parseDeepLink(url) ?: return
 
         try {
-            val modeStr = url.getQueryParameter(Constants.QUERY_PARAM_MODE)
-            val pairsStr = url.getQueryParameter(Constants.QUERY_PARAM_PAIRS)
-            val seedStr = url.getQueryParameter(Constants.QUERY_PARAM_SEED)
-
-            val mode = modeStr?.let { GameMode.valueOf(it) } ?: GameMode.TIME_ATTACK
-            val pairs = (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT).coerceIn(GameArgs.MIN_PAIRS, GameArgs.MAX_PAIRS)
-            val seed = seedStr?.toLongOrNull()
-
             @OptIn(DelicateDecomposeApi::class)
             navigation.push(
                 Config.Game(
-                    pairs,
-                    mode,
+                    params.pairs,
+                    params.mode,
                     DifficultyType.CASUAL,
                     forceNewGame = true,
-                    seed = seed,
+                    seed = params.seed,
                 ),
             )
-        } catch (e: IllegalArgumentException) {
+        } catch (e: Exception) {
             logger.e(e) { "Error handling deep link: $url" }
         }
     }
@@ -237,14 +227,4 @@ class DefaultRootComponent(
 
         @Serializable data object Debug : Config
     }
-}
-
-private fun String.getQueryParameter(key: String): String? {
-    val queryStart = indexOf('?')
-    if (queryStart == -1) return null
-
-    return substring(queryStart + 1)
-        .split('&')
-        .firstOrNull { it.startsWith("$key=") }
-        ?.substringAfter('=')
 }
