@@ -7,6 +7,7 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.services.GameFactory
 import io.github.smithjustinn.utils.TimeConstants
+import io.github.smithjustinn.utils.secureRandomLong
 import kotlin.random.Random
 import kotlin.time.Clock
 
@@ -29,7 +30,7 @@ open class StartNewGameUseCase {
                 DAILY_CHALLENGE_PAIR_COUNT to dailySeed
             } else {
                 require(pairCount in 1..MAX_PAIR_COUNT) { "Pair count must be between 1 and $MAX_PAIR_COUNT" }
-                pairCount to (seed ?: Random.nextLong())
+                pairCount to (seed ?: secureRandomLong())
             }
 
         val random = Random(finalSeed)
