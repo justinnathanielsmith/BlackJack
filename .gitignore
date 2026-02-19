@@ -15,3 +15,8 @@ Pods/
 *.jks
 *.gpg
 *yarn.lock
+# Sensitive configuration files
+google-services.json
+GoogleService-Info.plist
+.env
+.env.*
