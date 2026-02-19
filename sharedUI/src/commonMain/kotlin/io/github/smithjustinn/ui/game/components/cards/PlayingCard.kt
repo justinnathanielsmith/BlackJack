@@ -342,7 +342,11 @@ private fun rememberCardAnimations(
                         FLIP_POP_SCALE at FLIP_DURATION_MS / 2
                         1.0f at FLIP_DURATION_MS
                     }
+                } else if (targetState.isPressed || initialState.isPressed) {
+                    // Snappy response for touch feedback
+                    spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium)
                 } else {
+                    // Bouncy for other states (pulse, hover)
                     spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
                 }
             },
