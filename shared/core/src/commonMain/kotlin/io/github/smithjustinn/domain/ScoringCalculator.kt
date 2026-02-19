@@ -26,21 +26,21 @@ object ScoringCalculator {
         matchComboBonus: Int,
         isWon: Boolean,
     ): MatchScoreResult {
-        val matchPoints = matchBasePoints + matchComboBonus
-        val multiplier = if (isDoubleDownActive) DOUBLE_DOWN_MULTIPLIER else 1
+        val matchPoints = matchBasePoints.toLong() + matchComboBonus.toLong()
+        val multiplier = if (isDoubleDownActive) DOUBLE_DOWN_MULTIPLIER.toLong() else 1L
 
-        val (finalScore, ddBonus) =
+        val (finalScoreLong, ddBonusLong) =
             if (isWon && isDoubleDownActive) {
-                val totalBeforeMultiplier = currentScore + matchPoints
+                val totalBeforeMultiplier = currentScore.toLong() + matchPoints
                 totalBeforeMultiplier * multiplier to totalBeforeMultiplier
             } else {
                 val matchTotal = matchPoints * multiplier
-                currentScore + matchTotal to if (isDoubleDownActive) matchPoints else 0
+                currentScore.toLong() + matchTotal to if (isDoubleDownActive) matchPoints else 0L
             }
 
         return MatchScoreResult(
-            finalScore = finalScore,
-            ddBonus = ddBonus,
+            finalScore = finalScoreLong.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
+            ddBonus = ddBonusLong.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
         )
     }
 

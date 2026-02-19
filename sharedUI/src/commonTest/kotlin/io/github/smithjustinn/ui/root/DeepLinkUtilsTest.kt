@@ -8,7 +8,6 @@ import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
 class DeepLinkUtilsTest {
-
     @Test
     fun `valid deep link parses correctly`() {
         val url = "memorymatch://game?mode=TIME_ATTACK&pairs=8&seed=12345"
