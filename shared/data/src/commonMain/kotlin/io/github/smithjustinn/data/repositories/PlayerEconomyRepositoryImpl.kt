@@ -168,7 +168,12 @@ class PlayerEconomyRepositoryImpl(
         writeMutex.withLock {
             require(amount >= 0) { "Amount must be non-negative" }
             val current = getOrCreateEntity()
-            val newBalance = current.balance + amount
+            val newBalance =
+                if (Long.MAX_VALUE - amount < current.balance) {
+                    Long.MAX_VALUE
+                } else {
+                    current.balance + amount
+                }
             dao.savePlayerEconomy(current.copy(balance = newBalance))
             logger.d { "Added $amount currency. New balance: $newBalance" }
         }
