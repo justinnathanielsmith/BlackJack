@@ -57,10 +57,14 @@ object ScoringCalculator {
         val timeBonus = calculateTimeBonus(state, elapsedTimeSeconds, config)
 
         // Move Efficiency Bonus (dominant factor)
-        val moveEfficiency = state.pairCount.toDouble() / state.moves.toDouble()
+        // Ensure moves is at least 1 to avoid division by zero or infinity.
+        val effectiveMoves = state.moves.coerceAtLeast(1)
+        val moveEfficiency = state.pairCount.toDouble() / effectiveMoves.toDouble()
         val moveBonus = (moveEfficiency * config.moveBonusMultiplier).toInt()
 
-        val totalScore = state.score + timeBonus + moveBonus
+        // Prevent overflow by using Long for intermediate calculation
+        val totalScoreLong = state.score.toLong() + timeBonus + moveBonus
+        val totalScore = totalScoreLong.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()
 
         val earnedCurrency = calculateEarnedCurrency(state, totalScore)
         val dailyChallengeBonus = if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
