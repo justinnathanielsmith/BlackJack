@@ -30,11 +30,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shadow
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
@@ -72,24 +72,28 @@ fun PokerButton(
     contentDescription: String? = null,
 ) {
     val infiniteTransition = rememberInfiniteTransition(label = "poker_button_pulse")
-    val pulseScale by infiniteTransition.animateFloat(
-        initialValue = 1f,
-        targetValue = if (isPulsing && enabled) PULSE_SCALE_TARGET else 1f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(PULSE_ANIMATION_DURATION_MS, easing = LinearEasing),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "pulseScale",
-    )
+    // Optimization: Use State objects directly to avoid recomposition of the entire component
+    // when values change. We read the values inside graphicsLayer.
+    val pulseScaleState =
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = if (isPulsing && enabled) PULSE_SCALE_TARGET else 1f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(PULSE_ANIMATION_DURATION_MS, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "pulseScale",
+        )
 
     val interactionSource = remember { MutableInteractionSource() }
     val isPressed by interactionSource.collectIsPressedAsState()
-    val pressScale by animateFloatAsState(
-        targetValue = if (isPressed) PRESS_SCALE_TARGET else 1f,
-        animationSpec = spring(stiffness = Spring.StiffnessMedium),
-        label = "pressScale",
-    )
+    val pressScaleState =
+        animateFloatAsState(
+            targetValue = if (isPressed) PRESS_SCALE_TARGET else 1f,
+            animationSpec = spring(stiffness = Spring.StiffnessMedium),
+            label = "pressScale",
+        )
 
     val buttonColors = rememberPokerButtonColors(isPrimary, containerColor, contentColor, enabled)
     val shadowElevation = if (isPrimary) PRIMARY_SHADOW_ELEVATION_DP.dp else PokerTheme.spacing.extraSmall
@@ -100,8 +104,13 @@ fun PokerButton(
         modifier =
             modifier
                 .height(BUTTON_HEIGHT_DP.dp)
-                .scale(pulseScale * pressScale)
-                .shadow(if (enabled) shadowElevation else 0.dp, PokerTheme.shapes.medium)
+                // Optimization: Use graphicsLayer to update scale in the draw phase instead of
+                // triggering recomposition every frame via Modifier.scale()
+                .graphicsLayer {
+                    val scale = pulseScaleState.value * pressScaleState.value
+                    scaleX = scale
+                    scaleY = scale
+                }.shadow(if (enabled) shadowElevation else 0.dp, PokerTheme.shapes.medium)
                 .clip(PokerTheme.shapes.medium)
                 .then(if (border != null && enabled) Modifier.border(border, PokerTheme.shapes.medium) else Modifier)
                 .background(buttonColors.container)

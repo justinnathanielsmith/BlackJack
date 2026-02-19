@@ -25,7 +25,6 @@ import io.github.smithjustinn.ui.start.DefaultStartComponent
 import io.github.smithjustinn.ui.start.StartComponent
 import io.github.smithjustinn.ui.stats.DefaultStatsComponent
 import io.github.smithjustinn.ui.stats.StatsComponent
-import io.github.smithjustinn.utils.Constants
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.launch
 import kotlinx.serialization.Serializable
