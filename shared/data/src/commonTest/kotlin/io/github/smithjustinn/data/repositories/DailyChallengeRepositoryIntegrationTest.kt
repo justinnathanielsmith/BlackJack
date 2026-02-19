@@ -3,7 +3,6 @@ package io.github.smithjustinn.data.repositories
 import io.github.smithjustinn.data.local.AppDatabase
 import io.github.smithjustinn.data.local.createTestDatabase
 import io.github.smithjustinn.utils.CoroutineDispatchers
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.runTest
@@ -14,7 +13,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertFalse
 import kotlin.test.assertTrue
 
-@OptIn(ExperimentalCoroutinesApi::class)
 class DailyChallengeRepositoryIntegrationTest {
     private lateinit var database: AppDatabase
     private lateinit var repository: DailyChallengeRepositoryImpl
