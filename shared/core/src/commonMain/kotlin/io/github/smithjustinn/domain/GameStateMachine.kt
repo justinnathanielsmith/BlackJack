@@ -6,6 +6,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.services.MatchEvaluator
 import io.github.smithjustinn.domain.services.MutatorEngine
+import io.github.smithjustinn.domain.services.ScoreKeeper
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -115,7 +116,7 @@ class GameStateMachine(
         val currentState = _state.value
         if (currentState.isGameOver || currentState.cards.count { it.isFaceUp && !it.isMatched } >= 2) return
 
-        val (flippedState, event) = MemoryGameLogic.flipCard(currentState, action.cardId)
+        val (flippedState, event) = MatchEvaluator.flipCard(currentState, action.cardId)
         if (flippedState === currentState && event == null) return
 
         val result =
@@ -143,7 +144,7 @@ class GameStateMachine(
         +GameEffect.VibrateMatch
         +GameEffect.PlayMatchSound
         stopTimer()
-        val finalState = MemoryGameLogic.applyFinalBonuses(flippedState, internalTimeSeconds)
+        val finalState = ScoreKeeper.applyFinalBonuses(flippedState, internalTimeSeconds)
         transition { finalState }
         +GameEffect.EarnCurrency(finalState.scoreBreakdown.earnedCurrency.toLong())
         +GameEffect.PlayWinSound
