@@ -2,7 +2,7 @@ package io.github.smithjustinn.domain.services
 
 import io.github.smithjustinn.domain.ScoringCalculator
 import io.github.smithjustinn.domain.models.GameDomainEvent
-import io.github.smithjustinn.domain.models.MatchScoreResult
+import io.github.smithjustinn.domain.models.MatchScoringUpdate
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoringConfig
 
@@ -12,21 +12,17 @@ import io.github.smithjustinn.domain.models.ScoringConfig
  */
 object ScoreKeeper {
     /**
-     * Calculates the score for a single match, accounting for combos and Double Down.
+     * Calculates the score update for a match, accounting for combos and Double Down.
      */
-    fun calculateMatchScore(
-        currentScore: Int,
-        isDoubleDownActive: Boolean,
-        matchBasePoints: Int,
-        matchComboBonus: Int,
+    fun calculateMatchUpdate(
+        state: MemoryGameState,
         isWon: Boolean,
-    ): MatchScoreResult =
-        ScoringCalculator.calculateMatchScore(
-            currentScore = currentScore,
-            isDoubleDownActive = isDoubleDownActive,
-            matchBasePoints = matchBasePoints,
-            matchComboBonus = matchComboBonus,
+        matchesFound: Int,
+    ): MatchScoringUpdate =
+        ScoringCalculator.calculateMatchUpdate(
+            state = state,
             isWon = isWon,
+            matchesFound = matchesFound,
         )
 
     /**

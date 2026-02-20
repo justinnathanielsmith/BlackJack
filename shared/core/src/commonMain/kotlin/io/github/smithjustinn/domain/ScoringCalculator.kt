@@ -3,6 +3,7 @@ package io.github.smithjustinn.domain
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MatchScoreResult
+import io.github.smithjustinn.domain.models.MatchScoringUpdate
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoreBreakdown
 import io.github.smithjustinn.domain.models.ScoringConfig
@@ -17,30 +18,54 @@ object ScoringCalculator {
     private const val DOUBLE_DOWN_MULTIPLIER = 2
 
     /**
-     * Calculates the score for a single match, accounting for combos and Double Down.
+     * Calculates the score update for a match, including pot accumulation and milestone checks.
      */
-    fun calculateMatchScore(
-        currentScore: Int,
-        isDoubleDownActive: Boolean,
-        matchBasePoints: Int,
-        matchComboBonus: Int,
+    fun calculateMatchUpdate(
+        state: MemoryGameState,
         isWon: Boolean,
-    ): MatchScoreResult {
-        val matchPoints = matchBasePoints.toLong() + matchComboBonus.toLong()
-        val multiplier = if (isDoubleDownActive) DOUBLE_DOWN_MULTIPLIER.toLong() else 1L
+        matchesFound: Int,
+    ): MatchScoringUpdate {
+        // 1. Calculate points for this specific match
+        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
+        val matchBasePoints = state.config.baseMatchPoints.toLong()
+        val matchComboBonus =
+            (comboFactor * state.config.comboBonusPoints).coerceAtMost(Int.MAX_VALUE.toLong())
+        val matchTotalPoints = matchBasePoints + matchComboBonus
 
-        val (finalScoreLong, ddBonusLong) =
-            if (isWon && isDoubleDownActive) {
-                val totalBeforeMultiplier = currentScore.toLong() + matchPoints
-                totalBeforeMultiplier * multiplier to totalBeforeMultiplier
+        // 2. Calculate Pot
+        val potentialPot =
+            (state.currentPot + matchTotalPoints).coerceAtMost(Int.MAX_VALUE.toLong())
+
+        // 3. Check Milestone
+        val isMilestone = matchesFound > 0 && matchesFound % state.config.matchMilestoneInterval == 0
+
+        // 4. Calculate Intermediate Score (before DD multiplier)
+        val scoreWithPot =
+            if (isMilestone || isWon) {
+                state.score + potentialPot
             } else {
-                val matchTotal = matchPoints * multiplier
-                currentScore.toLong() + matchTotal to if (isDoubleDownActive) matchPoints else 0L
+                state.score.toLong()
             }
 
-        return MatchScoreResult(
-            finalScore = finalScoreLong.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
-            ddBonus = ddBonusLong.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
+        // 5. Apply Double Down Logic (only on Win)
+        val (finalScore, ddBonus) =
+            if (isWon && state.isDoubleDownActive) {
+                val multiplier = DOUBLE_DOWN_MULTIPLIER.toLong()
+                scoreWithPot * multiplier to scoreWithPot
+            } else {
+                scoreWithPot to 0L
+            }
+
+        return MatchScoringUpdate(
+            matchBasePoints = matchBasePoints.toInt(),
+            matchComboBonus = matchComboBonus.toInt(),
+            potentialPot = potentialPot,
+            isMilestone = isMilestone,
+            scoreResult =
+                MatchScoreResult(
+                    finalScore = finalScore.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
+                    ddBonus = ddBonus.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
+                ),
         )
     }
 
@@ -67,7 +92,8 @@ object ScoringCalculator {
         val totalScore = totalScoreLong.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()
 
         val earnedCurrency = calculateEarnedCurrency(state, totalScore)
-        val dailyChallengeBonus = if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
+        val dailyChallengeBonus =
+            if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
 
         return state.copy(
             score = totalScore,
@@ -93,7 +119,10 @@ object ScoringCalculator {
         if (state.mode == GameMode.TIME_ATTACK) {
             (elapsedTimeSeconds * TIME_ATTACK_BONUS_MULTIPLIER).toInt()
         } else {
-            (state.pairCount * config.timeBonusPerPair - elapsedTimeSeconds * config.timePenaltyPerSecond)
+            (
+                state.pairCount * config.timeBonusPerPair -
+                    elapsedTimeSeconds * config.timePenaltyPerSecond
+            )
                 .coerceAtLeast(0)
                 .toInt()
         }

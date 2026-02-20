@@ -98,19 +98,57 @@ class ScoringCalculatorTest {
     }
 
     @Test
-    fun `calculateMatchScore handles Double Down correctly`() {
-        val result =
-            ScoringCalculator.calculateMatchScore(
-                currentScore = 100,
+    fun `calculateMatchUpdate handles Double Down on Win`() {
+        val config = ScoringConfig(baseMatchPoints = 50, comboBonusPoints = 10)
+        val state =
+            MemoryGameState(
+                score = 100,
+                currentPot = 0,
+                comboMultiplier = 1,
                 isDoubleDownActive = true,
-                matchBasePoints = 50,
-                matchComboBonus = 10,
-                isWon = false,
+                config = config,
+                pairCount = 8,
             )
+        // Match points: 50 + 10*1^2 = 60.
+        // Pot: 0 + 60 = 60.
+        // ScoreWithPot: 100 + 60 = 160.
+        // Win + DD: 160 * 2 = 320.
+        // DD Bonus: 160.
 
-        // (50 + 10) * 2 = 120
-        // 100 + 120 = 220
-        assertEquals(220, result.finalScore)
-        assertEquals(60, result.ddBonus)
+        val update = ScoringCalculator.calculateMatchUpdate(state, isWon = true, matchesFound = 8)
+
+        assertEquals(320, update.scoreResult.finalScore)
+        assertEquals(160, update.scoreResult.ddBonus)
+        assertEquals(60L, update.potentialPot) // Pot for this match
+    }
+
+    @Test
+    fun `calculateMatchUpdate handles Milestone without Double Down`() {
+        val config =
+            ScoringConfig(
+                baseMatchPoints = 50,
+                comboBonusPoints = 10,
+                matchMilestoneInterval = 4,
+            )
+        val state =
+            MemoryGameState(
+                score = 100,
+                currentPot = 200,
+                comboMultiplier = 1,
+                isDoubleDownActive = true,
+                config = config,
+                pairCount = 8,
+            )
+        // Match points: 60.
+        // Pot: 200 + 60 = 260.
+        // Milestone (4 matches).
+        // ScoreWithPot: 100 + 260 = 360.
+        // Not Win. No DD multiplier.
+        // Final Score: 360.
+
+        val update = ScoringCalculator.calculateMatchUpdate(state, isWon = false, matchesFound = 4)
+
+        assertEquals(360, update.scoreResult.finalScore)
+        assertEquals(0, update.scoreResult.ddBonus) // No bonus on milestone
     }
 }
