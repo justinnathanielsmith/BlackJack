@@ -78,4 +78,17 @@ class ScoringConfigTest {
             ScoringConfig(moveBonusMultiplier = -100)
         }
     }
+
+    @Test
+    fun testSecurityValidation() {
+        // Division by zero risks
+        assertFailsWith<IllegalArgumentException> { ScoringConfig(commentPotOddsDivisor = 0) }
+        assertFailsWith<IllegalArgumentException> { ScoringConfig(matchMilestoneInterval = 0) }
+
+        // Negative values not previously covered
+        assertFailsWith<IllegalArgumentException> { ScoringConfig(timeBonusPerPair = -1) }
+        assertFailsWith<IllegalArgumentException> { ScoringConfig(timeAttackBaseGain = -1) }
+        assertFailsWith<IllegalArgumentException> { ScoringConfig(timeAttackComboBonusMultiplier = -1) }
+        assertFailsWith<IllegalArgumentException> { ScoringConfig(highRollerThreshold = 0) }
+    }
 }

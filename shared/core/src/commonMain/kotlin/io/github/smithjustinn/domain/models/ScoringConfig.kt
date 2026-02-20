@@ -62,6 +62,12 @@ data class ScoringConfig(
         require(comboBonusPoints >= 0) { "Combo bonus points cannot be negative" }
         require(doubleDownPenalty >= 0) { "Double down penalty cannot be negative" }
         require(moveBonusMultiplier >= 0) { "Move bonus multiplier cannot be negative" }
+        require(commentPotOddsDivisor > 0) { "Pot odds divisor must be positive" }
+        require(matchMilestoneInterval > 0) { "Match milestone interval must be positive" }
+        require(timeBonusPerPair >= 0) { "Time bonus per pair cannot be negative" }
+        require(timeAttackBaseGain >= 0) { "Time attack base gain cannot be negative" }
+        require(timeAttackComboBonusMultiplier >= 0) { "Time attack combo bonus multiplier cannot be negative" }
+        require(highRollerThreshold > 0) { "High roller threshold must be positive" }
     }
 
     companion object {
