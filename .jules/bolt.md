@@ -25,3 +25,7 @@
 ## 2024-05-22 - [Optimized TimeProgressBar Animation]
 **Learning:** Animated values in Compose (e.g., `animateFloatAsState`) cause recomposition on every frame if read in the composition scope. Using `Modifier.layout` (or `graphicsLayer`) allows reading the state value inside the layout/draw phase, skipping the composition phase entirely.
 **Action:** When animating layout properties like width/height based on state, prefer `Modifier.layout` over `Modifier.width`/`fillMaxWidth` to avoid recomposition loops.
+
+## 2024-10-24 - Canvas Path Allocation
+**Learning:** Creating `Path` objects inside `Canvas` or `drawBehind` lambda allocates new native objects every frame, causing GC churn and CPU overhead.
+**Action:** Use `Modifier.drawWithCache` to create `Path` objects and other drawing resources once (or when size changes), and reuse them in `onDrawBehind`.

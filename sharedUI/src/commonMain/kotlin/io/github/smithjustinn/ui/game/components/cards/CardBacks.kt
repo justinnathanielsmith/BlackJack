@@ -9,6 +9,7 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -19,6 +20,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.geometry.Offset
@@ -190,163 +192,238 @@ internal fun ShimmerEffect() {
 
 @Composable
 internal fun GeometricCardBack(baseColor: Color) {
-    val patternColor = Color.White.copy(alpha = LOW_ALPHA)
-    Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp))) {
-        drawRect(baseColor)
+    Spacer(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp))
+                .drawWithCache {
+                    val patternColor = Color.White.copy(alpha = LOW_ALPHA)
+                    val borderColor = Color.White.copy(alpha = SUBTLE_ALPHA)
+                    val borderStroke = Stroke(width = 1.dp.toPx())
+                    val rectStroke = Stroke(width = 1.dp.toPx())
 
-        val step = 16.dp.toPx()
-        for (x in -step.toInt() until size.width.toInt() + step.toInt() step step.toInt()) {
-            for (y in -step.toInt() until size.height.toInt() + step.toInt() step step.toInt()) {
-                rotate(DIAGONAL_ROTATION, Offset(x.toFloat(), y.toFloat())) {
-                    drawRect(
-                        color = patternColor,
-                        topLeft = Offset(x.toFloat(), y.toFloat()),
-                        size = Size(step / HALF_DIVISOR, step / HALF_DIVISOR),
-                        style = Stroke(width = 1.dp.toPx()),
-                    )
-                }
-            }
-        }
+                    val step = 16.dp.toPx()
+                    val width = size.width
+                    val height = size.height
+                    val stepInt = step.toInt()
+                    val xStart = -stepInt
+                    val xEnd = width.toInt() + stepInt
+                    val yStart = -stepInt
+                    val yEnd = height.toInt() + stepInt
 
-        // Inner border
-        drawRoundRect(
-            color = Color.White.copy(alpha = SUBTLE_ALPHA),
-            topLeft = Offset(8.dp.toPx(), 8.dp.toPx()),
-            size = Size(size.width - 16.dp.toPx(), size.height - 16.dp.toPx()),
-            cornerRadius = CornerRadius(8.dp.toPx()),
-            style = Stroke(width = 1.dp.toPx()),
-        )
-    }
+                    val rectSize = Size(step / HALF_DIVISOR, step / HALF_DIVISOR)
+                    val borderTopLeft = Offset(8.dp.toPx(), 8.dp.toPx())
+                    val borderSize = Size(width - 16.dp.toPx(), height - 16.dp.toPx())
+                    val cornerRadius = CornerRadius(8.dp.toPx())
+
+                    onDrawBehind {
+                        drawRect(baseColor)
+
+                        for (x in xStart until xEnd step stepInt) {
+                            for (y in yStart until yEnd step stepInt) {
+                                rotate(DIAGONAL_ROTATION, Offset(x.toFloat(), y.toFloat())) {
+                                    drawRect(
+                                        color = patternColor,
+                                        topLeft = Offset(x.toFloat(), y.toFloat()),
+                                        size = rectSize,
+                                        style = rectStroke,
+                                    )
+                                }
+                            }
+                        }
+
+                        // Inner border
+                        drawRoundRect(
+                            color = borderColor,
+                            topLeft = borderTopLeft,
+                            size = borderSize,
+                            cornerRadius = cornerRadius,
+                            style = borderStroke,
+                        )
+                    }
+                },
+    )
 }
 
 @Composable
 internal fun ClassicCardBack(baseColor: Color) {
-    Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp))) {
-        drawRect(baseColor)
+    Spacer(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp))
+                .drawWithCache {
+                    val step = 12.dp.toPx()
+                    val color1 = Color.White.copy(alpha = VERY_LOW_ALPHA)
+                    val borderColor = Color.White
+                    val borderStroke = Stroke(width = 3.dp.toPx())
+                    val radius = 2.dp.toPx()
 
-        // Diamond pattern
-        val step = 12.dp.toPx()
-        val color1 = Color.White.copy(alpha = VERY_LOW_ALPHA)
+                    val width = size.width
+                    val height = size.height
+                    val xEnd = (width / step).toInt() + 1
+                    val yEnd = (height / step).toInt() + 1
 
-        for (x in 0 until (size.width / step).toInt() + 1) {
-            for (y in 0 until (size.height / step).toInt() + 1) {
-                if ((x + y) % HALF_DIVISOR == 0) {
-                    drawCircle(
-                        color = color1,
-                        radius = 2.dp.toPx(),
-                        center = Offset(x * step, y * step),
-                    )
-                }
-            }
-        }
+                    val borderTopLeft = Offset(4.dp.toPx(), 4.dp.toPx())
+                    val borderSize = Size(width - 8.dp.toPx(), height - 8.dp.toPx())
+                    val cornerRadius = CornerRadius(6.dp.toPx())
 
-        drawRoundRect(
-            color = Color.White,
-            topLeft = Offset(4.dp.toPx(), 4.dp.toPx()),
-            size = Size(size.width - 8.dp.toPx(), size.height - 8.dp.toPx()),
-            cornerRadius = CornerRadius(6.dp.toPx()),
-            style = Stroke(width = 3.dp.toPx()),
-        )
-    }
+                    onDrawBehind {
+                        drawRect(baseColor)
+
+                        for (x in 0 until xEnd) {
+                            for (y in 0 until yEnd) {
+                                if ((x + y) % HALF_DIVISOR == 0) {
+                                    drawCircle(
+                                        color = color1,
+                                        radius = radius,
+                                        center = Offset(x * step, y * step),
+                                    )
+                                }
+                            }
+                        }
+
+                        drawRoundRect(
+                            color = borderColor,
+                            topLeft = borderTopLeft,
+                            size = borderSize,
+                            cornerRadius = cornerRadius,
+                            style = borderStroke,
+                        )
+                    }
+                },
+    )
 }
 
 @Composable
 internal fun PatternCardBack(baseColor: Color) {
-    Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp))) {
-        drawRect(baseColor)
+    Spacer(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp))
+                .drawWithCache {
+                    val path = Path()
+                    val step = 20.dp.toPx()
+                    val width = size.width
+                    val height = size.height
 
-        val path = Path()
-        val step = 20.dp.toPx()
+                    for (y in -1 until (height / step).toInt() + 2) {
+                        val yPos = y * step
+                        path.moveTo(0f, yPos)
 
-        for (y in -1 until (size.height / step).toInt() + 2) {
-            val yPos = y * step
-            path.moveTo(0f, yPos)
+                        for (x in 0 until (width / step).toInt() + 1) {
+                            val xPos = x * step
+                            path.quadraticTo(
+                                xPos + step / 2,
+                                yPos + if (x % HALF_DIVISOR == 0) step / HALF_DIVISOR else -step / HALF_DIVISOR,
+                                xPos + step,
+                                yPos,
+                            )
+                        }
+                    }
 
-            for (x in 0 until (size.width / step).toInt() + 1) {
-                val xPos = x * step
-                path.quadraticTo(
-                    xPos + step / 2,
-                    yPos + if (x % HALF_DIVISOR == 0) step / HALF_DIVISOR else -step / HALF_DIVISOR,
-                    xPos + step,
-                    yPos,
-                )
-            }
-        }
+                    val patternColor = Color.White.copy(alpha = LOW_ALPHA)
+                    val strokeWidth = 2.dp.toPx()
+                    val borderColor = Color.White.copy(alpha = MEDIUM_ALPHA)
+                    val borderStrokeWidth = 1.5.dp.toPx()
+                    val borderOffset = 6.dp.toPx()
+                    val cornerRadius = 6.dp.toPx()
 
-        drawPath(
-            path = path,
-            color = Color.White.copy(alpha = LOW_ALPHA),
-            style = Stroke(width = 2.dp.toPx()),
-        )
+                    onDrawBehind {
+                        drawRect(baseColor)
 
-        drawRoundRect(
-            color = Color.White.copy(alpha = MEDIUM_ALPHA),
-            topLeft = Offset(6.dp.toPx(), 6.dp.toPx()),
-            size = Size(size.width - 12.dp.toPx(), size.height - 12.dp.toPx()),
-            cornerRadius = CornerRadius(6.dp.toPx()),
-            style = Stroke(width = 1.5.dp.toPx()),
-        )
-    }
+                        drawPath(
+                            path = path,
+                            color = patternColor,
+                            style = Stroke(width = strokeWidth),
+                        )
+
+                        drawRoundRect(
+                            color = borderColor,
+                            topLeft = Offset(borderOffset, borderOffset),
+                            size = Size(size.width - borderOffset * 2, size.height - borderOffset * 2),
+                            cornerRadius = CornerRadius(cornerRadius),
+                            style = Stroke(width = borderStrokeWidth),
+                        )
+                    }
+                },
+    )
 }
 
 @Composable
 internal fun PokerCardBack(baseColor: Color) {
-    Canvas(modifier = Modifier.fillMaxSize().clip(RoundedCornerShape(12.dp))) {
-        // White Border usually
-        drawRect(Color.White)
+    Spacer(
+        modifier =
+            Modifier
+                .fillMaxSize()
+                .clip(RoundedCornerShape(12.dp))
+                .drawWithCache {
+                    val width = size.width
+                    val height = size.height
 
-        // Inner Color Area
-        val borderSize = 4.dp.toPx()
-        drawRoundRect(
-            color = baseColor,
-            topLeft = Offset(borderSize, borderSize),
-            size = Size(size.width - borderSize * 2, size.height - borderSize * 2),
-            cornerRadius = CornerRadius(8.dp.toPx()),
-        )
+                    val borderSize = 4.dp.toPx()
+                    val innerWidth = width - borderSize * 2
+                    val innerHeight = height - borderSize * 2
+                    val step = 10.dp.toPx()
+                    val strokeWidth = 1.dp.toPx()
+                    val cornerRadius = CornerRadius(8.dp.toPx())
 
-        // Diamond Grid Pattern (Classic Casino)
-        val step = 10.dp.toPx()
-        val patternColor = Color.Black.copy(alpha = 0.15f)
+                    val gridPath = Path()
+                    val count = ((innerWidth + innerHeight) / step).toInt()
 
-        // Clip to inner area
-        val innerWidth = size.width - borderSize * 2
-        val innerHeight = size.height - borderSize * 2
+                    for (i in 0 until count) {
+                        val offset = i * step
+                        // Diagonal /
+                        gridPath.moveTo(borderSize + offset, borderSize)
+                        gridPath.lineTo(borderSize, borderSize + offset)
 
-        // We can't clip easily in Canvas dsl without native canvas access or clipPath.
-        // Instead we allow drawing over and re-draw border or just draw inside carefully.
-        // Drawing inside:
+                        // Diagonal \
+                        gridPath.moveTo(borderSize, innerHeight + borderSize - offset)
+                        gridPath.lineTo(borderSize + offset, innerHeight + borderSize)
+                    }
 
-        // Draw intersecting lines
-        for (i in 0 until ((innerWidth + innerHeight) / step).toInt()) {
-            val offset = i * step
-            // Diagonal /
-            drawLine(
-                color = patternColor,
-                start = Offset(borderSize + offset, borderSize),
-                end = Offset(borderSize, borderSize + offset),
-                strokeWidth = 1.dp.toPx(),
-            )
-            // Diagonal \
-            drawLine(
-                color = patternColor,
-                start = Offset(borderSize, innerHeight + borderSize - offset),
-                end = Offset(borderSize + offset, innerHeight + borderSize),
-                strokeWidth = 1.dp.toPx(),
-            )
-        }
+                    val centerX = width / 2
+                    val centerY = height / 2
+                    val diamondPath =
+                        Path().apply {
+                            moveTo(centerX, centerY - 20.dp.toPx())
+                            lineTo(centerX + 15.dp.toPx(), centerY)
+                            lineTo(centerX, centerY + 20.dp.toPx())
+                            lineTo(centerX - 15.dp.toPx(), centerY)
+                            close()
+                        }
 
-        // Large Center Emblem (Diamond)
-        val centerX = size.width / 2
-        val centerY = size.height / 2
-        val diamondPath =
-            Path().apply {
-                moveTo(centerX, centerY - 20.dp.toPx())
-                lineTo(centerX + 15.dp.toPx(), centerY)
-                lineTo(centerX, centerY + 20.dp.toPx())
-                lineTo(centerX - 15.dp.toPx(), centerY)
-                close()
-            }
-        drawPath(diamondPath, Color.White.copy(alpha = 0.2f))
-        drawPath(diamondPath, color = Color.White.copy(alpha = 0.5f), style = Stroke(width = 2.dp.toPx()))
-    }
+                    val patternColor = Color.Black.copy(alpha = 0.15f)
+                    val emblemColor1 = Color.White.copy(alpha = 0.2f)
+                    val emblemColor2 = Color.White.copy(alpha = 0.5f)
+                    val gridStroke = Stroke(width = strokeWidth)
+                    val emblemStroke = Stroke(width = 2.dp.toPx())
+
+                    onDrawBehind {
+                        // White Border usually
+                        drawRect(Color.White)
+
+                        // Inner Color Area
+                        drawRoundRect(
+                            color = baseColor,
+                            topLeft = Offset(borderSize, borderSize),
+                            size = Size(innerWidth, innerHeight),
+                            cornerRadius = cornerRadius,
+                        )
+
+                        // Grid
+                        drawPath(
+                            path = gridPath,
+                            color = patternColor,
+                            style = gridStroke,
+                        )
+
+                        // Large Center Emblem (Diamond)
+                        drawPath(diamondPath, emblemColor1)
+                        drawPath(diamondPath, color = emblemColor2, style = emblemStroke)
+                    }
+                },
+    )
 }
