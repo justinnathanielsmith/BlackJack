@@ -6,7 +6,6 @@ import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.GameAction
 import io.github.smithjustinn.domain.GameEffect
 import io.github.smithjustinn.domain.GameStateMachine
-import io.github.smithjustinn.domain.MemoryGameLogic
 import io.github.smithjustinn.domain.TimeAttackLogic
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
@@ -15,6 +14,7 @@ import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.SavedGame
+import io.github.smithjustinn.domain.services.MatchEvaluator
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.ad_unit_id
 import io.github.smithjustinn.utils.Constants
@@ -430,7 +430,7 @@ class DefaultGameComponent(
         // UI Check for eligibility to avoid unnecessary dispatch?
         val game = _state.value.game
         val unmatchedPairs = game.cards.count { !it.isMatched } / 2
-        if (unmatchedPairs < MemoryGameLogic.MIN_PAIRS_FOR_DOUBLE_DOWN) return
+        if (unmatchedPairs < MatchEvaluator.MIN_PAIRS_FOR_DOUBLE_DOWN) return
 
         if (!game.isDoubleDownActive && !_state.value.hasUsedDoubleDownPeek) {
             _state.update { it.copy(hasUsedDoubleDownPeek = true) }

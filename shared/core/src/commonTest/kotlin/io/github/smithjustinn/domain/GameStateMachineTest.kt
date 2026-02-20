@@ -4,6 +4,7 @@ import app.cash.turbine.test
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.services.GameFactory
 import io.github.smithjustinn.test.BaseLogicTest
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
@@ -31,7 +32,7 @@ class GameStateMachineTest : BaseLogicTest() {
     @Test
     fun `mismatch emits PlayMismatch and VibrateMismatch effects`() =
         runTest {
-            val state = MemoryGameLogic.createInitialState(pairCount = 6)
+            val state = GameFactory.createInitialState(pairCount = 6)
             val firstCard = state.cards[0]
             val nonMatchCard =
                 state.cards.drop(1).find { it.suit != firstCard.suit || it.rank != firstCard.rank }
@@ -53,7 +54,7 @@ class GameStateMachineTest : BaseLogicTest() {
     @Test
     fun `match success emits corresponding effects and updates score`() =
         runTest {
-            val state = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
+            val state = GameFactory.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
             val firstCard = state.cards[0]
             val matchingCard =
                 state.cards.find { it.id != firstCard.id && it.suit == firstCard.suit && it.rank == firstCard.rank }
@@ -117,7 +118,7 @@ class GameStateMachineTest : BaseLogicTest() {
     @Test
     fun `mismatch in Time Attack mode triggers penalty`() =
         runTest {
-            val state = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
+            val state = GameFactory.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
             val firstCard = state.cards[0]
             val nonMatchCard = state.cards.drop(1).first { it.suit != firstCard.suit || it.rank != firstCard.rank }
 
@@ -149,7 +150,7 @@ class GameStateMachineTest : BaseLogicTest() {
     fun `Double Down requires heat mode and triggers ScanCards`() =
         runTest {
             // Create state with heat mode active (comboMultiplier >= 3) and enough unmatched pairs (>= 3)
-            val baseState = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
+            val baseState = GameFactory.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
             val state = baseState.copy(comboMultiplier = 3)
 
             val machine = createStateMachine(initialState = state)
@@ -183,7 +184,7 @@ class GameStateMachineTest : BaseLogicTest() {
     fun `Blackout mutator reduces mismatch delay`() =
         runTest {
             val state =
-                MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK).copy(
+                GameFactory.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK).copy(
                     activeMutators = setOf(DailyChallengeMutator.BLACKOUT),
                 )
             val firstCard = state.cards[0]
@@ -214,7 +215,7 @@ class GameStateMachineTest : BaseLogicTest() {
     @Test
     fun `game win triggers EarnCurrency effect`() =
         runTest {
-            val state = MemoryGameLogic.createInitialState(pairCount = 1) // Only one pair to win quickly
+            val state = GameFactory.createInitialState(pairCount = 1) // Only one pair to win quickly
             val firstCard = state.cards[0]
             val matchingCard = state.cards[1]
 
@@ -243,7 +244,7 @@ class GameStateMachineTest : BaseLogicTest() {
     @Test
     fun `busting with Double Down should emit GameOver and expected effects`() =
         runTest {
-            val state = MemoryGameLogic.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
+            val state = GameFactory.createInitialState(pairCount = 6, mode = GameMode.TIME_ATTACK)
             // Force Double Down active
             val ddState = state.copy(isDoubleDownActive = true)
 

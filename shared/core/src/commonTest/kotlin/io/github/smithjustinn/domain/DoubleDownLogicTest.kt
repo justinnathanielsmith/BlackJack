@@ -7,6 +7,7 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.ScoringConfig
 import io.github.smithjustinn.domain.models.Suit
+import io.github.smithjustinn.domain.services.GameFactory
 import io.github.smithjustinn.domain.services.MatchEvaluator
 import kotlinx.collections.immutable.toPersistentList
 import kotlin.test.Test
@@ -21,7 +22,7 @@ class DoubleDownLogicTest {
     fun `activateDoubleDown should FAIL if unmatched pairs less than 3`() {
         // Arrange: Create state with only 2 pairs
         val state =
-            MemoryGameLogic
+            GameFactory
                 .createInitialState(pairCount = 2, config = defaultConfig)
                 .copy(comboMultiplier = defaultConfig.heatModeThreshold) // Heat Mode ready
 
@@ -36,7 +37,7 @@ class DoubleDownLogicTest {
     fun `activateDoubleDown should SUCCEED if unmatched pairs greater or equal to 3`() {
         // Arrange: Create state with 3 pairs
         val state =
-            MemoryGameLogic
+            GameFactory
                 .createInitialState(pairCount = 3, config = defaultConfig)
                 .copy(comboMultiplier = defaultConfig.heatModeThreshold) // Heat Mode ready
 
@@ -51,7 +52,7 @@ class DoubleDownLogicTest {
     fun `handleMatchFailure while Double Down active should causes Game Over and Zero Score`() {
         // Arrange
         var state =
-            MemoryGameLogic
+            GameFactory
                 .createInitialState(pairCount = 4, config = defaultConfig)
                 .copy(comboMultiplier = defaultConfig.heatModeThreshold)
 
@@ -63,10 +64,10 @@ class DoubleDownLogicTest {
         val card2 = state.cards.first { it.rank != card1.rank || it.suit != card1.suit }
 
         // Start flip
-        val (flippedState, _) = MemoryGameLogic.flipCard(state, card1.id)
+        val (flippedState, _) = MatchEvaluator.flipCard(state, card1.id)
 
         // Act: Flip mismatch
-        val (finalState, event) = MemoryGameLogic.flipCard(flippedState, card2.id)
+        val (finalState, event) = MatchEvaluator.flipCard(flippedState, card2.id)
 
         // Assert
         assertEquals(GameDomainEvent.GameOver, event)
@@ -103,8 +104,8 @@ class DoubleDownLogicTest {
             )
 
         // Act: Match the final pair
-        val (flippedState, _) = MemoryGameLogic.flipCard(state, card1.id)
-        val (finalState, _) = MemoryGameLogic.flipCard(flippedState, card2.id)
+        val (flippedState, _) = MatchEvaluator.flipCard(state, card1.id)
+        val (finalState, _) = MatchEvaluator.flipCard(flippedState, card2.id)
 
         // Assert
         assertTrue(finalState.isGameWon)

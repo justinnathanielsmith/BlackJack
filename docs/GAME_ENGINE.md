@@ -17,7 +17,10 @@ The game engine is built on a **unidirectional data flow** architecture, often r
 | :--------------------- | :---------------------------------------------------------------- | :------------------------------------------ |
 | **`GameStateMachine`** | Orchestrator. Manages `StateFlow` and emits `SharedFlow` effects. | `shared/core/.../GameStateMachine.kt`       |
 | **`MemoryGameState`**  | Immutable data model representing the game state.                 | `shared/core/.../models/MemoryGameState.kt` |
-| **`MemoryGameLogic`**  | Pure business logic (rules, scoring, state transitions).          | `shared/core/.../MemoryGameLogic.kt`        |
+| **`GameFactory`**      | Creates initial game state.                                       | `shared/core/.../services/GameFactory.kt`   |
+| **`MatchEvaluator`**   | Evaluates card matches and flips.                                 | `shared/core/.../services/MatchEvaluator.kt`|
+| **`ScoreKeeper`**      | Calculates scores and bonuses.                                    | `shared/core/.../services/ScoreKeeper.kt`   |
+| **`MutatorEngine`**    | Applies game mutators (e.g., Daily Challenge).                    | `shared/core/.../services/MutatorEngine.kt` |
 | **`GameAction`**       | Sealed class representing inputs (e.g., `FlipCard`, `Tick`).      | `shared/core/.../GameStateMachine.kt`       |
 | **`GameEffect`**       | Sealed class representing outputs (e.g., `PlaySound`).            | `shared/core/.../GameStateMachine.kt`       |
 
