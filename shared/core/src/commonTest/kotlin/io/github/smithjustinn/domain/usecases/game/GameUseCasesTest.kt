@@ -16,6 +16,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
+import kotlin.test.assertTrue
 
 class GameUseCasesTest {
     private val repository = mock<GameStateRepository>()
@@ -77,6 +78,17 @@ class GameUseCasesTest {
             everySuspend { repository.clearSavedGameState() } returns Unit
             useCase()
             verifySuspend { repository.clearSavedGameState() }
+        }
+
+    @Test
+    fun testClearSavedGameUseCase_error() =
+        runTest {
+            val useCase = ClearSavedGameUseCase(repository, logger)
+            val exception = RuntimeException("DB Error")
+            everySuspend { repository.clearSavedGameState() } throws exception
+            val result = useCase()
+            assertTrue(result.isFailure)
+            assertEquals(exception, result.exceptionOrNull())
         }
 
     @Test
