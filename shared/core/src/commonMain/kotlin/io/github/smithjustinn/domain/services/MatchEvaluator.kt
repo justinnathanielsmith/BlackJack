@@ -3,7 +3,7 @@ package io.github.smithjustinn.domain.services
 import io.github.smithjustinn.domain.GameCommentGenerator
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.GameDomainEvent
-import io.github.smithjustinn.domain.models.MatchScoreResult
+import io.github.smithjustinn.domain.models.MatchScoringUpdate
 import io.github.smithjustinn.domain.models.MemoryGameState
 import kotlinx.collections.immutable.PersistentList
 import kotlinx.collections.immutable.mutate
@@ -19,6 +19,7 @@ private object MatchConstants {
  */
 object MatchEvaluator {
     const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
+
     /**
      * Attempts to flip a card and returns the new state and any resulting event.
      */
@@ -27,7 +28,8 @@ object MatchEvaluator {
         cardId: Int,
     ): Pair<MemoryGameState, GameDomainEvent?> {
         val cardAtIndex = state.cards.getOrNull(cardId)
-        val index = if (cardAtIndex?.id == cardId) cardId else state.cards.indexOfFirst { it.id == cardId }
+        val index =
+            if (cardAtIndex?.id == cardId) cardId else state.cards.indexOfFirst { it.id == cardId }
         val cardToFlip = state.cards.getOrNull(index)
 
         if (!canFlip(state, cardToFlip)) {
@@ -40,7 +42,8 @@ object MatchEvaluator {
         val newState =
             state.copy(
                 cards = newCards,
-                lastMatchedIds = if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
+                lastMatchedIds =
+                    if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
             )
 
         val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
@@ -115,7 +118,8 @@ object MatchEvaluator {
         state: MemoryGameState,
         activeCards: List<CardState>,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        val (first, second) = activeCards.takeIf { it.size == MatchConstants.PAIR_SIZE } ?: return state to null
+        val (first, second) =
+            activeCards.takeIf { it.size == MatchConstants.PAIR_SIZE } ?: return state to null
 
         return if (first.suit == second.suit && first.rank == second.rank) {
             handleMatchSuccess(state, first, second)
@@ -129,12 +133,20 @@ object MatchEvaluator {
         first: CardState,
         second: CardState,
     ): Pair<MemoryGameState, GameDomainEvent?> {
-        val newCards = state.cards.updateByIds(first.id, second.id) { it.copy(isMatched = true, isFaceUp = true) }
+        val newCards =
+            state.cards.updateByIds(first.id, second.id) {
+                it.copy(isMatched = true, isFaceUp = true)
+            }
         val matchesFound = newCards.count { it.isMatched } / MatchConstants.PAIR_SIZE
         val isWon = matchesFound == state.pairCount
         val moves = state.moves + 1
 
-        val scoringUpdate = calculateMatchScoring(state, isWon, matchesFound)
+        val scoringUpdate =
+            ScoreKeeper.calculateMatchUpdate(
+                state = state,
+                isWon = isWon,
+                matchesFound = matchesFound,
+            )
 
         val newState =
             createMatchSuccessState(
@@ -148,36 +160,8 @@ object MatchEvaluator {
                 secondId = second.id,
             )
 
-        return newState to ScoreKeeper.determineSuccessEvent(isWon, state.comboMultiplier, state.config)
-    }
-
-    private fun calculateMatchScoring(
-        state: MemoryGameState,
-        isWon: Boolean,
-        matchesFound: Int,
-    ): MatchScoringUpdate {
-        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
-        val matchBasePoints = state.config.baseMatchPoints.toLong()
-        val matchComboBonus = (comboFactor * state.config.comboBonusPoints).coerceAtMost(Int.MAX_VALUE.toLong())
-        val matchTotalPoints = matchBasePoints + matchComboBonus
-
-        val isMilestone = matchesFound > 0 && matchesFound % state.config.matchMilestoneInterval == 0
-        val potentialPot = (state.currentPot + matchTotalPoints).coerceAtMost(Int.MAX_VALUE.toLong())
-
-        return MatchScoringUpdate(
-            matchBasePoints = matchBasePoints.toInt(),
-            matchComboBonus = matchComboBonus.toInt(),
-            potentialPot = potentialPot,
-            isMilestone = isMilestone,
-            scoreResult =
-                ScoreKeeper.calculateMatchScore(
-                    currentScore = if (isMilestone || isWon) state.score + potentialPot.toInt() else state.score,
-                    isDoubleDownActive = state.isDoubleDownActive,
-                    matchBasePoints = 0,
-                    matchComboBonus = 0,
-                    isWon = isWon,
-                ),
-        )
+        return newState to
+            ScoreKeeper.determineSuccessEvent(isWon, state.comboMultiplier, state.config)
     }
 
     private fun handleMatchFailure(
@@ -192,7 +176,8 @@ object MatchEvaluator {
                 createHeatShieldUsedState(state, errorCards) to GameDomainEvent.HeatShieldUsed
             }
             state.isDoubleDownActive -> {
-                createBustedState(state, errorCards, first.id, second.id) to GameDomainEvent.GameOver
+                createBustedState(state, errorCards, first.id, second.id) to
+                    GameDomainEvent.GameOver
             }
             else -> {
                 createStandardFailureState(state, errorCards) to GameDomainEvent.MatchFailure
@@ -229,7 +214,8 @@ private fun createMatchSuccessState(
         isGameOver = isWon,
         moves = moves,
         score = scoringUpdate.scoreResult.finalScore,
-        currentPot = if (scoringUpdate.isMilestone || isWon) 0 else scoringUpdate.potentialPot.toInt(),
+        currentPot =
+            if (scoringUpdate.isMilestone || isWon) 0 else scoringUpdate.potentialPot.toInt(),
         totalBasePoints = state.totalBasePoints + scoringUpdate.matchBasePoints,
         totalComboBonus = state.totalComboBonus + scoringUpdate.matchComboBonus,
         totalDoubleDownBonus = scoringUpdate.scoreResult.ddBonus,
@@ -300,11 +286,3 @@ private inline fun PersistentList<CardState>.updateByIds(
             }
         }
     }
-
-private data class MatchScoringUpdate(
-    val matchBasePoints: Int,
-    val matchComboBonus: Int,
-    val potentialPot: Long,
-    val isMilestone: Boolean,
-    val scoreResult: MatchScoreResult,
-)
