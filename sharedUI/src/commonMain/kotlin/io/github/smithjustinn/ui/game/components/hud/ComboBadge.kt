@@ -1,11 +1,14 @@
 package io.github.smithjustinn.ui.game.components.hud
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.InfiniteTransition
 import androidx.compose.animation.core.RepeatMode
+import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -18,8 +21,11 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
@@ -89,10 +95,31 @@ fun ComboBadge(
                 label = "comboPulse",
             )
 
+        val popScale = remember { Animatable(1f) }
+
+        LaunchedEffect(state.combo) {
+            if (state.combo > 1) {
+                popScale.snapTo(1.5f)
+                popScale.animateTo(
+                    targetValue = 1f,
+                    animationSpec =
+                        spring(
+                            dampingRatio = Spring.DampingRatioMediumBouncy,
+                            stiffness = Spring.StiffnessMedium,
+                        ),
+                )
+            } else {
+                popScale.snapTo(1f)
+            }
+        }
+
+        val popScaleState = remember { derivedStateOf { popScale.value } }
+
         ComboBadgeContent(
             state = state,
             compact = compact,
             pulseScale = comboPulseScaleState,
+            popScale = popScaleState,
         )
     }
 }
@@ -103,6 +130,7 @@ private fun ComboBadgeContent(
     state: ComboBadgeState,
     compact: Boolean,
     pulseScale: State<Float>,
+    popScale: State<Float>,
     modifier: Modifier = Modifier,
 ) {
     val colors = PokerTheme.colors
@@ -123,7 +151,7 @@ private fun ComboBadgeContent(
         modifier =
             modifier.graphicsLayer {
                 // Bolt: Defer state read to graphicsLayer to skip recomposition on every animation frame
-                val scale = pulseScale.value
+                val scale = pulseScale.value * popScale.value
                 scaleX = scale
                 scaleY = scale
             },

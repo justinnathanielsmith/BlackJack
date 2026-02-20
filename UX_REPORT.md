@@ -1,83 +1,55 @@
-# UX & Design Report: Memory Match
+# Memory Match - UX & Polished Code Report
 
-## 1. The Quick Win (Implemented)
-**Action:** Added immediate Haptic Feedback to Card Flips.
-**Impact:** Players now receive zero-latency tactile confirmation when tapping a card, even before the flip animation or game logic processes. This significantly improves the "tightness" of the game feel, especially on mobile devices.
-**Location:** `sharedUI/.../ui/game/GameContent.kt` in `GameMainContent`.
+## The "Quick Win"
+**Add a "Pop" animation to the Combo Badge.**
+Currently, the Combo Badge pulses continuously when active. To make the game feel more responsive and rewarding ("juicier"), add a scale "pop" animation (e.g., scale up to 1.5x and spring back) whenever the combo multiplier increases. This provides immediate visual feedback for the player's success in maintaining a streak.
 
-## 2. Platform Nuance
-The current implementation leans heavily on Material 3 (`Scaffold`, `Card`, `Button`). While this ensures a modern look on Android:
+## The "UX Friction" Report
 
-*   **iOS:** The Material aesthetic (elevation shadows, specific ripple effects) can feel "foreign".
-    *   *Recommendation:* Consider using a custom `PokerCard` composable that draws its own shadow/border instead of relying on `CardDefaults.elevation` which renders differently on Skia/iOS.
-    *   *Recommendation:* Ensure the "Swipe Back" gesture is supported if using a navigation library, as standard `BackHandler` only captures the hardware/software back button event.
-*   **Desktop:**
-    *   *Observation:* `PlayingCard.kt` correctly uses `interactionSource.collectIsHoveredAsState()` to provide mouse-over feedback (scale/elevation). This is excellent.
-    *   *Recommendation:* Ensure keyboard navigation (Tab/Arrow keys) works for grid traversal. `LazyVerticalGrid` supports this natively, but focus indicators might need to be styled explicitly if the default system focus ring clashes with the poker theme.
+### Platform Nuance
+- **Desktop Interaction:** On desktop platforms, the absence of custom pointer cursors (e.g., a hand cursor) for interactive elements like cards can make the UI feel less responsive than a native application. Standard `clickable` modifiers usually handle this, but explicit hover states with cursor changes enhance the desktop feel.
+- **Audio Feedback:** If the audio implementation relies heavily on platform-specific APIs (like Android's SoundPool) without a robust desktop counterpart, the lack of sound effects on desktop would significantly detract from the experience.
 
-## 3. Game Feel & Juice
-The game already features a strong set of "juicy" interactions:
-*   **Animations:** Spring-based flips, pulses on hover, shakes on error, and the "Muck" (fly away) animation are high quality.
-*   **Particles:** `ExplosionEffect` and `ScoreFlyingEffect` add great reward feedback.
-*   **Haptics:** Now present on Top Bar actions (Back, Restart, Mute) and Card interactions.
+### Game Feel & Juice
+- **Card Flip Depth:** The current card flip animation uses a camera distance of `15f * density`. While this prevents distortion, it can sometimes make the 3D rotation appear "flat". Experimenting with a slightly lower value (e.g., `12f`) or adding a dynamic light reflection effect during the flip could enhance the 3D perception.
+- **Match Impact:** The game features a "muck" animation where cards fly off, and a subtle "glow". However, a more immediate, explosive visual cue (like a particle burst or a distinct "flash") at the exact moment of the match—before the cards start moving—would create a stronger sense of impact and reward.
 
-**Suggestion:**
-*   **Audio:** Ensure the "Flip" sound plays immediately alongside the haptic feedback. Currently, it might be tied to the state update loop. Moving the sound trigger to the `onClick` lambda (alongside haptics) would guarantee sync.
+### Consistency
+- **Interaction States:** The `PokerButton` component has a well-defined "pressed" state animation (scaling down to 0.95f). Ensure that `PlayingCard` and other interactive elements (like `MutatorIndicators` if clickable) share this exact physical language to maintain a consistent tactile feel across the application.
 
-## 4. UX Friction Points
-*   **Error Feedback:** When a mismatch occurs, the cards "Shake".
-    *   *Friction:* If the user looks away or blinks, they might miss the shake.
-    *   *Suggestion:* Briefly tint the card background `TacticalRed` (with low alpha) during the error state to provide a persistent visual cue until the cards flip back.
-*   **Touch Targets:** The grid adapts to screen size, but on very small screens or dense grids (High difficulty), card touch targets might shrink.
-    *   *Suggestion:* Ensure a minimum touch target size (48dp) even if the visual card is smaller, by expanding the hit test area in the `GridItem` layout.
+## The "Polished Code" Suggestion
+**Refactor `ComboBadge` for Event-Driven Animation.**
+The current implementation uses an `InfiniteTransition` for the pulsing effect. To add the "pop" effect without interrupting the pulse or causing complex state management, use an `Animatable` for the pop scale and trigger it via `LaunchedEffect`.
 
-## 5. Polished Code Suggestion: Standardized Bounce Click
-To standardize the "press" feel across the app (beyond just Cards), consider this reusable Modifier. It unifies the scale animation and haptic feedback.
+### Architectural Tweak
+Decouple the continuous "pulse" (state-based) from the "pop" (event-based).
 
 ```kotlin
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.interaction.MutableInteractionSource
-import androidx.compose.foundation.interaction.collectIsPressedAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.composed
-import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.platform.LocalHapticFeedback
-import androidx.compose.ui.hapticfeedback.HapticFeedbackType
+// Inside ComboBadge.kt
 
-fun Modifier.bounceClick(
-    scaleDown: Float = 0.95f,
-    onClick: () -> Unit
-) = composed {
-    val interactionSource = remember { MutableInteractionSource() }
-    val isPressed by interactionSource.collectIsPressedAsState()
-    val scale by animateFloatAsState(if (isPressed) scaleDown else 1f, label = "bounce")
-    val haptics = LocalHapticFeedback.current
+// 1. Define the event-driven animation state
+val popScale = remember { Animatable(1f) }
 
-    this
-        .graphicsLayer {
-            scaleX = scale
-            scaleY = scale
-        }
-        .clickable(
-            interactionSource = interactionSource,
-            indication = null, // Disable default ripple if desired, or keep it
-            onClick = {
-                haptics.performHapticFeedback(HapticFeedbackType.LongPress) // Or Light
-                onClick()
-            }
+// 2. Trigger the animation when the combo count changes
+LaunchedEffect(state.combo) {
+    if (state.combo > 1) {
+        popScale.snapTo(1.5f) // Start large
+        popScale.animateTo(
+            targetValue = 1f,
+            animationSpec = spring(
+                dampingRatio = Spring.DampingRatioMediumBouncy,
+                stiffness = Spring.StiffnessMedium
+            )
         )
+    }
 }
-```
-Usage:
-```kotlin
+
+// 3. Combine in graphicsLayer for performance
 Box(
-    modifier = Modifier
-        .size(100.dp)
-        .bounceClick { /* action */ }
-) {
-    // Content
-}
+    modifier = modifier.graphicsLayer {
+        val scale = pulseScale.value * popScale.value
+        scaleX = scale
+        scaleY = scale
+    }
+) { /* Content */ }
 ```
