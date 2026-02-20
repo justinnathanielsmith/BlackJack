@@ -2,7 +2,7 @@ package io.github.smithjustinn.domain.services
 
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.MemoryGameState
-import kotlinx.collections.immutable.toPersistentList
+import kotlinx.collections.immutable.mutate
 import kotlin.random.Random
 
 /**
@@ -32,17 +32,23 @@ object MutatorEngine {
         random: Random,
     ): MemoryGameState {
         val unmatchedIndices = state.cards.mapIndexedNotNull { index, card -> index.takeUnless { card.isMatched } }
-        if (unmatchedIndices.size < PAIR_SIZE) return state
+        val size = unmatchedIndices.size
+        if (size < PAIR_SIZE) return state
 
-        val (idx1, idx2) = unmatchedIndices.shuffled(random)
+        // Pick two distinct random indices
+        val i1 = random.nextInt(size)
+        // Adjust second index to ensure it's distinct from the first
+        val i2 = random.nextInt(size - 1).let { if (it >= i1) it + 1 else it }
+
+        val idx1 = unmatchedIndices[i1]
+        val idx2 = unmatchedIndices[i2]
+
         val newCards =
-            state.cards
-                .toMutableList()
-                .apply {
-                    val temp = this[idx1]
-                    this[idx1] = this[idx2]
-                    this[idx2] = temp
-                }.toPersistentList()
+            state.cards.mutate { list ->
+                val temp = list[idx1]
+                list[idx1] = list[idx2]
+                list[idx2] = temp
+            }
 
         return state.copy(cards = newCards)
     }
