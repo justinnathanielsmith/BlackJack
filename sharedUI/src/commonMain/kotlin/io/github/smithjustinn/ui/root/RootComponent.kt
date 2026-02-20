@@ -108,7 +108,7 @@ class DefaultRootComponent(
                 ),
             )
         } catch (e: Exception) {
-            logger.e(e) { "Error handling deep link: $url" }
+            logger.e(e) { "Error handling deep link: ${DeepLinkUtils.sanitizeForLogging(url)}" }
         }
     }
 

@@ -1,6 +1,5 @@
 package io.github.smithjustinn.domain.usecases.game
 
-import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.ScoringConfig
@@ -14,7 +13,6 @@ import kotlin.test.assertTrue
 import kotlin.time.Clock
 
 class StartNewGameUseCaseTest {
-
     private val useCase = StartNewGameUseCase()
 
     @Test
@@ -26,14 +24,15 @@ class StartNewGameUseCaseTest {
         val isHeatShieldEnabled = true
         val seed = 12345L
 
-        val state = useCase(
-            pairCount = pairCount,
-            config = config,
-            mode = mode,
-            difficulty = difficulty,
-            isHeatShieldEnabled = isHeatShieldEnabled,
-            seed = seed
-        )
+        val state =
+            useCase(
+                pairCount = pairCount,
+                config = config,
+                mode = mode,
+                difficulty = difficulty,
+                isHeatShieldEnabled = isHeatShieldEnabled,
+                seed = seed,
+            )
 
         assertEquals(pairCount, state.pairCount)
         assertEquals(pairCount * 2, state.cards.size)
@@ -63,10 +62,11 @@ class StartNewGameUseCaseTest {
     fun invoke_dailyChallenge_enforcesPairCount() {
         // Daily Challenge enforces pair count of 8 regardless of input
         val requestedPairCount = 4
-        val state = useCase(
-            pairCount = requestedPairCount,
-            mode = GameMode.DAILY_CHALLENGE
-        )
+        val state =
+            useCase(
+                pairCount = requestedPairCount,
+                mode = GameMode.DAILY_CHALLENGE,
+            )
 
         assertEquals(8, state.pairCount)
         assertEquals(16, state.cards.size)
@@ -88,10 +88,11 @@ class StartNewGameUseCaseTest {
 
     @Test
     fun invoke_dailyChallenge_hasActiveMutators() {
-        val state = useCase(
-            pairCount = 8,
-            mode = GameMode.DAILY_CHALLENGE
-        )
+        val state =
+            useCase(
+                pairCount = 8,
+                mode = GameMode.DAILY_CHALLENGE,
+            )
 
         assertFalse(state.activeMutators.isEmpty(), "Daily Challenge must have at least one active mutator")
     }

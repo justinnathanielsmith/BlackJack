@@ -3,6 +3,7 @@ package io.github.smithjustinn.ui.root
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.ui.game.GameArgs
 import io.github.smithjustinn.utils.Constants
+import io.ktor.http.URLBuilder
 import io.ktor.http.Url
 
 data class DeepLinkParams(
@@ -44,4 +45,18 @@ object DeepLinkUtils {
             null
         }
     }
+
+    fun sanitizeForLogging(url: String): String =
+        try {
+            val parsedUrl = Url(url)
+            val builder = URLBuilder(parsedUrl)
+            val keys = builder.parameters.names().toSet()
+            builder.parameters.clear()
+            keys.forEach { key ->
+                builder.parameters.append(key, "REDACTED")
+            }
+            builder.buildString()
+        } catch (e: Exception) {
+            "Malformatted Deep Link"
+        }
 }

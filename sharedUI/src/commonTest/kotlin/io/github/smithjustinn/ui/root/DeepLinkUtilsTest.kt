@@ -82,4 +82,25 @@ class DeepLinkUtilsTest {
         assertNotNull(params)
         assertEquals(GameMode.DAILY_CHALLENGE, params.mode)
     }
+
+    @Test
+    fun `sanitize deep link redacts query params`() {
+        val url = "memorymatch://game?mode=TIME_ATTACK&pairs=8&seed=12345"
+        val sanitized = DeepLinkUtils.sanitizeForLogging(url)
+        assertEquals("memorymatch://game?mode=REDACTED&pairs=REDACTED&seed=REDACTED", sanitized)
+    }
+
+    @Test
+    fun `sanitize invalid url returns fallback`() {
+        val url = ":"
+        val sanitized = DeepLinkUtils.sanitizeForLogging(url)
+        assertEquals("Malformatted Deep Link", sanitized)
+    }
+
+    @Test
+    fun `sanitize deep link with no query params returns original`() {
+        val url = "memorymatch://game"
+        val sanitized = DeepLinkUtils.sanitizeForLogging(url)
+        assertEquals("memorymatch://game", sanitized)
+    }
 }
