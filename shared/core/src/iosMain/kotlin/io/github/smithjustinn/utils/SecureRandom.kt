@@ -4,6 +4,7 @@ import kotlinx.cinterop.*
 import platform.Security.SecRandomCopyBytes
 import platform.Security.kSecRandomDefault
 
+@OptIn(ExperimentalForeignApi::class)
 actual fun secureRandomLong(): Long {
     memScoped {
         val randomBytes = alloc<LongVar>()
