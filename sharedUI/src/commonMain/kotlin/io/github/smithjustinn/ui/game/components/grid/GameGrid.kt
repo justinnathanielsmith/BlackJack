@@ -196,6 +196,10 @@ private fun GridContent(
     onCardClick: (Int) -> Unit,
     cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
 ) {
+    val lastMatchedIdsSet = remember(gridCardState.lastMatchedIds) {
+        gridCardState.lastMatchedIds.toSet()
+    }
+
     LazyVerticalGrid(
         columns = layoutConfig.metrics.cells,
         contentPadding =
@@ -219,7 +223,7 @@ private fun GridContent(
                 totalCards = gridCardState.cards.size,
                 card = card,
                 isPeeking = gridCardState.isPeeking,
-                isRecentlyMatched = gridCardState.lastMatchedIds.contains(card.id),
+                isRecentlyMatched = lastMatchedIdsSet.contains(card.id),
                 cardTheme = settings.cardTheme,
                 areSuitsMultiColored = settings.areSuitsMultiColored,
                 isThirdEyeEnabled = settings.isThirdEyeEnabled,
