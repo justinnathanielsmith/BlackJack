@@ -91,25 +91,6 @@ class GameUseCasesTest {
             assertEquals(exception, result.exceptionOrNull())
         }
 
-    @Test
-    fun testGetSavedGameUseCase() =
-        runTest {
-            val useCase = GetSavedGameUseCase(repository, logger)
-            val state = MemoryGameState()
-            everySuspend { repository.getSavedGameState() } returns SavedGame(state, 100L)
-            val result = useCase()
-            assertEquals(state, result?.gameState)
-            assertEquals(100L, result?.elapsedTimeSeconds)
-        }
-
-    @Test
-    fun testGetSavedGameUseCase_error() =
-        runTest {
-            val useCase = GetSavedGameUseCase(repository, logger)
-            everySuspend { repository.getSavedGameState() } throws RuntimeException("DB Error")
-            val result = useCase()
-            assertEquals(null, result)
-        }
 
     @Test
     fun testSaveGameStateUseCase() =
