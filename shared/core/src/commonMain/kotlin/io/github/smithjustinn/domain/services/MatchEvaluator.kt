@@ -12,13 +12,13 @@ import kotlinx.collections.immutable.persistentListOf
 private object MatchConstants {
     const val PAIR_SIZE = 2
     const val SINGLE_CARD = 1
-    const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
 }
 
 /**
  * Domain service responsible for card flipping and match evaluation logic.
  */
 object MatchEvaluator {
+    const val MIN_PAIRS_FOR_DOUBLE_DOWN = 3
     /**
      * Attempts to flip a card and returns the new state and any resulting event.
      */
@@ -106,7 +106,7 @@ object MatchEvaluator {
         val isEligible =
             state.comboMultiplier >= state.config.heatModeThreshold &&
                 !state.isDoubleDownActive &&
-                unmatchedPairs >= MatchConstants.MIN_PAIRS_FOR_DOUBLE_DOWN
+                unmatchedPairs >= MIN_PAIRS_FOR_DOUBLE_DOWN
 
         return if (isEligible) state.copy(isDoubleDownActive = true) else state
     }

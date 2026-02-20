@@ -3,6 +3,7 @@ package io.github.smithjustinn.domain
 import dev.mokkery.matcher.any
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
+import io.github.smithjustinn.domain.services.GameFactory
 import io.github.smithjustinn.test.BaseLogicTest
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
@@ -19,7 +20,7 @@ class GameStateMachineResumeTest : BaseLogicTest() {
     @Test
     fun `resuming with error cards schedules ProcessMismatch`() =
         runTest {
-            val baseState = MemoryGameLogic.createInitialState(pairCount = 6)
+            val baseState = GameFactory.createInitialState(pairCount = 6)
             val firstCard = baseState.cards[0]
             val secondCard = baseState.cards[1]
 
@@ -65,7 +66,7 @@ class GameStateMachineResumeTest : BaseLogicTest() {
     @Test
     fun `resuming with multiple face-up unmatched cards schedules reset`() =
         runTest {
-            val baseState = MemoryGameLogic.createInitialState(pairCount = 6)
+            val baseState = GameFactory.createInitialState(pairCount = 6)
 
             // Simulate state saved during ScanCards (multiple cards face up)
             val resumedState =
@@ -103,7 +104,7 @@ class GameStateMachineResumeTest : BaseLogicTest() {
     @Test
     fun `resuming clears lastMatchedIds`() =
         runTest {
-            val baseState = MemoryGameLogic.createInitialState(pairCount = 6)
+            val baseState = GameFactory.createInitialState(pairCount = 6)
             val resumedState =
                 baseState.copy(
                     lastMatchedIds = persistentListOf(1, 2),
