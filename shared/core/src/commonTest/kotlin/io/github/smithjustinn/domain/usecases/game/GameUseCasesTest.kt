@@ -138,7 +138,7 @@ class GameUseCasesTest {
     fun testResetErrorCardsUseCase() {
         val useCase = ResetErrorCardsUseCase()
         // Difficult to set up error state without logic methods, but we can try
-        // Actually ResetErrorCards relies on MemoryGameLogic.resetErrorCards(state).
+        // Actually ResetErrorCards relies on MatchEvaluator.resetErrorCards(state).
         // We assume Logic is correct, we just check usecase calls it.
         // A more complex state setup is required here, but for coverage invocation is enough.
         val state = MemoryGameState()

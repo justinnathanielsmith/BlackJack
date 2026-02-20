@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
@@ -52,6 +53,7 @@ import io.github.smithjustinn.resources.mute_content_description
 import io.github.smithjustinn.resources.restart_content_description
 import io.github.smithjustinn.resources.score_caps
 import io.github.smithjustinn.resources.unmute_content_description
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import org.jetbrains.compose.resources.stringResource
@@ -266,9 +268,13 @@ private fun BackButton(
 ) {
     val size = if (compact) 40.dp else 48.dp
     val contentDesc = stringResource(Res.string.back_content_description)
+    val haptics = LocalAppGraph.current.hapticsService
 
     IconButton(
-        onClick = onClick,
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+            onClick()
+        },
         modifier = modifier.semantics { contentDescription = contentDesc },
     ) {
         Surface(
@@ -312,8 +318,13 @@ private fun RestartButton(
     compact: Boolean = false,
 ) {
     val contentDesc = stringResource(Res.string.restart_content_description)
+    val haptics = LocalAppGraph.current.hapticsService
+
     IconButton(
-        onClick = onClick,
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+            onClick()
+        },
         modifier = modifier.semantics { contentDescription = contentDesc },
     ) {
         Surface(
@@ -349,9 +360,13 @@ private fun MuteButton(
                 Res.string.unmute_content_description
             },
         )
+    val haptics = LocalAppGraph.current.hapticsService
 
     IconButton(
-        onClick = onClick,
+        onClick = {
+            haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+            onClick()
+        },
         modifier = modifier.semantics { contentDescription = contentDesc },
     ) {
         Surface(

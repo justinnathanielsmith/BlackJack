@@ -133,7 +133,7 @@ We use a **Component-Based MVI** pattern powered by **Decompose**, ensuring stri
 | :------------- | :------------------------- | :------------------------------------------- |
 | **Presentation**| UI & Platform Interop      | Compose Multiplatform (`@Composable`)        |
 | **Navigation**  | Lifecycle & Backstack      | Decompose Components (e.g., `GameComponent`) |
-| **Logic**       | State Machine & Rules      | `GameStateMachine` + `MemoryGameLogic`       |
+| **Logic**       | State Machine & Rules      | `GameStateMachine` + Domain Services (`MatchEvaluator`, etc.) |
 | **Data**        | Persistence & Networking   | Room KMP, Ktor, Repositories                 |
 
 ### 🔄 Unidirectional Data Flow (UDF)

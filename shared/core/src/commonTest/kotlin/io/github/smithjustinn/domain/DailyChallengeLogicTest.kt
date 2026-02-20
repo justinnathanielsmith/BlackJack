@@ -1,6 +1,7 @@
 package io.github.smithjustinn.domain
 
 import io.github.smithjustinn.domain.models.GameMode
+import io.github.smithjustinn.domain.services.GameFactory
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -14,7 +15,7 @@ class DailyChallengeLogicTest {
         // Game 1
         val random1 = Random(seed)
         val game1 =
-            MemoryGameLogic.createInitialState(
+            GameFactory.createInitialState(
                 pairCount = 8,
                 mode = GameMode.DAILY_CHALLENGE,
                 random = random1,
@@ -23,7 +24,7 @@ class DailyChallengeLogicTest {
         // Game 2
         val random2 = Random(seed)
         val game2 =
-            MemoryGameLogic.createInitialState(
+            GameFactory.createInitialState(
                 pairCount = 8,
                 mode = GameMode.DAILY_CHALLENGE,
                 random = random2,
@@ -45,7 +46,7 @@ class DailyChallengeLogicTest {
 
         val random1 = Random(seed1)
         val game1 =
-            MemoryGameLogic.createInitialState(
+            GameFactory.createInitialState(
                 pairCount = 8,
                 mode = GameMode.DAILY_CHALLENGE,
                 random = random1,
@@ -53,7 +54,7 @@ class DailyChallengeLogicTest {
 
         val random2 = Random(seed2)
         val game2 =
-            MemoryGameLogic.createInitialState(
+            GameFactory.createInitialState(
                 pairCount = 8,
                 mode = GameMode.DAILY_CHALLENGE,
                 random = random2,
