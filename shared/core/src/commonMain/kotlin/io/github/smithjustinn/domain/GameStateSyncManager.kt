@@ -6,7 +6,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.collect
-import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.sample
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -35,7 +35,7 @@ class GameStateSyncManager(
             @OptIn(FlowPreview::class)
             syncChannel
                 .receiveAsFlow()
-                .debounce(DEBOUNCE_DELAY_MS)
+                .sample(DEBOUNCE_DELAY_MS)
                 .collect { request ->
                     mutex.withLock {
                         performSave(request.state, request.time, request.queuedAt)
