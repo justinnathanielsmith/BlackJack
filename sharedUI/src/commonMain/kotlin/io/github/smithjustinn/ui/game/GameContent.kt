@@ -33,7 +33,6 @@ import io.github.smithjustinn.domain.models.MatchComment
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.game_double_or_nothing
 import io.github.smithjustinn.services.AudioService
-import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.HeatAppColors
 import io.github.smithjustinn.theme.LocalAppColors
 import io.github.smithjustinn.theme.PokerTheme
@@ -205,22 +204,19 @@ private fun GameTopBarContent(
 ) {
     val graph = LocalAppGraph.current
     val audioService = graph.audioService
-    val hapticsService = graph.hapticsService
 
     // Hoist event handlers to keep the call site clean
     val onBackClick =
-        remember(component, audioService, hapticsService) {
+        remember(component, audioService) {
             {
-                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onBack()
             }
         }
 
     val onRestartClick =
-        remember(component, audioService, hapticsService) {
+        remember(component, audioService) {
             {
-                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onRestart()
                 audioService.startMusic()
@@ -228,9 +224,8 @@ private fun GameTopBarContent(
         }
 
     val onMuteClick =
-        remember(component, audioService, hapticsService) {
+        remember(component, audioService) {
             {
-                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onToggleAudio()
             }
@@ -334,11 +329,9 @@ private fun GameMainContent(
     scorePosition: Offset,
     modifier: Modifier = Modifier,
 ) {
-    val hapticsService = LocalAppGraph.current.hapticsService
     val onCardClick =
-        remember(component, hapticsService) {
+        remember(component) {
             { cardId: Int ->
-                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 component.onFlipCard(cardId)
             }
         }
