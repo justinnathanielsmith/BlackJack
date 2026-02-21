@@ -50,6 +50,11 @@ object DeepLinkUtils {
         try {
             val parsedUrl = Url(url)
             val builder = URLBuilder(parsedUrl)
+
+            // Remove path and fragment to prevent leakage of sensitive data
+            builder.encodedPathSegments = emptyList()
+            builder.fragment = ""
+
             val keys = builder.parameters.names().toSet()
             builder.parameters.clear()
             keys.forEach { key ->
