@@ -53,3 +53,48 @@ Box(
     }
 ) { /* Content */ }
 ```
+
+---
+# Update: Recent UX Analysis
+
+## The New "Quick Win": Tune Card Flip Camera Distance
+Adjust the 3D perspective of the card flip animation. Currently, `PlayingCard.kt` uses a `CAMERA_DISTANCE_MULTIPLIER` of `15f`, which can make the rotation feel somewhat flat. Changing this value to `12f` increases the perspective distortion slightly, making the flip feel more three-dimensional and immersive without being exaggerated.
+
+## Updated "UX Friction" Report
+
+### Platform Nuance: Desktop Interaction
+On desktop platforms, the game lacks custom pointer cursors (e.g., a hand cursor) for interactive elements like cards. This makes the UI feel less responsive and more like a direct mobile port. The standard `clickable` modifier does not automatically change the cursor on hover.
+**Recommendation:** Add `Modifier.pointerHoverIcon(PointerIcon.Hand)` to interactive elements.
+
+### Game Feel: Match Impact
+The current match animation ("muck") involves cards flying off the screen with a subtle glow. While functional, it lacks immediate visual impact. A distinct "pop" or particle burst at the exact moment of the match—before the movement starts—would provide stronger positive reinforcement to the player.
+
+## Updated "Polished Code" Suggestion: `Modifier.pokerClickable`
+
+To address the consistency and platform nuance issues, I recommend creating a unified custom modifier. This encapsulates click handling, haptic feedback, and hover cursors into a single, reusable extension. This ensures that every interactive element in the game behaves consistently across all platforms.
+
+```kotlin
+// sharedUI/src/commonMain/kotlin/io/github/smithjustinn/ui/extensions/ModifierExtensions.kt
+
+fun Modifier.pokerClickable(
+    onClick: () -> Unit,
+    enabled: Boolean = true,
+    interactionSource: MutableInteractionSource? = null,
+    hapticType: HapticFeedbackType = HapticFeedbackType.LIGHT
+): Modifier = composed {
+    val haptics = LocalAppGraph.current.hapticsService
+    val currentInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
+
+    this
+        .pointerHoverIcon(PointerIcon.Hand) // Adds desktop hand cursor
+        .clickable(
+            interactionSource = currentInteractionSource,
+            indication = LocalIndication.current,
+            enabled = enabled,
+            onClick = {
+                haptics.performHapticFeedback(hapticType) // Centralized haptics
+                onClick()
+            }
+        )
+}
+```
