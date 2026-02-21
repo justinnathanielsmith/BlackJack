@@ -103,4 +103,12 @@ class DeepLinkUtilsTest {
         val sanitized = DeepLinkUtils.sanitizeForLogging(url)
         assertEquals("memorymatch://game", sanitized)
     }
+
+    @Test
+    fun `sanitizeForLogging should redact sensitive data in path`() {
+        val sensitiveUrl = "memorymatch://game/userToken12345?mode=TIME_ATTACK"
+        val sanitized = DeepLinkUtils.sanitizeForLogging(sensitiveUrl)
+        // Path should be stripped, params redacted
+        assertEquals("memorymatch://game?mode=REDACTED", sanitized)
+    }
 }
