@@ -236,8 +236,23 @@ private fun GameTopBarContent(
             }
         }
 
-    GameTopBar(
-        state =
+    val gameTopBarState =
+        remember(
+            state.elapsedTimeSeconds,
+            state.game.mode,
+            state.maxTimeSeconds,
+            state.showTimeGain,
+            state.timeGainAmount,
+            state.showTimeLoss,
+            state.timeLossAmount,
+            state.isMegaBonus,
+            useCompactUI,
+            state.isMusicEnabled,
+            state.isSoundEnabled,
+            state.game.score,
+            state.game.currentPot,
+            state.isHeatMode,
+        ) {
             GameTopBarState(
                 time = state.elapsedTimeSeconds,
                 mode = state.game.mode,
@@ -258,7 +273,11 @@ private fun GameTopBarContent(
                 bankedScore = state.game.score,
                 currentPot = state.game.currentPot,
                 isHeatMode = state.isHeatMode,
-            ),
+            )
+        }
+
+    GameTopBar(
+        state = gameTopBarState,
         onBackClick = onBackClick,
         onRestartClick = onRestartClick,
         onMuteClick = onMuteClick,
