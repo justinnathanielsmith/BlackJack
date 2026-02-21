@@ -196,9 +196,10 @@ private fun GridContent(
     onCardClick: (Int) -> Unit,
     cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
 ) {
-    val lastMatchedIdsSet = remember(gridCardState.lastMatchedIds) {
-        gridCardState.lastMatchedIds.toSet()
-    }
+    val lastMatchedIdsSet =
+        remember(gridCardState.lastMatchedIds) {
+            gridCardState.lastMatchedIds.toSet()
+        }
 
     LazyVerticalGrid(
         columns = layoutConfig.metrics.cells,

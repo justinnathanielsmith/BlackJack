@@ -29,6 +29,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.app_name
 import io.github.smithjustinn.resources.walkthrough_desc_combos
@@ -40,6 +41,7 @@ import io.github.smithjustinn.resources.walkthrough_skip
 import io.github.smithjustinn.resources.walkthrough_title_combos
 import io.github.smithjustinn.resources.walkthrough_title_find_pairs
 import io.github.smithjustinn.resources.walkthrough_title_welcome
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import org.jetbrains.compose.resources.StringResource
@@ -142,12 +144,18 @@ private fun WalkthroughActions(
     onNext: () -> Unit,
     onDismiss: () -> Unit,
 ) {
+    val haptics = LocalAppGraph.current.hapticsService
     Row(
         modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        TextButton(onClick = onDismiss) {
+        TextButton(
+            onClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+                onDismiss()
+            },
+        ) {
             Text(
                 stringResource(Res.string.walkthrough_skip),
                 color = Color.White.copy(alpha = 0.6f),
@@ -158,6 +166,7 @@ private fun WalkthroughActions(
 
         Button(
             onClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
                 if (step < 2) onNext() else onDismiss()
             },
             colors = ButtonDefaults.buttonColors(containerColor = ModernGold),
