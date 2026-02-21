@@ -206,9 +206,9 @@ fun PlayingCard(
             stringResource(Res.string.card_face_down)
         }
 
-    CardContainer(
-        modifier = modifier.offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) },
-        visuals =
+    // Bolt: Memoize visuals to prevent unnecessary CardContainer recompositions on parent layout changes
+    val visuals =
+        remember(content.visualState, animations) {
             CardContainerVisuals(
                 visualState = content.visualState,
                 rotation = animations.rotation,
@@ -216,7 +216,12 @@ fun PlayingCard(
                 matchedGlowAlpha = animations.matchedGlowAlpha,
                 shadowElevation = animations.shadowElevation,
                 shadowYOffset = animations.shadowYOffset,
-            ),
+            )
+        }
+
+    CardContainer(
+        modifier = modifier.offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) },
+        visuals = visuals,
         muckTranslationX = animations.muckTranslationX,
         muckTranslationY = animations.muckTranslationY,
         muckRotation = animations.muckRotation,
@@ -383,19 +388,33 @@ private fun rememberCardAnimations(
         )
 
     val shadowAnim = rememberShadowAnimation(content.visualState, isHovered, isPressed)
+    val (shadowElevation, shadowYOffset) = shadowAnim
 
-    return CardAnimations(
-        rotation = rotation,
-        scale = scale,
-        shakeOffset = shakeOffset,
-        matchedGlowAlpha = matchedGlowAlpha,
-        muckTranslationX = muckTranslationX,
-        muckTranslationY = muckTranslationY,
-        muckRotation = muckRotation,
-        muckScale = scale,
-        shadowElevation = shadowAnim.first,
-        shadowYOffset = shadowAnim.second,
-    )
+    // Bolt: Return stable object to prevent downstream recompositions
+    return remember(
+        rotation,
+        scale,
+        shakeOffset,
+        matchedGlowAlpha,
+        muckTranslationX,
+        muckTranslationY,
+        muckRotation,
+        shadowElevation,
+        shadowYOffset,
+    ) {
+        CardAnimations(
+            rotation = rotation,
+            scale = scale,
+            shakeOffset = shakeOffset,
+            matchedGlowAlpha = matchedGlowAlpha,
+            muckTranslationX = muckTranslationX,
+            muckTranslationY = muckTranslationY,
+            muckRotation = muckRotation,
+            muckScale = scale,
+            shadowElevation = shadowElevation,
+            shadowYOffset = shadowYOffset,
+        )
+    }
 }
 
 @Composable
@@ -410,7 +429,8 @@ private fun rememberShakeAnimation(isError: Boolean): State<Float> {
             shakeOffset.animateTo(0f, tween(SHAKE_ANIMATION_DURATION_MS))
         }
     }
-    return shakeOffset.asState()
+    // Bolt: Wrap in remember to ensure State instance stability
+    return remember(shakeOffset) { shakeOffset.asState() }
 }
 
 @Composable
