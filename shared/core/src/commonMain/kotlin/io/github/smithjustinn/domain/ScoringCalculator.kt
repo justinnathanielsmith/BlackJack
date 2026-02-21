@@ -15,7 +15,8 @@ object ScoringCalculator {
     private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
     private const val DAILY_CHALLENGE_CURRENCY_BONUS = 500
     private const val CURRENCY_DIVISOR = 100
-    private const val DOUBLE_DOWN_MULTIPLIER = 2
+    private const val DOUBLE_DOWN_MULTIPLIER = 2L
+    private val MAX_SAFE_INTEGER = Int.MAX_VALUE.toLong()
 
     /**
      * Calculates the score update for a match, including pot accumulation and milestone checks.
@@ -25,48 +26,55 @@ object ScoringCalculator {
         isWon: Boolean,
         matchesFound: Int,
     ): MatchScoringUpdate {
-        // 1. Calculate points for this specific match
-        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
-        val matchBasePoints = state.config.baseMatchPoints.toLong()
-        val matchComboBonus =
-            (comboFactor * state.config.comboBonusPoints).coerceAtMost(Int.MAX_VALUE.toLong())
+        val (matchBasePoints, matchComboBonus) = calculateMatchPoints(state)
         val matchTotalPoints = matchBasePoints + matchComboBonus
 
-        // 2. Calculate Pot
-        val potentialPot =
-            (state.currentPot + matchTotalPoints).coerceAtMost(Int.MAX_VALUE.toLong())
-
-        // 3. Check Milestone
+        val potentialPot = calculatePot(state.currentPot, matchTotalPoints)
         val isMilestone = matchesFound > 0 && matchesFound % state.config.matchMilestoneInterval == 0
 
-        // 4. Calculate Intermediate Score (before DD multiplier)
-        val scoreWithPot =
-            if (isMilestone || isWon) {
-                state.score + potentialPot
-            } else {
-                state.score.toLong()
-            }
+        val scoreWithPot = if (isMilestone || isWon) {
+            state.score + potentialPot
+        } else {
+            state.score.toLong()
+        }
 
-        // 5. Apply Double Down Logic (only on Win)
-        val (finalScore, ddBonus) =
-            if (isWon && state.isDoubleDownActive) {
-                val multiplier = DOUBLE_DOWN_MULTIPLIER.toLong()
-                scoreWithPot * multiplier to scoreWithPot
-            } else {
-                scoreWithPot to 0L
-            }
+        val (finalScore, ddBonus) = calculateDoubleDown(isWon, state, scoreWithPot)
 
         return MatchScoringUpdate(
             matchBasePoints = matchBasePoints.toInt(),
             matchComboBonus = matchComboBonus.toInt(),
             potentialPot = potentialPot,
             isMilestone = isMilestone,
-            scoreResult =
-                MatchScoreResult(
-                    finalScore = finalScore.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
-                    ddBonus = ddBonus.coerceIn(0, Int.MAX_VALUE.toLong()).toInt(),
-                ),
+            scoreResult = MatchScoreResult(
+                finalScore = finalScore.coerceIn(0, MAX_SAFE_INTEGER).toInt(),
+                ddBonus = ddBonus.coerceIn(0, MAX_SAFE_INTEGER).toInt(),
+            ),
         )
+    }
+
+    private fun calculateMatchPoints(state: MemoryGameState): Pair<Long, Long> {
+        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
+        val matchBasePoints = state.config.baseMatchPoints.toLong()
+        val matchComboBonus = (comboFactor * state.config.comboBonusPoints)
+            .coerceAtMost(MAX_SAFE_INTEGER)
+        return matchBasePoints to matchComboBonus
+    }
+
+    private fun calculatePot(currentPot: Int, matchTotalPoints: Long): Long {
+        return (currentPot + matchTotalPoints).coerceAtMost(MAX_SAFE_INTEGER)
+    }
+
+    private fun calculateDoubleDown(
+        isWon: Boolean,
+        state: MemoryGameState,
+        scoreWithPot: Long,
+    ): Pair<Long, Long> {
+        return if (isWon && state.isDoubleDownActive) {
+            val doubledScore = scoreWithPot * DOUBLE_DOWN_MULTIPLIER
+            doubledScore to scoreWithPot
+        } else {
+            scoreWithPot to 0L
+        }
     }
 
     /**
@@ -89,7 +97,7 @@ object ScoringCalculator {
 
         // Prevent overflow by using Long for intermediate calculation
         val totalScoreLong = state.score.toLong() + timeBonus + moveBonus
-        val totalScore = totalScoreLong.coerceIn(0, Int.MAX_VALUE.toLong()).toInt()
+        val totalScore = totalScoreLong.coerceIn(0, MAX_SAFE_INTEGER).toInt()
 
         val earnedCurrency = calculateEarnedCurrency(state, totalScore)
         val dailyChallengeBonus =
@@ -97,17 +105,16 @@ object ScoringCalculator {
 
         return state.copy(
             score = totalScore,
-            scoreBreakdown =
-                ScoreBreakdown(
-                    basePoints = state.totalBasePoints,
-                    comboBonus = state.totalComboBonus,
-                    doubleDownBonus = state.totalDoubleDownBonus,
-                    timeBonus = timeBonus,
-                    moveBonus = moveBonus,
-                    dailyChallengeBonus = dailyChallengeBonus,
-                    totalScore = totalScore,
-                    earnedCurrency = earnedCurrency,
-                ),
+            scoreBreakdown = ScoreBreakdown(
+                basePoints = state.totalBasePoints,
+                comboBonus = state.totalComboBonus,
+                doubleDownBonus = state.totalDoubleDownBonus,
+                timeBonus = timeBonus,
+                moveBonus = moveBonus,
+                dailyChallengeBonus = dailyChallengeBonus,
+                totalScore = totalScore,
+                earnedCurrency = earnedCurrency,
+            ),
         )
     }
 
