@@ -11,6 +11,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import com.arkivanov.decompose.ExperimentalDecomposeApi
 import com.arkivanov.decompose.extensions.compose.stack.Children
@@ -54,7 +55,7 @@ fun App(
         LocalAppGraph provides appGraph,
         LocalCardTheme provides cardTheme,
     ) {
-        var showSplash by remember { mutableStateOf(true) }
+        var showSplash by rememberSaveable { mutableStateOf(true) }
 
         AnimatedContent(
             targetState = showSplash,
