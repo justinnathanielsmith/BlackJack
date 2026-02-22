@@ -8,22 +8,36 @@ plugins {
     alias(libs.plugins.mokkery)
 }
 
+val buildAndroid = project.findProperty("target") == "android" || project.findProperty("target") == null
+val buildJvm = project.findProperty("target") == "jvm" || project.findProperty("target") == null
+val buildIos = project.findProperty("target") == "ios" || project.findProperty("target") == null
+
 kotlin {
-    androidLibrary {
-        namespace = "io.github.smithjustinn.data"
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
+
+    if (buildAndroid) {
+        androidLibrary {
+            namespace = "io.github.smithjustinn.data"
+            compileSdk =
+                libs.versions.android.compileSdk
+                    .get()
+                    .toInt()
+            minSdk =
+                libs.versions.android.minSdk
+                    .get()
+                    .toInt()
+            androidResources.enable = false // Optimized for data module
+        }
     }
-    jvm()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+
+    if (buildJvm) {
+        jvm()
+    }
+
+    if (buildIos) {
+        iosX64()
+        iosArm64()
+        iosSimulatorArm64()
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -34,20 +48,31 @@ kotlin {
             api(libs.koin.core)
             implementation(libs.compose.resources)
         }
-        androidMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
+
+        if (buildAndroid) {
+            androidMain.dependencies {
+                implementation(libs.ktor.client.okhttp)
+            }
         }
-        jvmMain.dependencies {
-            implementation(libs.ktor.client.okhttp)
+
+        if (buildJvm) {
+            jvmMain.dependencies {
+                implementation(libs.ktor.client.okhttp)
+            }
         }
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+
+        if (buildIos) {
+            iosMain.dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
+
         commonTest.dependencies {
             implementation(kotlin("test"))
             implementation(libs.bundles.testing)
         }
     }
+
 }
 
 room {
@@ -56,10 +81,12 @@ room {
 
 dependencies {
     with(libs.room.compiler) {
-        add("kspAndroid", this)
-        add("kspJvm", this)
-        add("kspIosX64", this)
-        add("kspIosArm64", this)
-        add("kspIosSimulatorArm64", this)
+        if (buildAndroid) add("kspAndroid", this)
+        if (buildJvm) add("kspJvm", this)
+        if (buildIos) {
+            add("kspIosX64", this)
+            add("kspIosArm64", this)
+            add("kspIosSimulatorArm64", this)
+        }
     }
 }

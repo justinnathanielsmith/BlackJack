@@ -204,9 +204,18 @@ class GameStateMachine(
     private fun StateMachineBuilder.handleHeatShieldUsed(flippedState: MemoryGameState) {
         +GameEffect.PlayFlipSound
         +GameEffect.HeatShieldUsed
-        // Does not reset combo or pot.
-        // Just updates state which already has shield removed.
-        transition { flippedState }
+
+        scope.launch(dispatchers.default) {
+            val delayMs =
+                if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
+                    MISMATCH_DELAY_MS / 2
+                } else {
+                    MISMATCH_DELAY_MS
+                }
+            delay(delayMs)
+            dispatch(GameAction.ProcessMismatch)
+        }
+        transition { MutatorEngine.applyMutators(it) }
     }
 
     private fun handleDoubleDown() {
