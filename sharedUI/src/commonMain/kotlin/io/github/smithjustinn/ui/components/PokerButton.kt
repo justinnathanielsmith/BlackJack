@@ -12,7 +12,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
@@ -42,9 +41,9 @@ import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
+import io.github.smithjustinn.ui.extensions.pokerClickable
 
 private const val PULSE_SCALE_TARGET = 1.05f
 private const val PRESS_SCALE_TARGET = 0.95f
@@ -96,7 +95,6 @@ fun PokerButton(
     val buttonColors = rememberPokerButtonColors(isPrimary, containerColor, contentColor, enabled)
     val shadowElevation = if (isPrimary) PRIMARY_SHADOW_ELEVATION_DP.dp else PokerTheme.spacing.extraSmall
     val border = rememberPokerButtonBorder(isPrimary)
-    val hapticsService = LocalAppGraph.current.hapticsService
 
     Box(
         modifier =
@@ -110,15 +108,11 @@ fun PokerButton(
                 .clip(PokerTheme.shapes.medium)
                 .then(if (border != null && enabled) Modifier.border(border, PokerTheme.shapes.medium) else Modifier)
                 .background(buttonColors.container)
-                .clickable(
+                .pokerClickable(
+                    onClick = onClick,
                     enabled = enabled,
                     interactionSource = interactionSource,
-                    onClick = {
-                        hapticsService.performHapticFeedback(
-                            if (isPrimary) HapticFeedbackType.HEAVY else HapticFeedbackType.LIGHT,
-                        )
-                        onClick()
-                    },
+                    hapticType = if (isPrimary) HapticFeedbackType.HEAVY else HapticFeedbackType.LIGHT,
                     role = Role.Button,
                 ).semantics {
                     contentDescription?.let { this.contentDescription = it }
