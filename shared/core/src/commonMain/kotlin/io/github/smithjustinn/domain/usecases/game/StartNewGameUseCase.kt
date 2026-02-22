@@ -23,50 +23,74 @@ open class StartNewGameUseCase {
         isHeatShieldEnabled: Boolean = false,
         seed: Long? = null,
     ): MemoryGameState {
-        val (finalPairCount, finalSeed) =
-            if (mode == GameMode.DAILY_CHALLENGE) {
-                // Enforce Daily Challenge invariants: Date-based seed, standard size
-                val dailySeed = Clock.System.now().toEpochMilliseconds() / TimeConstants.MILLIS_IN_DAY
-                DAILY_CHALLENGE_PAIR_COUNT to dailySeed
-            } else {
-                require(pairCount in 1..MAX_PAIR_COUNT) { "Pair count must be between 1 and $MAX_PAIR_COUNT" }
-                pairCount to (seed ?: secureRandomLong())
-            }
+        val params = resolveGameParameters(mode, pairCount, config, difficulty, seed)
 
-        val random = Random(finalSeed)
+        val random = Random(params.seed)
         val baseState =
             GameFactory.createInitialState(
-                pairCount = finalPairCount,
-                config = config,
+                pairCount = params.pairCount,
+                config = params.config,
                 mode = mode,
-                difficulty = difficulty,
+                difficulty = params.difficulty,
                 isHeatShieldAvailable = isHeatShieldEnabled,
                 random = random,
             )
 
-        val activeMutators =
-            if (mode == GameMode.DAILY_CHALLENGE) {
-                val mutators = mutableSetOf<DailyChallengeMutator>()
-                // Deterministically select mutators based on the seed
-                // 50% chance for BLACKOUT
-                if (random.nextFloat() < BLACKOUT_CHANCE) {
-                    mutators.add(DailyChallengeMutator.BLACKOUT)
-                }
-                // 40% chance for MIRAGE
-                if (random.nextFloat() < MIRAGE_CHANCE) {
-                    mutators.add(DailyChallengeMutator.MIRAGE)
-                }
-                // Ensure at least one mutator is always active for Daily Challenge
-                if (mutators.isEmpty()) {
-                    mutators.add(DailyChallengeMutator.BLACKOUT)
-                }
-                mutators
-            } else {
-                emptySet()
-            }
+        val activeMutators = determineActiveMutators(mode, random)
 
-        return baseState.copy(seed = finalSeed, activeMutators = activeMutators)
+        return baseState.copy(seed = params.seed, activeMutators = activeMutators)
     }
+
+    private fun resolveGameParameters(
+        mode: GameMode,
+        pairCount: Int,
+        config: ScoringConfig,
+        difficulty: DifficultyType,
+        seed: Long?,
+    ): GameParameters {
+        return if (mode == GameMode.DAILY_CHALLENGE) {
+            GameParameters(
+                pairCount = DAILY_CHALLENGE_PAIR_COUNT,
+                seed = Clock.System.now().toEpochMilliseconds() / TimeConstants.MILLIS_IN_DAY,
+                config = ScoringConfig(),
+                difficulty = DifficultyType.CASUAL,
+            )
+        } else {
+            require(pairCount in 1..MAX_PAIR_COUNT) { "Pair count must be between 1 and $MAX_PAIR_COUNT" }
+            GameParameters(
+                pairCount = pairCount,
+                seed = seed ?: secureRandomLong(),
+                config = config,
+                difficulty = difficulty,
+            )
+        }
+    }
+
+    private fun determineActiveMutators(
+        mode: GameMode,
+        random: Random,
+    ): Set<DailyChallengeMutator> {
+        if (mode != GameMode.DAILY_CHALLENGE) return emptySet()
+
+        val mutators = mutableSetOf<DailyChallengeMutator>()
+        if (random.nextFloat() < BLACKOUT_CHANCE) {
+            mutators.add(DailyChallengeMutator.BLACKOUT)
+        }
+        if (random.nextFloat() < MIRAGE_CHANCE) {
+            mutators.add(DailyChallengeMutator.MIRAGE)
+        }
+        if (mutators.isEmpty()) {
+            mutators.add(DailyChallengeMutator.BLACKOUT)
+        }
+        return mutators
+    }
+
+    private data class GameParameters(
+        val pairCount: Int,
+        val seed: Long,
+        val config: ScoringConfig,
+        val difficulty: DifficultyType,
+    )
 
     companion object {
         const val MAX_PAIR_COUNT = 26

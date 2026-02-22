@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
@@ -81,7 +82,7 @@ private const val FLIP_DURATION_MS = 400
 
 // Animation values
 private const val SHAKE_OFFSET_PX = 10f
-private const val CAMERA_DISTANCE_MULTIPLIER = 15f
+private const val CAMERA_DISTANCE_MULTIPLIER = 12f
 private const val MUCK_TARGET_Y_FALLBACK = 1500
 
 // Rotation angles (degrees)
@@ -528,6 +529,11 @@ private fun CardContainer(
         Card(
             modifier =
                 Modifier
+                    .pokerClickable(
+                        onClick = interactions.onClick,
+                        interactionSource = interactions.interactionSource,
+                        role = Role.Button,
+                    )
                     .fillMaxSize()
                     .cardBorder(visuals.rotation, visuals.visualState)
                     .pokerClickable(
