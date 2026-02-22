@@ -62,6 +62,7 @@ private object LayoutConstants {
     const val DOUBLE_DOWN_BOTTOM_PADDING_DP = 100
     const val SPEECH_BUBBLE_TOP_PADDING_DP = 80
     const val MUTATOR_INDICATORS_TOP_OFFSET_DP = 60
+    const val DOUBLE_DOWN_END_PADDING_DP = 16
 }
 
 private data class GameHUDState(
@@ -432,7 +433,7 @@ private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
         modifier =
             Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = LayoutConstants.DOUBLE_DOWN_BOTTOM_PADDING_DP.dp, end = 16.dp),
+                .padding(bottom = LayoutConstants.DOUBLE_DOWN_BOTTOM_PADDING_DP.dp, end = LayoutConstants.DOUBLE_DOWN_END_PADDING_DP.dp),
     )
 }
 
