@@ -43,6 +43,10 @@ import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.ShopItem
 import io.github.smithjustinn.domain.models.ShopItemType
 import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.shop_ad_reward_button
+import io.github.smithjustinn.resources.shop_ad_reward_cooldown
+import io.github.smithjustinn.resources.shop_ad_reward_description
+import io.github.smithjustinn.resources.shop_ad_reward_title
 import io.github.smithjustinn.resources.shop_back_description
 import io.github.smithjustinn.resources.shop_balance_format
 import io.github.smithjustinn.resources.shop_bankroll_description
@@ -120,6 +124,10 @@ fun ShopContent(
                     hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                     component.onEquipItemClicked(it)
                 },
+                onWatchAd = {
+                    hapticsService.performHapticFeedback(HapticFeedbackType.HEAVY)
+                    component.onWatchAdForRewardClicked()
+                },
                 modifier = Modifier.weight(1f),
             )
         }
@@ -186,6 +194,7 @@ private fun ShopItemsGrid(
     state: ShopState,
     onBuyItem: (ShopItem) -> Unit,
     onEquipItem: (ShopItem) -> Unit,
+    onWatchAd: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
     val visibleItems = remember(state.items) { state.items.filter { it.isVisible } }
@@ -203,6 +212,14 @@ private fun ShopItemsGrid(
         horizontalArrangement = Arrangement.spacedBy(16.dp),
         modifier = modifier.navigationBarsPadding(),
     ) {
+        item {
+            ShopAdRewardCard(
+                isAvailable = state.isRewardedAdAvailable,
+                onWatchAd = onWatchAd,
+                modifier = Modifier.fillMaxWidth(),
+            )
+        }
+
         items(visibleItems) { item ->
             val isEquipped =
                 when (item.type) {
@@ -398,3 +415,74 @@ private fun getCardBackgroundColor(shopItemState: ShopItemState): Color =
         is ShopItemState.UnlockedFeature -> PokerTheme.colors.surface.copy(alpha = 0.95f)
         is ShopItemState.Locked -> PokerTheme.colors.surface
     }
+
+@Composable
+private fun ShopAdRewardCard(
+    isAvailable: Boolean,
+    onWatchAd: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    AppCard(
+        modifier =
+            modifier
+                .fillMaxWidth()
+                .clickable(enabled = isAvailable) { onWatchAd() },
+        backgroundColor = PokerTheme.colors.surface.copy(alpha = 0.9f),
+        border = if (isAvailable) BorderStroke(1.dp, PokerTheme.colors.bonusGreen) else null,
+    ) {
+        val spacing = PokerTheme.spacing
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.padding(spacing.medium).heightIn(min = 280.dp),
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth().weight(1f),
+                contentAlignment = Alignment.Center,
+            ) {
+                Icon(
+                    imageVector = ShopIcons.CasinoChip,
+                    contentDescription = null,
+                    tint = if (isAvailable) PokerTheme.colors.goldenYellow else PokerTheme.colors.onSurface.copy(alpha = 0.3f),
+                    modifier = Modifier.size(80.dp),
+                )
+            }
+
+            Spacer(modifier = Modifier.height(spacing.medium))
+
+            Text(
+                text = stringResource(Res.string.shop_ad_reward_title),
+                style = MaterialTheme.typography.titleLarge,
+                color = PokerTheme.colors.goldenYellow,
+                fontWeight = FontWeight.ExtraBold,
+            )
+
+            Spacer(modifier = Modifier.height(4.dp))
+
+            Text(
+                text = stringResource(Res.string.shop_ad_reward_description),
+                style = MaterialTheme.typography.labelMedium,
+                color = PokerTheme.colors.onSurface.copy(alpha = 0.6f),
+                textAlign = TextAlign.Center,
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
+            )
+
+            Spacer(modifier = Modifier.height(spacing.large))
+
+            PokerButton(
+                text =
+                    if (isAvailable) {
+                        stringResource(Res.string.shop_ad_reward_button)
+                    } else {
+                        stringResource(
+                            Res.string.shop_ad_reward_cooldown,
+                        )
+                    },
+                onClick = onWatchAd,
+                enabled = isAvailable,
+                modifier = Modifier.fillMaxWidth(),
+                containerColor = if (isAvailable) PokerTheme.colors.bonusGreen else PokerTheme.colors.onSurface.copy(alpha = 0.12f),
+            )
+        }
+    }
+}

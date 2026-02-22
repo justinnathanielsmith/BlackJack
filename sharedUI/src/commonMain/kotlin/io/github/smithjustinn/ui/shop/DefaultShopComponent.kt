@@ -10,9 +10,11 @@ import io.github.smithjustinn.domain.usecases.economy.GetShopItemsUseCase
 import io.github.smithjustinn.domain.usecases.economy.SetActiveCosmeticUseCase
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.shop_purchase_failed
+import io.github.smithjustinn.resources.ad_unit_id
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.componentScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,8 +22,10 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import org.jetbrains.compose.resources.getString
 import org.koin.core.component.KoinComponent
 import org.koin.core.component.inject
+import kotlin.time.Clock
 
 class DefaultShopComponent(
     componentContext: ComponentContext,
@@ -50,9 +54,14 @@ class DefaultShopComponent(
     private val _state = MutableStateFlow(ShopState())
     override val state: StateFlow<ShopState> = _state.asStateFlow()
 
+    private var lastAdShownTimestamp = 0L
+
     private val scope = lifecycle.componentScope(appGraph.coroutineDispatchers.mainImmediate)
 
     init {
+        // Initial ad availability
+        _state.update { it.copy(isRewardedAdAvailable = true) }
+
         scope.launch {
             val balanceFlow = getPlayerBalanceUseCase()
             val unlockedFlow = playerEconomyRepository.unlockedItemIds
@@ -114,5 +123,45 @@ class DefaultShopComponent(
 
     override fun onClearError() {
         _state.update { it.copy(error = null) }
+    }
+
+    override fun onWatchAdForRewardClicked() {
+        if (!_state.value.isRewardedAdAvailable) return
+
+        appGraph.adService.showRewardedAd {
+            scope.launch {
+                appGraph.earnCurrencyUseCase.execute(REWARDED_AD_CHIPS_AMOUNT)
+                hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS)
+
+                // Update cooldown
+                lastAdShownTimestamp = Clock.System.now().toEpochMilliseconds()
+                updateAdAvailability()
+
+                // Reload ad for next time
+                val adUnitId = getString(Res.string.ad_unit_id)
+                appGraph.adService.loadRewardedAd(adUnitId)
+            }
+        }
+    }
+
+    private fun updateAdAvailability() {
+        val now = Clock.System.now().toEpochMilliseconds()
+        val timeSinceLastAd = now - lastAdShownTimestamp
+        val isAvailable = timeSinceLastAd >= AD_COOLDOWN_MILLIS
+        _state.update { it.copy(isRewardedAdAvailable = isAvailable) }
+
+        if (!isAvailable) {
+            // Schedule re-check when cooldown expires
+            scope.launch {
+                val remainingTime = AD_COOLDOWN_MILLIS - timeSinceLastAd
+                delay(remainingTime)
+                _state.update { it.copy(isRewardedAdAvailable = true) }
+            }
+        }
+    }
+
+    companion object {
+        private const val REWARDED_AD_CHIPS_AMOUNT = 200L
+        private const val AD_COOLDOWN_MILLIS = 30 * 1000L // 30 seconds
     }
 }
