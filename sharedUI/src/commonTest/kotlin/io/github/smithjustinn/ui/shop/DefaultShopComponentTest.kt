@@ -95,11 +95,17 @@ class DefaultShopComponentTest {
     fun `onBuyItemClicked should trigger use case and haptics on success`() =
         runTest(testDispatcher) {
             val item =
-                ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
+                ShopItem(
+                    id = "item1",
+                    name = "Item 1",
+                    price = 100L,
+                    type = ShopItemType.CARD_SKIN,
+                    description = "",
+                )
 
             everySuspend { shopItemRepository.getShopItems() } returns listOf(item)
             everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
-            everySuspend { playerEconomyRepository.deductCurrency(100) } returns true
+            everySuspend { playerEconomyRepository.deductCurrency(100L) } returns true
             everySuspend { playerEconomyRepository.unlockItem("item1") } returns Unit
             every { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) } returns Unit
 
@@ -113,7 +119,7 @@ class DefaultShopComponentTest {
             component.onBuyItemClicked(item)
             advanceUntilIdle()
 
-            verifySuspend { playerEconomyRepository.deductCurrency(100) }
+            verifySuspend { playerEconomyRepository.deductCurrency(100L) }
             verifySuspend { playerEconomyRepository.unlockItem("item1") }
             verify { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) }
         }
@@ -123,11 +129,17 @@ class DefaultShopComponentTest {
     fun `onBuyItemClicked should not trigger haptics on failure`() =
         runTest(testDispatcher) {
             val item =
-                ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
+                ShopItem(
+                    id = "item1",
+                    name = "Item 1",
+                    price = 100L,
+                    type = ShopItemType.CARD_SKIN,
+                    description = "",
+                )
 
             everySuspend { shopItemRepository.getShopItems() } returns listOf(item)
             everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
-            everySuspend { playerEconomyRepository.deductCurrency(100) } returns false
+            everySuspend { playerEconomyRepository.deductCurrency(100L) } returns false
 
             val component =
                 DefaultShopComponent(
@@ -139,7 +151,7 @@ class DefaultShopComponentTest {
             component.onBuyItemClicked(item)
             advanceUntilIdle()
 
-            verifySuspend { playerEconomyRepository.deductCurrency(100) }
+            verifySuspend { playerEconomyRepository.deductCurrency(100L) }
             verify(
                 VerifyMode
                     .exactly(0),
