@@ -36,12 +36,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
-import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.CardTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
@@ -67,9 +67,9 @@ import io.github.smithjustinn.resources.suit_clubs
 import io.github.smithjustinn.resources.suit_diamonds
 import io.github.smithjustinn.resources.suit_hearts
 import io.github.smithjustinn.resources.suit_spades
-import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
+import io.github.smithjustinn.ui.extensions.pokerClickable
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -82,7 +82,7 @@ private const val FLIP_DURATION_MS = 400
 
 // Animation values
 private const val SHAKE_OFFSET_PX = 10f
-private const val CAMERA_DISTANCE_MULTIPLIER = 15f
+private const val CAMERA_DISTANCE_MULTIPLIER = 12f
 private const val MUCK_TARGET_Y_FALLBACK = 1500
 
 // Rotation angles (degrees)
@@ -169,15 +169,6 @@ fun PlayingCard(
     isMuckingEnabled: Boolean = true,
     onClick: () -> Unit = {},
 ) {
-    val haptics = LocalAppGraph.current.hapticsService
-    val wrappedOnClick =
-        remember(onClick, haptics) {
-            {
-                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
-                onClick()
-            }
-        }
-
     val interactionSource = remember { MutableInteractionSource() }
     val isHovered by interactionSource.collectIsHoveredAsState()
     val isPressed by interactionSource.collectIsPressedAsState()
@@ -227,7 +218,7 @@ fun PlayingCard(
         muckRotation = animations.muckRotation,
         backColor = backColor,
         contentDescription = contentDescription,
-        interactions = CardInteractions(interactionSource = interactionSource, onClick = wrappedOnClick),
+        interactions = CardInteractions(interactionSource = interactionSource, onClick = onClick),
     ) {
         CardContentSelectors(
             content = content,
@@ -535,10 +526,13 @@ private fun CardContainer(
         )
 
         Card(
-            onClick = interactions.onClick,
-            interactionSource = interactions.interactionSource,
             modifier =
                 Modifier
+                    .pokerClickable(
+                        onClick = interactions.onClick,
+                        interactionSource = interactions.interactionSource,
+                        role = Role.Button,
+                    )
                     .fillMaxSize()
                     .cardBorder(visuals.rotation, visuals.visualState)
                     .semantics {
