@@ -246,4 +246,6 @@
     <string name="suit_diamonds">Diamonds</string>
     <string name="suit_clubs">Clubs</string>
     <string name="suit_spades">Spades</string>
+    <string name="double_rewards">2X REWARDS</string>
+    <string name="double_rewards_ad_note">Watch ad to double</string>
 </resources>

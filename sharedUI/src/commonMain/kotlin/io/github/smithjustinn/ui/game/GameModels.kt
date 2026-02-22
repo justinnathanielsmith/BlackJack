@@ -32,6 +32,7 @@ data class GameUIState(
     val totalBalance: Long = 0,
     val isRewardedAdAvailable: Boolean = false,
     val totalGamesPlayed: Int = 0,
+    val canDoubleRewards: Boolean = false,
 ) {
     val isDoubleDownAvailable: Boolean
         get() {
@@ -46,7 +47,7 @@ data class GameUIState(
         get() = isRewardedAdAvailable && totalGamesPlayed >= MIN_GAMES_BEFORE_ADS
 
     companion object {
-        private const val MIN_GAMES_BEFORE_ADS = 3
+        const val MIN_GAMES_BEFORE_ADS = 4
     }
 }
 

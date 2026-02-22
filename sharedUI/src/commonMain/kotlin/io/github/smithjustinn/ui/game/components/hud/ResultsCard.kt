@@ -52,6 +52,8 @@ import io.github.smithjustinn.resources.best_score_label
 import io.github.smithjustinn.resources.busted
 import io.github.smithjustinn.resources.casino_header_title
 import io.github.smithjustinn.resources.clean_number_format
+import io.github.smithjustinn.resources.double_rewards
+import io.github.smithjustinn.resources.double_rewards_ad_note
 import io.github.smithjustinn.resources.game_complete
 import io.github.smithjustinn.resources.game_over
 import io.github.smithjustinn.resources.high_roller_suite
@@ -98,6 +100,8 @@ fun ResultsCard(
     scoreBreakdown: ScoreBreakdown,
     onPlayAgain: () -> Unit,
     onShareReplay: () -> Unit = {},
+    onDoubleRewards: () -> Unit = {},
+    canDoubleRewards: Boolean = false,
     modifier: Modifier = Modifier,
     mode: GameMode = GameMode.TIME_ATTACK,
     onScoreTick: () -> Unit = {},
@@ -133,6 +137,8 @@ fun ResultsCard(
             elapsedTimeSeconds = elapsedTimeSeconds,
             onPlayAgain = onPlayAgain,
             onShareReplay = onShareReplay,
+            onDoubleRewards = onDoubleRewards,
+            canDoubleRewards = canDoubleRewards,
         )
     }
 }
@@ -150,6 +156,8 @@ private fun ResultsCardContent(
     elapsedTimeSeconds: Long,
     onPlayAgain: () -> Unit,
     onShareReplay: () -> Unit,
+    onDoubleRewards: () -> Unit,
+    canDoubleRewards: Boolean,
 ) {
     Box(
         modifier =
@@ -178,7 +186,7 @@ private fun ResultsCardContent(
                 PayoutSection(scoreBreakdown, moves, elapsedTimeSeconds)
                 ReceiptDivider()
                 TotalPayout(lastMatchedScore, highScore)
-                ReceiptFooter(onPlayAgain, onShareReplay)
+                ReceiptFooter(onPlayAgain, onShareReplay, onDoubleRewards, canDoubleRewards)
             }
 
             ReceiptEdge(color = ReceiptPaperColor, isTop = false)
@@ -325,6 +333,8 @@ private fun TotalPayout(
 private fun ReceiptFooter(
     onPlayAgain: () -> Unit,
     onShareReplay: () -> Unit,
+    onDoubleRewards: () -> Unit,
+    canDoubleRewards: Boolean,
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
@@ -333,7 +343,7 @@ private fun ReceiptFooter(
     ) {
         BarcodeSimulation()
         Spacer(modifier = Modifier.height(4.dp))
-        ResultsActions(onPlayAgain, onShareReplay)
+        ResultsActions(onPlayAgain, onShareReplay, onDoubleRewards, canDoubleRewards)
     }
 }
 
@@ -372,7 +382,41 @@ private fun BarcodeSimulation() {
 private fun ResultsActions(
     onPlayAgain: () -> Unit,
     onShareReplay: () -> Unit,
+    onDoubleRewards: () -> Unit,
+    canDoubleRewards: Boolean,
 ) {
+    if (canDoubleRewards) {
+        Button(
+            onClick = onDoubleRewards,
+            modifier = Modifier.fillMaxWidth(),
+            colors =
+                ButtonDefaults.buttonColors(
+                    containerColor = ReceiptAccentColor,
+                    contentColor = Color.White,
+                ),
+            shape = RoundedCornerShape(2.dp),
+        ) {
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                Text(
+                    text = stringResource(Res.string.double_rewards).uppercase(),
+                    style =
+                        MaterialTheme.typography.labelLarge.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontWeight = FontWeight.Black,
+                        ),
+                )
+                Text(
+                    text = stringResource(Res.string.double_rewards_ad_note),
+                    style =
+                        MaterialTheme.typography.labelSmall.copy(
+                            fontFamily = FontFamily.Monospace,
+                            fontSize = 10.sp,
+                        ),
+                )
+            }
+        }
+    }
+
     Button(
         onClick = onPlayAgain,
         modifier = Modifier.fillMaxWidth(),

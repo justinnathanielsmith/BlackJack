@@ -20,4 +20,6 @@ interface GameComponent {
     fun onDoubleDown()
 
     fun onShowRewardedAd()
+
+    fun onDoubleRewardsAd()
 }
