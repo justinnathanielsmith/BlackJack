@@ -5,15 +5,16 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 
 class TimeAttackLogicTest {
-
     @Test
     fun `calculateInitialTime returns configured time for mapped pair counts`() {
-        val config = ScoringConfig(
-            timeAttackInitialTimeMap = mapOf(
-                6 to 100L,
-                8 to 200L,
+        val config =
+            ScoringConfig(
+                timeAttackInitialTimeMap =
+                    mapOf(
+                        6 to 100L,
+                        8 to 200L,
+                    ),
             )
-        )
 
         assertEquals(100L, TimeAttackLogic.calculateInitialTime(6, config))
         assertEquals(200L, TimeAttackLogic.calculateInitialTime(8, config))
@@ -21,12 +22,14 @@ class TimeAttackLogicTest {
 
     @Test
     fun `calculateInitialTime uses fallback for unmapped pair counts`() {
-        val config = ScoringConfig(
-            timeAttackInitialTimeMap = mapOf(
-                6 to 100L,
-                8 to 200L,
+        val config =
+            ScoringConfig(
+                timeAttackInitialTimeMap =
+                    mapOf(
+                        6 to 100L,
+                        8 to 200L,
+                    ),
             )
-        )
 
         // Fallback logic: pairCount * 4L
         assertEquals(4 * 4L, TimeAttackLogic.calculateInitialTime(4, config))
@@ -35,10 +38,11 @@ class TimeAttackLogicTest {
 
     @Test
     fun `calculateTimeGain returns correct time based on combo multiplier`() {
-        val config = ScoringConfig(
-            timeAttackBaseGain = 5,
-            timeAttackComboBonusMultiplier = 3,
-        )
+        val config =
+            ScoringConfig(
+                timeAttackBaseGain = 5,
+                timeAttackComboBonusMultiplier = 3,
+            )
 
         // Case 1: Combo 1 (Base gain only)
         assertEquals(5, TimeAttackLogic.calculateTimeGain(1, config))

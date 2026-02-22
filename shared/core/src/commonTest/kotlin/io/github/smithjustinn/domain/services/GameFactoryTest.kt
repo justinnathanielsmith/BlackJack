@@ -9,7 +9,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class GameFactoryTest {
-
     @Test
     fun createInitialState_createsCorrectNumberOfCards() {
         val pairCount = 8
@@ -53,13 +52,14 @@ class GameFactoryTest {
         val difficulty = DifficultyType.MASTER
         val isHeatShieldAvailable = true
 
-        val state = GameFactory.createInitialState(
-            pairCount = pairCount,
-            config = config,
-            mode = mode,
-            difficulty = difficulty,
-            isHeatShieldAvailable = isHeatShieldAvailable
-        )
+        val state =
+            GameFactory.createInitialState(
+                pairCount = pairCount,
+                config = config,
+                mode = mode,
+                difficulty = difficulty,
+                isHeatShieldAvailable = isHeatShieldAvailable,
+            )
 
         assertEquals(pairCount, state.pairCount)
         assertEquals(config, state.config)
