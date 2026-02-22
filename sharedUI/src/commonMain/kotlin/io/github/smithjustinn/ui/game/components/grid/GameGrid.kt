@@ -255,7 +255,9 @@ private fun GridItem(
     onCardClick: (Int) -> Unit,
 ) {
     val density = LocalDensity.current
-    val layoutInfo = cardLayouts[card.id]
+    // Bolt: Defer reading layout info until needed (when matched) to avoid
+    // double-composition during initial layout (position write -> invalidation -> read).
+    val layoutInfo = if (card.isMatched) cardLayouts[card.id] else null
 
     // Bolt: Memoize expensive layout calculations to prevent redundant work on every timer update
     val cardMuckTarget =
