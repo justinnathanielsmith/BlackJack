@@ -31,7 +31,7 @@ kotlin {
             implementation(libs.bundles.ktor.common)
             api(libs.bundles.room)
             implementation(libs.kermit)
-            implementation(libs.koin.core)
+            api(libs.koin.core)
             implementation(libs.compose.resources)
         }
         androidMain.dependencies {

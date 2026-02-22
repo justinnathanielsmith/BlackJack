@@ -23,6 +23,7 @@ import io.github.smithjustinn.domain.usecases.economy.SetActiveCosmeticUseCase
 import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.CoroutineDispatchers
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -89,6 +90,7 @@ class DefaultShopComponentTest {
         stopKoin()
     }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `onBuyItemClicked should trigger use case and haptics on success`() =
         runTest(testDispatcher) {
@@ -116,6 +118,7 @@ class DefaultShopComponentTest {
             verify { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) }
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `onBuyItemClicked should not trigger haptics on failure`() =
         runTest(testDispatcher) {

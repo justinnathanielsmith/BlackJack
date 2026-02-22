@@ -25,12 +25,8 @@ object DeepLinkUtils {
             val seedStr = urlParams[Constants.QUERY_PARAM_SEED]
 
             val mode =
-                modeStr?.let {
-                    try {
-                        GameMode.valueOf(it)
-                    } catch (e: IllegalArgumentException) {
-                        GameMode.TIME_ATTACK
-                    }
+                modeStr?.let { name ->
+                    GameMode.entries.find { it.name == name }
                 } ?: GameMode.TIME_ATTACK
 
             val pairs =
@@ -40,8 +36,13 @@ object DeepLinkUtils {
             val seed = seedStr?.toLongOrNull()
 
             DeepLinkParams(mode, pairs, seed)
-        } catch (e: Exception) {
-            // Log error if needed, but here we just return null to ignore invalid deep links
+        } catch (
+            @Suppress("SwallowedException") _: IllegalArgumentException,
+        ) {
+            null
+        } catch (
+            @Suppress("SwallowedException") _: IllegalStateException,
+        ) {
             null
         }
     }
@@ -61,7 +62,13 @@ object DeepLinkUtils {
                 builder.parameters.append(key, "REDACTED")
             }
             builder.buildString()
-        } catch (e: Exception) {
+        } catch (
+            @Suppress("SwallowedException") _: IllegalArgumentException,
+        ) {
+            "Malformatted Deep Link"
+        } catch (
+            @Suppress("SwallowedException") _: IllegalStateException,
+        ) {
             "Malformatted Deep Link"
         }
 }

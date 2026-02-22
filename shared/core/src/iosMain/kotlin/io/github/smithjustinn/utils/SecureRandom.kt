@@ -1,6 +1,11 @@
 package io.github.smithjustinn.utils
 
-import kotlinx.cinterop.*
+import kotlinx.cinterop.ExperimentalForeignApi
+import kotlinx.cinterop.LongVar
+import kotlinx.cinterop.alloc
+import kotlinx.cinterop.memScoped
+import kotlinx.cinterop.ptr
+import kotlinx.cinterop.value
 import platform.Security.SecRandomCopyBytes
 import platform.Security.kSecRandomDefault
 

@@ -47,8 +47,8 @@ open class StartNewGameUseCase {
         config: ScoringConfig,
         difficulty: DifficultyType,
         seed: Long?,
-    ): GameParameters {
-        return if (mode == GameMode.DAILY_CHALLENGE) {
+    ): GameParameters =
+        if (mode == GameMode.DAILY_CHALLENGE) {
             GameParameters(
                 pairCount = DAILY_CHALLENGE_PAIR_COUNT,
                 seed = Clock.System.now().toEpochMilliseconds() / TimeConstants.MILLIS_IN_DAY,
@@ -64,7 +64,6 @@ open class StartNewGameUseCase {
                 difficulty = difficulty,
             )
         }
-    }
 
     private fun determineActiveMutators(
         mode: GameMode,

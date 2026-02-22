@@ -533,8 +533,7 @@ private fun CardContainer(
                         onClick = interactions.onClick,
                         interactionSource = interactions.interactionSource,
                         role = Role.Button,
-                    )
-                    .fillMaxSize()
+                    ).fillMaxSize()
                     .cardBorder(visuals.rotation, visuals.visualState)
                     .pokerClickable(
                         onClick = interactions.onClick,

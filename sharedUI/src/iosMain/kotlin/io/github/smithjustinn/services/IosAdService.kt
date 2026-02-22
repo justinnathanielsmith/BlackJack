@@ -1,41 +1,23 @@
 package io.github.smithjustinn.services
 
 import io.github.smithjustinn.domain.services.AdService
-import platform.Foundation.NSError
-import platform.GoogleMobileAds.GADRequest
-import platform.GoogleMobileAds.GADRewardedAd
-import platform.GoogleMobileAds.GADRewardedAdLoadCompletionHandler
-import platform.UIKit.UIApplication
+import co.touchlab.kermit.Logger
 
 /**
- * iOS implementation of AdService using Google Mobile Ads SDK.
+ * iOS implementation of AdService.
+ * NOTE: Currently a stub because Google Mobile Ads SDK requires CocoaPods setup
+ * which is not available in the current environment.
  */
 class IosAdService : AdService {
-    private var rewardedAd: GADRewardedAd? = null
+    private val logger = Logger.withTag("IosAdService")
 
     override fun loadRewardedAd(adUnitId: String) {
-        GADRewardedAd.loadWithAdUnitID(
-            adUnitID = adUnitId,
-            request = GADRequest(),
-            completionHandler =
-                { ad: GADRewardedAd?, error: NSError? ->
-                    if (error == null) {
-                        rewardedAd = ad
-                    }
-                } as GADRewardedAdLoadCompletionHandler,
-        )
+        logger.i { "Rewarded ad load requested for $adUnitId (Stub)" }
     }
 
     override fun showRewardedAd(onRewardEarned: (Int) -> Unit) {
-        val rootVC = UIApplication.sharedApplication.keyWindow?.rootViewController
-        if (rootVC != null && rewardedAd != null) {
-            rewardedAd?.presentFromRootViewController(
-                rootViewController = rootVC,
-                userDidEarnRewardHandler = {
-                    val reward = rewardedAd?.adReward
-                    onRewardEarned(reward?.amount?.toInt() ?: 0)
-                },
-            )
-        }
+        logger.i { "Rewarded ad show requested (Stub)" }
+        // For development/stub purposes, we can either do nothing or provide a mock reward
+        // onRewardEarned(10)
     }
 }

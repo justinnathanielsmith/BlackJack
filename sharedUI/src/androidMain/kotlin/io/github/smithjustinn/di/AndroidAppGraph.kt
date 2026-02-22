@@ -11,7 +11,7 @@ import org.koin.android.ext.koin.androidLogger
  */
 fun createAndroidGraph(application: Application): AppGraph {
     initKoin(androidUiModule) {
-        if (0 != (application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE)) {
+        if (0 != application.applicationInfo.flags and ApplicationInfo.FLAG_DEBUGGABLE) {
             androidLogger()
         }
         androidContext(application)

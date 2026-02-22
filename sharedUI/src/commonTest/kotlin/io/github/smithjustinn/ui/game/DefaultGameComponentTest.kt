@@ -15,6 +15,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.test.BaseComponentTest
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlin.test.BeforeTest
 import kotlin.test.Test
@@ -96,6 +97,7 @@ class DefaultGameComponentTest : BaseComponentTest() {
             }
         }
 
+    @OptIn(ExperimentalCoroutinesApi::class)
     @Test
     fun `resuming game with 0 moves DOES trigger peek sequence if enabled`() =
         runTest { lifecycle ->

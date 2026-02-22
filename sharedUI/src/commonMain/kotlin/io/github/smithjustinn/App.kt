@@ -43,30 +43,30 @@ fun App(
     appGraph: AppGraph,
     onThemeChanged: @Composable (isDark: Boolean) -> Unit = {},
 ) = AppTheme(onThemeChanged) {
-    var showSplash by remember { mutableStateOf(true) }
+    val cardTheme by remember(appGraph) {
+        combine(
+            appGraph.playerEconomyRepository.selectedTheme,
+            appGraph.playerEconomyRepository.selectedSkin,
+        ) { theme, skin -> CardTheme(back = theme, skin = skin) }
+    }.collectAsState(CardTheme())
 
-    AnimatedContent(
-        targetState = showSplash,
-        transitionSpec = {
-            fadeIn(animationSpec = tween(SPLASH_ANIMATION_DURATION)) togetherWith
-                fadeOut(animationSpec = tween(SPLASH_ANIMATION_DURATION))
-        },
-        label = "SplashTransition",
-    ) { show ->
-        if (show) {
-            SplashScreen(onDataLoaded = { showSplash = false })
-        } else {
-            val cardTheme by remember(appGraph) {
-                combine(
-                    appGraph.playerEconomyRepository.selectedTheme,
-                    appGraph.playerEconomyRepository.selectedSkin,
-                ) { theme, skin -> CardTheme(back = theme, skin = skin) }
-            }.collectAsState(CardTheme())
+    CompositionLocalProvider(
+        LocalAppGraph provides appGraph,
+        LocalCardTheme provides cardTheme,
+    ) {
+        var showSplash by remember { mutableStateOf(true) }
 
-            CompositionLocalProvider(
-                LocalAppGraph provides appGraph,
-                LocalCardTheme provides cardTheme,
-            ) {
+        AnimatedContent(
+            targetState = showSplash,
+            transitionSpec = {
+                fadeIn(animationSpec = tween(SPLASH_ANIMATION_DURATION)) togetherWith
+                    fadeOut(animationSpec = tween(SPLASH_ANIMATION_DURATION))
+            },
+            label = "SplashTransition",
+        ) { show ->
+            if (show) {
+                SplashScreen(onDataLoaded = { showSplash = false })
+            } else {
                 Children(
                     stack = root.childStack,
                     animation =

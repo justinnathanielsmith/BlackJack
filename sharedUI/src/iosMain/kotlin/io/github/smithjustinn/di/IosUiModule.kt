@@ -12,7 +12,6 @@ import io.github.smithjustinn.services.IosAudioServiceImpl
 import io.github.smithjustinn.services.IosHapticsServiceImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
 import kotlinx.coroutines.SupervisorJob
 import org.koin.core.module.dsl.bind
 import org.koin.core.module.dsl.singleOf
@@ -32,7 +31,7 @@ val iosUiModule =
                     name = dbFile,
                     factory = { AppDatabaseConstructor.initialize() },
                 ).setDriver(BundledSQLiteDriver())
-                .setQueryCoroutineContext(Dispatchers.IO)
+                .setQueryCoroutineContext(Dispatchers.Default)
                 .addMigrations(AppDatabase.MIGRATION_3_4)
                 .build()
         }
