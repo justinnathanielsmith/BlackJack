@@ -32,11 +32,12 @@ object ScoringCalculator {
         val potentialPot = calculatePot(state.currentPot, matchTotalPoints)
         val isMilestone = matchesFound > 0 && matchesFound % state.config.matchMilestoneInterval == 0
 
-        val scoreWithPot = if (isMilestone || isWon) {
-            state.score + potentialPot
-        } else {
-            state.score.toLong()
-        }
+        val scoreWithPot =
+            if (isMilestone || isWon) {
+                state.score + potentialPot
+            } else {
+                state.score.toLong()
+            }
 
         val (finalScore, ddBonus) = calculateDoubleDown(isWon, state, scoreWithPot)
 
@@ -45,37 +46,39 @@ object ScoringCalculator {
             matchComboBonus = matchComboBonus.toInt(),
             potentialPot = potentialPot,
             isMilestone = isMilestone,
-            scoreResult = MatchScoreResult(
-                finalScore = finalScore.coerceIn(0, MAX_SAFE_INTEGER).toInt(),
-                ddBonus = ddBonus.coerceIn(0, MAX_SAFE_INTEGER).toInt(),
-            ),
+            scoreResult =
+                MatchScoreResult(
+                    finalScore = finalScore.coerceIn(0, MAX_SAFE_INTEGER).toInt(),
+                    ddBonus = ddBonus.coerceIn(0, MAX_SAFE_INTEGER).toInt(),
+                ),
         )
     }
 
     private fun calculateMatchPoints(state: MemoryGameState): Pair<Long, Long> {
         val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
         val matchBasePoints = state.config.baseMatchPoints.toLong()
-        val matchComboBonus = (comboFactor * state.config.comboBonusPoints)
-            .coerceAtMost(MAX_SAFE_INTEGER)
+        val matchComboBonus =
+            (comboFactor * state.config.comboBonusPoints)
+                .coerceAtMost(MAX_SAFE_INTEGER)
         return matchBasePoints to matchComboBonus
     }
 
-    private fun calculatePot(currentPot: Int, matchTotalPoints: Long): Long {
-        return (currentPot + matchTotalPoints).coerceAtMost(MAX_SAFE_INTEGER)
-    }
+    private fun calculatePot(
+        currentPot: Int,
+        matchTotalPoints: Long,
+    ): Long = (currentPot + matchTotalPoints).coerceAtMost(MAX_SAFE_INTEGER)
 
     private fun calculateDoubleDown(
         isWon: Boolean,
         state: MemoryGameState,
         scoreWithPot: Long,
-    ): Pair<Long, Long> {
-        return if (isWon && state.isDoubleDownActive) {
+    ): Pair<Long, Long> =
+        if (isWon && state.isDoubleDownActive) {
             val doubledScore = scoreWithPot * DOUBLE_DOWN_MULTIPLIER
             doubledScore to scoreWithPot
         } else {
             scoreWithPot to 0L
         }
-    }
 
     /**
      * Calculates final bonuses (Time and Move Efficiency) when the game is won.
@@ -105,16 +108,17 @@ object ScoringCalculator {
 
         return state.copy(
             score = totalScore,
-            scoreBreakdown = ScoreBreakdown(
-                basePoints = state.totalBasePoints,
-                comboBonus = state.totalComboBonus,
-                doubleDownBonus = state.totalDoubleDownBonus,
-                timeBonus = timeBonus,
-                moveBonus = moveBonus,
-                dailyChallengeBonus = dailyChallengeBonus,
-                totalScore = totalScore,
-                earnedCurrency = earnedCurrency,
-            ),
+            scoreBreakdown =
+                ScoreBreakdown(
+                    basePoints = state.totalBasePoints,
+                    comboBonus = state.totalComboBonus,
+                    doubleDownBonus = state.totalDoubleDownBonus,
+                    timeBonus = timeBonus,
+                    moveBonus = moveBonus,
+                    dailyChallengeBonus = dailyChallengeBonus,
+                    totalScore = totalScore,
+                    earnedCurrency = earnedCurrency,
+                ),
         )
     }
 
@@ -129,8 +133,7 @@ object ScoringCalculator {
             (
                 state.pairCount * config.timeBonusPerPair -
                     elapsedTimeSeconds * config.timePenaltyPerSecond
-            )
-                .coerceAtLeast(0)
+            ).coerceAtLeast(0)
                 .toInt()
         }
 

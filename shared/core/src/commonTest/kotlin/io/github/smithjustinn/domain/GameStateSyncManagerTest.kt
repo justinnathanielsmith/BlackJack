@@ -7,7 +7,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.advanceTimeBy
-import kotlinx.coroutines.test.advanceUntilIdle
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertTrue
@@ -39,7 +38,7 @@ class GameStateSyncManagerTest : BaseLogicTest() {
                 assertEquals(0, saveCount, "Should not save yet")
 
                 manager.sync(state2, 90L)
-            advanceTimeBy(1001) // Sample period ends (2000ms total)
+                advanceTimeBy(1001) // Sample period ends (2000ms total)
                 assertEquals(1, saveCount, "Should save at the end of sample period")
                 assertEquals(state2, savedStates.last(), "Should save the latest state")
             } finally {
@@ -63,7 +62,7 @@ class GameStateSyncManagerTest : BaseLogicTest() {
                 val state = MemoryGameState(moves = 1)
                 manager.sync(state, 100L, priority = GameStateSyncManager.Priority.HIGH)
 
-            advanceTimeBy(100)
+                advanceTimeBy(100)
                 assertEquals(1, saveCount, "High priority should save immediately")
             } finally {
                 managerScope.cancel()
@@ -94,7 +93,7 @@ class GameStateSyncManagerTest : BaseLogicTest() {
                 advanceTimeBy(1000)
 
                 manager.flush(state2, 90L)
-            advanceTimeBy(100)
+                advanceTimeBy(100)
 
                 assertEquals(1, saveCount, "Flush should save immediately")
                 assertEquals(state2, savedStates.last(), "Flush should save state2")
@@ -128,7 +127,10 @@ class GameStateSyncManagerTest : BaseLogicTest() {
 
                 // With sample(2000), saves should happen roughly every 2 seconds.
                 // Expected saves: at least 2.
-                assertTrue(saveCount >= 2, "Should save at least twice during 5 seconds of continuous updates. Actual: \$saveCount")
+                assertTrue(
+                    saveCount >= 2,
+                    "Should save at least twice during 5 seconds of continuous updates. Actual: \$saveCount",
+                )
             } finally {
                 managerScope.cancel()
             }

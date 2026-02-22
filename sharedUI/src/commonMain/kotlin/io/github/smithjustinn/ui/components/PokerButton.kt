@@ -109,11 +109,11 @@ fun PokerButton(
                 .then(if (border != null && enabled) Modifier.border(border, PokerTheme.shapes.medium) else Modifier)
                 .background(buttonColors.container)
                 .pokerClickable(
-                    onClick = onClick,
                     enabled = enabled,
                     interactionSource = interactionSource,
-                    hapticType = if (isPrimary) HapticFeedbackType.HEAVY else HapticFeedbackType.LIGHT,
+                    onClick = onClick,
                     role = Role.Button,
+                    hapticType = if (isPrimary) HapticFeedbackType.HEAVY else HapticFeedbackType.LIGHT,
                 ).semantics {
                     contentDescription?.let { this.contentDescription = it }
                 }.padding(horizontal = PokerTheme.spacing.medium),

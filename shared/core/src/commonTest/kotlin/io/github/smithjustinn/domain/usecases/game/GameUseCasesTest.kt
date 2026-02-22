@@ -9,7 +9,6 @@ import dev.mokkery.mock
 import dev.mokkery.verifySuspend
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
-import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
@@ -90,7 +89,6 @@ class GameUseCasesTest {
             assertTrue(result.isFailure)
             assertEquals(exception, result.exceptionOrNull())
         }
-
 
     @Test
     fun testSaveGameStateUseCase() =

@@ -294,6 +294,7 @@ private data class AnimationTargetState(
 )
 
 @Composable
+@Suppress("CyclomaticComplexMethod")
 private fun rememberCardAnimations(
     content: CardContent,
     isHovered: Boolean,
@@ -535,7 +536,10 @@ private fun CardContainer(
                     )
                     .fillMaxSize()
                     .cardBorder(visuals.rotation, visuals.visualState)
-                    .semantics {
+                    .pokerClickable(
+                        onClick = interactions.onClick,
+                        interactionSource = interactions.interactionSource,
+                    ).semantics {
                         this.contentDescription = contentDescription
                     },
             shape = PokerTheme.shapes.medium,
