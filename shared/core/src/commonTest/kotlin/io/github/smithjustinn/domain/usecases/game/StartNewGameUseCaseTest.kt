@@ -73,6 +73,28 @@ class StartNewGameUseCaseTest {
     }
 
     @Test
+    fun invoke_dailyChallenge_enforcesStandardConfigAndDifficulty() {
+        val customConfig = ScoringConfig(baseMatchPoints = 9999)
+        val customDifficulty = DifficultyType.TOURIST
+
+        val state =
+            useCase(
+                pairCount = 8,
+                mode = GameMode.DAILY_CHALLENGE,
+                config = customConfig,
+                difficulty = customDifficulty,
+            )
+
+        // Daily Challenge must ignore custom config and enforce defaults
+        assertEquals(
+            ScoringConfig.DEFAULT_BASE_MATCH_POINTS,
+            state.config.baseMatchPoints,
+            "Daily Challenge should enforce standard base match points",
+        )
+        assertEquals(DifficultyType.CASUAL, state.difficulty, "Daily Challenge should enforce CASUAL difficulty")
+    }
+
+    @Test
     fun invoke_dailyChallenge_usesDateBasedSeed() {
         // Daily Challenge uses date-based seed
         val state1 = useCase(pairCount = 8, mode = GameMode.DAILY_CHALLENGE)
