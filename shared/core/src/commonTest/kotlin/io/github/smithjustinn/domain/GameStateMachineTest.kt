@@ -6,6 +6,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.services.GameFactory
 import io.github.smithjustinn.test.BaseLogicTest
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -48,6 +49,10 @@ class GameStateMachineTest : BaseLogicTest() {
                 assertEquals(GameEffect.PlayFlipSound, awaitItem())
                 assertEquals(GameEffect.PlayMismatch, awaitItem())
                 assertEquals(GameEffect.VibrateMismatch, awaitItem())
+
+                // Advance time to allow mismatch processing to complete and avoid hanging coroutines
+                advanceTimeBy(MISMATCH_DELAY_MS + 1)
+                cancelAndIgnoreRemainingEvents()
             }
         }
 
@@ -285,9 +290,10 @@ class GameStateMachineTest : BaseLogicTest() {
     private fun createStateMachine(
         initialState: MemoryGameState = MemoryGameState(mode = GameMode.TIME_ATTACK),
         initialTimeSeconds: Long = INITIAL_TIME,
+        scope: CoroutineScope = testScope,
         onSaveState: (MemoryGameState, Long) -> Unit = { _, _ -> },
     ) = GameStateMachine(
-        scope = testScope,
+        scope = scope,
         dispatchers = testDispatchers,
         initialState = initialState,
         initialTimeSeconds = initialTimeSeconds,

@@ -5,6 +5,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -17,7 +18,8 @@ import kotlinx.coroutines.test.runTest as runCoroutineTest
 @OptIn(ExperimentalCoroutinesApi::class)
 abstract class BaseLogicTest {
     protected val testDispatcher = StandardTestDispatcher()
-    protected val testScope = TestScope(testDispatcher)
+    protected var testScope = TestScope(testDispatcher)
+        private set
 
     protected val testDispatchers =
         CoroutineDispatchers(
@@ -30,10 +32,12 @@ abstract class BaseLogicTest {
     @BeforeTest
     open fun setUp() {
         Dispatchers.setMain(testDispatcher)
+        testScope = TestScope(testDispatcher)
     }
 
     @AfterTest
     open fun tearDown() {
+        testScope.cancel()
         Dispatchers.resetMain()
     }
 
