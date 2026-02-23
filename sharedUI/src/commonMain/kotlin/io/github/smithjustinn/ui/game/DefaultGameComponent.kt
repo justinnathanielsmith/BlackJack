@@ -318,7 +318,7 @@ class DefaultGameComponent(
         }
     }
 
-    private suspend fun setupNewGame(
+    private fun setupNewGame(
         pairCount: Int,
         mode: GameMode,
         difficulty: DifficultyType,

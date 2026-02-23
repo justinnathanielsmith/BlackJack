@@ -1,5 +1,6 @@
 package io.github.smithjustinn.domain
 
+import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
@@ -9,6 +10,7 @@ import io.github.smithjustinn.domain.services.MutatorEngine
 import io.github.smithjustinn.domain.services.ScoreKeeper
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import io.github.smithjustinn.utils.TimeConstants
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
@@ -262,20 +264,28 @@ class GameStateMachine(
             scope.launch(dispatchers.default) {
                 val currentState = _state.value
                 val peekCards =
-                    currentState.cards
-                        .map {
-                            if (!it.isMatched) it.copy(isFaceUp = true) else it
-                        }.toPersistentList()
+                    currentState.cards.mutate { list: MutableList<CardState> ->
+                        for (i in list.indices) {
+                            val card = list[i]
+                            if (!card.isMatched && !card.isFaceUp) {
+                                list[i] = card.copy(isFaceUp = true)
+                            }
+                        }
+                    }
                 updateState(currentState.copy(cards = peekCards))
 
                 delay(action.durationMs)
 
                 val latestState = _state.value
                 val hiddenCards =
-                    latestState.cards
-                        .map {
-                            if (!it.isMatched) it.copy(isFaceUp = false) else it
-                        }.toPersistentList()
+                    latestState.cards.mutate { list: MutableList<CardState> ->
+                        for (i in list.indices) {
+                            val card = list[i]
+                            if (!card.isMatched && card.isFaceUp) {
+                                list[i] = card.copy(isFaceUp = false)
+                            }
+                        }
+                    }
                 updateState(latestState.copy(cards = hiddenCards))
             }
     }
