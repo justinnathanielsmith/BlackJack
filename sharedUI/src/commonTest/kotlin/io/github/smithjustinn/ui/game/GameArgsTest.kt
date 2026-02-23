@@ -8,7 +8,7 @@ import kotlin.test.assertFailsWith
 class GameArgsTest {
     @Test
     fun `should accept valid pair counts`() {
-        val validCounts = listOf(2, 8, 26, 52)
+        val validCounts = listOf(2, 8, 26)
         validCounts.forEach { count ->
             GameArgs(
                 pairCount = count,
@@ -21,7 +21,7 @@ class GameArgsTest {
 
     @Test
     fun `should throw exception for invalid pair counts`() {
-        val invalidCounts = listOf(-10, 0, 1, 53, 100)
+        val invalidCounts = listOf(-10, 0, 1, 27, 52, 53, 100)
         invalidCounts.forEach { count ->
             assertFailsWith<IllegalArgumentException> {
                 GameArgs(
