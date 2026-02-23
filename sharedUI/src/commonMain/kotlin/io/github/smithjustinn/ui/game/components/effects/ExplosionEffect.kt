@@ -1,15 +1,12 @@
 package io.github.smithjustinn.ui.game.components.effects
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
-import androidx.compose.animation.core.RepeatMode
-import androidx.compose.animation.core.animateFloat
-import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
@@ -24,8 +21,6 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 private data class ExplosionParticle(
-    val x: Float,
-    val y: Float,
     val vx: Float,
     val vy: Float,
     val color: Color,
@@ -47,16 +42,13 @@ fun ExplosionEffect(
         ),
     centerOverride: Offset? = null,
 ) {
-    val infiniteTransition = rememberInfiniteTransition()
-    val progress by infiniteTransition.animateFloat(
-        initialValue = 0f,
-        targetValue = 1f,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(EXPLOSION_DURATION_MS, easing = LinearOutSlowInEasing),
-                repeatMode = RepeatMode.Restart,
-            ),
-    )
+    val progress = remember { Animatable(0f) }
+    LaunchedEffect(Unit) {
+        progress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(EXPLOSION_DURATION_MS, easing = LinearOutSlowInEasing),
+        )
+    }
 
     val particles =
         remember {
@@ -64,8 +56,6 @@ fun ExplosionEffect(
                 val angle = Random.nextFloat() * 2 * PI
                 val speed = Random.nextFloat() * MAX_PARTICLE_SPEED + MIN_PARTICLE_SPEED
                 ExplosionParticle(
-                    x = 0f,
-                    y = 0f,
                     vx = (cos(angle) * speed).toFloat(),
                     vy = (sin(angle) * speed).toFloat(),
                     color = colors.random(),
@@ -79,20 +69,22 @@ fun ExplosionEffect(
     Canvas(modifier = modifier.fillMaxSize()) {
         val center = centerOverride ?: Offset(size.width / 2, size.height / 2)
 
-        particles.forEach { particle ->
-            val currentX = center.x + particle.vx * progress * PARTICLE_DISTANCE_MULTIPLIER
-            val currentY = center.y + particle.vy * progress * PARTICLE_DISTANCE_MULTIPLIER
-            val alpha = 1f - progress
+        if (progress.value < 1f) {
+            particles.forEach { particle ->
+                val currentX = center.x + particle.vx * progress.value * PARTICLE_DISTANCE_MULTIPLIER
+                val currentY = center.y + particle.vy * progress.value * PARTICLE_DISTANCE_MULTIPLIER
+                val alpha = 1f - progress.value
 
-            rotate(
-                degrees = particle.rotation + particle.rotationSpeed * progress * ROTATION_MULTIPLIER,
-                pivot = Offset(currentX, currentY),
-            ) {
-                drawRect(
-                    color = particle.color.copy(alpha = alpha),
-                    topLeft = Offset(currentX - particle.size / 2, currentY - particle.size / 2),
-                    size = Size(particle.size, particle.size),
-                )
+                rotate(
+                    degrees = particle.rotation + particle.rotationSpeed * progress.value * ROTATION_MULTIPLIER,
+                    pivot = Offset(currentX, currentY),
+                ) {
+                    drawRect(
+                        color = particle.color.copy(alpha = alpha),
+                        topLeft = Offset(currentX - particle.size / 2, currentY - particle.size / 2),
+                        size = Size(particle.size, particle.size),
+                    )
+                }
             }
         }
     }
