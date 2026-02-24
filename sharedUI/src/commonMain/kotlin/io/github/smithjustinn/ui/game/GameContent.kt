@@ -63,6 +63,7 @@ private object LayoutConstants {
     const val SPEECH_BUBBLE_TOP_PADDING_DP = 80
     const val MUTATOR_INDICATORS_TOP_OFFSET_DP = 60
     const val DOUBLE_DOWN_END_PADDING_DP = 16
+    const val DEALER_SPEECH_MAX_WIDTH_DP = 600
 }
 
 private data class GameHUDState(
@@ -405,7 +406,8 @@ private fun BoxScope.GameHUD(
     )
 
     if (state.isDoubleDownAvailable) {
-        DoubleDownButton(onDoubleDown)
+        val audioService = LocalAppGraph.current.audioService
+        DoubleDownButton(onDoubleDown, audioService)
     }
 
     DealerSpeechBubble(
@@ -414,14 +416,15 @@ private fun BoxScope.GameHUD(
             Modifier
                 .align(Alignment.TopCenter)
                 .padding(top = LayoutConstants.SPEECH_BUBBLE_TOP_PADDING_DP.dp)
-                .widthIn(max = 600.dp),
+                .widthIn(max = LayoutConstants.DEALER_SPEECH_MAX_WIDTH_DP.dp),
     )
 }
 
 @Composable
-private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
-    val audioService = LocalAppGraph.current.audioService
-
+private fun BoxScope.DoubleDownButton(
+    onDoubleDown: () -> Unit,
+    audioService: AudioService,
+) {
     PokerButton(
         text = stringResource(Res.string.game_double_or_nothing),
         onClick = {

@@ -8,15 +8,17 @@ import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.ScoreBreakdown
 import io.github.smithjustinn.domain.models.ScoringConfig
 
+private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
+private const val DAILY_CHALLENGE_CURRENCY_BONUS = 500
+private const val CURRENCY_DIVISOR = 100
+private const val DOUBLE_DOWN_MULTIPLIER = 2L
+private const val MIN_EFFECTIVE_MOVES = 1
+private val MAX_SCORE = Int.MAX_VALUE.toLong()
+
 /**
  * Pure functions for calculating match scores and bonuses.
  */
 object ScoringCalculator {
-    private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
-    private const val DAILY_CHALLENGE_CURRENCY_BONUS = 500
-    private const val CURRENCY_DIVISOR = 100
-    private const val DOUBLE_DOWN_MULTIPLIER = 2L
-    private val MAX_SCORE = Int.MAX_VALUE.toLong()
 
     private data class MatchPoints(
         val base: Long,
@@ -26,6 +28,14 @@ object ScoringCalculator {
     private data class DoubleDownResult(
         val finalScore: Long,
         val bonus: Long,
+    )
+
+    private data class BonusResult(
+        val timeBonus: Int,
+        val moveBonus: Int,
+        val totalScore: Int,
+        val earnedCurrency: Int,
+        val dailyChallengeBonus: Int,
     )
 
     /**
@@ -102,25 +112,40 @@ object ScoringCalculator {
     ): MemoryGameState {
         if (!state.isGameWon) return state
 
-        val config = state.config
-        val timeBonus = calculateTimeBonus(state, elapsedTimeSeconds, config)
-        val moveBonus = calculateMoveBonus(state, config)
-        val totalScore = calculateTotalScore(state, timeBonus, moveBonus)
-        val earnedCurrency = calculateEarnedCurrency(state, totalScore)
-        val dailyChallengeBonus = calculateDailyChallengeBonus(state)
+        val bonusResult = calculateBonuses(state, elapsedTimeSeconds)
 
         return state.copy(
-            score = totalScore,
+            score = bonusResult.totalScore,
             scoreBreakdown = ScoreBreakdown(
                 basePoints = state.totalBasePoints,
                 comboBonus = state.totalComboBonus,
                 doubleDownBonus = state.totalDoubleDownBonus,
-                timeBonus = timeBonus,
-                moveBonus = moveBonus,
-                dailyChallengeBonus = dailyChallengeBonus,
-                totalScore = totalScore,
-                earnedCurrency = earnedCurrency,
+                timeBonus = bonusResult.timeBonus,
+                moveBonus = bonusResult.moveBonus,
+                dailyChallengeBonus = bonusResult.dailyChallengeBonus,
+                totalScore = bonusResult.totalScore,
+                earnedCurrency = bonusResult.earnedCurrency,
             ),
+        )
+    }
+
+    private fun calculateBonuses(
+        state: MemoryGameState,
+        elapsedTimeSeconds: Long,
+    ): BonusResult {
+        val config = state.config
+        val timeBonus = calculateTimeBonus(state, elapsedTimeSeconds, config)
+        val moveBonus = calculateMoveBonus(state, config)
+        val totalScore = calculateTotalScore(state, timeBonus, moveBonus)
+        val dailyChallengeBonus = calculateDailyChallengeBonus(state)
+        val earnedCurrency = calculateEarnedCurrency(state, totalScore)
+
+        return BonusResult(
+            timeBonus = timeBonus,
+            moveBonus = moveBonus,
+            totalScore = totalScore,
+            earnedCurrency = earnedCurrency,
+            dailyChallengeBonus = dailyChallengeBonus,
         )
     }
 
@@ -128,9 +153,7 @@ object ScoringCalculator {
         state: MemoryGameState,
         config: ScoringConfig,
     ): Int {
-        // Move Efficiency Bonus (dominant factor)
-        // Ensure moves is at least 1 to avoid division by zero or infinity.
-        val effectiveMoves = state.moves.coerceAtLeast(1)
+        val effectiveMoves = state.moves.coerceAtLeast(MIN_EFFECTIVE_MOVES)
         val moveEfficiency = state.pairCount.toDouble() / effectiveMoves.toDouble()
         return (moveEfficiency * config.moveBonusMultiplier).toInt()
     }
@@ -140,7 +163,6 @@ object ScoringCalculator {
         timeBonus: Int,
         moveBonus: Int,
     ): Int {
-        // Prevent overflow by using Long for intermediate calculation
         val totalScoreLong = state.score.toLong() + timeBonus + moveBonus
         return totalScoreLong.coerceIn(0, MAX_SCORE).toInt()
     }
@@ -166,12 +188,14 @@ object ScoringCalculator {
     private fun calculateEarnedCurrency(
         state: MemoryGameState,
         totalScore: Int,
-    ): Int =
-        if (state.mode == GameMode.DAILY_CHALLENGE) {
-            totalScore / CURRENCY_DIVISOR + DAILY_CHALLENGE_CURRENCY_BONUS
+    ): Int {
+        val baseCurrency = totalScore / CURRENCY_DIVISOR
+        return if (state.mode == GameMode.DAILY_CHALLENGE) {
+            baseCurrency + DAILY_CHALLENGE_CURRENCY_BONUS
         } else {
-            (totalScore / CURRENCY_DIVISOR * state.difficulty.payoutMultiplier).toInt()
+            (baseCurrency * state.difficulty.payoutMultiplier).toInt()
         }
+    }
 
     /**
      * Determines which game event to fire based on the match result.
