@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateMapOf
@@ -27,6 +28,8 @@ import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.IntOffset
@@ -34,6 +37,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.toSize
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.CardTheme
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.splash_dealing_cards
+import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.assets.getPreferredColor
 import io.github.smithjustinn.ui.assets.toColor
 import io.github.smithjustinn.ui.game.components.cards.CardContent
@@ -42,6 +48,7 @@ import io.github.smithjustinn.ui.game.components.cards.PlayingCard
 import io.github.smithjustinn.ui.game.components.effects.ExplosionEffect
 import io.github.smithjustinn.ui.game.components.effects.ScoreFlyingEffect
 import kotlinx.collections.immutable.ImmutableList
+import org.jetbrains.compose.resources.stringResource
 
 private data class CardLayoutInfo(
     val position: Offset,
@@ -75,30 +82,42 @@ internal fun GameGrid(
                         gridPosition = layoutCoordinates.positionInRoot()
                     },
         )
-        val layoutConfig =
-            rememberGridLayoutConfig(
-                screenWidth = maxWidth,
+
+        if (gridCardState.cards.isNotEmpty()) {
+            val layoutConfig =
+                rememberGridLayoutConfig(
+                    screenWidth = maxWidth,
+                    screenHeight = maxHeight,
+                    cardCount = gridCardState.cards.size,
+                )
+
+            GridContent(
+                gridCardState = gridCardState,
+                layoutConfig = layoutConfig,
                 screenHeight = maxHeight,
-                cardCount = gridCardState.cards.size,
+                gridPosition = gridPosition,
+                settings = settings,
+                onCardClick = onCardClick,
+                cardLayouts = cardLayouts,
             )
 
-        GridContent(
-            gridCardState = gridCardState,
-            layoutConfig = layoutConfig,
-            screenHeight = maxHeight,
-            gridPosition = gridPosition,
-            settings = settings,
-            onCardClick = onCardClick,
-            cardLayouts = cardLayouts,
-        )
-
-        GridEffects(
-            gridCardState = gridCardState,
-            settings = settings,
-            cardLayouts = cardLayouts,
-            gridPosition = gridPosition,
-            scorePositionInRoot = scorePositionInRoot,
-        )
+            GridEffects(
+                gridCardState = gridCardState,
+                settings = settings,
+                cardLayouts = cardLayouts,
+                gridPosition = gridPosition,
+                scorePositionInRoot = scorePositionInRoot,
+            )
+        } else {
+            val loadingDescription = stringResource(Res.string.splash_dealing_cards)
+            CircularProgressIndicator(
+                modifier =
+                    Modifier
+                        .align(Alignment.Center)
+                        .semantics { contentDescription = loadingDescription },
+                color = PokerTheme.colors.goldenYellow,
+            )
+        }
     }
 }
 
