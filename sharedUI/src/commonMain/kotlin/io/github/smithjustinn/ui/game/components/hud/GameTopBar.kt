@@ -36,6 +36,8 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.input.pointer.PointerIcon
+import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -275,7 +277,10 @@ private fun BackButton(
             haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
             onClick()
         },
-        modifier = modifier.semantics { contentDescription = contentDesc },
+        modifier =
+            modifier
+                .semantics { contentDescription = contentDesc }
+                .pointerHoverIcon(PointerIcon.Hand),
     ) {
         Surface(
             shape = CircleShape,
@@ -325,7 +330,10 @@ private fun RestartButton(
             haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
             onClick()
         },
-        modifier = modifier.semantics { contentDescription = contentDesc },
+        modifier =
+            modifier
+                .semantics { contentDescription = contentDesc }
+                .pointerHoverIcon(PointerIcon.Hand),
     ) {
         Surface(
             shape = PokerTheme.shapes.medium,
@@ -367,7 +375,10 @@ private fun MuteButton(
             haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
             onClick()
         },
-        modifier = modifier.semantics { contentDescription = contentDesc },
+        modifier =
+            modifier
+                .semantics { contentDescription = contentDesc }
+                .pointerHoverIcon(PointerIcon.Hand),
     ) {
         Surface(
             shape = PokerTheme.shapes.medium,

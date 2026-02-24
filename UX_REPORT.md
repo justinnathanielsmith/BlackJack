@@ -98,3 +98,34 @@ fun Modifier.pokerClickable(
         )
 }
 ```
+
+---
+# Update: Refinement Phase
+
+## The "Quick Win": Standardize Desktop Interactions
+Addressed the lack of responsive cursor feedback on desktop platforms. The `GameTopBar` components (`BackButton`, `RestartButton`, `MuteButton`) were updated to include `Modifier.pointerHoverIcon(PointerIcon.Hand)`. This ensures that all interactive elements in the game (cards, buttons, toggles) now consistently display the hand cursor on hover, significantly improving the native desktop feel.
+
+## ADDRESSED "UX Friction": Infinite Explosion Loop
+The `ExplosionEffect` in `GameGrid` was previously implemented using `rememberInfiniteTransition`, causing the particle effect to loop indefinitely as long as matched cards were present. This was distracting and reduced the impact of the match event.
+**Fix:** The effect was refactored to be one-shot, and the call site in `GameGrid.kt` was wrapped in `key(lastMatchedIds) { ... }` to ensure it triggers exactly once per match event.
+
+## The "Polished Code" Suggestion: One-Shot Animation Pattern
+The `ExplosionEffect` was refactored to use `Animatable` driven by `LaunchedEffect` instead of an infinite transition. This is the recommended pattern for "fire-and-forget" animations in Compose.
+
+```kotlin
+@Composable
+fun ExplosionEffect(...) {
+    val progress = remember { Animatable(0f) }
+
+    // Trigger animation once when entering composition
+    LaunchedEffect(Unit) {
+        progress.animateTo(
+            targetValue = 1f,
+            animationSpec = tween(EXPLOSION_DURATION_MS, easing = LinearOutSlowInEasing)
+        )
+    }
+
+    // Render particles based on progress.value
+    // ...
+}
+```
