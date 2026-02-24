@@ -1,3 +1,5 @@
+import java.time.Duration
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kmp.library)
@@ -28,11 +30,11 @@ kotlin {
             androidResources.enable = false // Optimized for core library
         }
     }
-    
+
     if (buildJvm) {
         jvm()
     }
-    
+
     if (buildIos) {
         iosX64()
         iosArm64()
@@ -57,6 +59,11 @@ kotlin {
         }
     }
 }
+
+tasks.withType<Test> {
+    timeout.set(Duration.ofSeconds(120))
+}
+
 
 compose.resources {
     packageOfResClass = "io.github.smithjustinn.resources"

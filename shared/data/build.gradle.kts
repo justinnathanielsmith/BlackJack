@@ -72,7 +72,6 @@ kotlin {
             implementation(libs.bundles.testing)
         }
     }
-
 }
 
 room {

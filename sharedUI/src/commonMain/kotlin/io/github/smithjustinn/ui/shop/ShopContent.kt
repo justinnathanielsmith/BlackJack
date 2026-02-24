@@ -441,7 +441,14 @@ private fun ShopAdRewardCard(
                 Icon(
                     imageVector = ShopIcons.CasinoChip,
                     contentDescription = null,
-                    tint = if (isAvailable) PokerTheme.colors.goldenYellow else PokerTheme.colors.onSurface.copy(alpha = 0.3f),
+                    tint =
+                        if (isAvailable) {
+                            PokerTheme.colors.goldenYellow
+                        } else {
+                            PokerTheme.colors.onSurface.copy(
+                                alpha = 0.3f,
+                            )
+                        },
                     modifier = Modifier.size(80.dp),
                 )
             }
@@ -480,7 +487,14 @@ private fun ShopAdRewardCard(
                 onClick = onWatchAd,
                 enabled = isAvailable,
                 modifier = Modifier.fillMaxWidth(),
-                containerColor = if (isAvailable) PokerTheme.colors.bonusGreen else PokerTheme.colors.onSurface.copy(alpha = 0.12f),
+                containerColor =
+                    if (isAvailable) {
+                        PokerTheme.colors.bonusGreen
+                    } else {
+                        PokerTheme.colors.onSurface.copy(
+                            alpha = 0.12f,
+                        )
+                    },
             )
         }
     }

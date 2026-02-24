@@ -5,6 +5,7 @@ import io.github.smithjustinn.utils.TimeConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 
 /**
@@ -19,9 +20,10 @@ class GameTimer(
 
     fun start() {
         stop()
+        if (!scope.isActive) return
         timerJob =
-            scope.launch(dispatchers.default) {
-                while (true) {
+            scope.launch {
+                while (scope.isActive) {
                     delay(TIMER_TICK_INTERVAL_MS)
                     onTick()
                 }

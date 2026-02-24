@@ -417,8 +417,9 @@ class DefaultGameComponent(
         hasDoubledRewards = false
         _state.update {
             it.copy(
-                canDoubleRewards = (it.totalGamesPlayed + 1) >= GameUIState.MIN_GAMES_BEFORE_ADS &&
-                    effect.amount > 0,
+                canDoubleRewards =
+                    it.totalGamesPlayed + 1 >= GameUIState.MIN_GAMES_BEFORE_ADS &&
+                        effect.amount > 0,
             )
         }
         scope.launch {

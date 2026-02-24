@@ -3,9 +3,9 @@ package io.github.smithjustinn.test
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestScope
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.setMain
 import kotlin.test.AfterTest
@@ -42,8 +42,8 @@ abstract class BaseLogicTest {
     }
 
     /**
-     * A helper to run logic tests using the class-level [testDispatcher].
+     * A helper to run logic tests.
      */
     protected fun runTest(testBody: suspend TestScope.() -> Unit) =
-        runCoroutineTest(context = testDispatcher, testBody = testBody)
+        runCoroutineTest(testBody = testBody)
 }
