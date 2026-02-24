@@ -120,3 +120,16 @@ A malicious actor (e.g., via deep link) could request an excessively large `pair
 1.  Enforced strict range check `require(pairCount in 1..26)` in `StartNewGameUseCase`.
 2.  Defined `MAX_PAIR_COUNT = 26` constant based on available card assets.
 3.  Verified with unit tests in `GameUseCasesTest`.
+
+## 2026-02-13 - [Daily Challenge Result Validation]
+**Vulnerability:** Input Validation
+**Severity:** MEDIUM
+**Component:** `shared/data` / `DailyChallengeRepositoryImpl`
+
+**Finding:**
+`DailyChallengeRepositoryImpl.saveChallengeResult` lacked input validation, allowing the storage of negative scores, time, or moves, or non-positive dates.
+While higher-level logic might enforce these constraints, direct calls to the repository (e.g., from future features or compromised components) could corrupt the daily challenge history.
+
+**Remediation:**
+1.  Added strict `require` checks in `saveChallengeResult`: `score >= 0`, `timeSeconds >= 0`, `moves >= 0`, `date > 0`.
+2.  Verified with reproduction test `DailyChallengeRepositorySecurityTest.kt`.
