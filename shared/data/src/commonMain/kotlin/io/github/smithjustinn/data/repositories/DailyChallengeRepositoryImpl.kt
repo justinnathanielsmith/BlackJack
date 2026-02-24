@@ -24,6 +24,11 @@ class DailyChallengeRepositoryImpl(
         timeSeconds: Long,
         moves: Int,
     ) {
+        require(score >= 0) { "Score cannot be negative" }
+        require(timeSeconds >= 0) { "Time cannot be negative" }
+        require(moves >= 0) { "Moves cannot be negative" }
+        require(date > 0) { "Date must be positive" }
+
         withContext(dispatchers.io) {
             val entity =
                 DailyChallengeEntity(

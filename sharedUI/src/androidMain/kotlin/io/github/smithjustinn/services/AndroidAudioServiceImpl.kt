@@ -140,24 +140,46 @@ class AndroidAudioServiceImpl(
             try {
                 val tempFile = File(context.cacheDir, fileName)
                 if (tempFile.exists()) {
-                    // Reuse or create MediaPlayer for this resource
-                    val player =
-                        fallbackPlayers.getOrPut(resource) {
-                            MediaPlayer().apply {
-                                setDataSource(tempFile.absolutePath)
-                                setVolume(soundVolume, soundVolume)
-                                prepare()
-                                setOnCompletionListener { mp ->
-                                    mp.seekTo(0)
+                    withContext(Dispatchers.Main) {
+                        try {
+                            val player = fallbackPlayers[resource]
+                            if (player != null) {
+                                try {
+                                    if (player.isPlaying) {
+                                        player.seekTo(0)
+                                    } else {
+                                        player.start()
+                                    }
+                                } catch (e: IllegalStateException) {
+                                    // Player might be preparing or in an invalid state
+                                    logger.w { "Fallback player not ready or in bad state: $name" }
+                                }
+                            } else {
+                                var newPlayer: MediaPlayer? = null
+                                try {
+                                    newPlayer = MediaPlayer()
+                                    newPlayer.apply {
+                                        setDataSource(tempFile.absolutePath)
+                                        setVolume(soundVolume, soundVolume)
+                                        setOnCompletionListener { mp ->
+                                            mp.seekTo(0)
+                                        }
+                                        setOnPreparedListener { mp ->
+                                            mp.start()
+                                        }
+                                        // Optimization: Use prepareAsync to avoid blocking the thread
+                                        prepareAsync()
+                                    }
+                                    fallbackPlayers[resource] = newPlayer
+                                } catch (e: Exception) {
+                                    newPlayer?.release()
+                                    throw e
                                 }
                             }
+                        } catch (e: Exception) {
+                            logger.e(e) { "Error initializing fallback player: $name" }
+                            fallbackPlayers.remove(resource)?.release()
                         }
-
-                    // Reset and play
-                    if (player.isPlaying) {
-                        player.seekTo(0)
-                    } else {
-                        player.start()
                     }
                 }
             } catch (

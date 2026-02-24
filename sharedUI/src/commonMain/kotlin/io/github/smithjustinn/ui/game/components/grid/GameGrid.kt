@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateMapOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -397,11 +398,13 @@ private fun GridExplosionEffect(
 
             val relativeCenter = averageRootPosition - gridPosition
 
-            ExplosionEffect(
-                modifier = Modifier.fillMaxSize(),
-                particleCount = 60,
-                centerOverride = relativeCenter,
-            )
+            key(lastMatchedIds) {
+                ExplosionEffect(
+                    modifier = Modifier.fillMaxSize(),
+                    particleCount = 60,
+                    centerOverride = relativeCenter,
+                )
+            }
         }
     }
 }
