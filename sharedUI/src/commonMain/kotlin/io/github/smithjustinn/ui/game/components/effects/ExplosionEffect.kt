@@ -2,6 +2,7 @@ package io.github.smithjustinn.ui.game.components.effects
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
@@ -43,6 +44,7 @@ fun ExplosionEffect(
     centerOverride: Offset? = null,
 ) {
     val progress = remember { Animatable(0f) }
+
     LaunchedEffect(Unit) {
         progress.animateTo(
             targetValue = 1f,
@@ -69,22 +71,20 @@ fun ExplosionEffect(
     Canvas(modifier = modifier.fillMaxSize()) {
         val center = centerOverride ?: Offset(size.width / 2, size.height / 2)
 
-        if (progress.value < 1f) {
-            particles.forEach { particle ->
-                val currentX = center.x + particle.vx * progress.value * PARTICLE_DISTANCE_MULTIPLIER
-                val currentY = center.y + particle.vy * progress.value * PARTICLE_DISTANCE_MULTIPLIER
-                val alpha = 1f - progress.value
+        particles.forEach { particle ->
+            val currentX = center.x + particle.vx * progress.value * PARTICLE_DISTANCE_MULTIPLIER
+            val currentY = center.y + particle.vy * progress.value * PARTICLE_DISTANCE_MULTIPLIER
+            val alpha = (1f - progress.value).coerceIn(0f, 1f)
 
-                rotate(
-                    degrees = particle.rotation + particle.rotationSpeed * progress.value * ROTATION_MULTIPLIER,
-                    pivot = Offset(currentX, currentY),
-                ) {
-                    drawRect(
-                        color = particle.color.copy(alpha = alpha),
-                        topLeft = Offset(currentX - particle.size / 2, currentY - particle.size / 2),
-                        size = Size(particle.size, particle.size),
-                    )
-                }
+            rotate(
+                degrees = particle.rotation + particle.rotationSpeed * progress.value * ROTATION_MULTIPLIER,
+                pivot = Offset(currentX, currentY),
+            ) {
+                drawRect(
+                    color = particle.color.copy(alpha = alpha),
+                    topLeft = Offset(currentX - particle.size / 2, currentY - particle.size / 2),
+                    size = Size(particle.size, particle.size),
+                )
             }
         }
     }
