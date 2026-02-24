@@ -1,7 +1,7 @@
 package io.github.smithjustinn.services
 
-import io.github.smithjustinn.domain.services.AdService
 import co.touchlab.kermit.Logger
+import io.github.smithjustinn.domain.services.AdService
 
 /**
  * iOS implementation of AdService.

@@ -40,12 +40,51 @@ object ScoringCalculator {
             matchComboBonus = points.bonus.toInt(),
             potentialPot = potentialPot,
             isMilestone = isMilestone,
-            scoreResult = MatchScoreResult(
-                finalScore = doubleDownResult.finalScore.coerceIn(0, MAX_SCORE).toInt(),
-                ddBonus = doubleDownResult.bonus.coerceIn(0, MAX_SCORE).toInt(),
-            ),
+            scoreResult =
+                MatchScoreResult(
+                    finalScore = doubleDownResult.finalScore.coerceIn(0, MAX_SCORE).toInt(),
+                    ddBonus = doubleDownResult.bonus.coerceIn(0, MAX_SCORE).toInt(),
+                ),
         )
     }
+
+    private fun calculateMatchPoints(state: MemoryGameState): MatchPoints {
+        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
+        val matchBasePoints = state.config.baseMatchPoints.toLong()
+        val matchComboBonus =
+            (comboFactor * state.config.comboBonusPoints)
+                .coerceAtMost(MAX_SCORE)
+        return MatchPoints(matchBasePoints, matchComboBonus)
+    }
+
+    private fun calculatePot(
+        currentPot: Int,
+        matchTotalPoints: Long,
+    ): Long = (currentPot + matchTotalPoints).coerceAtMost(MAX_SCORE)
+
+    private fun calculateScoreWithPot(
+        state: MemoryGameState,
+        potentialPot: Long,
+        isWon: Boolean,
+        isMilestone: Boolean,
+    ): Long =
+        if (isMilestone || isWon) {
+            state.score + potentialPot
+        } else {
+            state.score.toLong()
+        }
+
+    private fun calculateDoubleDown(
+        isWon: Boolean,
+        state: MemoryGameState,
+        scoreWithPot: Long,
+    ): DoubleDownResult =
+        if (isWon && state.isDoubleDownActive) {
+            val doubledScore = scoreWithPot * DOUBLE_DOWN_MULTIPLIER
+            DoubleDownResult(doubledScore, scoreWithPot)
+        } else {
+            DoubleDownResult(scoreWithPot, 0L)
+        }
 
     /**
      * Calculates final bonuses (Time and Move Efficiency) when the game is won.
@@ -65,16 +104,17 @@ object ScoringCalculator {
 
         return state.copy(
             score = totalScore,
-            scoreBreakdown = ScoreBreakdown(
-                basePoints = state.totalBasePoints,
-                comboBonus = state.totalComboBonus,
-                doubleDownBonus = state.totalDoubleDownBonus,
-                timeBonus = timeBonus,
-                moveBonus = moveBonus,
-                dailyChallengeBonus = dailyChallengeBonus,
-                totalScore = totalScore,
-                earnedCurrency = earnedCurrency,
-            ),
+            scoreBreakdown =
+                ScoreBreakdown(
+                    basePoints = state.totalBasePoints,
+                    comboBonus = state.totalComboBonus,
+                    doubleDownBonus = state.totalDoubleDownBonus,
+                    timeBonus = timeBonus,
+                    moveBonus = moveBonus,
+                    dailyChallengeBonus = dailyChallengeBonus,
+                    totalScore = totalScore,
+                    earnedCurrency = earnedCurrency,
+                ),
         )
     }
 

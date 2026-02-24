@@ -433,7 +433,10 @@ private fun BoxScope.DoubleDownButton(onDoubleDown: () -> Unit) {
         modifier =
             Modifier
                 .align(Alignment.BottomEnd)
-                .padding(bottom = LayoutConstants.DOUBLE_DOWN_BOTTOM_PADDING_DP.dp, end = LayoutConstants.DOUBLE_DOWN_END_PADDING_DP.dp),
+                .padding(
+                    bottom = LayoutConstants.DOUBLE_DOWN_BOTTOM_PADDING_DP.dp,
+                    end = LayoutConstants.DOUBLE_DOWN_END_PADDING_DP.dp,
+                ),
     )
 }
 
