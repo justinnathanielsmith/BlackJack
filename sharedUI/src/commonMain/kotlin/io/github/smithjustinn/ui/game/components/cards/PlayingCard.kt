@@ -535,10 +535,7 @@ private fun CardContainer(
                         role = Role.Button,
                     ).fillMaxSize()
                     .cardBorder(visuals.rotation, visuals.visualState)
-                    .pokerClickable(
-                        onClick = interactions.onClick,
-                        interactionSource = interactions.interactionSource,
-                    ).semantics {
+                    .semantics {
                         this.contentDescription = contentDescription
                     },
             shape = PokerTheme.shapes.medium,

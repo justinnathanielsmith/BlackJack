@@ -12,7 +12,7 @@ data class GameArgs(
 ) {
     companion object {
         const val MIN_PAIRS = 2
-        const val MAX_PAIRS = 52
+        const val MAX_PAIRS = 26
     }
 
     init {

@@ -52,7 +52,7 @@ class DeepLinkUtilsTest {
         val url2 = "memorymatch://game?pairs=100"
         val params2 = DeepLinkUtils.parseDeepLink(url2)
         assertNotNull(params2)
-        assertEquals(GameArgs.MAX_PAIRS, params2.pairs) // 52
+        assertEquals(GameArgs.MAX_PAIRS, params2.pairs) // 26
     }
 
     @Test

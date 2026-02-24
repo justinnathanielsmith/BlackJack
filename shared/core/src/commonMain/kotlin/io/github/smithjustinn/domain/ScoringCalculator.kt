@@ -18,16 +18,6 @@ object ScoringCalculator {
     private const val DOUBLE_DOWN_MULTIPLIER = 2L
     private val MAX_SCORE = Int.MAX_VALUE.toLong()
 
-    private data class MatchPoints(
-        val base: Long,
-        val bonus: Long,
-    )
-
-    private data class DoubleDownResult(
-        val finalScore: Long,
-        val bonus: Long,
-    )
-
     /**
      * Calculates the score update for a match, including pot accumulation and milestone checks.
      */
@@ -56,42 +46,6 @@ object ScoringCalculator {
             ),
         )
     }
-
-    private fun calculateMatchPoints(state: MemoryGameState): MatchPoints {
-        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
-        val matchBasePoints = state.config.baseMatchPoints.toLong()
-        val matchComboBonus = (comboFactor * state.config.comboBonusPoints)
-            .coerceAtMost(MAX_SCORE)
-        return MatchPoints(matchBasePoints, matchComboBonus)
-    }
-
-    private fun calculatePot(
-        currentPot: Int,
-        matchTotalPoints: Long,
-    ): Long = (currentPot + matchTotalPoints).coerceAtMost(MAX_SCORE)
-
-    private fun calculateScoreWithPot(
-        state: MemoryGameState,
-        potentialPot: Long,
-        isWon: Boolean,
-        isMilestone: Boolean,
-    ): Long = if (isMilestone || isWon) {
-        state.score + potentialPot
-    } else {
-        state.score.toLong()
-    }
-
-    private fun calculateDoubleDown(
-        isWon: Boolean,
-        state: MemoryGameState,
-        scoreWithPot: Long,
-    ): DoubleDownResult =
-        if (isWon && state.isDoubleDownActive) {
-            val doubledScore = scoreWithPot * DOUBLE_DOWN_MULTIPLIER
-            DoubleDownResult(doubledScore, scoreWithPot)
-        } else {
-            DoubleDownResult(scoreWithPot, 0L)
-        }
 
     /**
      * Calculates final bonuses (Time and Move Efficiency) when the game is won.
@@ -123,6 +77,66 @@ object ScoringCalculator {
             ),
         )
     }
+
+    /**
+     * Determines which game event to fire based on the match result.
+     */
+    fun determineSuccessEvent(
+        isWon: Boolean,
+        comboMultiplier: Int,
+        config: ScoringConfig,
+    ): GameDomainEvent =
+        when {
+            isWon -> GameDomainEvent.GameWon
+            comboMultiplier > config.theNutsThreshold -> GameDomainEvent.TheNutsAchieved
+            else -> GameDomainEvent.MatchSuccess
+        }
+
+    private fun calculateMatchPoints(state: MemoryGameState): MatchPoints {
+        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
+        val matchBasePoints = state.config.baseMatchPoints.toLong()
+        val matchComboBonus = (comboFactor * state.config.comboBonusPoints)
+            .coerceAtMost(MAX_SCORE)
+        return MatchPoints(
+            base = matchBasePoints,
+            bonus = matchComboBonus,
+        )
+    }
+
+    private fun calculatePot(
+        currentPot: Int,
+        matchTotalPoints: Long,
+    ): Long = (currentPot + matchTotalPoints).coerceAtMost(MAX_SCORE)
+
+    private fun calculateScoreWithPot(
+        state: MemoryGameState,
+        potentialPot: Long,
+        isWon: Boolean,
+        isMilestone: Boolean,
+    ): Long =
+        if (isMilestone || isWon) {
+            state.score + potentialPot
+        } else {
+            state.score.toLong()
+        }
+
+    private fun calculateDoubleDown(
+        isWon: Boolean,
+        state: MemoryGameState,
+        scoreWithPot: Long,
+    ): DoubleDownResult =
+        if (isWon && state.isDoubleDownActive) {
+            val doubledScore = scoreWithPot * DOUBLE_DOWN_MULTIPLIER
+            DoubleDownResult(
+                finalScore = doubledScore,
+                bonus = scoreWithPot,
+            )
+        } else {
+            DoubleDownResult(
+                finalScore = scoreWithPot,
+                bonus = 0L,
+            )
+        }
 
     private fun calculateMoveBonus(
         state: MemoryGameState,
@@ -173,17 +187,13 @@ object ScoringCalculator {
             (totalScore / CURRENCY_DIVISOR * state.difficulty.payoutMultiplier).toInt()
         }
 
-    /**
-     * Determines which game event to fire based on the match result.
-     */
-    fun determineSuccessEvent(
-        isWon: Boolean,
-        comboMultiplier: Int,
-        config: ScoringConfig,
-    ): GameDomainEvent =
-        when {
-            isWon -> GameDomainEvent.GameWon
-            comboMultiplier > config.theNutsThreshold -> GameDomainEvent.TheNutsAchieved
-            else -> GameDomainEvent.MatchSuccess
-        }
+    private data class MatchPoints(
+        val base: Long,
+        val bonus: Long,
+    )
+
+    private data class DoubleDownResult(
+        val finalScore: Long,
+        val bonus: Long,
+    )
 }

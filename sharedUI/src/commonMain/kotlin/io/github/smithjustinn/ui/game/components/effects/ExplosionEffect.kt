@@ -1,5 +1,6 @@
 package io.github.smithjustinn.ui.game.components.effects
 
+import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearOutSlowInEasing
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
@@ -21,8 +22,6 @@ import kotlin.math.sin
 import kotlin.random.Random
 
 private data class ExplosionParticle(
-    val x: Float,
-    val y: Float,
     val vx: Float,
     val vy: Float,
     val color: Color,
@@ -59,8 +58,6 @@ fun ExplosionEffect(
                 val angle = Random.nextFloat() * 2 * PI
                 val speed = Random.nextFloat() * MAX_PARTICLE_SPEED + MIN_PARTICLE_SPEED
                 ExplosionParticle(
-                    x = 0f,
-                    y = 0f,
                     vx = (cos(angle) * speed).toFloat(),
                     vy = (sin(angle) * speed).toFloat(),
                     color = colors.random(),

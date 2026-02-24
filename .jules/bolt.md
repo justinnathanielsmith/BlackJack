@@ -29,3 +29,7 @@
 ## 2024-10-24 - Canvas Path Allocation
 **Learning:** Creating `Path` objects inside `Canvas` or `drawBehind` lambda allocates new native objects every frame, causing GC churn and CPU overhead.
 **Action:** Use `Modifier.drawWithCache` to create `Path` objects and other drawing resources once (or when size changes), and reuse them in `onDrawBehind`.
+
+## 2026-10-26 - Optimized AuroraEffect with drawWithCache
+**Learning:** Infinite animations driven by `rememberInfiniteTransition` cause recomposition on every frame if state is read in the composition body. Moving state reads to `onDrawBehind` (inside `drawWithCache`) and caching expensive objects (Path, Brush) eliminates recomposition and allocation churn.
+**Action:** For infinite visual effects, always use `drawWithCache` + deferred state reads to skip Composition and Layout phases.
