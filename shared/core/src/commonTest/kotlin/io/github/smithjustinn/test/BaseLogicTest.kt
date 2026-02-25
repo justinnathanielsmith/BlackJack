@@ -45,5 +45,5 @@ abstract class BaseLogicTest {
      * A helper to run logic tests.
      */
     protected fun runTest(testBody: suspend TestScope.() -> Unit) =
-        runCoroutineTest(testBody = testBody)
+        testScope.runCoroutineTest(testBody = testBody)
 }
