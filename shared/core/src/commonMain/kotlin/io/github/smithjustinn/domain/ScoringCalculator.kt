@@ -11,6 +11,7 @@ import io.github.smithjustinn.domain.models.ScoringConfig
 /**
  * Pure functions for calculating match scores and bonuses.
  */
+@Suppress("TooManyFunctions")
 object ScoringCalculator {
     private const val TIME_ATTACK_BONUS_MULTIPLIER = 10
     private const val DAILY_CHALLENGE_CURRENCY_BONUS = 500
@@ -48,7 +49,6 @@ object ScoringCalculator {
         )
     }
 
-
     /**
      * Calculates final bonuses (Time and Move Efficiency) when the game is won.
      */
@@ -61,9 +61,9 @@ object ScoringCalculator {
         val config = state.config
         val timeBonus = calculateTimeBonus(state, elapsedTimeSeconds, config)
         val moveBonus = calculateMoveBonus(state, config)
-        val totalScore = calculateTotalScore(state, timeBonus, moveBonus)
+        val totalScore = (state.score.toLong() + timeBonus + moveBonus).coerceIn(0, MAX_SCORE).toInt()
         val earnedCurrency = calculateEarnedCurrency(state, totalScore)
-        val dailyChallengeBonus = calculateDailyChallengeBonus(state)
+        val dailyChallengeBonus = if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
 
         return state.copy(
             score = totalScore,
@@ -98,8 +98,9 @@ object ScoringCalculator {
     private fun calculateMatchPoints(state: MemoryGameState): MatchPoints {
         val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
         val matchBasePoints = state.config.baseMatchPoints.toLong()
-        val matchComboBonus = (comboFactor * state.config.comboBonusPoints)
-            .coerceAtMost(MAX_SCORE)
+        val matchComboBonus =
+            (comboFactor * state.config.comboBonusPoints)
+                .coerceAtMost(MAX_SCORE)
         return MatchPoints(
             base = matchBasePoints,
             bonus = matchComboBonus,
@@ -151,19 +152,6 @@ object ScoringCalculator {
         val moveEfficiency = state.pairCount.toDouble() / effectiveMoves.toDouble()
         return (moveEfficiency * config.moveBonusMultiplier).toInt()
     }
-
-    private fun calculateTotalScore(
-        state: MemoryGameState,
-        timeBonus: Int,
-        moveBonus: Int,
-    ): Int {
-        // Prevent overflow by using Long for intermediate calculation
-        val totalScoreLong = state.score.toLong() + timeBonus + moveBonus
-        return totalScoreLong.coerceIn(0, MAX_SCORE).toInt()
-    }
-
-    private fun calculateDailyChallengeBonus(state: MemoryGameState): Int =
-        if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
 
     private fun calculateTimeBonus(
         state: MemoryGameState,

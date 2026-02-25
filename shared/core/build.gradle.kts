@@ -1,3 +1,5 @@
+import java.time.Duration
+
 plugins {
     alias(libs.plugins.kotlin.multiplatform)
     alias(libs.plugins.android.kmp.library)
@@ -8,23 +10,36 @@ plugins {
     alias(libs.plugins.mokkery)
 }
 
+val buildAndroid = project.findProperty("target") == "android" || project.findProperty("target") == null
+val buildJvm = project.findProperty("target") == "jvm" || project.findProperty("target") == null
+val buildIos = project.findProperty("target") == "ios" || project.findProperty("target") == null
+
 kotlin {
-    android {
-        namespace = "io.github.smithjustinn.core"
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
-        androidResources.enable = true
+
+    if (buildAndroid) {
+        android {
+            namespace = "io.github.smithjustinn.core"
+            compileSdk =
+                libs.versions.android.compileSdk
+                    .get()
+                    .toInt()
+            minSdk =
+                libs.versions.android.minSdk
+                    .get()
+                    .toInt()
+            androidResources.enable = false // Optimized for core library
+        }
     }
-    jvm()
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+
+    if (buildJvm) {
+        jvm()
+    }
+
+    if (buildIos) {
+        iosX64()
+        iosArm64()
+        iosSimulatorArm64()
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -44,6 +59,11 @@ kotlin {
         }
     }
 }
+
+tasks.withType<Test> {
+    timeout.set(Duration.ofSeconds(120))
+}
+
 
 compose.resources {
     packageOfResClass = "io.github.smithjustinn.resources"

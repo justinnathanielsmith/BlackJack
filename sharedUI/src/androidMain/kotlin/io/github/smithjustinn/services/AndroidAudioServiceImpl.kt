@@ -186,7 +186,6 @@ class AndroidAudioServiceImpl(
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
                 logger.e(e) { "Error playing fallback sound: $name" }
-                // Remove failed player from cache
                 fallbackPlayers.remove(resource)?.release()
             }
         }

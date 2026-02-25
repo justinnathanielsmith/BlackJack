@@ -63,6 +63,8 @@ class DefaultGameComponent(
 
     private var gameStateMachine: GameStateMachine? = null
     private var lastAdShownTimestamp: Long = 0L
+    private var lastEarnedAmount: Long = 0
+    private var hasDoubledRewards: Boolean = false
 
     init {
         lifecycle.doOnDestroy {
@@ -134,18 +136,16 @@ class DefaultGameComponent(
 
             // Load ad and track cooldown
             launch {
-                if (args.mode == GameMode.TIME_ATTACK) {
-                    val adUnitId =
-                        @Suppress("TooGenericExceptionCaught")
-                        try {
-                            getString(Res.string.ad_unit_id)
-                        } catch (e: Exception) {
-                            appGraph.logger.w(e) { "Failed to load ad unit ID" }
-                            return@launch
-                        }
-                    appGraph.adService.loadRewardedAd(adUnitId)
-                    updateAdAvailability()
-                }
+                val adUnitId =
+                    @Suppress("TooGenericExceptionCaught")
+                    try {
+                        getString(Res.string.ad_unit_id)
+                    } catch (e: Exception) {
+                        appGraph.logger.w(e) { "Failed to load ad unit ID" }
+                        return@launch
+                    }
+                appGraph.adService.loadRewardedAd(adUnitId)
+                updateAdAvailability()
             }
 
             combine(
@@ -318,7 +318,7 @@ class DefaultGameComponent(
         }
     }
 
-    private suspend fun setupNewGame(
+    private fun setupNewGame(
         pairCount: Int,
         mode: GameMode,
         difficulty: DifficultyType,
@@ -413,6 +413,15 @@ class DefaultGameComponent(
     }
 
     private fun handleEarnCurrency(effect: GameEffect.EarnCurrency) {
+        lastEarnedAmount = effect.amount
+        hasDoubledRewards = false
+        _state.update {
+            it.copy(
+                canDoubleRewards =
+                    it.totalGamesPlayed + 1 >= GameUIState.MIN_GAMES_BEFORE_ADS &&
+                        effect.amount > 0,
+            )
+        }
         scope.launch {
             appGraph.earnCurrencyUseCase.execute(effect.amount)
         }
@@ -446,6 +455,27 @@ class DefaultGameComponent(
         appGraph.adService.showRewardedAd { bonusSeconds ->
             scope.launch {
                 gameStateMachine?.dispatch(GameAction.AddTime(bonusSeconds))
+
+                // Update cooldown
+                lastAdShownTimestamp = Clock.System.now().toEpochMilliseconds()
+                updateAdAvailability()
+
+                // Reload ad for next time
+                val adUnitId = getString(Res.string.ad_unit_id)
+                appGraph.adService.loadRewardedAd(adUnitId)
+            }
+        }
+    }
+
+    override fun onDoubleRewardsAd() {
+        val currentState = _state.value
+        if (!currentState.canShowRewardedAd || !currentState.canDoubleRewards || hasDoubledRewards) return
+
+        appGraph.adService.showRewardedAd {
+            scope.launch {
+                appGraph.earnCurrencyUseCase.execute(lastEarnedAmount)
+                hasDoubledRewards = true
+                _state.update { it.copy(canDoubleRewards = false) }
 
                 // Update cooldown
                 lastAdShownTimestamp = Clock.System.now().toEpochMilliseconds()

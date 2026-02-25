@@ -11,30 +11,40 @@ plugins {
     alias(libs.plugins.kover)
 }
 
+val buildAndroid = project.findProperty("target") == "android" || project.findProperty("target") == null
+val buildJvm = project.findProperty("target") == "jvm" || project.findProperty("target") == null
+val buildIos = project.findProperty("target") == "ios" || project.findProperty("target") == null
+
 kotlin {
     compilerOptions {
         freeCompilerArgs.addAll("-Xexpect-actual-classes")
     }
 
-    android {
-        namespace = "io.github.smithjustinn"
-        compileSdk =
-            libs.versions.android.compileSdk
-                .get()
-                .toInt()
-        minSdk =
-            libs.versions.android.minSdk
-                .get()
-                .toInt()
-        androidResources.enable = true
-        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+    if (buildAndroid) {
+        android {
+            namespace = "io.github.smithjustinn"
+            compileSdk =
+                libs.versions.android.compileSdk
+                    .get()
+                    .toInt()
+            minSdk =
+                libs.versions.android.minSdk
+                    .get()
+                    .toInt()
+            androidResources.enable = true
+            compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+        }
     }
 
-    jvm()
+    if (buildJvm) {
+        jvm()
+    }
 
-    iosX64()
-    iosArm64()
-    iosSimulatorArm64()
+    if (buildIos) {
+        iosX64()
+        iosArm64()
+        iosSimulatorArm64()
+    }
 
     sourceSets {
         commonMain.dependencies {
@@ -58,31 +68,37 @@ kotlin {
             implementation(libs.bundles.testing)
         }
 
-        androidMain.dependencies {
-            api(libs.koin.android)
-            implementation(libs.kotlinx.coroutines.android)
-            implementation(libs.ktor.client.okhttp)
-            implementation(libs.google.play.services.ads)
-        }
-
-        jvmMain.dependencies {
-            implementation(compose.desktop.currentOs)
-            implementation(libs.kotlinx.coroutines.swing)
-            implementation(libs.ktor.client.okhttp)
-
-            // JavaFX Media for .m4a support on Desktop
-            val jfxVersion = libs.versions.javafx.get()
-            val classifier = getJavafxClassifier()
-
-            val jfxModules = listOf("media", "graphics", "base", "controls", "swing")
-            jfxModules.forEach { module ->
-                implementation("org.openjfx:javafx-$module:$jfxVersion")
-                implementation("org.openjfx:javafx-$module:$jfxVersion:$classifier")
+        if (buildAndroid) {
+            androidMain.dependencies {
+                api(libs.koin.android)
+                implementation(libs.kotlinx.coroutines.android)
+                implementation(libs.ktor.client.okhttp)
+                implementation(libs.google.play.services.ads)
             }
         }
 
-        iosMain.dependencies {
-            implementation(libs.ktor.client.darwin)
+        if (buildJvm) {
+            jvmMain.dependencies {
+                implementation(compose.desktop.currentOs)
+                implementation(libs.kotlinx.coroutines.swing)
+                implementation(libs.ktor.client.okhttp)
+
+                // JavaFX Media for .m4a support on Desktop
+                val jfxVersion = libs.versions.javafx.get()
+                val classifier = getJavafxClassifier()
+
+                val jfxModules = listOf("media", "graphics", "base", "controls", "swing")
+                jfxModules.forEach { module ->
+                    implementation("org.openjfx:javafx-$module:$jfxVersion")
+                    implementation("org.openjfx:javafx-$module:$jfxVersion:$classifier")
+                }
+            }
+        }
+
+        if (buildIos) {
+            iosMain.dependencies {
+                implementation(libs.ktor.client.darwin)
+            }
         }
     }
 

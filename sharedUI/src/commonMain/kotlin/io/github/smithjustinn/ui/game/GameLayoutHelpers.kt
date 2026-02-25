@@ -191,6 +191,8 @@ private fun BoxScope.GameResultsOverlay(
             hapticsService.vibrateMatch()
         },
         onScoreTick = { hapticsService.vibrateTick() },
+        onDoubleRewards = { component.onDoubleRewardsAd() },
+        canDoubleRewards = state.canDoubleRewards,
         modifier =
             Modifier
                 .align(Alignment.Center)

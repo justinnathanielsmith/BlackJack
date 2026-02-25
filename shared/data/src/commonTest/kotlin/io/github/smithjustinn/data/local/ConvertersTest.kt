@@ -6,6 +6,7 @@ import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
+import kotlin.test.assertTrue
 import kotlin.time.Instant
 
 class ConvertersTest {
@@ -38,8 +39,8 @@ class ConvertersTest {
         val json = converters.fromGameState(gameState)
         assertNotNull(json)
         // Verify it's valid JSON containing expected fields
-        assert(json.contains("pairCount"))
-        assert(json.contains("TIME_ATTACK"))
+        assertTrue(json.contains("pairCount"))
+        assertTrue(json.contains("TIME_ATTACK"))
     }
 
     @Test
