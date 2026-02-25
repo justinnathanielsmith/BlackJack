@@ -14,6 +14,7 @@ import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.SavedGame
+import io.github.smithjustinn.domain.models.ShopItem
 import io.github.smithjustinn.domain.services.MatchEvaluator
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.ad_unit_id
@@ -67,58 +68,23 @@ class DefaultGameComponent(
     private var hasDoubledRewards: Boolean = false
 
     init {
+        registerLifecycleObservers()
+        initializeGame()
+    }
+
+    private fun registerLifecycleObservers() {
         lifecycle.doOnDestroy {
             scope.launch {
                 gameStateMachine?.flush()
             }
         }
+    }
+
+    private fun initializeGame() {
         scope.launch {
-            val settings = appGraph.settingsRepository
-            val unlockedIds = appGraph.playerEconomyRepository.unlockedItemIds
+            val settingsFlow = createSettingsFlow()
 
-            val validThirdEye =
-                combine(settings.isThirdEyeEnabled, unlockedIds) { enabled, ids ->
-                    enabled && ids.contains(Constants.FEATURE_THIRD_EYE)
-                }
-
-            val validHeatShield =
-                combine(settings.isHeatShieldEnabled, unlockedIds) { enabled, ids ->
-                    enabled && ids.contains(Constants.FEATURE_HEAT_SHIELD)
-                }
-
-            val settingsFlow =
-                combine(
-                    settings.isPeekEnabled,
-                    settings.isWalkthroughCompleted,
-                    settings.isMusicEnabled,
-                    settings.isSoundEnabled,
-                    validThirdEye,
-                    validHeatShield,
-                ) { values: Array<Boolean> ->
-                    GameSettingsState(
-                        peek = values[0],
-                        walkthrough = values[1],
-                        music = values[2],
-                        sound = values[3],
-                        thirdEye = values[4],
-                        heatShield = values[5],
-                    )
-                }
-
-            launch {
-                settingsFlow.collect { settingsState ->
-                    _state.update {
-                        it.copy(
-                            isPeekFeatureEnabled = settingsState.peek,
-                            showWalkthrough = !settingsState.walkthrough,
-                            isMusicEnabled = settingsState.music,
-                            isSoundEnabled = settingsState.sound,
-                            isThirdEyeEnabled = settingsState.thirdEye,
-                            isHeatShieldEnabled = settingsState.heatShield,
-                        )
-                    }
-                }
-            }
+            launch { collectSettings(settingsFlow) }
 
             settingsFlow.first() // Wait for first emission
 
@@ -126,43 +92,97 @@ class DefaultGameComponent(
 
             val shopItems = appGraph.shopItemRepository.getShopItems()
 
-            // Load total games played for ad eligibility
-            launch {
-                appGraph.gameStatsRepository.getAllStats().collect { statsList ->
-                    val totalGames = statsList.sumOf { it.gamesPlayed }
-                    _state.update { it.copy(totalGamesPlayed = totalGames) }
-                }
-            }
+            launch { observeGameStats() }
 
-            // Load ad and track cooldown
-            launch {
-                val adUnitId =
-                    @Suppress("TooGenericExceptionCaught")
-                    try {
-                        getString(Res.string.ad_unit_id)
-                    } catch (e: Exception) {
-                        appGraph.logger.w(e) { "Failed to load ad unit ID" }
-                        return@launch
-                    }
-                appGraph.adService.loadRewardedAd(adUnitId)
-                updateAdAvailability()
-            }
+            launch { initializeAds() }
 
-            combine(
-                appGraph.playerEconomyRepository.selectedThemeId,
-                appGraph.playerEconomyRepository.selectedSkin,
-                appGraph.settingsRepository.areSuitsMultiColored,
-            ) { themeId: String, skin: CardSymbolTheme, multiColor: Boolean ->
-                val theme = CardBackTheme.fromIdOrName(themeId)
-                val hexColor = shopItems.find { item -> item.id == themeId }?.hexColor
-                _state.update {
-                    it.copy(
-                        cardTheme = CardTheme(back = theme, skin = skin, backColorHex = hexColor),
-                        areSuitsMultiColored = multiColor,
-                    )
-                }
-            }.collect()
+            observeTheme(shopItems)
         }
+    }
+
+    private fun createSettingsFlow(): Flow<GameSettingsState> {
+        val settings = appGraph.settingsRepository
+        val unlockedIds = appGraph.playerEconomyRepository.unlockedItemIds
+
+        val validThirdEye =
+            combine(settings.isThirdEyeEnabled, unlockedIds) { enabled, ids ->
+                enabled && ids.contains(Constants.FEATURE_THIRD_EYE)
+            }
+
+        val validHeatShield =
+            combine(settings.isHeatShieldEnabled, unlockedIds) { enabled, ids ->
+                enabled && ids.contains(Constants.FEATURE_HEAT_SHIELD)
+            }
+
+        return combine(
+            settings.isPeekEnabled,
+            settings.isWalkthroughCompleted,
+            settings.isMusicEnabled,
+            settings.isSoundEnabled,
+            validThirdEye,
+            validHeatShield,
+        ) { values: Array<Boolean> ->
+            GameSettingsState(
+                peek = values[0],
+                walkthrough = values[1],
+                music = values[2],
+                sound = values[3],
+                thirdEye = values[4],
+                heatShield = values[5],
+            )
+        }
+    }
+
+    private suspend fun collectSettings(settingsFlow: Flow<GameSettingsState>) {
+        settingsFlow.collect { settingsState ->
+            _state.update {
+                it.copy(
+                    isPeekFeatureEnabled = settingsState.peek,
+                    showWalkthrough = !settingsState.walkthrough,
+                    isMusicEnabled = settingsState.music,
+                    isSoundEnabled = settingsState.sound,
+                    isThirdEyeEnabled = settingsState.thirdEye,
+                    isHeatShieldEnabled = settingsState.heatShield,
+                )
+            }
+        }
+    }
+
+    private suspend fun observeGameStats() {
+        appGraph.gameStatsRepository.getAllStats().collect { statsList ->
+            val totalGames = statsList.sumOf { it.gamesPlayed }
+            _state.update { it.copy(totalGamesPlayed = totalGames) }
+        }
+    }
+
+    private suspend fun initializeAds() {
+        val adUnitId =
+            @Suppress("TooGenericExceptionCaught")
+            try {
+                getString(Res.string.ad_unit_id)
+            } catch (e: Exception) {
+                appGraph.logger.w(e) { "Failed to load ad unit ID" }
+                return
+            }
+        appGraph.adService.loadRewardedAd(adUnitId)
+        updateAdAvailability()
+    }
+
+    private suspend fun observeTheme(shopItems: List<ShopItem>) {
+        combine(
+            appGraph.playerEconomyRepository.selectedThemeId,
+            appGraph.playerEconomyRepository.selectedSkin,
+            appGraph.settingsRepository.areSuitsMultiColored,
+        ) { themeId: String, skin: CardSymbolTheme, multiColor: Boolean ->
+            val theme = CardBackTheme.fromIdOrName(themeId)
+            val hexColor = shopItems.find { item -> item.id == themeId }?.hexColor
+            _state.update {
+                it.copy(
+                    cardTheme = CardTheme(back = theme, skin = skin, backColorHex = hexColor),
+                    areSuitsMultiColored = multiColor,
+                )
+            }
+        }.collect()
     }
 
     @Suppress("TooGenericExceptionCaught")
