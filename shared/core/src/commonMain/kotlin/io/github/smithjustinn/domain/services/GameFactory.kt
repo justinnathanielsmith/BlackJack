@@ -25,6 +25,9 @@ object GameFactory {
         isHeatShieldAvailable: Boolean = false,
         random: Random = Random,
     ): MemoryGameState {
+        val maxPairs = Suit.entries.size * Rank.entries.size
+        require(pairCount in 1..maxPairs) { "Pair count must be between 1 and $maxPairs" }
+
         val allPossibleCards =
             Suit.entries
                 .flatMap { suit ->

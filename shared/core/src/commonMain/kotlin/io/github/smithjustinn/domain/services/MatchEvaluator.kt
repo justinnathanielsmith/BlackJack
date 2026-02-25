@@ -61,7 +61,14 @@ object MatchEvaluator {
         if (state.isGameOver) return false
         if (card == null || card.isFaceUp || card.isMatched) return false
 
-        val faceUpCount = state.cards.count { it.isFaceUp && !it.isMatched }
+        // Bolt optimization: Count active cards without full iteration if possible
+        var faceUpCount = 0
+        for (c in state.cards) {
+            if (c.isFaceUp && !c.isMatched) {
+                faceUpCount++
+                if (faceUpCount >= MatchConstants.PAIR_SIZE) return false
+            }
+        }
         return faceUpCount < MatchConstants.PAIR_SIZE
     }
 
@@ -71,11 +78,10 @@ object MatchEvaluator {
     fun resetErrorCards(state: MemoryGameState): MemoryGameState {
         val newCards =
             state.cards.mutate { list ->
-                val iterator = list.listIterator()
-                while (iterator.hasNext()) {
-                    val card = iterator.next()
+                for (i in list.indices) {
+                    val card = list[i]
                     if (card.isError) {
-                        iterator.set(card.copy(isFaceUp = false, isError = false, wasSeen = true))
+                        list[i] = card.copy(isFaceUp = false, isError = false, wasSeen = true)
                     }
                 }
             }
@@ -89,11 +95,10 @@ object MatchEvaluator {
     fun resetUnmatchedCards(state: MemoryGameState): MemoryGameState {
         val newCards =
             state.cards.mutate { list ->
-                val iterator = list.listIterator()
-                while (iterator.hasNext()) {
-                    val card = iterator.next()
+                for (i in list.indices) {
+                    val card = list[i]
                     if (!card.isMatched && card.isFaceUp) {
-                        iterator.set(card.copy(isFaceUp = false, isError = false, wasSeen = true))
+                        list[i] = card.copy(isFaceUp = false, isError = false, wasSeen = true)
                     }
                 }
             }
@@ -278,11 +283,15 @@ private inline fun PersistentList<CardState>.updateByIds(
     crossinline transform: (CardState) -> CardState,
 ): PersistentList<CardState> =
     this.mutate { list ->
-        val iterator = list.listIterator()
-        while (iterator.hasNext()) {
-            val item = iterator.next()
-            if (item.id in ids) {
-                iterator.set(transform(item))
+        for (id in ids) {
+            // Bolt optimization: IDs match indices in standard games
+            if (id in list.indices && list[id].id == id) {
+                list[id] = transform(list[id])
+            } else {
+                val index = list.indexOfFirst { it.id == id }
+                if (index != -1) {
+                    list[index] = transform(list[index])
+                }
             }
         }
     }

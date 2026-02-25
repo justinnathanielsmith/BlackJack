@@ -21,6 +21,7 @@ data class ShopState(
     val activeThemeId: String? = null,
     val activeSkinId: String? = null,
     val error: ShopErrorMessage? = null,
+    val isRewardedAdAvailable: Boolean = false,
 )
 
 interface ShopComponent {
@@ -33,4 +34,6 @@ interface ShopComponent {
     fun onEquipItemClicked(item: ShopItem)
 
     fun onClearError()
+
+    fun onWatchAdForRewardClicked()
 }

@@ -246,4 +246,10 @@
     <string name="suit_diamonds">Diamonds</string>
     <string name="suit_clubs">Clubs</string>
     <string name="suit_spades">Spades</string>
+    <string name="double_rewards">2X REWARDS</string>
+    <string name="double_rewards_ad_note">Watch ad to double</string>
+    <string name="shop_ad_reward_title">Free Chips!</string>
+    <string name="shop_ad_reward_description">Watch a short video to earn 200 chips</string>
+    <string name="shop_ad_reward_button">Watch &amp; Earn</string>
+    <string name="shop_ad_reward_cooldown">Available soon</string>
 </resources>

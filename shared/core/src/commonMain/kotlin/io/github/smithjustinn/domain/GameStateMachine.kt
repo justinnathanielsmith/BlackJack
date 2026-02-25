@@ -1,5 +1,6 @@
 package io.github.smithjustinn.domain
 
+import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.GameDomainEvent
 import io.github.smithjustinn.domain.models.GameMode
@@ -9,11 +10,12 @@ import io.github.smithjustinn.domain.services.MutatorEngine
 import io.github.smithjustinn.domain.services.ScoreKeeper
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import io.github.smithjustinn.utils.TimeConstants
+import kotlinx.collections.immutable.mutate
 import kotlinx.collections.immutable.persistentListOf
-import kotlinx.collections.immutable.toPersistentList
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
@@ -64,27 +66,28 @@ class GameStateMachine(
         val faceUpUnmatched = cards.count { it.isFaceUp && !it.isMatched }
         val hasError = cards.any { it.isError }
 
-        if (hasError || faceUpUnmatched >= 2 || initialState.lastMatchedIds.isNotEmpty()) {
+        if (initialState.lastMatchedIds.isNotEmpty()) {
             val updatedState = initialState.copy(lastMatchedIds = persistentListOf())
             updateState(updatedState)
+        }
 
-            if (hasError || faceUpUnmatched >= 2) {
-                scope.launch(dispatchers.default) {
-                    val delayMs =
-                        if (initialState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
-                            MISMATCH_DELAY_MS / 2
-                        } else {
-                            MISMATCH_DELAY_MS
-                        }
-                    delay(delayMs)
-                    dispatch(GameAction.ProcessMismatch)
-                }
+        if (!isResumed && (hasError || faceUpUnmatched >= 2)) {
+            scope.launch {
+                val delayMs =
+                    if (initialState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
+                        MISMATCH_DELAY_MS / 2
+                    } else {
+                        MISMATCH_DELAY_MS
+                    }
+                delay(delayMs)
+                dispatch(GameAction.ProcessMismatch)
             }
         }
     }
 
     fun dispatch(action: GameAction) {
-        scope.launch(dispatchers.default) {
+        if (!scope.isActive) return
+        scope.launch {
             mutex.withLock {
                 if (_state.value.isGameOver && action !is GameAction.Restart) return@withLock
 
@@ -188,15 +191,17 @@ class GameStateMachine(
         +GameEffect.PlayMismatch
         +GameEffect.VibrateMismatch
 
-        scope.launch(dispatchers.default) {
-            val delayMs =
-                if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
-                    MISMATCH_DELAY_MS / 2
-                } else {
-                    MISMATCH_DELAY_MS
-                }
-            delay(delayMs)
-            dispatch(GameAction.ProcessMismatch)
+        if (scope.isActive) {
+            scope.launch {
+                val delayMs =
+                    if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
+                        MISMATCH_DELAY_MS / 2
+                    } else {
+                        MISMATCH_DELAY_MS
+                    }
+                delay(delayMs)
+                dispatch(GameAction.ProcessMismatch)
+            }
         }
         transition { MutatorEngine.applyMutators(it) }
     }
@@ -204,9 +209,20 @@ class GameStateMachine(
     private fun StateMachineBuilder.handleHeatShieldUsed(flippedState: MemoryGameState) {
         +GameEffect.PlayFlipSound
         +GameEffect.HeatShieldUsed
-        // Does not reset combo or pot.
-        // Just updates state which already has shield removed.
-        transition { flippedState }
+
+        if (scope.isActive) {
+            scope.launch {
+                val delayMs =
+                    if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
+                        MISMATCH_DELAY_MS / 2
+                    } else {
+                        MISMATCH_DELAY_MS
+                    }
+                delay(delayMs)
+                dispatch(GameAction.ProcessMismatch)
+            }
+        }
+        transition { MutatorEngine.applyMutators(it) }
     }
 
     private fun handleDoubleDown() {
@@ -250,23 +266,31 @@ class GameStateMachine(
     private fun handleScanCards(action: GameAction.ScanCards) {
         peekJob?.cancel()
         peekJob =
-            scope.launch(dispatchers.default) {
+            scope.launch {
                 val currentState = _state.value
                 val peekCards =
-                    currentState.cards
-                        .map {
-                            if (!it.isMatched) it.copy(isFaceUp = true) else it
-                        }.toPersistentList()
+                    currentState.cards.mutate { list: MutableList<CardState> ->
+                        for (i in list.indices) {
+                            val card = list[i]
+                            if (!card.isMatched && !card.isFaceUp) {
+                                list[i] = card.copy(isFaceUp = true)
+                            }
+                        }
+                    }
                 updateState(currentState.copy(cards = peekCards))
 
                 delay(action.durationMs)
 
                 val latestState = _state.value
                 val hiddenCards =
-                    latestState.cards
-                        .map {
-                            if (!it.isMatched) it.copy(isFaceUp = false) else it
-                        }.toPersistentList()
+                    latestState.cards.mutate { list: MutableList<CardState> ->
+                        for (i in list.indices) {
+                            val card = list[i]
+                            if (!card.isMatched && card.isFaceUp) {
+                                list[i] = card.copy(isFaceUp = false)
+                            }
+                        }
+                    }
                 updateState(latestState.copy(cards = hiddenCards))
             }
     }

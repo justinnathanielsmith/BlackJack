@@ -2,9 +2,11 @@ package io.github.smithjustinn.ui.shop
 
 import com.arkivanov.decompose.DefaultComponentContext
 import com.arkivanov.essenty.lifecycle.LifecycleRegistry
+import dev.mokkery.answering.calls
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
+import dev.mokkery.matcher.any
 import dev.mokkery.mock
 import dev.mokkery.verify
 import dev.mokkery.verify.VerifyMode
@@ -16,7 +18,9 @@ import io.github.smithjustinn.domain.models.ShopItem
 import io.github.smithjustinn.domain.models.ShopItemType
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.ShopItemRepository
+import io.github.smithjustinn.domain.services.AdService
 import io.github.smithjustinn.domain.usecases.economy.BuyItemUseCase
+import io.github.smithjustinn.domain.usecases.economy.EarnCurrencyUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetPlayerBalanceUseCase
 import io.github.smithjustinn.domain.usecases.economy.GetShopItemsUseCase
 import io.github.smithjustinn.domain.usecases.economy.SetActiveCosmeticUseCase
@@ -39,6 +43,8 @@ class DefaultShopComponentTest {
     private val playerEconomyRepository = mock<PlayerEconomyRepository>()
     private val shopItemRepository = mock<ShopItemRepository>()
     private val hapticsService = mock<HapticsService>()
+    private val adService = mock<AdService>()
+    private val earnCurrencyUseCase = mock<EarnCurrencyUseCase>()
     private val appGraph = mock<AppGraph>()
 
     // Use real use cases since they are final classes and cannot be mocked by Mokkery
@@ -62,6 +68,8 @@ class DefaultShopComponentTest {
     @BeforeTest
     fun setup() {
         every { appGraph.coroutineDispatchers } returns coroutineDispatchers
+        every { appGraph.adService } returns adService
+        every { appGraph.earnCurrencyUseCase } returns earnCurrencyUseCase
         every { playerEconomyRepository.balance } returns MutableStateFlow(1000L)
         every { playerEconomyRepository.unlockedItemIds } returns MutableStateFlow(emptySet())
         every { playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
@@ -77,9 +85,11 @@ class DefaultShopComponentTest {
                     single { getPlayerBalanceUseCase }
                     single { getShopItemsUseCase }
                     single { setActiveCosmeticUseCase }
+                    single { earnCurrencyUseCase }
                     single { playerEconomyRepository }
                     single { hapticsService }
                     single { shopItemRepository }
+                    single { adService }
                 },
             )
         }
@@ -95,11 +105,17 @@ class DefaultShopComponentTest {
     fun `onBuyItemClicked should trigger use case and haptics on success`() =
         runTest(testDispatcher) {
             val item =
-                ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
+                ShopItem(
+                    id = "item1",
+                    name = "Item 1",
+                    price = 100L,
+                    type = ShopItemType.CARD_SKIN,
+                    description = "",
+                )
 
             everySuspend { shopItemRepository.getShopItems() } returns listOf(item)
             everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
-            everySuspend { playerEconomyRepository.deductCurrency(100) } returns true
+            everySuspend { playerEconomyRepository.deductCurrency(100L) } returns true
             everySuspend { playerEconomyRepository.unlockItem("item1") } returns Unit
             every { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) } returns Unit
 
@@ -113,7 +129,7 @@ class DefaultShopComponentTest {
             component.onBuyItemClicked(item)
             advanceUntilIdle()
 
-            verifySuspend { playerEconomyRepository.deductCurrency(100) }
+            verifySuspend { playerEconomyRepository.deductCurrency(100L) }
             verifySuspend { playerEconomyRepository.unlockItem("item1") }
             verify { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) }
         }
@@ -123,11 +139,17 @@ class DefaultShopComponentTest {
     fun `onBuyItemClicked should not trigger haptics on failure`() =
         runTest(testDispatcher) {
             val item =
-                ShopItem(id = "item1", name = "Item 1", price = 100, type = ShopItemType.CARD_SKIN, description = "")
+                ShopItem(
+                    id = "item1",
+                    name = "Item 1",
+                    price = 100L,
+                    type = ShopItemType.CARD_SKIN,
+                    description = "",
+                )
 
             everySuspend { shopItemRepository.getShopItems() } returns listOf(item)
             everySuspend { playerEconomyRepository.isItemUnlocked("item1") } returns false
-            everySuspend { playerEconomyRepository.deductCurrency(100) } returns false
+            everySuspend { playerEconomyRepository.deductCurrency(100L) } returns false
 
             val component =
                 DefaultShopComponent(
@@ -139,12 +161,38 @@ class DefaultShopComponentTest {
             component.onBuyItemClicked(item)
             advanceUntilIdle()
 
-            verifySuspend { playerEconomyRepository.deductCurrency(100) }
+            verifySuspend { playerEconomyRepository.deductCurrency(100L) }
             verify(
                 VerifyMode
                     .exactly(0),
             ) {
                 hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS)
             }
+        }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    @Test
+    fun `onWatchAdForRewardClicked should trigger ad and reward player`() =
+        runTest(testDispatcher) {
+            every { adService.showRewardedAd(any()) } calls { (onRewardEarned: (Int) -> Unit) ->
+                onRewardEarned(100) // 100 bonus seconds, but we ignore it and give chips
+            }
+            every { adService.loadRewardedAd(any()) } returns Unit
+            everySuspend { earnCurrencyUseCase.execute(any()) } returns Unit
+            every { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) } returns Unit
+
+            val component =
+                DefaultShopComponent(
+                    componentContext = componentContext,
+                    appGraph = appGraph,
+                    onBackClicked = {},
+                )
+
+            component.onWatchAdForRewardClicked()
+            advanceUntilIdle()
+
+            verify { adService.showRewardedAd(any()) }
+            verifySuspend { earnCurrencyUseCase.execute(200L) }
+            verify { hapticsService.performHapticFeedback(HapticFeedbackType.LONG_PRESS) }
         }
 }

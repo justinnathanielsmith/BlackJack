@@ -33,6 +33,10 @@ import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
 import io.github.smithjustinn.theme.PokerTheme
 
+// Helper to adjust font size for wider ranks (like "10") to prevent overlap
+private val Rank.fontScale: Float
+    get() = if (this == Rank.Ten) 0.75f else 1f
+
 object CardFaces {
     @Composable
     fun Classic(modifier: Modifier = Modifier) =
@@ -228,7 +232,7 @@ internal fun PixelCardFace(
             style =
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = getFontSize(FONT_SIZE_HUGE),
+                    fontSize = getFontSize(FONT_SIZE_HUGE * rank.fontScale),
                     fontFamily = FontFamily.Monospace,
                 ),
             modifier = Modifier.align(Alignment.Center),
@@ -241,7 +245,7 @@ internal fun PixelCardFace(
                 color = suitColor,
                 style =
                     MaterialTheme.typography.labelSmall.copy(
-                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                     ),
@@ -269,7 +273,7 @@ internal fun PixelCardFace(
                 color = suitColor,
                 style =
                     MaterialTheme.typography.labelSmall.copy(
-                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale),
                         fontFamily = FontFamily.Monospace,
                         fontWeight = FontWeight.Bold,
                     ),
@@ -318,7 +322,7 @@ internal fun FuturisticCardFace(
             style =
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Light,
-                    fontSize = getFontSize(FONT_SIZE_HERO),
+                    fontSize = getFontSize(FONT_SIZE_HERO * rank.fontScale),
                     fontFamily = FontFamily.SansSerif,
                 ),
             modifier = Modifier.align(Alignment.Center),
@@ -331,7 +335,7 @@ internal fun FuturisticCardFace(
                 color = techColor.copy(alpha = 0.6f),
                 style =
                     MaterialTheme.typography.labelSmall.copy(
-                        fontSize = getFontSize(8f),
+                        fontSize = getFontSize(8f * rank.fontScale),
                         fontFamily = FontFamily.Monospace,
                     ),
             )
@@ -393,7 +397,7 @@ internal fun NeonCardFace(
             style =
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = getFontSize(FONT_SIZE_HERO),
+                    fontSize = getFontSize(FONT_SIZE_HERO * rank.fontScale),
                     shadow = shadow,
                     fontFamily = FontFamily.SansSerif,
                 ),
@@ -438,7 +442,7 @@ private fun NeonCardCorner(
             style =
                 MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                    fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale),
                     shadow = shadow,
                 ),
         )
@@ -472,14 +476,14 @@ internal fun RetroCardFace(
         Text(
             text = "${rank.symbol} ${suit.symbol}",
             color = suitColor,
-            style = monoStyle.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM)),
+            style = monoStyle.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale)),
             modifier = Modifier.align(Alignment.TopStart),
         )
 
         Text(
             text = "${rank.symbol} ${suit.symbol}",
             color = suitColor,
-            style = monoStyle.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM)),
+            style = monoStyle.copy(fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale)),
             modifier = Modifier.align(Alignment.BottomEnd).graphicsLayer { rotationZ = FULL_ROTATION },
         )
 
@@ -493,7 +497,7 @@ internal fun RetroCardFace(
         Text(
             text = rank.symbol,
             color = suitColor,
-            style = monoStyle.copy(fontSize = getFontSize(FONT_SIZE_DISPLAY)),
+            style = monoStyle.copy(fontSize = getFontSize(FONT_SIZE_DISPLAY * rank.fontScale)),
             modifier = Modifier.align(Alignment.Center),
         )
     }
@@ -532,7 +536,7 @@ internal fun ElegantCardFace(
         Text(
             text = rank.symbol,
             color = suitColor,
-            style = elegantStyle.copy(fontSize = getFontSize(FONT_SIZE_HERO)),
+            style = elegantStyle.copy(fontSize = getFontSize(FONT_SIZE_HERO * rank.fontScale)),
             modifier = Modifier.align(Alignment.Center),
         )
 
@@ -573,7 +577,7 @@ internal fun CyberpunkCardFace(
             style =
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Black,
-                    fontSize = getFontSize(FONT_SIZE_DISPLAY),
+                    fontSize = getFontSize(FONT_SIZE_DISPLAY * rank.fontScale),
                     fontFamily = FontFamily.Monospace,
                 ),
             modifier = Modifier.align(Alignment.Center).offset(x = 2.dp, y = 2.dp),
@@ -584,7 +588,7 @@ internal fun CyberpunkCardFace(
             style =
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Black,
-                    fontSize = getFontSize(FONT_SIZE_DISPLAY),
+                    fontSize = getFontSize(FONT_SIZE_DISPLAY * rank.fontScale),
                     fontFamily = FontFamily.Monospace,
                 ),
             modifier = Modifier.align(Alignment.Center).offset(x = (-2).dp, y = (-2).dp),
@@ -596,7 +600,7 @@ internal fun CyberpunkCardFace(
                 color = suitColor,
                 style =
                     MaterialTheme.typography.labelLarge.copy(
-                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale),
                         fontFamily = FontFamily.Monospace,
                     ),
             )
@@ -631,7 +635,7 @@ internal fun ClassicCardFace(
             style =
                 MaterialTheme.typography.labelLarge.copy(
                     fontWeight = FontWeight.Bold,
-                    fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                    fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale),
                 ),
         )
         Text(
@@ -655,7 +659,7 @@ internal fun ClassicCardFace(
             style =
                 MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = getFontSize(FONT_SIZE_TITLE),
+                    fontSize = getFontSize(FONT_SIZE_TITLE * rank.fontScale),
                 ),
         )
     }
@@ -672,7 +676,7 @@ internal fun ClassicCardFace(
                 style =
                     MaterialTheme.typography.labelLarge.copy(
                         fontWeight = FontWeight.Bold,
-                        fontSize = getFontSize(FONT_SIZE_MEDIUM),
+                        fontSize = getFontSize(FONT_SIZE_MEDIUM * rank.fontScale),
                     ),
             )
             Text(
@@ -699,7 +703,7 @@ internal fun MinimalCardFace(
             style =
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.ExtraBold,
-                    fontSize = getFontSize(FONT_SIZE_DISPLAY),
+                    fontSize = getFontSize(FONT_SIZE_DISPLAY * rank.fontScale),
                 ),
             modifier = Modifier.align(Alignment.Center),
         )
@@ -740,7 +744,7 @@ internal fun TextOnlyCardFace(
             style =
                 MaterialTheme.typography.displayLarge.copy(
                     fontWeight = FontWeight.Black,
-                    fontSize = getFontSize(FONT_SIZE_HERO),
+                    fontSize = getFontSize(FONT_SIZE_HERO * rank.fontScale),
                 ),
             modifier = Modifier.align(Alignment.Center),
         )
@@ -851,8 +855,8 @@ private fun PokerCardCornerIndex(
         Text(
             text = rank.symbol,
             color = suitColor,
-            style = serifStyle.copy(fontSize = getFontSize(FONT_SIZE_TITLE)),
-            lineHeight = getFontSize(FONT_SIZE_TITLE),
+            style = serifStyle.copy(fontSize = getFontSize(FONT_SIZE_TITLE * rank.fontScale)),
+            lineHeight = getFontSize(FONT_SIZE_TITLE * rank.fontScale),
         )
         Text(
             text = suit.symbol,
@@ -883,7 +887,7 @@ private fun PokerCardCenterContent(
             color = suitColor.copy(alpha = 0.8f),
             style =
                 serifStyle.copy(
-                    fontSize = getFontSize(FONT_SIZE_DISPLAY),
+                    fontSize = getFontSize(FONT_SIZE_DISPLAY * rank.fontScale),
                     shadow =
                         Shadow(
                             color =
