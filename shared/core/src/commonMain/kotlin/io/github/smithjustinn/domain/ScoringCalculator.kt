@@ -48,44 +48,6 @@ object ScoringCalculator {
         )
     }
 
-    private fun calculateMatchPoints(state: MemoryGameState): MatchPoints {
-        val comboFactor = state.comboMultiplier.toLong() * state.comboMultiplier.toLong()
-        val matchBasePoints = state.config.baseMatchPoints.toLong()
-        val matchComboBonus =
-            (comboFactor * state.config.comboBonusPoints)
-                .coerceAtMost(MAX_SCORE)
-        return MatchPoints(matchBasePoints, matchComboBonus)
-    }
-
-    private fun calculatePot(
-        currentPot: Int,
-        matchTotalPoints: Long,
-    ): Long = (currentPot + matchTotalPoints).coerceAtMost(MAX_SCORE)
-
-    private fun calculateScoreWithPot(
-        state: MemoryGameState,
-        potentialPot: Long,
-        isWon: Boolean,
-        isMilestone: Boolean,
-    ): Long =
-        if (isMilestone || isWon) {
-            state.score + potentialPot
-        } else {
-            state.score.toLong()
-        }
-
-    private fun calculateDoubleDown(
-        isWon: Boolean,
-        state: MemoryGameState,
-        scoreWithPot: Long,
-    ): DoubleDownResult =
-        if (isWon && state.isDoubleDownActive) {
-            val doubledScore = scoreWithPot * DOUBLE_DOWN_MULTIPLIER
-            DoubleDownResult(doubledScore, scoreWithPot)
-        } else {
-            DoubleDownResult(scoreWithPot, 0L)
-        }
-
     /**
      * Calculates final bonuses (Time and Move Efficiency) when the game is won.
      */
