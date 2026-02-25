@@ -37,6 +37,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -165,8 +167,9 @@ private fun SettingsAudioSection(
     component: SettingsComponent,
 ) {
     AppCard(title = stringResource(Res.string.settings_gameplay_audio)) {
+        val soundEffectsTitle = stringResource(Res.string.settings_sound_effects)
         SettingsToggle(
-            title = stringResource(Res.string.settings_sound_effects),
+            title = soundEffectsTitle,
             description = stringResource(Res.string.settings_sound_effects_desc),
             checked = state.isSoundEnabled,
             onCheckedChange = {
@@ -179,6 +182,7 @@ private fun SettingsAudioSection(
             VolumeSlider(
                 value = state.soundVolume,
                 onValueChange = { component.setSoundVolume(it) },
+                label = soundEffectsTitle,
             )
         }
 
@@ -187,8 +191,9 @@ private fun SettingsAudioSection(
             color = Color.White.copy(alpha = 0.1f),
         )
 
+        val gameMusicTitle = stringResource(Res.string.settings_game_music)
         SettingsToggle(
-            title = stringResource(Res.string.settings_game_music),
+            title = gameMusicTitle,
             description = stringResource(Res.string.settings_game_music_desc),
             checked = state.isMusicEnabled,
             onCheckedChange = {
@@ -201,6 +206,7 @@ private fun SettingsAudioSection(
             VolumeSlider(
                 value = state.musicVolume,
                 onValueChange = { component.setMusicVolume(it) },
+                label = gameMusicTitle,
             )
         }
 
@@ -334,6 +340,7 @@ private fun SettingsResetSection(
 private fun VolumeSlider(
     value: Float,
     onValueChange: (Float) -> Unit,
+    label: String,
     modifier: Modifier = Modifier,
 ) {
     val volumeIcon =
@@ -360,7 +367,10 @@ private fun VolumeSlider(
         Slider(
             value = value,
             onValueChange = onValueChange,
-            modifier = Modifier.weight(1f),
+            modifier =
+                Modifier
+                    .weight(1f)
+                    .semantics { contentDescription = label },
             colors =
                 SliderDefaults.colors(
                     thumbColor = Color.White,
