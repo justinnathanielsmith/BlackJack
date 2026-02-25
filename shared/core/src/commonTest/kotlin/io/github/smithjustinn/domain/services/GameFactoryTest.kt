@@ -6,9 +6,21 @@ import io.github.smithjustinn.domain.models.ScoringConfig
 import kotlin.random.Random
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertTrue
 
 class GameFactoryTest {
+    @Test
+    fun createInitialState_throwsOnInvalidPairCount() {
+        assertFailsWith<IllegalArgumentException> {
+            GameFactory.createInitialState(pairCount = 0)
+        }
+
+        assertFailsWith<IllegalArgumentException> {
+            GameFactory.createInitialState(pairCount = 53)
+        }
+    }
+
     @Test
     fun createInitialState_createsCorrectNumberOfCards() {
         val pairCount = 8
