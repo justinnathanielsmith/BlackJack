@@ -9,7 +9,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -195,7 +194,7 @@ private fun StartScreenLayout(
 }
 
 @Composable
-private fun BoxScope.StartTopActions(
+private fun StartTopActions(
     onStatsClick: () -> Unit,
     onSettingsClick: () -> Unit,
     onShopClick: () -> Unit,

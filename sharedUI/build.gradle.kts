@@ -115,6 +115,11 @@ kotlin {
         }
 }
 
+compose.resources {
+    packageOfResClass = "io.github.smithjustinn.ui.resources"
+    publicResClass = true
+}
+
 fun getJavafxClassifier(): String {
     val osName = System.getProperty("os.name").lowercase()
     val osArch = System.getProperty("os.arch").lowercase()

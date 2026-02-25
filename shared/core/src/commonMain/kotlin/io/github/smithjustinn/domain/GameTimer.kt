@@ -1,6 +1,5 @@
 package io.github.smithjustinn.domain
 
-import io.github.smithjustinn.utils.CoroutineDispatchers
 import io.github.smithjustinn.utils.TimeConstants
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -13,7 +12,6 @@ import kotlinx.coroutines.launch
  */
 class GameTimer(
     private val scope: CoroutineScope,
-    private val dispatchers: CoroutineDispatchers,
     private val onTick: () -> Unit,
 ) {
     private var timerJob: Job? = null

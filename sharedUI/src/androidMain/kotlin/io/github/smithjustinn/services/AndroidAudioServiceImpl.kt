@@ -20,6 +20,7 @@ import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.getString
 import java.io.File
 import java.io.FileOutputStream
+import java.io.IOException
 import java.util.concurrent.ConcurrentHashMap
 
 class AndroidAudioServiceImpl(
@@ -100,10 +101,13 @@ class AndroidAudioServiceImpl(
             val id = soundPool.load(tempFile.absolutePath, 1)
             soundMap[resource] = id
             id
+        } catch (e: IOException) {
+            logger.e(e) { "IO Error loading sound resource: $resource" }
+            null
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception,
         ) {
-            logger.e(e) { "Error loading sound resource: $resource" }
+            logger.e(e) { "Unexpected error loading sound resource: $resource" }
             null
         }
 
@@ -132,7 +136,6 @@ class AndroidAudioServiceImpl(
         }
     }
 
-    @OptIn(ExperimentalResourceApi::class)
     private fun playFallback(resource: StringResource) {
         val name = resourceToName[resource] ?: return
         val fileName = "$name.m4a"
@@ -141,44 +144,15 @@ class AndroidAudioServiceImpl(
                 val tempFile = File(context.cacheDir, fileName)
                 if (tempFile.exists()) {
                     withContext(Dispatchers.Main) {
-                        try {
-                            val player = fallbackPlayers[resource]
-                            if (player != null) {
-                                try {
-                                    if (player.isPlaying) {
-                                        player.seekTo(0)
-                                    } else {
-                                        player.start()
-                                    }
-                                } catch (e: IllegalStateException) {
-                                    // Player might be preparing or in an invalid state
-                                    logger.w { "Fallback player not ready or in bad state: $name" }
-                                }
-                            } else {
-                                var newPlayer: MediaPlayer? = null
-                                try {
-                                    newPlayer = MediaPlayer()
-                                    newPlayer.apply {
-                                        setDataSource(tempFile.absolutePath)
-                                        setVolume(soundVolume, soundVolume)
-                                        setOnCompletionListener { mp ->
-                                            mp.seekTo(0)
-                                        }
-                                        setOnPreparedListener { mp ->
-                                            mp.start()
-                                        }
-                                        // Optimization: Use prepareAsync to avoid blocking the thread
-                                        prepareAsync()
-                                    }
-                                    fallbackPlayers[resource] = newPlayer
-                                } catch (e: Exception) {
-                                    newPlayer?.release()
-                                    throw e
-                                }
+                        val player = fallbackPlayers[resource]
+                        if (player != null) {
+                            try {
+                                if (player.isPlaying) player.seekTo(0) else player.start()
+                            } catch (e: IllegalStateException) {
+                                logger.w(e) { "Fallback player not ready or in bad state: $name" }
                             }
-                        } catch (e: Exception) {
-                            logger.e(e) { "Error initializing fallback player: $name" }
-                            fallbackPlayers.remove(resource)?.release()
+                        } else {
+                            createNewFallbackPlayer(resource, tempFile, name)
                         }
                     }
                 }
@@ -188,6 +162,34 @@ class AndroidAudioServiceImpl(
                 logger.e(e) { "Error playing fallback sound: $name" }
                 fallbackPlayers.remove(resource)?.release()
             }
+        }
+    }
+
+    private fun createNewFallbackPlayer(
+        resource: StringResource,
+        tempFile: File,
+        name: String,
+    ) {
+        var newPlayer: MediaPlayer? = null
+        try {
+            newPlayer = MediaPlayer()
+            newPlayer.apply {
+                setDataSource(tempFile.absolutePath)
+                setVolume(soundVolume, soundVolume)
+                setOnCompletionListener { mp -> mp.seekTo(0) }
+                setOnPreparedListener { mp -> mp.start() }
+                prepareAsync()
+            }
+            fallbackPlayers[resource] = newPlayer
+        } catch (e: IOException) {
+            logger.e(e) { "IO Error initializing fallback player: $name" }
+            newPlayer?.release()
+        } catch (
+            @Suppress("TooGenericExceptionCaught") e: Exception,
+        ) {
+            logger.e(e) { "Unexpected error initializing fallback player: $name" }
+            newPlayer?.release()
+            fallbackPlayers.remove(resource)?.release()
         }
     }
 
@@ -211,7 +213,10 @@ class AndroidAudioServiceImpl(
                 actuallyStartMusic()
             }
         } else {
-            actuallyStopMusic()
+            // stop() is not called to avoid IllegalStateException if player is preparing.
+            // release() is sufficient to stop playback and free resources.
+            musicPlayer?.release()
+            musicPlayer = null
         }
     }
 
@@ -247,19 +252,14 @@ class AndroidAudioServiceImpl(
                             prepareAsync()
                         }
                 }
+            } catch (e: IOException) {
+                logger.e(e) { "IO Error starting music" }
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
-                logger.e(e) { "Error starting music" }
+                logger.e(e) { "Unexpected error starting music" }
             }
         }
-    }
-
-    private fun actuallyStopMusic() {
-        // stop() is not called to avoid IllegalStateException if player is preparing.
-        // release() is sufficient to stop playback and free resources.
-        musicPlayer?.release()
-        musicPlayer = null
     }
 
     companion object {

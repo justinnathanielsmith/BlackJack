@@ -15,13 +15,13 @@ import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -47,7 +47,7 @@ class GameStateMachine(
     private val _effects = MutableSharedFlow<GameEffect>(extraBufferCapacity = EFFECTS_BUFFER_CAPACITY)
     val effects: SharedFlow<GameEffect> = _effects.asSharedFlow()
 
-    private val gameTimer = GameTimer(scope, dispatchers) { dispatch(GameAction.Tick) }
+    private val gameTimer = GameTimer(scope) { dispatch(GameAction.Tick) }
     private var peekJob: Job? = null
     private val mutex = Mutex()
     private val syncManager = GameStateSyncManager(scope, dispatchers, onSaveState)

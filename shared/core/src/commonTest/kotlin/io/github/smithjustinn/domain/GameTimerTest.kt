@@ -15,7 +15,6 @@ class GameTimerTest : BaseLogicTest() {
             val timer =
                 GameTimer(
                     scope = testScope,
-                    dispatchers = testDispatchers,
                     onTick = { tickCount++ },
                 )
 
@@ -39,7 +38,6 @@ class GameTimerTest : BaseLogicTest() {
             val timer =
                 GameTimer(
                     scope = testScope,
-                    dispatchers = testDispatchers,
                     onTick = { tickCount++ },
                 )
 
@@ -62,7 +60,6 @@ class GameTimerTest : BaseLogicTest() {
             val timer =
                 GameTimer(
                     scope = testScope,
-                    dispatchers = testDispatchers,
                     onTick = { tickCount++ },
                 )
 
@@ -91,7 +88,6 @@ class GameTimerTest : BaseLogicTest() {
             val timer =
                 GameTimer(
                     scope = testScope,
-                    dispatchers = testDispatchers,
                     onTick = { tickCount++ },
                 )
 

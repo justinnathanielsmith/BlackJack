@@ -27,7 +27,8 @@ kotlin {
                 libs.versions.android.minSdk
                     .get()
                     .toInt()
-            androidResources.enable = false // Optimized for core library
+            // Required for Compose Multiplatform resources to be properly merged on Android
+            androidResources.enable = true
         }
     }
 
@@ -63,7 +64,6 @@ kotlin {
 tasks.withType<Test> {
     timeout.set(Duration.ofSeconds(120))
 }
-
 
 compose.resources {
     packageOfResClass = "io.github.smithjustinn.resources"
