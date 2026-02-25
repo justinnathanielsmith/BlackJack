@@ -1,5 +1,6 @@
 package io.github.smithjustinn.data.repositories
 
+import io.github.smithjustinn.data.extensions.mapToStateFlow
 import io.github.smithjustinn.data.local.SettingsDao
 import io.github.smithjustinn.data.local.SettingsEntity
 import io.github.smithjustinn.domain.repositories.SettingsRepository
@@ -9,9 +10,7 @@ import kotlinx.coroutines.IO
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
@@ -31,85 +30,58 @@ class SettingsRepositoryImpl(
             )
 
     override val isPeekEnabled: StateFlow<Boolean> =
-        settingsFlow
-            .map { it?.isPeekEnabled ?: true }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = true,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = true,
+        ) { it?.isPeekEnabled ?: true }
 
     override val isSoundEnabled: StateFlow<Boolean> =
-        settingsFlow
-            .map { it?.isSoundEnabled ?: true }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = true,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = true,
+        ) { it?.isSoundEnabled ?: true }
 
     override val isMusicEnabled: StateFlow<Boolean> =
-        settingsFlow
-            .map { it?.isMusicEnabled ?: true }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = true,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = true,
+        ) { it?.isMusicEnabled ?: true }
 
     override val isWalkthroughCompleted: StateFlow<Boolean> =
-        settingsFlow
-            .map { it?.isWalkthroughCompleted ?: false }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = false,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = false,
+        ) { it?.isWalkthroughCompleted ?: false }
 
     override val soundVolume: StateFlow<Float> =
-        settingsFlow
-            .map { it?.soundVolume ?: 1.0f }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = 1.0f,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = 1.0f,
+        ) { it?.soundVolume ?: 1.0f }
 
     override val musicVolume: StateFlow<Float> =
-        settingsFlow
-            .map { it?.musicVolume ?: 1.0f }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = 1.0f,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = 1.0f,
+        ) { it?.musicVolume ?: 1.0f }
 
     override val areSuitsMultiColored: StateFlow<Boolean> =
-        settingsFlow
-            .map { it?.areSuitsMultiColored ?: false }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = false,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = false,
+        ) { it?.areSuitsMultiColored ?: false }
 
     override val isThirdEyeEnabled: StateFlow<Boolean> =
-        settingsFlow
-            .map { it?.isThirdEyeEnabled ?: false }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = false,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = false,
+        ) { it?.isThirdEyeEnabled ?: false }
 
     override val isHeatShieldEnabled: StateFlow<Boolean> =
-        settingsFlow
-            .map { it?.isHeatShieldEnabled ?: false }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = false,
-            )
+        settingsFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = false,
+        ) { it?.isHeatShieldEnabled ?: false }
 
     override suspend fun setPeekEnabled(enabled: Boolean) =
         writeMutex.withLock {
