@@ -7,6 +7,7 @@ import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.GameMusic
 import io.github.smithjustinn.domain.models.GamePowerUp
+import io.github.smithjustinn.data.extensions.mapToStateFlow
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.CoroutineScope
@@ -14,9 +15,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -58,111 +57,90 @@ class PlayerEconomyRepositoryImpl(
     }
 
     override val balance: StateFlow<Long> =
-        economyFlow
-            .map { it?.balance ?: 0L }
-            .stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = 0L,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = 0L,
+        ) { it?.balance ?: 0L }
 
     override val unlockedItemIds: StateFlow<Set<String>> =
-        economyFlow
-            .map { entity ->
-                val idsString = entity?.unlockedItemIds ?: PlayerEconomyEntity().unlockedItemIds
-                idsString
-                    .split(",")
-                    .filter { it.isNotBlank() }
-                    .toSet()
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = PlayerEconomyEntity().unlockedItemIds.split(",").toSet(),
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = PlayerEconomyEntity().unlockedItemIds.split(",").toSet(),
+        ) { entity ->
+            val idsString = entity?.unlockedItemIds ?: PlayerEconomyEntity().unlockedItemIds
+            idsString
+                .split(",")
+                .filter { it.isNotBlank() }
+                .toSet()
+        }
 
     override val selectedTheme: StateFlow<CardBackTheme> =
-        economyFlow
-            .map { entity ->
-                val themeId = entity?.selectedThemeId ?: PlayerEconomyEntity().selectedThemeId
-                CardBackTheme.fromIdOrName(themeId)
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = CardBackTheme.GEOMETRIC,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = CardBackTheme.GEOMETRIC,
+        ) { entity ->
+            val themeId = entity?.selectedThemeId ?: PlayerEconomyEntity().selectedThemeId
+            CardBackTheme.fromIdOrName(themeId)
+        }
 
     override val selectedThemeId: StateFlow<String> =
-        economyFlow
-            .map { entity ->
-                entity?.selectedThemeId ?: PlayerEconomyEntity().selectedThemeId
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = PlayerEconomyEntity().selectedThemeId,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = PlayerEconomyEntity().selectedThemeId,
+        ) { entity ->
+            entity?.selectedThemeId ?: PlayerEconomyEntity().selectedThemeId
+        }
 
     override val selectedSkin: StateFlow<CardSymbolTheme> =
-        economyFlow
-            .map { entity ->
-                val skinId = entity?.selectedSkinId ?: PlayerEconomyEntity().selectedSkinId
-                CardSymbolTheme.fromIdOrName(skinId)
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = CardSymbolTheme.CLASSIC,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = CardSymbolTheme.CLASSIC,
+        ) { entity ->
+            val skinId = entity?.selectedSkinId ?: PlayerEconomyEntity().selectedSkinId
+            CardSymbolTheme.fromIdOrName(skinId)
+        }
 
     override val selectedSkinId: StateFlow<String> =
-        economyFlow
-            .map { entity ->
-                entity?.selectedSkinId ?: PlayerEconomyEntity().selectedSkinId
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = PlayerEconomyEntity().selectedSkinId,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = PlayerEconomyEntity().selectedSkinId,
+        ) { entity ->
+            entity?.selectedSkinId ?: PlayerEconomyEntity().selectedSkinId
+        }
 
     override val selectedMusic: StateFlow<GameMusic> =
-        economyFlow
-            .map { entity ->
-                val musicId = entity?.selectedMusicId ?: PlayerEconomyEntity().selectedMusicId
-                GameMusic.fromIdOrName(musicId)
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = GameMusic.DEFAULT,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = GameMusic.DEFAULT,
+        ) { entity ->
+            val musicId = entity?.selectedMusicId ?: PlayerEconomyEntity().selectedMusicId
+            GameMusic.fromIdOrName(musicId)
+        }
 
     override val selectedMusicId: StateFlow<String> =
-        economyFlow
-            .map { entity ->
-                entity?.selectedMusicId ?: PlayerEconomyEntity().selectedMusicId
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = PlayerEconomyEntity().selectedMusicId,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = PlayerEconomyEntity().selectedMusicId,
+        ) { entity ->
+            entity?.selectedMusicId ?: PlayerEconomyEntity().selectedMusicId
+        }
 
     override val selectedPowerUp: StateFlow<GamePowerUp> =
-        economyFlow
-            .map { entity ->
-                val powerUpId = entity?.selectedPowerUpId ?: PlayerEconomyEntity().selectedPowerUpId
-                GamePowerUp.fromIdOrName(powerUpId)
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = GamePowerUp.NONE,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = GamePowerUp.NONE,
+        ) { entity ->
+            val powerUpId = entity?.selectedPowerUpId ?: PlayerEconomyEntity().selectedPowerUpId
+            GamePowerUp.fromIdOrName(powerUpId)
+        }
 
     override val selectedPowerUpId: StateFlow<String> =
-        economyFlow
-            .map { entity ->
-                entity?.selectedPowerUpId ?: PlayerEconomyEntity().selectedPowerUpId
-            }.stateIn(
-                scope = scope,
-                started = SharingStarted.Eagerly,
-                initialValue = PlayerEconomyEntity().selectedPowerUpId,
-            )
+        economyFlow.mapToStateFlow(
+            scope = scope,
+            initialValue = PlayerEconomyEntity().selectedPowerUpId,
+        ) { entity ->
+            entity?.selectedPowerUpId ?: PlayerEconomyEntity().selectedPowerUpId
+        }
 
     override suspend fun addCurrency(amount: Long) =
         writeMutex.withLock {
