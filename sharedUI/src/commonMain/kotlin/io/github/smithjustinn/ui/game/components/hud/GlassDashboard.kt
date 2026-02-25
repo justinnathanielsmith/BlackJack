@@ -21,7 +21,6 @@ fun GlassDashboard(
     isHeatMode: Boolean = false,
     content: @Composable () -> Unit,
 ) {
-    val colors = PokerTheme.colors
     val spacing = PokerTheme.spacing
 
     Box(
@@ -31,49 +30,61 @@ fun GlassDashboard(
                 .padding(vertical = spacing.small),
     ) {
         // Glass Background with Border
-        Canvas(modifier = Modifier.matchParentSize()) {
-            val strokeWidth = GLASS_STROKE_WIDTH_DP.dp.toPx()
-
-            // 1. Semi-transparent dark background
-            drawRect(
-                color = colors.hudBackground,
-                size = size,
-            )
-
-            // 2. Glass Border Gradient (Top-Left White -> Bottom-Right Transparent)
-            drawRect(
-                brush =
-                    Brush.linearGradient(
-                        colors =
-                            listOf(
-                                // Highlight (boosted slightly from base 10% for visibility)
-                                colors.glassWhite.copy(alpha = 0.4f),
-                                colors.glassWhite.copy(alpha = 0.05f), // Shadow
-                            ),
-                        start = Offset(0f, 0f),
-                        end = Offset(size.width, size.height),
-                    ),
-                style = Stroke(width = strokeWidth),
-            )
-
-            // 3. Heat Mode Glow Overlay
-            if (isHeatMode) {
-                drawRect(
-                    brush =
-                        Brush.verticalGradient(
-                            colors =
-                                listOf(
-                                    colors.tacticalRed.copy(alpha = 0.2f),
-                                    Color.Transparent,
-                                ),
-                        ),
-                )
-            }
-        }
+        GlassBackground(
+            isHeatMode = isHeatMode,
+            modifier = Modifier.matchParentSize(),
+        )
 
         // Content Container
         Box(modifier = Modifier.padding(spacing.small)) {
             content()
+        }
+    }
+}
+
+@Composable
+private fun GlassBackground(
+    isHeatMode: Boolean,
+    modifier: Modifier = Modifier,
+) {
+    val colors = PokerTheme.colors
+    Canvas(modifier = modifier) {
+        val strokeWidth = GLASS_STROKE_WIDTH_DP.dp.toPx()
+
+        // 1. Semi-transparent dark background
+        drawRect(
+            color = colors.hudBackground,
+            size = size,
+        )
+
+        // 2. Glass Border Gradient (Top-Left White -> Bottom-Right Transparent)
+        drawRect(
+            brush =
+                Brush.linearGradient(
+                    colors =
+                        listOf(
+                            // Highlight (boosted slightly from base 10% for visibility)
+                            colors.glassWhite.copy(alpha = 0.4f),
+                            colors.glassWhite.copy(alpha = 0.05f), // Shadow
+                        ),
+                    start = Offset(0f, 0f),
+                    end = Offset(size.width, size.height),
+                ),
+            style = Stroke(width = strokeWidth),
+        )
+
+        // 3. Heat Mode Glow Overlay
+        if (isHeatMode) {
+            drawRect(
+                brush =
+                    Brush.verticalGradient(
+                        colors =
+                            listOf(
+                                colors.tacticalRed.copy(alpha = 0.2f),
+                                Color.Transparent,
+                            ),
+                    ),
+            )
         }
     }
 }
