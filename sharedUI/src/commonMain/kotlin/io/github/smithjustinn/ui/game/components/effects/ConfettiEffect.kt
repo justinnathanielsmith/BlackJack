@@ -5,7 +5,6 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableLongStateOf
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
@@ -68,7 +67,11 @@ fun ConfettiEffect(
             ModernGold,
         ),
 ) {
-    val particles = remember { mutableStateListOf<Particle>() }
+    // Optimization: Use a standard MutableList instead of mutableStateListOf.
+    // The animation loop updates frameState, which drives the Canvas redraw.
+    // Using SnapshotStateList here adds unnecessary overhead (state tracking, notifications)
+    // for every particle update/removal in the tight loop.
+    val particles = remember { mutableListOf<Particle>() }
     val frameState = remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
