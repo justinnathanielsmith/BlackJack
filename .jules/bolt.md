@@ -33,3 +33,7 @@
 ## 2026-10-26 - Optimized AuroraEffect with drawWithCache
 **Learning:** Infinite animations driven by `rememberInfiniteTransition` cause recomposition on every frame if state is read in the composition body. Moving state reads to `onDrawBehind` (inside `drawWithCache`) and caching expensive objects (Path, Brush) eliminates recomposition and allocation churn.
 **Action:** For infinite visual effects, always use `drawWithCache` + deferred state reads to skip Composition and Layout phases.
+
+## 2026-10-27 - SnapshotStateList Overhead in Animation Loops
+**Learning:** Using `mutableStateListOf` for high-frequency particle systems (60fps) adds significant overhead due to state tracking and notifications on every update/removal. When the animation loop is already driven by a frame clock (e.g. `withFrameNanos`), the list's reactivity is redundant.
+**Action:** Use standard `mutableListOf` (ArrayList) for internal state in high-frequency animation loops where redraws are manually triggered by a frame state or clock.
