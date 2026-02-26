@@ -66,6 +66,7 @@ import io.github.smithjustinn.resources.settings_reset_walkthrough_desc
 import io.github.smithjustinn.resources.settings_sound_effects
 import io.github.smithjustinn.resources.settings_sound_effects_desc
 import io.github.smithjustinn.services.AudioService
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.theme.ModernGold
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppCard
@@ -132,6 +133,7 @@ private fun SettingsTopBar(
     audioService: AudioService,
     component: SettingsComponent,
 ) {
+    val hapticsService = LocalAppGraph.current.hapticsService
     TopAppBar(
         title = {
             Text(
@@ -147,6 +149,7 @@ private fun SettingsTopBar(
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
             IconButton(onClick = {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.onBack()
             }) {
@@ -166,6 +169,7 @@ private fun SettingsAudioSection(
     audioService: AudioService,
     component: SettingsComponent,
 ) {
+    val hapticsService = LocalAppGraph.current.hapticsService
     AppCard(title = stringResource(Res.string.settings_gameplay_audio)) {
         val soundEffectsTitle = stringResource(Res.string.settings_sound_effects)
         SettingsToggle(
@@ -173,6 +177,7 @@ private fun SettingsAudioSection(
             description = stringResource(Res.string.settings_sound_effects_desc),
             checked = state.isSoundEnabled,
             onCheckedChange = {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.toggleSoundEnabled(it)
             },
@@ -197,6 +202,7 @@ private fun SettingsAudioSection(
             description = stringResource(Res.string.settings_game_music_desc),
             checked = state.isMusicEnabled,
             onCheckedChange = {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.toggleMusicEnabled(it)
             },
@@ -220,6 +226,7 @@ private fun SettingsAudioSection(
             description = stringResource(Res.string.settings_enable_peek_desc),
             checked = state.isPeekEnabled,
             onCheckedChange = {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                 audioService.playEffect(AudioService.SoundEffect.CLICK)
                 component.togglePeekEnabled(it)
             },
@@ -233,6 +240,7 @@ private fun SettingsAppearanceSection(
     audioService: AudioService,
     component: SettingsComponent,
 ) {
+    val hapticsService = LocalAppGraph.current.hapticsService
     if (state.isFourColorUnlocked || state.isThirdEyeUnlocked || state.isHeatShieldUnlocked) {
         AppCard(title = stringResource(Res.string.settings_appearance)) {
             if (state.isFourColorUnlocked) {
@@ -241,6 +249,7 @@ private fun SettingsAppearanceSection(
                     description = stringResource(Res.string.settings_four_color_deck_desc),
                     checked = state.areSuitsMultiColored,
                     onCheckedChange = {
+                        hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.toggleSuitsMultiColored(it)
                     },
@@ -260,6 +269,7 @@ private fun SettingsAppearanceSection(
                     description = stringResource(Res.string.settings_enable_third_eye_desc),
                     checked = state.isThirdEyeEnabled,
                     onCheckedChange = {
+                        hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.toggleThirdEyeEnabled(it)
                     },
@@ -279,6 +289,7 @@ private fun SettingsAppearanceSection(
                     description = stringResource(Res.string.settings_enable_heat_shield_desc),
                     checked = state.isHeatShieldEnabled,
                     onCheckedChange = {
+                        hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                         audioService.playEffect(AudioService.SoundEffect.CLICK)
                         component.toggleHeatShieldEnabled(it)
                     },
@@ -294,6 +305,7 @@ private fun SettingsResetSection(
     audioService: AudioService,
     component: SettingsComponent,
 ) {
+    val hapticsService = LocalAppGraph.current.hapticsService
     AppCard {
         Row(
             modifier = Modifier.fillMaxWidth(),
@@ -316,6 +328,7 @@ private fun SettingsResetSection(
             }
             Button(
                 onClick = {
+                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
                     audioService.playEffect(AudioService.SoundEffect.CLICK)
                     component.resetWalkthrough()
                 },
