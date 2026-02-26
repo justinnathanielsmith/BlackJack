@@ -133,3 +133,17 @@ While higher-level logic might enforce these constraints, direct calls to the re
 **Remediation:**
 1.  Added strict `require` checks in `saveChallengeResult`: `score >= 0`, `timeSeconds >= 0`, `moves >= 0`, `date > 0`.
 2.  Verified with reproduction test `DailyChallengeRepositorySecurityTest.kt`.
+
+## 2026-02-14 - [Score Manipulation via Negative Time]
+**Vulnerability:** Input Validation / Score Manipulation
+**Severity:** MEDIUM
+**Component:** `shared/core` / `ScoringCalculator`
+
+**Finding:**
+`ScoringCalculator.applyFinalBonuses` allowed negative `elapsedTimeSeconds`, and `calculateMatchUpdate` allowed negative `matchesFound`.
+A malicious actor or a bug in the time tracking logic could inject negative values, causing the scoring formula (e.g., `pairCount * bonus - time * penalty`) to add points instead of subtracting them, leading to artificially inflated scores.
+
+**Remediation:**
+1.  Added strict `require(elapsedTimeSeconds >= 0)` in `applyFinalBonuses`.
+2.  Added strict `require(matchesFound >= 0)` in `calculateMatchUpdate`.
+3.  Verified with reproduction test `ScoringCalculatorReproductionTest.kt`.
