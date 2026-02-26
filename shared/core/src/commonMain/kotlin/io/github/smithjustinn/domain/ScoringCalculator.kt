@@ -27,6 +27,7 @@ object ScoringCalculator {
         isWon: Boolean,
         matchesFound: Int,
     ): MatchScoringUpdate {
+        require(matchesFound >= 0) { "Matches found cannot be negative" }
         val points = calculateMatchPoints(state)
         val matchTotalPoints = points.base + points.bonus
 
@@ -56,6 +57,7 @@ object ScoringCalculator {
         state: MemoryGameState,
         elapsedTimeSeconds: Long,
     ): MemoryGameState {
+        require(elapsedTimeSeconds >= 0) { "Elapsed time cannot be negative" }
         if (!state.isGameWon) return state
 
         val config = state.config
