@@ -34,7 +34,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertTrue
 
 class GameCommentGeneratorTest {
-
     private val doubleDownComments =
         setOf(
             Res.string.comment_all_in,
@@ -75,14 +74,15 @@ class GameCommentGeneratorTest {
         // matchesFound == totalPairs / config.commentPotOddsDivisor
         // 4 == 8 / 2
         val config = ScoringConfig(commentPotOddsDivisor = 2)
-        val result = GameCommentGenerator.generateMatchComment(
-            moves = 10,
-            matchesFound = 4,
-            totalPairs = 8,
-            comboMultiplier = 1,
-            config = config,
-            isDoubleDownActive = false
-        )
+        val result =
+            GameCommentGenerator.generateMatchComment(
+                moves = 10,
+                matchesFound = 4,
+                totalPairs = 8,
+                comboMultiplier = 1,
+                config = config,
+                isDoubleDownActive = false,
+            )
 
         assertEquals(Res.string.comment_pot_odds, result.res)
     }
@@ -91,14 +91,15 @@ class GameCommentGeneratorTest {
     fun generateMatchComment_returnsRiverComment_whenOneMatchLeft() {
         // matchesFound == totalPairs - 1
         val config = ScoringConfig()
-        val result = GameCommentGenerator.generateMatchComment(
-            moves = 10,
-            matchesFound = 7,
-            totalPairs = 8,
-            comboMultiplier = 1,
-            config = config,
-            isDoubleDownActive = false
-        )
+        val result =
+            GameCommentGenerator.generateMatchComment(
+                moves = 10,
+                matchesFound = 7,
+                totalPairs = 8,
+                comboMultiplier = 1,
+                config = config,
+                isDoubleDownActive = false,
+            )
 
         assertContains(listOf(Res.string.comment_one_more, Res.string.comment_river_magic), result.res)
     }
@@ -106,14 +107,15 @@ class GameCommentGeneratorTest {
     @Test
     fun generateMatchComment_returnsDoubleDownComment_whenDoubleDownActive() {
         val config = ScoringConfig()
-        val result = GameCommentGenerator.generateMatchComment(
-            moves = 10,
-            matchesFound = 1, // Avoid pot odds (1 != 8/2)
-            totalPairs = 8,
-            comboMultiplier = 1,
-            config = config,
-            isDoubleDownActive = true
-        )
+        val result =
+            GameCommentGenerator.generateMatchComment(
+                moves = 10,
+                matchesFound = 1, // Avoid pot odds (1 != 8/2)
+                totalPairs = 8,
+                comboMultiplier = 1,
+                config = config,
+                isDoubleDownActive = true,
+            )
 
         assertTrue(doubleDownComments.contains(result.res), "Result ${result.res} not in doubleDownComments")
     }
@@ -122,14 +124,15 @@ class GameCommentGeneratorTest {
     fun generateMatchComment_returnsHeaterComment_whenHeatThresholdMet() {
         // comboMultiplier >= config.heatModeThreshold
         val config = ScoringConfig(heatModeThreshold = 3)
-        val result = GameCommentGenerator.generateMatchComment(
-            moves = 10,
-            matchesFound = 1, // Avoid pot odds
-            totalPairs = 8,
-            comboMultiplier = 3,
-            config = config,
-            isDoubleDownActive = false
-        )
+        val result =
+            GameCommentGenerator.generateMatchComment(
+                moves = 10,
+                matchesFound = 1, // Avoid pot odds
+                totalPairs = 8,
+                comboMultiplier = 3,
+                config = config,
+                isDoubleDownActive = false,
+            )
 
         assertEquals(Res.string.comment_heater_active, result.res)
     }
@@ -139,14 +142,15 @@ class GameCommentGeneratorTest {
         // moves <= matchesFound * 2 && matchesFound > 1
         // 4 <= 2 * 2
         val config = ScoringConfig(commentPotOddsDivisor = 2)
-        val result = GameCommentGenerator.generateMatchComment(
-            moves = 4,
-            matchesFound = 2, // Avoid pot odds (2 != 8/2 = 4)
-            totalPairs = 8,
-            comboMultiplier = 1,
-            config = config,
-            isDoubleDownActive = false
-        )
+        val result =
+            GameCommentGenerator.generateMatchComment(
+                moves = 4,
+                matchesFound = 2, // Avoid pot odds (2 != 8/2 = 4)
+                totalPairs = 8,
+                comboMultiplier = 1,
+                config = config,
+                isDoubleDownActive = false,
+            )
 
         assertTrue(efficientComments.contains(result.res), "Result ${result.res} not in efficientComments")
     }
@@ -154,14 +158,15 @@ class GameCommentGeneratorTest {
     @Test
     fun generateMatchComment_returnsRandomComment_whenNoSpecialConditionMet() {
         val config = ScoringConfig(commentPotOddsDivisor = 2)
-        val result = GameCommentGenerator.generateMatchComment(
-            moves = 100,
-            matchesFound = 2, // 2 != 4 (pot odds)
-            totalPairs = 8,
-            comboMultiplier = 1,
-            config = config,
-            isDoubleDownActive = false
-        )
+        val result =
+            GameCommentGenerator.generateMatchComment(
+                moves = 100,
+                matchesFound = 2, // 2 != 4 (pot odds)
+                totalPairs = 8,
+                comboMultiplier = 1,
+                config = config,
+                isDoubleDownActive = false,
+            )
 
         assertTrue(randomComments.contains(result.res), "Result ${result.res} not in randomComments")
     }
