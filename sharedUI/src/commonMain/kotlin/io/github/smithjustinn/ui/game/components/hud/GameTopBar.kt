@@ -1,8 +1,14 @@
 package io.github.smithjustinn.ui.game.components.hud
 
+import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.RepeatMode
 import androidx.compose.animation.core.Spring
+import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.infiniteRepeatable
+import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.spring
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
@@ -36,6 +42,7 @@ import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.layout
@@ -412,6 +419,19 @@ private fun TimeProgressBar(
             animationSpec = spring(stiffness = Spring.StiffnessLow),
         )
 
+    val infiniteTransition = rememberInfiniteTransition(label = "TimePulse")
+    val pulsingAlpha =
+        infiniteTransition.animateFloat(
+            initialValue = 1f,
+            targetValue = 0.5f,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(PULSE_DURATION, easing = LinearEasing),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "pulseAlpha",
+        )
+
     Box(
         modifier =
             modifier
@@ -432,7 +452,9 @@ private fun TimeProgressBar(
                             placeable.place(0, 0)
                         }
                     }.fillMaxHeight()
-                    .shadow(
+                    .graphicsLayer {
+                        alpha = if (isLowTime) pulsingAlpha.value else 1f
+                    }.shadow(
                         elevation = if (isLowTime) PokerTheme.spacing.none else PokerTheme.spacing.medium,
                         shape = CircleShape,
                         ambientColor = PokerTheme.colors.goldenYellow,
@@ -462,3 +484,4 @@ private const val DASH_ON = 10f
 private const val DASH_OFF = 10f
 private const val RADIUS_FACTOR = 0.85f
 private const val BG_ALPHA = 0.4f
+private const val PULSE_DURATION = 800
