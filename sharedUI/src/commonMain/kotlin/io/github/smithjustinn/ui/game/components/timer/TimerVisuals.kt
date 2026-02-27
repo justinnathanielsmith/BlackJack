@@ -4,7 +4,7 @@ import androidx.compose.runtime.State
 import androidx.compose.ui.graphics.Color
 
 data class TimerVisuals(
-    val color: Color,
+    val color: State<Color>,
     val scale: State<Float>,
     val layout: TimerLayout = TimerLayout.STANDARD,
 )

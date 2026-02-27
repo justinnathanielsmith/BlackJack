@@ -34,6 +34,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import io.github.smithjustinn.resources.Res
@@ -54,7 +55,7 @@ fun TimerDisplay(
     modifier: Modifier = Modifier,
     layout: TimerLayout = TimerLayout.STANDARD,
 ) {
-    val timerColor =
+    val timerColorState =
         animateTimerColor(
             showTimeLoss = feedback.showTimeLoss,
             showTimeGain = feedback.showTimeGain,
@@ -72,7 +73,7 @@ fun TimerDisplay(
 
     val visuals =
         TimerVisuals(
-            color = timerColor,
+            color = timerColorState,
             scale = timerScale,
             layout = layout,
         )
@@ -101,7 +102,7 @@ private fun animateTimerColor(
     isMegaBonus: Boolean,
     isLowTime: Boolean,
     minimal: Boolean,
-): Color {
+): State<Color> {
     val targetValue =
         when {
             showTimeLoss -> PokerTheme.colors.tacticalRed
@@ -112,12 +113,10 @@ private fun animateTimerColor(
             else -> PokerTheme.colors.brass
         }
 
-    val color by animateColorAsState(
+    return animateColorAsState(
         targetValue = targetValue,
         animationSpec = tween(durationMillis = if (showTimeGain || showTimeLoss) 100 else COLOR_TRANSITION_DURATION_MS),
     )
-
-    return color
 }
 
 @Composable
@@ -171,20 +170,10 @@ private fun MinimalTimerDisplay(
         modifier = modifier,
         horizontalArrangement = Arrangement.Center,
     ) {
-        Text(
-            text = formatTime(state.time),
-            style =
-                MaterialTheme.typography.titleLarge.copy(
-                    fontSize = 14.sp,
-                    fontWeight = FontWeight.Black,
-                    letterSpacing = 0.5.sp,
-                ),
-            modifier =
-                Modifier.graphicsLayer {
-                    scaleX = visuals.scale.value
-                    scaleY = visuals.scale.value
-                },
-            color = visuals.color,
+        TimerDigits(
+            time = state.time,
+            visuals = visuals,
+            fontSize = 14.sp,
         )
 
         AnimatedVisibility(
@@ -235,23 +224,11 @@ private fun StandardTimerDisplay(
             modifier = Modifier.padding(horizontal = if (visuals.layout == TimerLayout.COMPACT) 10.dp else 16.dp),
             horizontalArrangement = Arrangement.Center,
         ) {
-            Text(
-                text = formatTime(state.time),
-                style =
-                    MaterialTheme.typography.titleLarge.copy(
-                        fontSize = if (visuals.layout == TimerLayout.COMPACT) 16.sp else 20.sp,
-                        fontWeight = FontWeight.Black,
-                        letterSpacing = 0.5.sp,
-                    ),
-                modifier =
-                    Modifier
-                        .graphicsLayer {
-                            scaleX = visuals.scale.value
-                            scaleY = visuals.scale.value
-                        }.padding(bottom = 2.dp),
-                // Fine-tune vertical alignment
-                color = visuals.color,
-                maxLines = 1,
+            TimerDigits(
+                time = state.time,
+                visuals = visuals,
+                fontSize = if (visuals.layout == TimerLayout.COMPACT) 16.sp else 20.sp,
+                modifier = Modifier.padding(bottom = 2.dp),
             )
 
             TimeGainIndicator(
@@ -268,6 +245,32 @@ private fun StandardTimerDisplay(
             )
         }
     }
+}
+
+@Composable
+private fun TimerDigits(
+    time: Long,
+    visuals: TimerVisuals,
+    fontSize: TextUnit,
+    modifier: Modifier = Modifier,
+) {
+    Text(
+        text = formatTime(time),
+        style =
+            MaterialTheme.typography.titleLarge.copy(
+                fontSize = fontSize,
+                fontWeight = FontWeight.Black,
+                letterSpacing = 0.5.sp,
+            ),
+        modifier =
+            modifier
+                .graphicsLayer {
+                    scaleX = visuals.scale.value
+                    scaleY = visuals.scale.value
+                },
+        color = visuals.color.value,
+        maxLines = 1,
+    )
 }
 
 @Composable
