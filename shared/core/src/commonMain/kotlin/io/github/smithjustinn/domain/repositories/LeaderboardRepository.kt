@@ -10,5 +10,7 @@ interface LeaderboardRepository {
         gameMode: GameMode,
     ): Flow<List<LeaderboardEntry>>
 
+    fun getAllTopEntries(gameMode: GameMode): Flow<List<LeaderboardEntry>>
+
     suspend fun addEntry(entry: LeaderboardEntry)
 }

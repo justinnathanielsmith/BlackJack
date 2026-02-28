@@ -18,7 +18,6 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -73,7 +72,6 @@ import io.github.smithjustinn.ui.extensions.pokerClickable
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.math.roundToInt
 
 // Animation durations (milliseconds)
 private const val SHAKE_ANIMATION_DURATION_MS = 50
@@ -211,8 +209,9 @@ fun PlayingCard(
         }
 
     CardContainer(
-        modifier = modifier.offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) },
+        modifier = modifier,
         visuals = visuals,
+        shakeOffset = animations.shakeOffset,
         muckTranslationX = animations.muckTranslationX,
         muckTranslationY = animations.muckTranslationY,
         muckRotation = animations.muckRotation,
@@ -294,26 +293,7 @@ private data class AnimationTargetState(
 )
 
 @Composable
-@Suppress("CyclomaticComplexMethod")
-private fun rememberCardAnimations(
-    content: CardContent,
-    isHovered: Boolean,
-    isPressed: Boolean,
-    muckTargetOffset: IntOffset,
-    muckTargetRotation: Float,
-    isMuckingEnabled: Boolean,
-): CardAnimations {
-    val targetState =
-        remember(content.visualState, isHovered, isPressed) {
-            AnimationTargetState(
-                isFaceUp = content.visualState.isFaceUp,
-                isMatched = content.visualState.isMatched,
-                isRecentlyMatched = content.visualState.isRecentlyMatched,
-                isPressed = isPressed,
-                isHovered = isHovered,
-            )
-        }
-
+private fun rememberCardTransform(targetState: AnimationTargetState): Pair<State<Float>, State<Float>> {
     val transition = updateTransition(targetState, label = "cardTransition")
 
     val rotation =
@@ -357,30 +337,73 @@ private fun rememberCardAnimations(
             }
         }
 
-    val shakeOffset = rememberShakeAnimation(content.visualState.isError)
-    val matchedGlowAlpha = rememberMatchedGlowAnimation(content.visualState.isRecentlyMatched)
+    return rotation to scale
+}
 
+@Composable
+private fun rememberCardEffects(visualState: CardVisualState): Pair<State<Float>, State<Float>> {
+    val shakeOffset = rememberShakeAnimation(visualState.isError)
+    val matchedGlowAlpha = rememberMatchedGlowAnimation(visualState.isRecentlyMatched)
+    return shakeOffset to matchedGlowAlpha
+}
+
+@Composable
+private fun rememberCardMuck(
+    isActive: Boolean,
+    muckTargetOffset: IntOffset,
+    muckTargetRotation: Float,
+): Triple<State<Float>, State<Float>, State<Float>> {
     val muckTranslationX =
         rememberMuckAnimation(
-            isMuckingEnabled && content.visualState.isMatched,
+            isActive,
             muckTargetOffset.x.toFloat(),
             "muckTranslationX",
         )
     val muckTranslationY =
         rememberMuckAnimation(
-            isMuckingEnabled && content.visualState.isMatched,
+            isActive,
             muckTargetOffset.y.toFloat(),
             "muckTranslationY",
         )
     val muckRotation =
         rememberMuckAnimation(
-            isMuckingEnabled && content.visualState.isMatched,
+            isActive,
             muckTargetRotation,
             "muckRotation",
         )
 
-    val shadowAnim = rememberShadowAnimation(content.visualState, isHovered, isPressed)
-    val (shadowElevation, shadowYOffset) = shadowAnim
+    return Triple(muckTranslationX, muckTranslationY, muckRotation)
+}
+
+@Composable
+private fun rememberCardAnimations(
+    content: CardContent,
+    isHovered: Boolean,
+    isPressed: Boolean,
+    muckTargetOffset: IntOffset,
+    muckTargetRotation: Float,
+    isMuckingEnabled: Boolean,
+): CardAnimations {
+    val targetState =
+        remember(content.visualState, isHovered, isPressed) {
+            AnimationTargetState(
+                isFaceUp = content.visualState.isFaceUp,
+                isMatched = content.visualState.isMatched,
+                isRecentlyMatched = content.visualState.isRecentlyMatched,
+                isPressed = isPressed,
+                isHovered = isHovered,
+            )
+        }
+
+    val (rotation, scale) = rememberCardTransform(targetState)
+    val (shakeOffset, matchedGlowAlpha) = rememberCardEffects(content.visualState)
+    val (muckTranslationX, muckTranslationY, muckRotation) =
+        rememberCardMuck(
+            isActive = isMuckingEnabled && content.visualState.isMatched,
+            muckTargetOffset = muckTargetOffset,
+            muckTargetRotation = muckTargetRotation,
+        )
+    val (shadowElevation, shadowYOffset) = rememberShadowAnimation(content.visualState, isHovered, isPressed)
 
     // Bolt: Return stable object to prevent downstream recompositions
     return remember(
@@ -485,6 +508,7 @@ private fun rememberShadowAnimation(
 private fun CardContainer(
     modifier: Modifier = Modifier,
     visuals: CardContainerVisuals,
+    shakeOffset: State<Float>,
     muckTranslationX: State<Float>,
     muckTranslationY: State<Float>,
     muckRotation: State<Float>,
@@ -502,7 +526,7 @@ private fun CardContainer(
                 .widthIn(min = 60.dp)
                 .aspectRatio(CARD_ASPECT_RATIO)
                 .graphicsLayer {
-                    translationX = muckTranslationX.value
+                    translationX = muckTranslationX.value + shakeOffset.value
                     translationY = muckTranslationY.value
                     rotationZ = muckRotation.value
                     rotationY = visuals.rotation.value

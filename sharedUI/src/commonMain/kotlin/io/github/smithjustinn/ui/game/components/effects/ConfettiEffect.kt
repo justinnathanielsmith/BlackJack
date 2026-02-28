@@ -71,7 +71,7 @@ fun ConfettiEffect(
     // The animation loop updates frameState, which drives the Canvas redraw.
     // Using SnapshotStateList here adds unnecessary overhead (state tracking, notifications)
     // for every particle update/removal in the tight loop.
-    val particles = remember { mutableListOf<Particle>() }
+    val particles = remember { ArrayList<Particle>(particleCount) }
     val frameState = remember { mutableLongStateOf(0L) }
 
     LaunchedEffect(Unit) {
@@ -91,12 +91,13 @@ fun ConfettiEffect(
         while (particles.isNotEmpty()) {
             withFrameNanos { time ->
                 frameState.longValue = time
-                val iterator = particles.iterator()
-                while (iterator.hasNext()) {
-                    val p = iterator.next()
+
+                // Iterate backwards to avoid Iterator allocation and O(N^2) shifting during removal
+                for (i in particles.indices.reversed()) {
+                    val p = particles[i]
                     p.update()
                     if (p.alpha <= 0) {
-                        iterator.remove()
+                        particles.removeAt(i)
                     }
                 }
             }

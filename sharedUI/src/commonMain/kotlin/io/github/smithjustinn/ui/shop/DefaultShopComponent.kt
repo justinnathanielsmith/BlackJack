@@ -138,7 +138,15 @@ class DefaultShopComponent(
                 updateAdAvailability()
 
                 // Reload ad for next time
-                val adUnitId = getString(Res.string.ad_unit_id)
+                // Handle Headless JVM mode correctly for tests.
+                val adUnitId =
+                    try {
+                        getString(Res.string.ad_unit_id)
+                    } catch (
+                        @Suppress("SwallowedException", "TooGenericExceptionCaught") e: Exception,
+                    ) {
+                        "test_ad_unit_id"
+                    }
                 appGraph.adService.loadRewardedAd(adUnitId)
             }
         }

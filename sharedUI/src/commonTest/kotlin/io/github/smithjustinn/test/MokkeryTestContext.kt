@@ -139,6 +139,7 @@ class MokkeryTestContext(
             every { leaderboardRepository.getTopEntries(level.pairs, any()) } returns
                 MutableStateFlow(emptyList())
         }
+        every { leaderboardRepository.getAllTopEntries(any()) } returns MutableStateFlow(emptyList())
 
         everySuspend { dailyChallengeRepository.isChallengeCompleted(any()) } returns MutableStateFlow(false)
     }
