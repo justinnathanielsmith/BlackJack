@@ -36,7 +36,7 @@ class DeepLinkUtilsTest {
         assertEquals(8, params2.pairs)
 
         // Invalid prefix -> null
-        val url3 = "http://google.com"
+        val url3 = "https://google.com"
         assertNull(DeepLinkUtils.parseDeepLink(url3))
     }
 
