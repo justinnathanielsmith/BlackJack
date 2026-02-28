@@ -95,7 +95,8 @@ class GameStateMachineTest : BaseLogicTest() {
             job.cancel()
             testScope.coroutineContext[kotlinx.coroutines.Job]?.cancelChildren()
 
-            // TimerUpdate with 0 might not be emitted if internalTimeSeconds was not updated first or we stopped too early.
+            // TimerUpdate with 0 might not be emitted if internalTimeSeconds was not updated
+            // first or we stopped too early.
             // What we *do* know is that it should be Game Over.
             val finalState = machine.state.value
 

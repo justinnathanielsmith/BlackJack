@@ -163,7 +163,8 @@ private fun StarDrawing(modifier: Modifier = Modifier) {
     Box(
         modifier =
             modifier.drawWithCache {
-                // Bolt: Using drawWithCache prevents creating Path, Stroke, and Color objects on every frame, reducing allocation churn.
+                // Bolt: Using drawWithCache prevents creating Path, Stroke, and Color
+                // objects on every frame, reducing allocation churn.
                 val centerX = size.width / 2f
                 val centerY = size.height / 2f
                 val radius = size.minDimension / 2f
