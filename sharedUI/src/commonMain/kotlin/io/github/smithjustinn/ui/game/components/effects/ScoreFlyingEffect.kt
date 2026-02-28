@@ -5,7 +5,6 @@ import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -64,19 +63,17 @@ fun ScoreFlyingEffect(
     if (points.isNotEmpty()) {
         LaunchedEffect(Unit) {
             while (true) {
-                withFrameNanos { frameTick = it }
+                withFrameNanos { tick ->
+                    frameTick = tick
+                    val remaining =
+                        points.filter { point ->
+                            point.startTime.elapsedNow() < point.duration + point.delay
+                        }
+                    if (remaining.size != points.size) {
+                        points = remaining
+                    }
+                }
             }
-        }
-    }
-
-    // Cleanup finished points
-    SideEffect {
-        val remaining =
-            points.filter { point ->
-                point.startTime.elapsedNow() < point.duration + point.delay
-            }
-        if (remaining.size != points.size) {
-            points = remaining
         }
     }
 
