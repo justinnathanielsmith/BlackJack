@@ -15,6 +15,7 @@ import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
+import kotlin.test.assertTrue
 
 class SaveGameResultUseCaseTest {
     private val statsRepository = mock<GameStatsRepository>()
@@ -140,5 +141,25 @@ class SaveGameResultUseCaseTest {
                 statsRepository.updateStats(any())
                 leaderboardRepository.addEntry(any())
             }
+        }
+
+    @Test
+    fun testInvoke_invalidInputs_returnsFailure() =
+        runTest {
+            val result1 = useCase(-1, 100, 60L, 20, GameMode.TIME_ATTACK)
+            assertTrue(result1.isFailure)
+            assertTrue(result1.exceptionOrNull() is IllegalArgumentException)
+
+            val result2 = useCase(8, -100, 60L, 20, GameMode.TIME_ATTACK)
+            assertTrue(result2.isFailure)
+            assertTrue(result2.exceptionOrNull() is IllegalArgumentException)
+
+            val result3 = useCase(8, 100, -60L, 20, GameMode.TIME_ATTACK)
+            assertTrue(result3.isFailure)
+            assertTrue(result3.exceptionOrNull() is IllegalArgumentException)
+
+            val result4 = useCase(8, 100, 60L, -20, GameMode.TIME_ATTACK)
+            assertTrue(result4.isFailure)
+            assertTrue(result4.exceptionOrNull() is IllegalArgumentException)
         }
 }

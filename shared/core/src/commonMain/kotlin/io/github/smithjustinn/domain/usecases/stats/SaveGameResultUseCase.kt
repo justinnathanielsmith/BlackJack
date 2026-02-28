@@ -26,6 +26,11 @@ open class SaveGameResultUseCase(
         gameMode: GameMode,
     ): Result<Unit> =
         runCatching {
+            require(pairCount > 0) { "Pair count must be positive" }
+            require(score >= 0) { "Score cannot be negative" }
+            require(timeSeconds >= 0) { "Time cannot be negative" }
+            require(moves >= 0) { "Moves cannot be negative" }
+
             val currentStats = gameStatsRepository.getStatsForDifficulty(pairCount).firstOrNull()
             val updatedStats = calculateUpdatedStats(currentStats, pairCount, score, timeSeconds)
 
