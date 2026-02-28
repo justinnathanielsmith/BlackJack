@@ -460,7 +460,7 @@ def handle_open(args):
         if sys.platform == "darwin":
             run_command(["open", "-a", "Android Studio", "."])
         else:
-            run_command(["studio", "."], shell=True)
+            run_command(["studio", "."])
     elif args.target == "ios":
         if sys.platform != "darwin":
             error("iOS targets require macOS.")
