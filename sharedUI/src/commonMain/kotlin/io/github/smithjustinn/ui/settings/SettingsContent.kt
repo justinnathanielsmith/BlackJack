@@ -148,14 +148,18 @@ private fun SettingsTopBar(
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
-            IconButton(onClick = {
-                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                component.onBack()
-            }) {
+            val backDesc = stringResource(Res.string.back_content_description)
+            IconButton(
+                onClick = {
+                    hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onBack()
+                },
+                modifier = Modifier.semantics { contentDescription = backDesc },
+            ) {
                 Icon(
                     imageVector = AppIcons.ArrowBack,
-                    contentDescription = stringResource(Res.string.back_content_description),
+                    contentDescription = null,
                     tint = ModernGold,
                 )
             }

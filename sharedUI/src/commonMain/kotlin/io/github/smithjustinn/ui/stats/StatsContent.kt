@@ -28,6 +28,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -157,13 +159,17 @@ private fun StatsTopBar(
         },
         colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
         navigationIcon = {
-            IconButton(onClick = {
-                audioService.playEffect(AudioService.SoundEffect.CLICK)
-                component.onBack()
-            }) {
+            val backDesc = stringResource(Res.string.back_content_description)
+            IconButton(
+                onClick = {
+                    audioService.playEffect(AudioService.SoundEffect.CLICK)
+                    component.onBack()
+                },
+                modifier = Modifier.semantics { contentDescription = backDesc },
+            ) {
                 Icon(
                     imageVector = AppIcons.ArrowBack,
-                    contentDescription = stringResource(Res.string.back_content_description),
+                    contentDescription = null,
                     tint = PokerTheme.colors.goldenYellow,
                 )
             }

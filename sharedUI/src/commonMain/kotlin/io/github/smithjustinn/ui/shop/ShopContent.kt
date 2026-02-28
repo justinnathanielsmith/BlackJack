@@ -34,6 +34,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -151,10 +153,14 @@ private fun ShopHeader(
                 .padding(16.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        IconButton(onClick = onBackClicked) {
+        val backDesc = stringResource(Res.string.shop_back_description)
+        IconButton(
+            onClick = onBackClicked,
+            modifier = Modifier.semantics { contentDescription = backDesc },
+        ) {
             Icon(
                 imageVector = AppIcons.ArrowBack,
-                contentDescription = stringResource(Res.string.shop_back_description),
+                contentDescription = null,
                 tint = PokerTheme.colors.onBackground,
                 modifier = Modifier.size(32.dp),
             )
