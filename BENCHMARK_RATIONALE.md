@@ -17,3 +17,15 @@ Instead of a runtime benchmark, the optimization is verified through:
 4. **Existing Tests:** Running the existing test suite via `./run_tests.sh` to ensure no regressions.
 
 This approach ensures the structural correctness of the optimization while acknowledging the limitations of the current environment for runtime profiling.
+
+## Objective
+Optimize `PlayingCard.kt` by replacing `Modifier.offset` with `graphicsLayer { translationX = ... }` for the shake animation.
+
+## Rationale
+In Compose, animating `Modifier.offset` using a continuous state (like `shakeOffset.value`) causes recomposition and triggers the Layout phase on every frame of the animation. This leads to layout thrashing and increased CPU/memory usage. By moving the translation logic into the `graphicsLayer` block, the animation only triggers the Draw phase, bypassing the expensive Composition and Layout phases. This significantly improves performance, especially during high-frequency animations like card shaking.
+
+## Verification Strategy
+Instead of a runtime benchmark, the optimization is verified through:
+1. **Static Analysis:** Confirming the use of `graphicsLayer { translationX = ... }` and removal of `Modifier.offset` for the continuous animation.
+2. **Compilation Checks:** Ensuring the code compiles without errors.
+3. **Existing Tests:** Running the test suite to ensure visual components still function as expected.

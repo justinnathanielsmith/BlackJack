@@ -18,7 +18,6 @@ import androidx.compose.foundation.interaction.collectIsPressedAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.widthIn
@@ -73,7 +72,6 @@ import io.github.smithjustinn.ui.extensions.pokerClickable
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
-import kotlin.math.roundToInt
 
 // Animation durations (milliseconds)
 private const val SHAKE_ANIMATION_DURATION_MS = 50
@@ -211,8 +209,9 @@ fun PlayingCard(
         }
 
     CardContainer(
-        modifier = modifier.offset { IntOffset(animations.shakeOffset.value.roundToInt(), 0) },
+        modifier = modifier,
         visuals = visuals,
+        shakeOffset = animations.shakeOffset,
         muckTranslationX = animations.muckTranslationX,
         muckTranslationY = animations.muckTranslationY,
         muckRotation = animations.muckRotation,
@@ -485,6 +484,7 @@ private fun rememberShadowAnimation(
 private fun CardContainer(
     modifier: Modifier = Modifier,
     visuals: CardContainerVisuals,
+    shakeOffset: State<Float>,
     muckTranslationX: State<Float>,
     muckTranslationY: State<Float>,
     muckRotation: State<Float>,
@@ -502,7 +502,7 @@ private fun CardContainer(
                 .widthIn(min = 60.dp)
                 .aspectRatio(CARD_ASPECT_RATIO)
                 .graphicsLayer {
-                    translationX = muckTranslationX.value
+                    translationX = muckTranslationX.value + shakeOffset.value
                     translationY = muckTranslationY.value
                     rotationZ = muckRotation.value
                     rotationY = visuals.rotation.value
