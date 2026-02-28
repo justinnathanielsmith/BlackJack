@@ -72,16 +72,7 @@ class GameStateMachine(
         }
 
         if (!isResumed && (hasError || faceUpUnmatched >= 2)) {
-            scope.launch {
-                val delayMs =
-                    if (initialState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
-                        MISMATCH_DELAY_MS / 2
-                    } else {
-                        MISMATCH_DELAY_MS
-                    }
-                delay(delayMs)
-                dispatch(GameAction.ProcessMismatch)
-            }
+            scheduleMismatchProcessing(initialState)
         }
     }
 
@@ -191,18 +182,7 @@ class GameStateMachine(
         +GameEffect.PlayMismatch
         +GameEffect.VibrateMismatch
 
-        if (scope.isActive) {
-            scope.launch {
-                val delayMs =
-                    if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
-                        MISMATCH_DELAY_MS / 2
-                    } else {
-                        MISMATCH_DELAY_MS
-                    }
-                delay(delayMs)
-                dispatch(GameAction.ProcessMismatch)
-            }
-        }
+        scheduleMismatchProcessing(flippedState)
         transition { MutatorEngine.applyMutators(it) }
     }
 
@@ -210,18 +190,7 @@ class GameStateMachine(
         +GameEffect.PlayFlipSound
         +GameEffect.HeatShieldUsed
 
-        if (scope.isActive) {
-            scope.launch {
-                val delayMs =
-                    if (flippedState.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
-                        MISMATCH_DELAY_MS / 2
-                    } else {
-                        MISMATCH_DELAY_MS
-                    }
-                delay(delayMs)
-                dispatch(GameAction.ProcessMismatch)
-            }
-        }
+        scheduleMismatchProcessing(flippedState)
         transition { MutatorEngine.applyMutators(it) }
     }
 
@@ -359,6 +328,21 @@ class GameStateMachine(
     }
 
     private fun emitEffect(effect: GameEffect) = _effects.tryEmit(effect)
+
+    private fun scheduleMismatchProcessing(state: MemoryGameState) {
+        if (scope.isActive) {
+            scope.launch {
+                val delayMs =
+                    if (state.activeMutators.contains(DailyChallengeMutator.BLACKOUT)) {
+                        MISMATCH_DELAY_MS / 2
+                    } else {
+                        MISMATCH_DELAY_MS
+                    }
+                delay(delayMs)
+                dispatch(GameAction.ProcessMismatch)
+            }
+        }
+    }
 
     companion object {
         const val MISMATCH_DELAY_MS = TimeConstants.MILLIS_IN_SECOND
