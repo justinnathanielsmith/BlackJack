@@ -17,7 +17,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.map
@@ -50,17 +49,17 @@ class DefaultStatsComponent(
 
         selectedGameMode
             .flatMapLatest { mode ->
-                val difficulties = DifficultyLevel.defaultLevels
-                val flows =
-                    difficulties.map { level ->
-                        leaderboardRepository.getTopEntries(level.pairs, mode).map { entries ->
-                            level to
-                                entries.toImmutableList()
+                leaderboardRepository.getAllTopEntries(mode).map { allEntries ->
+                    val groupedEntries = allEntries.groupBy { it.pairCount }
+
+                    val difficulties = DifficultyLevel.defaultLevels
+                    val pairs =
+                        difficulties.map { level ->
+                            level to (groupedEntries[level.pairs] ?: emptyList()).toImmutableList()
                         }
-                    }
-                combine(flows) { pairs ->
+
                     StatsState(
-                        difficultyLeaderboards = pairs.toList().toImmutableList(),
+                        difficultyLeaderboards = pairs.toImmutableList(),
                         selectedGameMode = mode,
                     )
                 }
