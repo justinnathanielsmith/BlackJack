@@ -37,3 +37,7 @@
 ## 2026-10-27 - SnapshotStateList Overhead in Animation Loops
 **Learning:** Using `mutableStateListOf` for high-frequency particle systems (60fps) adds significant overhead due to state tracking and notifications on every update/removal. When the animation loop is already driven by a frame clock (e.g. `withFrameNanos`), the list's reactivity is redundant.
 **Action:** Use standard `mutableListOf` (ArrayList) for internal state in high-frequency animation loops where redraws are manually triggered by a frame state or clock.
+
+## 2026-10-28 - Brush/ShaderBrush Limitations for Animations
+**Learning:** `androidx.compose.ui.graphics.Brush` is a sealed class in Compose Multiplatform and cannot be extended. Furthermore, `ShaderBrush` (the primary way to create custom shaders) internally caches the resulting `Shader` based exclusively on the `Size` of the drawing area. This means you cannot use `ShaderBrush` for continuous animations (like translation) where the animated value changes every frame but the component size remains constant—the shader will freeze after the first frame.
+**Action:** When animating visual properties like translation inside a `TextStyle` or where you must provide a `Brush` instance, it cannot be easily decoupled from recomposition using standard `ShaderBrush`. Fallback to passing `State<T>` to layout/draw modifiers (e.g., `graphicsLayer`, `drawWithCache`) on container elements where possible, rather than trying to animate the `Brush` itself.

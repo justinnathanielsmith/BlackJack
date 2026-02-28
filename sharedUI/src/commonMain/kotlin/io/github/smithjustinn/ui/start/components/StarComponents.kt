@@ -9,12 +9,11 @@ import androidx.compose.animation.core.infiniteRepeatable
 import androidx.compose.animation.core.rememberInfiniteTransition
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Canvas
-import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.Box
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.State
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.scale
+import androidx.compose.ui.draw.drawWithCache
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.graphics.StrokeCap
 import androidx.compose.ui.graphics.drawscope.Stroke
@@ -42,11 +41,11 @@ private const val STAR_GLOW_ALPHA = 0.3f
 private const val STAR_STROKE_WIDTH_DP = 2
 
 private data class StarAnimationValues(
-    val floatX: Float,
-    val floatY: Float,
-    val scale: Float,
-    val alpha: Float,
-    val rotation: Float,
+    val floatX: State<Float>,
+    val floatY: State<Float>,
+    val scale: State<Float>,
+    val alpha: State<Float>,
+    val rotation: State<Float>,
 )
 
 @Composable
@@ -124,11 +123,11 @@ private fun rememberStarRotation(
 private fun rememberStarAnimationValues(delayMillis: Int): StarAnimationValues {
     val infiniteTransition = rememberInfiniteTransition(label = "star_anim")
 
-    val floatX by rememberStarFloatX(infiniteTransition, delayMillis)
-    val floatY by rememberStarFloatY(infiniteTransition, delayMillis)
-    val scale by rememberStarPulse(infiniteTransition, delayMillis, STAR_MIN_SCALE, STAR_MAX_SCALE, "scale")
-    val alpha by rememberStarPulse(infiniteTransition, delayMillis, STAR_MIN_ALPHA, STAR_MAX_ALPHA, "alpha")
-    val rotation by rememberStarRotation(infiniteTransition, delayMillis)
+    val floatX = rememberStarFloatX(infiniteTransition, delayMillis)
+    val floatY = rememberStarFloatY(infiniteTransition, delayMillis)
+    val scale = rememberStarPulse(infiniteTransition, delayMillis, STAR_MIN_SCALE, STAR_MAX_SCALE, "scale")
+    val alpha = rememberStarPulse(infiniteTransition, delayMillis, STAR_MIN_ALPHA, STAR_MAX_ALPHA, "alpha")
+    val rotation = rememberStarRotation(infiniteTransition, delayMillis)
 
     return StarAnimationValues(floatX, floatY, scale, alpha, rotation)
 }
@@ -143,38 +142,47 @@ fun AnimatedStar(
     StarDrawing(
         modifier =
             modifier
-                .offset(x = animValues.floatX.dp, y = animValues.floatY.dp)
-                .scale(animValues.scale)
-                .alpha(animValues.alpha)
-                .graphicsLayer { rotationZ = animValues.rotation },
+                // Bolt: Passing State<Float> and reading values inside graphicsLayer defers state reads
+                // to the draw phase, preventing full recomposition on every frame.
+                .graphicsLayer {
+                    translationX = animValues.floatX.value.dp.toPx()
+                    translationY = animValues.floatY.value.dp.toPx()
+                    scaleX = animValues.scale.value
+                    scaleY = animValues.scale.value
+                    alpha = animValues.alpha.value
+                    rotationZ = animValues.rotation.value
+                },
     )
 }
 
 @Composable
 private fun StarDrawing(modifier: Modifier = Modifier) {
-    Canvas(modifier = modifier) {
-        val center = center
-        val radius = size.minDimension / 2
+    Box(
+        modifier = modifier.drawWithCache {
+            // Bolt: Using drawWithCache prevents creating Path, Stroke, and Color objects on every frame, reducing allocation churn.
+            val centerX = size.width / 2f
+            val centerY = size.height / 2f
+            val radius = size.minDimension / 2f
 
-        // Drawing a 4-pointed star (sparkle)
-        val path =
-            Path().apply {
-                moveTo(center.x, center.y - radius)
-                quadraticTo(center.x, center.y, center.x + radius, center.y)
-                quadraticTo(center.x, center.y, center.x, center.y + radius)
-                quadraticTo(center.x, center.y, center.x - radius, center.y)
-                quadraticTo(center.x, center.y, center.x, center.y - radius)
+            // Drawing a 4-pointed star (sparkle)
+            val path = Path().apply {
+                moveTo(centerX, centerY - radius)
+                quadraticTo(centerX, centerY, centerX + radius, centerY)
+                quadraticTo(centerX, centerY, centerX, centerY + radius)
+                quadraticTo(centerX, centerY, centerX - radius, centerY)
+                quadraticTo(centerX, centerY, centerX, centerY - radius)
                 close()
             }
 
-        // Outer glow
-        drawPath(
-            path = path,
-            color = ModernGold.copy(alpha = STAR_GLOW_ALPHA),
-            style = Stroke(width = STAR_STROKE_WIDTH_DP.dp.toPx(), cap = StrokeCap.Round),
-        )
+            val strokeStyle = Stroke(width = STAR_STROKE_WIDTH_DP.dp.toPx(), cap = StrokeCap.Round)
+            val glowColor = ModernGold.copy(alpha = STAR_GLOW_ALPHA)
 
-        // Core
-        drawPath(path, ModernGold)
-    }
+            onDrawBehind {
+                // Outer glow
+                drawPath(path = path, color = glowColor, style = strokeStyle)
+                // Core
+                drawPath(path = path, color = ModernGold)
+            }
+        }
+    )
 }
