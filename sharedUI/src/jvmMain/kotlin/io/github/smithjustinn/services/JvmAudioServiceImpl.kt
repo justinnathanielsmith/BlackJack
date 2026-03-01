@@ -81,18 +81,23 @@ class JvmAudioServiceImpl(
         }
     }
 
+    private suspend fun getAudioFile(resource: StringResource): File {
+        val name = getString(resource)
+        val fileName = "$name.m4a"
+        val tempFile = File(tempCacheDir, fileName)
+
+        if (!tempFile.exists()) {
+            val bytes = Res.readBytes("files/$fileName")
+            FileOutputStream(tempFile).use { it.write(bytes) }
+        }
+
+        return tempFile
+    }
+
     private suspend fun loadSound(resource: StringResource): MediaPlayer? =
         withContext(Dispatchers.IO) {
             try {
-                val name = getString(resource)
-                val fileName = "$name.m4a"
-                val tempFile = File(tempCacheDir, fileName)
-
-                if (!tempFile.exists()) {
-                    val bytes = Res.readBytes("files/$fileName")
-                    FileOutputStream(tempFile).use { it.write(bytes) }
-                }
-
+                val tempFile = getAudioFile(resource)
                 val media = Media(tempFile.toURI().toString())
                 val player = MediaPlayer(media)
                 player.volume = soundVolume.toDouble()
@@ -143,15 +148,7 @@ class JvmAudioServiceImpl(
         scope.launch {
             try {
                 if (musicPlayer == null) {
-                    val name = getString(AudioService.MUSIC)
-                    val fileName = "$name.m4a"
-                    val tempFile = File(tempCacheDir, fileName)
-
-                    if (!tempFile.exists()) {
-                        val bytes = Res.readBytes("files/$fileName")
-                        FileOutputStream(tempFile).use { it.write(bytes) }
-                    }
-
+                    val tempFile = getAudioFile(AudioService.MUSIC)
                     val media = Media(tempFile.toURI().toString())
                     musicPlayer =
                         MediaPlayer(media).apply {

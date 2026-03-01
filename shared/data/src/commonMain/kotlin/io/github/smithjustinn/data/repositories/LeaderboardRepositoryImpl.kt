@@ -29,6 +29,17 @@ class LeaderboardRepositoryImpl(
                 emit(emptyList())
             }
 
+    override fun getAllTopEntries(gameMode: GameMode): Flow<List<LeaderboardEntry>> =
+        dao
+            .getAllTopEntries(gameMode)
+            .map { entities ->
+                entities.map { it.toDomain() }
+            }.catch { e ->
+                if (e is CancellationException) throw e
+                logger.e(e) { "Error fetching all leaderboards for mode: $gameMode" }
+                emit(emptyList())
+            }
+
     @Suppress("TooGenericExceptionCaught")
     override suspend fun addEntry(entry: LeaderboardEntry) {
         try {
