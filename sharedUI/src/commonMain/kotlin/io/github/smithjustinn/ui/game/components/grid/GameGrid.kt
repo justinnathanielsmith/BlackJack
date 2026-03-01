@@ -221,6 +221,11 @@ private fun GridContent(
             gridCardState.lastMatchedIds.toSet()
         }
 
+    val gridContext =
+        remember(layoutConfig.metrics.maxWidth, screenHeight, gridPosition) {
+            GridContext(layoutConfig.metrics.maxWidth, screenHeight, gridPosition)
+        }
+
     LazyVerticalGrid(
         columns = layoutConfig.metrics.cells,
         contentPadding =
@@ -248,9 +253,7 @@ private fun GridContent(
                 cardTheme = settings.cardTheme,
                 areSuitsMultiColored = settings.areSuitsMultiColored,
                 isThirdEyeEnabled = settings.isThirdEyeEnabled,
-                maxWidth = layoutConfig.metrics.maxWidth,
-                screenHeight = screenHeight,
-                gridPosition = gridPosition,
+                gridContext = gridContext,
                 cardLayouts = cardLayouts,
                 onCardClick = onCardClick,
             )
@@ -268,9 +271,7 @@ private fun GridItem(
     cardTheme: CardTheme,
     areSuitsMultiColored: Boolean,
     isThirdEyeEnabled: Boolean,
-    maxWidth: Dp,
-    screenHeight: Dp,
-    gridPosition: Offset,
+    gridContext: GridContext,
     cardLayouts: SnapshotStateMap<Int, CardLayoutInfo>,
     onCardClick: (Int) -> Unit,
 ) {
@@ -285,9 +286,7 @@ private fun GridItem(
             index = index,
             totalCards = totalCards,
             density = density,
-            maxWidth = maxWidth,
-            screenHeight = screenHeight,
-            gridPosition = gridPosition,
+            gridContext = gridContext,
             layoutInfo = layoutInfo,
         )
 
@@ -338,9 +337,7 @@ private fun rememberCardMuckTarget(
     index: Int,
     totalCards: Int,
     density: Density,
-    maxWidth: Dp,
-    screenHeight: Dp,
-    gridPosition: Offset,
+    gridContext: GridContext,
     layoutInfo: CardLayoutInfo?,
 ): CardMuckTarget {
     val (fanRotation, fanSpreadX) =
@@ -354,22 +351,20 @@ private fun rememberCardMuckTarget(
     val offset =
         remember(
             density,
-            maxWidth,
-            screenHeight,
-            gridPosition,
+            gridContext,
             layoutInfo,
             fanSpreadX,
         ) {
             with(density) {
                 val muckTarget =
                     Offset(
-                        maxWidth.toPx() / 2 + fanSpreadX.dp.toPx(),
-                        screenHeight.toPx() - MUCK_BOTTOM_OFFSET_DP.dp.toPx(),
+                        gridContext.maxWidth.toPx() / 2 + fanSpreadX.dp.toPx(),
+                        gridContext.screenHeight.toPx() - MUCK_BOTTOM_OFFSET_DP.dp.toPx(),
                     )
                 layoutInfo?.let { info ->
                     IntOffset(
-                        (muckTarget.x - (info.position.x - gridPosition.x) - info.size.width / 2).toInt(),
-                        (muckTarget.y - (info.position.y - gridPosition.y) - info.size.height / 2).toInt(),
+                        (muckTarget.x - (info.position.x - gridContext.gridPosition.x) - info.size.width / 2).toInt(),
+                        (muckTarget.y - (info.position.y - gridContext.gridPosition.y) - info.size.height / 2).toInt(),
                     )
                 } ?: IntOffset(0, MUCK_TARGET_FALLBACK_Y)
             }

@@ -1,6 +1,7 @@
 package io.github.smithjustinn.ui.game.components.grid
 
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.unit.Dp
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.CardTheme
@@ -44,4 +45,10 @@ internal data class GridScreenConfig(
     val isWide: Boolean,
     val isLandscape: Boolean,
     val isCompactHeight: Boolean,
+)
+
+internal data class GridContext(
+    val maxWidth: Dp,
+    val screenHeight: Dp,
+    val gridPosition: Offset,
 )
