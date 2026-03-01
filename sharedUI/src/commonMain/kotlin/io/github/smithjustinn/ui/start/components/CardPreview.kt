@@ -112,42 +112,56 @@ fun CardPreview(
         isFanned = true
     }
 
-    val fanMultiplier by animateFloatAsState(
-        targetValue = if (isFanned) 1f else 0f,
-        animationSpec = tween(CARD_FAN_DURATION, easing = FastOutSlowInEasing),
-        label = "fan_multiplier",
-    )
+    // Bolt: Deferred state read optimization
+    // We pass State<Float> values via lambdas to children. The states are only read inside
+    // Modifier.graphicsLayer during the draw phase. This entirely skips the recomposition
+    // and layout phases for every frame of these infinite animations.
+    val fanMultiplierState =
+        animateFloatAsState(
+            targetValue = if (isFanned) 1f else 0f,
+            animationSpec = tween(CARD_FAN_DURATION, easing = FastOutSlowInEasing),
+            label = "fan_multiplier",
+        )
 
     val infiniteTransition = rememberInfiniteTransition(label = "card_preview_anim")
 
-    val rotation by infiniteTransition.animateFloat(
-        initialValue = -CARD_MAX_ROTATION_Z,
-        targetValue = CARD_MAX_ROTATION_Z,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(CARD_ROTATION_DURATION, easing = EaseInOutSine),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "rotation",
-    )
+    val rotationState =
+        infiniteTransition.animateFloat(
+            initialValue = -CARD_MAX_ROTATION_Z,
+            targetValue = CARD_MAX_ROTATION_Z,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(CARD_ROTATION_DURATION, easing = EaseInOutSine),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "rotation",
+        )
 
-    val floatOffset by infiniteTransition.animateFloat(
-        initialValue = -CARD_MAX_FLOAT_OFFSET,
-        targetValue = CARD_MAX_FLOAT_OFFSET,
-        animationSpec =
-            infiniteRepeatable(
-                animation = tween(CARD_FLOAT_DURATION, easing = EaseInOutSine),
-                repeatMode = RepeatMode.Reverse,
-            ),
-        label = "float",
-    )
+    val floatOffsetState =
+        infiniteTransition.animateFloat(
+            initialValue = -CARD_MAX_FLOAT_OFFSET,
+            targetValue = CARD_MAX_FLOAT_OFFSET,
+            animationSpec =
+                infiniteRepeatable(
+                    animation = tween(CARD_FLOAT_DURATION, easing = EaseInOutSine),
+                    repeatMode = RepeatMode.Reverse,
+                ),
+            label = "float",
+        )
 
     Box(
         modifier = modifier.fillMaxWidth(),
         contentAlignment = Alignment.Center,
     ) {
         BackgroundGlow()
-        CardStack(floatOffset, rotation, fanMultiplier, backTheme, symbolTheme, areSuitsMultiColored)
+        CardStack(
+            floatOffsetProvider = { floatOffsetState.value },
+            rotationProvider = { rotationState.value },
+            fanMultiplierProvider = { fanMultiplierState.value },
+            backTheme = backTheme,
+            symbolTheme = symbolTheme,
+            areSuitsMultiColored = areSuitsMultiColored,
+        )
         StarsLayer()
     }
 }
@@ -177,9 +191,9 @@ private fun BackgroundGlow() {
 
 @Composable
 private fun CardStack(
-    floatOffset: Float,
-    rotation: Float,
-    fanMultiplier: Float,
+    floatOffsetProvider: () -> Float,
+    rotationProvider: () -> Float,
+    fanMultiplierProvider: () -> Float,
     backTheme: CardBackTheme,
     symbolTheme: CardSymbolTheme,
     areSuitsMultiColored: Boolean,
@@ -187,24 +201,24 @@ private fun CardStack(
     Row(
         horizontalArrangement = Arrangement.spacedBy(CARD_SPACING.dp),
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier.offset(y = floatOffset.dp),
+        modifier = Modifier.graphicsLayer { translationY = floatOffsetProvider().dp.toPx() },
     ) {
         PreviewCard(
-            Suit.Hearts,
-            -BASE_ROTATION * fanMultiplier + rotation,
-            CARD_FRONT_Z_INDEX,
-            backTheme,
-            symbolTheme,
-            areSuitsMultiColored,
+            suit = Suit.Hearts,
+            rotationProvider = { -BASE_ROTATION * fanMultiplierProvider() + rotationProvider() },
+            zIndex = CARD_FRONT_Z_INDEX,
+            backTheme = backTheme,
+            symbolTheme = symbolTheme,
+            areSuitsMultiColored = areSuitsMultiColored,
         )
         PreviewCard(
-            Suit.Spades,
-            BASE_ROTATION * fanMultiplier - rotation,
-            CARD_BACK_Z_INDEX,
-            backTheme,
-            symbolTheme,
-            areSuitsMultiColored,
-            CARD_TRANSLATION_Y,
+            suit = Suit.Spades,
+            rotationProvider = { BASE_ROTATION * fanMultiplierProvider() - rotationProvider() },
+            zIndex = CARD_BACK_Z_INDEX,
+            backTheme = backTheme,
+            symbolTheme = symbolTheme,
+            areSuitsMultiColored = areSuitsMultiColored,
+            translationY = CARD_TRANSLATION_Y,
         )
     }
 }
@@ -212,7 +226,7 @@ private fun CardStack(
 @Composable
 private fun PreviewCard(
     suit: Suit,
-    rotationZ: Float,
+    rotationProvider: () -> Float,
     zIndex: Float,
     backTheme: CardBackTheme,
     symbolTheme: CardSymbolTheme,
@@ -237,7 +251,7 @@ private fun PreviewCard(
                 .width(CARD_WIDTH.dp)
                 .zIndex(zIndex)
                 .graphicsLayer {
-                    this.rotationZ = rotationZ
+                    this.rotationZ = rotationProvider()
                     this.translationY = translationY
                 },
     )

@@ -45,6 +45,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.ScoreBreakdown
 import io.github.smithjustinn.resources.Res
@@ -69,6 +70,7 @@ import io.github.smithjustinn.resources.share_receipt
 import io.github.smithjustinn.resources.time_label
 import io.github.smithjustinn.resources.times_up
 import io.github.smithjustinn.resources.total_payout
+import io.github.smithjustinn.services.HapticFeedbackType
 import io.github.smithjustinn.ui.components.ShopIcons
 import org.jetbrains.compose.resources.StringResource
 import org.jetbrains.compose.resources.stringResource
@@ -385,9 +387,14 @@ private fun ResultsActions(
     onDoubleRewards: () -> Unit,
     canDoubleRewards: Boolean,
 ) {
+    val hapticsService = LocalAppGraph.current.hapticsService
+
     if (canDoubleRewards) {
         Button(
-            onClick = onDoubleRewards,
+            onClick = {
+                hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+                onDoubleRewards()
+            },
             modifier = Modifier.fillMaxWidth(),
             colors =
                 ButtonDefaults.buttonColors(
@@ -418,7 +425,10 @@ private fun ResultsActions(
     }
 
     Button(
-        onClick = onPlayAgain,
+        onClick = {
+            hapticsService.performHapticFeedback(HapticFeedbackType.HEAVY)
+            onPlayAgain()
+        },
         modifier = Modifier.fillMaxWidth(),
         colors =
             ButtonDefaults.buttonColors(
@@ -438,7 +448,10 @@ private fun ResultsActions(
     }
 
     OutlinedButton(
-        onClick = onShareReplay,
+        onClick = {
+            hapticsService.performHapticFeedback(HapticFeedbackType.LIGHT)
+            onShareReplay()
+        },
         modifier = Modifier.fillMaxWidth(),
         colors =
             ButtonDefaults.outlinedButtonColors(
