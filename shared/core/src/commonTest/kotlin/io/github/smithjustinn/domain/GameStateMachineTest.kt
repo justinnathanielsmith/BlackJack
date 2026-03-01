@@ -10,6 +10,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.UnconfinedTestDispatcher
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import kotlin.test.Test
 import kotlin.test.assertEquals
@@ -212,5 +213,172 @@ class GameStateMachineTest {
                 stateMachine.state.value.cards
                     .first()
             assertTrue(card.isError)
+        }
+
+    @Test
+    fun `ScanCards action flips unmatched face-down cards up and then back down after duration`() =
+        runTest(testDispatcher) {
+            val initialState =
+                MemoryGameState(
+                    cards =
+                        persistentListOf(
+                            CardState(id = 0, suit = Suit.Hearts, rank = Rank.Ace, isFaceUp = false, isMatched = false),
+                            CardState(id = 1, suit = Suit.Spades, rank = Rank.King, isFaceUp = true, isMatched = true),
+                            CardState(id = 2, suit = Suit.Clubs, rank = Rank.Two, isFaceUp = true, isMatched = false),
+                        ),
+                )
+
+            val stateMachine =
+                GameStateMachine(
+                    scope = backgroundScope,
+                    dispatchers = dispatchers,
+                    initialState = initialState,
+                    initialTimeSeconds = 100L,
+                    onSaveState = { _, _ -> },
+                    isResumed = false,
+                )
+
+            val durationMs = 1000L
+            stateMachine.dispatch(GameAction.ScanCards(durationMs))
+            runCurrent()
+
+            // Card 0 should be face up now (scanned)
+            // Card 1 is already face up and matched
+            // Card 2 is already face up
+            var cards = stateMachine.state.value.cards
+            assertTrue(cards[0].isFaceUp)
+            assertTrue(cards[1].isFaceUp)
+            assertTrue(cards[2].isFaceUp)
+
+            // Advance time past the duration
+            advanceTimeBy(durationMs + 1)
+            runCurrent()
+
+            // Card 0 should be back face down
+            // Card 1 should remain face up (matched)
+            // Card 2 should remain face down? Wait, looking at the code for ScanCards:
+            // if (!card.isMatched && card.isFaceUp) { list[i] = card.copy(isFaceUp = false) }
+            // This flips ALL unmatched face-up cards down! Including Card 2 which was face up before the scan!
+            // We should assert this behavior.
+            cards = stateMachine.state.value.cards
+            assertFalse(cards[0].isFaceUp)
+            assertTrue(cards[1].isFaceUp)
+            assertFalse(cards[2].isFaceUp)
+        }
+
+    @Test
+    fun `ScanCards action cancels existing scan when dispatched again`() =
+        runTest(testDispatcher) {
+            val initialState =
+                MemoryGameState(
+                    cards =
+                        persistentListOf(
+                            CardState(id = 0, suit = Suit.Hearts, rank = Rank.Ace, isFaceUp = false, isMatched = false),
+                        ),
+                )
+
+            val stateMachine =
+                GameStateMachine(
+                    scope = backgroundScope,
+                    dispatchers = dispatchers,
+                    initialState = initialState,
+                    initialTimeSeconds = 100L,
+                    onSaveState = { _, _ -> },
+                    isResumed = false,
+                )
+
+            val durationMs1 = 1000L
+            val durationMs2 = 2000L
+
+            stateMachine.dispatch(GameAction.ScanCards(durationMs1))
+            runCurrent()
+
+            // State should be face up
+            assertTrue(
+                stateMachine.state.value.cards[0]
+                    .isFaceUp,
+            )
+
+            // Advance time halfway through the first duration
+            advanceTimeBy(500L)
+            runCurrent()
+
+            // Dispatch second scan
+            stateMachine.dispatch(GameAction.ScanCards(durationMs2))
+            runCurrent()
+
+            // Still face up
+            assertTrue(
+                stateMachine.state.value.cards[0]
+                    .isFaceUp,
+            )
+
+            // Advance past original duration (total time 1500L, original was 1000L)
+            // At this point, the second job is 1000L into its 2000L delay
+            advanceTimeBy(1000L)
+            runCurrent()
+
+            // Should STILL be face up because the first job was cancelled
+            assertTrue(
+                stateMachine.state.value.cards[0]
+                    .isFaceUp,
+            )
+
+            // Advance past the new duration (total time since second scan: 500L + 1000L + 1000L = 2500L)
+            advanceTimeBy(1000L + 1)
+            runCurrent()
+
+            // Now it should be face down
+            assertFalse(
+                stateMachine.state.value.cards[0]
+                    .isFaceUp,
+            )
+        }
+
+    @Test
+    fun `ScanCards does not affect already matched cards`() =
+        runTest(testDispatcher) {
+            val initialState =
+                MemoryGameState(
+                    cards =
+                        persistentListOf(
+                            CardState(id = 0, suit = Suit.Hearts, rank = Rank.Ace, isFaceUp = true, isMatched = true),
+                        ),
+                )
+
+            val stateMachine =
+                GameStateMachine(
+                    scope = backgroundScope,
+                    dispatchers = dispatchers,
+                    initialState = initialState,
+                    initialTimeSeconds = 100L,
+                    onSaveState = { _, _ -> },
+                    isResumed = false,
+                )
+
+            stateMachine.dispatch(GameAction.ScanCards(1000L))
+            runCurrent()
+
+            assertTrue(
+                stateMachine.state.value.cards[0]
+                    .isFaceUp,
+            )
+            assertTrue(
+                stateMachine.state.value.cards[0]
+                    .isMatched,
+            )
+
+            advanceTimeBy(1000L + 1)
+            runCurrent()
+
+            // Should remain face up
+            assertTrue(
+                stateMachine.state.value.cards[0]
+                    .isFaceUp,
+            )
+            assertTrue(
+                stateMachine.state.value.cards[0]
+                    .isMatched,
+            )
         }
 }
