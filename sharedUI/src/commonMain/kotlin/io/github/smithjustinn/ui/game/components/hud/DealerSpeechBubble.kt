@@ -17,11 +17,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
+import androidx.compose.ui.semantics.clearAndSetSemantics
+import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -52,7 +59,34 @@ private fun SpeechBubbleContent(matchComment: MatchComment) {
     @Suppress("SpreadOperator")
     val commentText = stringResource(matchComment.res, *matchComment.args.toTypedArray())
 
-    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+    var displayedText by remember(commentText) { mutableStateOf("") }
+
+    LaunchedEffect(commentText) {
+        displayedText = ""
+        var currentIndex = 0
+        while (currentIndex < commentText.length) {
+            kotlinx.coroutines.delay(30)
+
+            // Advance by length to avoid splitting surrogate pairs
+            val charLength =
+                if (commentText[currentIndex].isHighSurrogate() && currentIndex + 1 < commentText.length) {
+                    2
+                } else {
+                    1
+                }
+            currentIndex += charLength
+
+            displayedText = commentText.substring(0, currentIndex)
+        }
+    }
+
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier =
+            Modifier.clearAndSetSemantics {
+                contentDescription = commentText
+            },
+    ) {
         // Bubble Body
         Box(
             modifier =
@@ -66,7 +100,7 @@ private fun SpeechBubbleContent(matchComment: MatchComment) {
                     .widthIn(max = 280.dp),
         ) {
             Text(
-                text = commentText,
+                text = displayedText,
                 style =
                     MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = FontFamily.Serif,
