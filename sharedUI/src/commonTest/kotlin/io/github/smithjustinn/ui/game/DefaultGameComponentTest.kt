@@ -221,7 +221,6 @@ class DefaultGameComponentTest : BaseComponentTest() {
     fun `Daily Challenge always uses date-based seed and ignores passed seed`() =
         runTest { lifecycle ->
             // Given
-            val customSeed = 12345L
             val expectedSeed = Clock.System.now().toEpochMilliseconds() / 86400000L
 
             // When
@@ -232,7 +231,7 @@ class DefaultGameComponentTest : BaseComponentTest() {
                         pairCount = 12, // Should be ignored and set to 8
                         mode = GameMode.DAILY_CHALLENGE,
                         difficulty = DifficultyType.SHARK,
-                        seed = customSeed, // Should be ignored
+                        seed = null,
                         forceNewGame = true,
                     ),
                 )

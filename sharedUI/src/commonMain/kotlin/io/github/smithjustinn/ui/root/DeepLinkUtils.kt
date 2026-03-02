@@ -33,7 +33,7 @@ object DeepLinkUtils {
                 (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT)
                     .coerceIn(GameArgs.MIN_PAIRS, GameArgs.MAX_PAIRS)
 
-            val seed = seedStr?.toLongOrNull()
+            val seed = if (mode == GameMode.DAILY_CHALLENGE) null else seedStr?.toLongOrNull()
 
             DeepLinkParams(mode, pairs, seed)
         } catch (

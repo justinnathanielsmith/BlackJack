@@ -134,6 +134,19 @@ While higher-level logic might enforce these constraints, direct calls to the re
 1.  Added strict `require` checks in `saveChallengeResult`: `score >= 0`, `timeSeconds >= 0`, `moves >= 0`, `date > 0`.
 2.  Verified with reproduction test `DailyChallengeRepositorySecurityTest.kt`.
 
+## 2026-02-15 - [Seed Injection via Deep Link in Daily Challenge]
+**Type:** Validation
+**Severity:** MEDIUM
+**Component:** `sharedUI` / `GameArgs`, `DeepLinkUtils`
+
+**Finding:**
+It was possible to inject a specific seed into the `DAILY_CHALLENGE` mode using a deep link (e.g. `memorymatch://game?mode=DAILY_CHALLENGE&seed=12345`). This bypasses the intended deterministic nature of the daily challenge, potentially allowing users to practice or share specific "easy" seeds and compromise leaderboards.
+
+**Remediation:**
+1. Added validation in `GameArgs` to throw an exception if a non-null seed is provided when the mode is `GameMode.DAILY_CHALLENGE`.
+2. Modified `DeepLinkUtils.parseDeepLink` to set the parsed seed to `null` if the mode is `GameMode.DAILY_CHALLENGE`.
+3. Verified via tests in `GameArgsTest` and `DeepLinkUtilsTest`.
+
 ## 2026-02-14 - [Score Manipulation via Negative Time]
 **Vulnerability:** Input Validation / Score Manipulation
 **Severity:** MEDIUM

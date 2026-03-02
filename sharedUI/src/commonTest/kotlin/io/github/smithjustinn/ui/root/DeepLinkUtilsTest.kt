@@ -41,6 +41,16 @@ class DeepLinkUtilsTest {
     }
 
     @Test
+    fun `deep link with DAILY_CHALLENGE ignores seed`() {
+        val url = "memorymatch://game?mode=DAILY_CHALLENGE&pairs=8&seed=12345"
+        val params = DeepLinkUtils.parseDeepLink(url)
+
+        assertNotNull(params)
+        assertEquals(GameMode.DAILY_CHALLENGE, params.mode)
+        assertNull(params.seed)
+    }
+
+    @Test
     fun `deep link pairs are coerced`() {
         // Too small
         val url = "memorymatch://game?pairs=1"
