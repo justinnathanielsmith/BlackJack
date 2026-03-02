@@ -19,5 +19,8 @@ data class GameArgs(
         require(pairCount in MIN_PAIRS..MAX_PAIRS) {
             "pairCount must be between $MIN_PAIRS and $MAX_PAIRS"
         }
+        require(mode != GameMode.DAILY_CHALLENGE || seed == null) {
+            "Seed cannot be specified for DAILY_CHALLENGE mode"
+        }
     }
 }

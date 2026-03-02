@@ -33,4 +33,17 @@ class GameArgsTest {
             }
         }
     }
+
+    @Test
+    fun `should throw exception if seed is specified in DAILY_CHALLENGE mode`() {
+        assertFailsWith<IllegalArgumentException> {
+            GameArgs(
+                pairCount = 8,
+                mode = GameMode.DAILY_CHALLENGE,
+                difficulty = DifficultyType.CASUAL,
+                forceNewGame = true,
+                seed = 12345L,
+            )
+        }
+    }
 }
