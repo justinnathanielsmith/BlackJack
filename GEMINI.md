@@ -1,68 +1,50 @@
 # 🧩 Memory-Match: Project Intelligence (GEMINI.md)
 
-This document serves as the **Immutable Source of Truth** and instructional context for Gemini CLI and other AI agents interacting with the Memory-Match project.
-
-## 🚀 Project Overview
-
-**Memory-Match** is a premium, cross-platform memory game built with **Kotlin Multiplatform (KMP)** and **Compose Multiplatform (1.10.0+)**. It leverages modern 2026 standards, focusing on clean architecture, high-performance state management, and an "AI-Agentic" development workflow.
-
-### 🏗️ Architecture & Tech Stack
-
-The project follows a **Local-First, Modular-Core** strategy:
-
-- **UI Layer (`sharedUI`)**: Uses **Compose Multiplatform** for shared rendering and **Decompose** for lifecycle-aware navigation and component-based logic.
-- **Core Layer (`shared:core`)**: The "Brain" of the app. Contains the **GameStateMachine** (managed via a custom DSL), domain models, and core business logic (Scoring, Time Attack).
-- **Data Layer (`shared:data`)**: The "Memory". Implements **Room KMP** for local persistence and **Ktor** for networking.
-- **Dependency Injection**: Powered by **Koin (4.1.1+)**, favoring **Context Parameters** for boilerplate-free injection.
-
-### 🎮 Key Features
-- **Heat System**: A combo-driven mechanic that triggers "Heat Mode" with visual transformations and haptic feedback.
-- **Time Attack & Daily Challenge**: Distinct game modes with specialized logic.
-- **Shop System**: Customization for card backs and skins.
-- **Dynamic Dealer**: AI-driven commentary based on gameplay.
-- **Robust Testing**: High coverage (90.9%+) using **Turbine** (Flows) and **Mokkery** (KSP-based mocking).
+This document serves as the **Pure Source of Truth** for the "Brain" and Architecture of the Memory-Match project. For CLI usage and general routing, see **[AGENTS.md](file:///Users/justinsmith/Projects/memory-match/work/AGENTS.md)**.
 
 ---
 
-## 🛠️ Building and Running
+## 🚀 1. Architecture Overview
 
-Always prefer specific module tasks to avoid building all targets unnecessarily.
+Memory-Match follows a **Local-First, Modular-Core** strategy:
 
-### 📦 Key Commands
-
-| Task | Command |
-| :--- | :--- |
-| **Check Compilation** | `./gradlew :sharedUI:compileCommonMainKotlinMetadata` |
-| **Run Android** | `./gradlew :androidApp:installDebug` |
-| **Run Desktop** | `./gradlew :desktopApp:run` |
-| **Run All Tests** | `./run_tests.sh` |
-| **Linting (Check)** | `./gradlew detekt` |
-| **Linting (Apply)** | `./gradlew spotlessApply` |
-| **Coverage Report** | `./gradlew koverHtmlReport` |
+- **UI Layer (`sharedUI`)**: Uses **Compose Multiplatform** and **Decompose** for lifecycle-aware navigation.
+- **Core Layer (`shared:core`)**: The "Brain". Contains the **GameStateMachine** (managed via a custom DSL).
+- **Data Layer (`shared:data`)**: The "Memory". Implements **Room KMP** for local persistence.
+- **Dependency Injection**: Powered by **Koin (4.1.1+)**, favoring **Context Parameters**.
 
 ---
 
-## 📏 Development Conventions (2026 Standards)
+## 🧠 2. GameStateMachine DSL
 
-Adhere strictly to these patterns to maintain code health and agent compatibility.
+The core game logic is expressed via a custom DSL located in `:shared:core`.
 
-### 🚫 Prohibited Patterns ("The Kill List")
-- **NO `viewModelScope`**: Use `componentScope` (Decompose-native).
-- **NO `!!`**: Use `requireNotNull()` or safe calls `?.`.
-- **NO Hardcoded Strings**: Always use `Res.string.key`.
-- **NO Platform Leakage**: Keep `java.*` or `android.*` out of `commonMain`.
-- **NO Logic in UI**: Move all decision-making to `Components` or `StateMachines`.
+### 🎛️ Key Patterns
+*   **State Alignment**: Every UI event must map to a `GameIntent`.
+*   **Immutable Reducers**: The state machine uses atomic updates to ensure consistency.
+*   **Heat Logic**: Managed entirely within the state machine to trigger visual/haptic effects.
+
+---
+
+## 📏 3. Development Conventions (Soul)
 
 ### ✅ Preferred Idioms
 - **Context Parameters**: Use `context(Service)` for dependency access.
-- **Immutable Collections**: Use `persistentListOf()`, `persistentMapOf()` for Compose state to enable **Strong Skipping**.
-- **Conventional Commits**: Use `feat:`, `fix:`, `chore:`, `refactor:`, etc.
+- **Immutable Collections**: Use `persistentListOf()`, `persistentMapOf()` for Compose state.
 - **UDF (Unidirectional Data Flow)**: Components expose `StateFlow<State>` and handle `Intents`.
 
-### 🤖 Agent Guidance
-- **Source of Truth**: Refer to `AGENTS.md` and `.agent/rules/` for granular instructions.
-- **Task Verification**: After changes, always run `:sharedUI:compileCommonMainKotlinMetadata` and relevant tests.
-- **Refactoring**: When adding features, ensure they integrate with the `GameStateMachine` and follow existing DSL patterns.
+### 🚫 Prohibited Patterns ("The Kill List")
+- **NO `viewModelScope`**: Use `componentScope`.
+- **NO Platform Leakage**: Keep `java.*` or `android.*` out of `commonMain`.
+- **NO Logic in UI**: Move decision-making to `Components` or `StateMachines`.
 
 ---
-*Last Updated: February 2026*
+
+## 🤖 4. Agent Guidance: High-Intelligence Research
+
+*   **Deep Dive**: If you are refactoring logic, spend time in `:shared:core` reading the `StateMachine` implementation.
+*   **Integration**: When adding features, ensure they follow the **[Feature Creation Checklist](file:///Users/justinsmith/Projects/memory-match/work/.agent/rules/feature-creation.md)**.
+*   **Routing**: For build/test commands, refer to **[AGENTS.md](file:///Users/justinsmith/Projects/memory-match/work/AGENTS.md)**.
+
+---
+*Last Updated: March 2026*
