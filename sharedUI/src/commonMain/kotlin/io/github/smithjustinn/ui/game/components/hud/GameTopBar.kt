@@ -30,6 +30,9 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -279,45 +282,51 @@ private fun BackButton(
     val contentDesc = stringResource(Res.string.back_content_description)
     val haptics = LocalAppGraph.current.hapticsService
 
-    IconButton(
-        onClick = {
-            haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
-            onClick()
-        },
-        modifier =
-            modifier
-                .semantics { contentDescription = contentDesc }
-                .pointerHoverIcon(PointerIcon.Hand),
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = { Text(contentDesc) },
+        state = rememberTooltipState(),
     ) {
-        Surface(
-            shape = CircleShape,
-            color = PokerTheme.colors.tacticalRed,
-            shadowElevation = PokerTheme.spacing.small,
-            modifier = Modifier.size(size),
+        IconButton(
+            onClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+                onClick()
+            },
+            modifier =
+                modifier
+                    .semantics { contentDescription = contentDesc }
+                    .pointerHoverIcon(PointerIcon.Hand),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                // Dashed border effect (simplified for icon button)
-                Canvas(modifier = Modifier.matchParentSize()) {
-                    val strokeWidth = size.toPx() * STROKE_WIDTH_FACTOR
-                    drawCircle(
-                        color = Color.White,
-                        style =
-                            Stroke(
-                                width = strokeWidth,
-                                pathEffect =
-                                    PathEffect
-                                        .dashPathEffect(floatArrayOf(DASH_ON, DASH_OFF), 0f),
-                            ),
-                        radius = this.size.minDimension / 2 * RADIUS_FACTOR,
+            Surface(
+                shape = CircleShape,
+                color = PokerTheme.colors.tacticalRed,
+                shadowElevation = PokerTheme.spacing.small,
+                modifier = Modifier.size(size),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    // Dashed border effect (simplified for icon button)
+                    Canvas(modifier = Modifier.matchParentSize()) {
+                        val strokeWidth = size.toPx() * STROKE_WIDTH_FACTOR
+                        drawCircle(
+                            color = Color.White,
+                            style =
+                                Stroke(
+                                    width = strokeWidth,
+                                    pathEffect =
+                                        PathEffect
+                                            .dashPathEffect(floatArrayOf(DASH_ON, DASH_OFF), 0f),
+                                ),
+                            radius = this.size.minDimension / 2 * RADIUS_FACTOR,
+                        )
+                    }
+
+                    Icon(
+                        AppIcons.ArrowBack,
+                        contentDescription = null,
+                        tint = PokerTheme.colors.goldenYellow,
+                        modifier = Modifier.size(if (compact) 20.dp else 24.dp),
                     )
                 }
-
-                Icon(
-                    AppIcons.ArrowBack,
-                    contentDescription = null,
-                    tint = PokerTheme.colors.goldenYellow,
-                    modifier = Modifier.size(if (compact) 20.dp else 24.dp),
-                )
             }
         }
     }
@@ -332,29 +341,35 @@ private fun RestartButton(
     val contentDesc = stringResource(Res.string.restart_content_description)
     val haptics = LocalAppGraph.current.hapticsService
 
-    IconButton(
-        onClick = {
-            haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
-            onClick()
-        },
-        modifier =
-            modifier
-                .semantics { contentDescription = contentDesc }
-                .pointerHoverIcon(PointerIcon.Hand),
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = { Text(contentDesc) },
+        state = rememberTooltipState(),
     ) {
-        Surface(
-            shape = PokerTheme.shapes.medium,
-            color = PokerTheme.colors.oakWood,
-            shadowElevation = PokerTheme.spacing.extraSmall,
-            modifier = Modifier.size(if (compact) 40.dp else 48.dp),
+        IconButton(
+            onClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+                onClick()
+            },
+            modifier =
+                modifier
+                    .semantics { contentDescription = contentDesc }
+                    .pointerHoverIcon(PointerIcon.Hand),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    AppIcons.Restart,
-                    contentDescription = null,
-                    tint = PokerTheme.colors.goldenYellow,
-                    modifier = Modifier.size(if (compact) 20.dp else 24.dp),
-                )
+            Surface(
+                shape = PokerTheme.shapes.medium,
+                color = PokerTheme.colors.oakWood,
+                shadowElevation = PokerTheme.spacing.extraSmall,
+                modifier = Modifier.size(if (compact) 40.dp else 48.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        AppIcons.Restart,
+                        contentDescription = null,
+                        tint = PokerTheme.colors.goldenYellow,
+                        modifier = Modifier.size(if (compact) 20.dp else 24.dp),
+                    )
+                }
             }
         }
     }
@@ -377,29 +392,35 @@ private fun MuteButton(
         )
     val haptics = LocalAppGraph.current.hapticsService
 
-    IconButton(
-        onClick = {
-            haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
-            onClick()
-        },
-        modifier =
-            modifier
-                .semantics { contentDescription = contentDesc }
-                .pointerHoverIcon(PointerIcon.Hand),
+    TooltipBox(
+        positionProvider = TooltipDefaults.rememberPlainTooltipPositionProvider(),
+        tooltip = { Text(contentDesc) },
+        state = rememberTooltipState(),
     ) {
-        Surface(
-            shape = PokerTheme.shapes.medium,
-            color = PokerTheme.colors.oakWood,
-            shadowElevation = PokerTheme.spacing.extraSmall,
-            modifier = Modifier.size(if (compact) 40.dp else 48.dp),
+        IconButton(
+            onClick = {
+                haptics.performHapticFeedback(HapticFeedbackType.LIGHT)
+                onClick()
+            },
+            modifier =
+                modifier
+                    .semantics { contentDescription = contentDesc }
+                    .pointerHoverIcon(PointerIcon.Hand),
         ) {
-            Box(contentAlignment = Alignment.Center) {
-                Icon(
-                    if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
-                    contentDescription = null,
-                    tint = if (isAudioEnabled) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed,
-                    modifier = Modifier.size(if (compact) 20.dp else 24.dp),
-                )
+            Surface(
+                shape = PokerTheme.shapes.medium,
+                color = PokerTheme.colors.oakWood,
+                shadowElevation = PokerTheme.spacing.extraSmall,
+                modifier = Modifier.size(if (compact) 40.dp else 48.dp),
+            ) {
+                Box(contentAlignment = Alignment.Center) {
+                    Icon(
+                        if (isAudioEnabled) AppIcons.VolumeUp else AppIcons.VolumeOff,
+                        contentDescription = null,
+                        tint = if (isAudioEnabled) PokerTheme.colors.goldenYellow else PokerTheme.colors.tacticalRed,
+                        modifier = Modifier.size(if (compact) 20.dp else 24.dp),
+                    )
+                }
             }
         }
     }
