@@ -2,7 +2,6 @@ package io.github.smithjustinn.ui.game.components.effects
 
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -18,7 +17,6 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import io.github.smithjustinn.domain.models.CardState
 import io.github.smithjustinn.domain.models.CardTheme
@@ -27,7 +25,6 @@ import io.github.smithjustinn.ui.game.components.cards.CardVisualState
 import io.github.smithjustinn.ui.game.components.cards.PlayingCard
 import kotlin.math.PI
 import kotlin.math.cos
-import kotlin.math.roundToInt
 import kotlin.math.sin
 import kotlin.random.Random
 
@@ -197,35 +194,34 @@ private fun CelebrationCardsLayer(
     areSuitsMultiColored: Boolean,
 ) {
     celebrationCards.forEach { cCard ->
-        if (cCard.alpha > 0f && cCard.scale > 0f) {
-            key(cCard.card.id) {
-                PlayingCard(
-                    content =
-                        CardContent(
-                            suit = cCard.card.suit,
-                            rank = cCard.card.rank,
-                            visualState =
-                                CardVisualState(
-                                    isFaceUp = true,
-                                    isMatched = true,
-                                ),
-                        ),
-                    theme = theme,
-                    areSuitsMultiColored = areSuitsMultiColored,
-                    isMuckingEnabled = false,
-                    modifier =
-                        Modifier
-                            .size(BOUNCING_CARD_WIDTH, BASE_CARD_HEIGHT)
-                            .offset { IntOffset(cCard.x.roundToInt(), cCard.y.roundToInt()) }
-                            .graphicsLayer {
-                                rotationZ = cCard.rotation
-                                scaleX = cCard.scale
-                                scaleY = cCard.scale
-                                alpha = cCard.alpha
-                                shadowElevation = 8.dp.toPx()
-                            },
-                )
-            }
+        key(cCard.card.id) {
+            PlayingCard(
+                content =
+                    CardContent(
+                        suit = cCard.card.suit,
+                        rank = cCard.card.rank,
+                        visualState =
+                            CardVisualState(
+                                isFaceUp = true,
+                                isMatched = true,
+                            ),
+                    ),
+                theme = theme,
+                areSuitsMultiColored = areSuitsMultiColored,
+                isMuckingEnabled = false,
+                modifier =
+                    Modifier
+                        .size(BOUNCING_CARD_WIDTH, BASE_CARD_HEIGHT)
+                        .graphicsLayer {
+                            translationX = cCard.x
+                            translationY = cCard.y
+                            rotationZ = cCard.rotation
+                            scaleX = cCard.scale
+                            scaleY = cCard.scale
+                            alpha = cCard.alpha
+                            shadowElevation = 8.dp.toPx()
+                        },
+            )
         }
     }
 }
