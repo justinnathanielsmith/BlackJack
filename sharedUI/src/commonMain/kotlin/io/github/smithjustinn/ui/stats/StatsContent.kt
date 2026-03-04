@@ -130,7 +130,12 @@ private fun StatsMainContent(
                         ),
                     verticalArrangement = Arrangement.spacedBy(PokerTheme.spacing.small),
                 ) {
-                    items(state.difficultyLeaderboards) { (level, entries) ->
+                    // Bolt: Provide a unique key based on difficulty type to allow Compose
+                    // to efficiently track changes in the Leaderboard list and skip recompositions.
+                    items(
+                        items = state.difficultyLeaderboards,
+                        key = { (level, _) -> level.type.name },
+                    ) { (level, entries) ->
                         LeaderboardSection(level, entries)
                     }
                 }
@@ -168,7 +173,7 @@ private fun StatsTopBar(
                 modifier = Modifier.semantics { contentDescription = backDesc },
             ) {
                 Icon(
-                    imageVector = AppIcons.ArrowBack,
+                    imageVector = AppIcons.ChevronLeft,
                     contentDescription = null,
                     tint = PokerTheme.colors.goldenYellow,
                 )

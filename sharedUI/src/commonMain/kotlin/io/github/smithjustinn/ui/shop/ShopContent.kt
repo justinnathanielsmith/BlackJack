@@ -159,7 +159,7 @@ private fun ShopHeader(
             modifier = Modifier.semantics { contentDescription = backDesc },
         ) {
             Icon(
-                imageVector = AppIcons.ArrowBack,
+                imageVector = AppIcons.ChevronLeft,
                 contentDescription = null,
                 tint = PokerTheme.colors.onBackground,
                 modifier = Modifier.size(32.dp),
@@ -225,7 +225,12 @@ private fun ShopItemsGrid(
             )
         }
 
-        items(visibleItems) { item ->
+        // Bolt: Add stable keys to LazyGrid items to prevent unnecessary recompositions
+        // when list state changes (e.g., items added/removed).
+        items(
+            items = visibleItems,
+            key = { item -> item.id },
+        ) { item ->
             val isEquipped =
                 when (item.type) {
                     ShopItemType.THEME -> item.id == state.activeThemeId

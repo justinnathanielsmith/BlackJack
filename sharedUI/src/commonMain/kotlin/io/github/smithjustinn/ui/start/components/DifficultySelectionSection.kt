@@ -171,7 +171,7 @@ private fun PrimaryActionButtons(
                 text = stringResource(Res.string.resume_game),
                 onClick = onResumeGame,
                 modifier = Modifier.fillMaxWidth(),
-                trailingIcon = AppIcons.ArrowBack,
+                trailingIcon = AppIcons.ChevronLeft,
                 isPrimary = true,
                 isPulsing = true,
                 applyGlimmer = true,

@@ -45,3 +45,6 @@
 ## 2026-10-29 - State Reads in Conditionals
 **Learning:** Reading `MutableState` (like alpha or scale) inside an `if` statement during the composition phase (e.g., `if (alpha > 0f)`) forces recomposition on every frame of a continuous animation, defeating the purpose of deferred state reads in `graphicsLayer`.
 **Action:** When animating elements to fade out or scale down, let the `graphicsLayer` handle the zero values and avoid conditional rendering based on continuous animation state to ensure the Composition phase is skipped.
+## 2026-10-29 - Missing Keys in Lazy Grid/Column
+**Learning:** Missing `key` parameters in `items` for `LazyColumn` and `LazyVerticalGrid` cause full recomposition of all visible items when the underlying list changes (e.g., adding/removing items or updating list order), rather than just updating the changed items.
+**Action:** Always provide a stable, unique `key` (like an item ID) to `items` functions in lazy layouts to enable Compose to track items efficiently and prevent unnecessary recompositions.

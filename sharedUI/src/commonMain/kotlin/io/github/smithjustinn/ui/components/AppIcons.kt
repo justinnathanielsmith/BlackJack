@@ -11,33 +11,30 @@ import androidx.compose.ui.unit.dp
 
 @Suppress("ktlint:standard:backing-property-naming", "MagicNumber", "LongMethod", "LargeClass")
 object AppIcons {
-    private var _arrowBack: ImageVector? = null
-    val ArrowBack: ImageVector
+    private var _chevronLeft: ImageVector? = null
+    val ChevronLeft: ImageVector
         get() {
-            _arrowBack?.let { return it }
+            _chevronLeft?.let { return it }
             return ImageVector
                 .Builder(
-                    name = "ArrowBack",
+                    name = "ChevronLeft",
                     defaultWidth = 24.0.dp,
                     defaultHeight = 24.0.dp,
                     viewportWidth = 24.0f,
                     viewportHeight = 24.0f,
                 ).apply {
                     path(fill = SolidColor(Color.Black)) {
-                        moveTo(20.0f, 11.0f)
-                        horizontalLineTo(7.83f)
-                        lineTo(13.42f, 5.41f)
-                        lineTo(12.0f, 4.0f)
-                        lineTo(4.0f, 12.0f)
-                        lineTo(12.0f, 20.0f)
-                        lineTo(13.41f, 18.59f)
-                        lineTo(7.83f, 13.0f)
-                        horizontalLineTo(20.0f)
-                        verticalLineTo(11.0f)
+                        moveTo(15.41f, 16.59f)
+                        lineTo(10.83f, 12.0f)
+                        lineToRelative(4.58f, -4.59f)
+                        lineTo(14.0f, 6.0f)
+                        lineToRelative(-6.0f, 6.0f)
+                        lineToRelative(6.0f, 6.0f)
+                        lineToRelative(1.41f, -1.41f)
                         close()
                     }
                 }.build()
-                .also { _arrowBack = it }
+                .also { _chevronLeft = it }
         }
 
     private var _restart: ImageVector? = null
