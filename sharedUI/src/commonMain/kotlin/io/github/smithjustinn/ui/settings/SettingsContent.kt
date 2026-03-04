@@ -158,7 +158,7 @@ private fun SettingsTopBar(
                 modifier = Modifier.semantics { contentDescription = backDesc },
             ) {
                 Icon(
-                    imageVector = AppIcons.ArrowBack,
+                    imageVector = AppIcons.ChevronLeft,
                     contentDescription = null,
                     tint = ModernGold,
                 )
