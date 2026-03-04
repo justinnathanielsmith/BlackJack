@@ -159,7 +159,7 @@ private fun ShopHeader(
             modifier = Modifier.semantics { contentDescription = backDesc },
         ) {
             Icon(
-                imageVector = AppIcons.ArrowBack,
+                imageVector = AppIcons.ChevronLeft,
                 contentDescription = null,
                 tint = PokerTheme.colors.onBackground,
                 modifier = Modifier.size(32.dp),

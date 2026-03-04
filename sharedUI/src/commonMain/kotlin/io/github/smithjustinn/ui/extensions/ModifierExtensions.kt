@@ -11,6 +11,7 @@ import androidx.compose.ui.input.pointer.PointerIcon
 import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.semantics.Role
 import io.github.smithjustinn.di.LocalAppGraph
+import io.github.smithjustinn.services.AudioService
 import io.github.smithjustinn.services.HapticFeedbackType
 
 @Suppress("ktlint:compose:modifier-composed-check")
@@ -21,9 +22,11 @@ fun Modifier.pokerClickable(
     indication: Indication? = null,
     role: Role? = null,
     hapticType: HapticFeedbackType = HapticFeedbackType.LIGHT,
+    soundEffect: AudioService.SoundEffect? = null,
 ): Modifier =
     composed {
         val haptics = LocalAppGraph.current.hapticsService
+        val audio = LocalAppGraph.current.audioService
         val currentInteractionSource = interactionSource ?: remember { MutableInteractionSource() }
         val currentIndication = indication ?: LocalIndication.current
 
@@ -36,6 +39,7 @@ fun Modifier.pokerClickable(
                 role = role,
                 onClick = {
                     haptics.performHapticFeedback(hapticType)
+                    soundEffect?.let { audio.playEffect(it) }
                     onClick()
                 },
             )
