@@ -225,7 +225,12 @@ private fun ShopItemsGrid(
             )
         }
 
-        items(visibleItems) { item ->
+        // Bolt: Add stable keys to LazyGrid items to prevent unnecessary recompositions
+        // when list state changes (e.g., items added/removed).
+        items(
+            items = visibleItems,
+            key = { item -> item.id },
+        ) { item ->
             val isEquipped =
                 when (item.type) {
                     ShopItemType.THEME -> item.id == state.activeThemeId
