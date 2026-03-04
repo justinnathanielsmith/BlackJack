@@ -160,3 +160,15 @@ A malicious actor or a bug in the time tracking logic could inject negative valu
 1.  Added strict `require(elapsedTimeSeconds >= 0)` in `applyFinalBonuses`.
 2.  Added strict `require(matchesFound >= 0)` in `calculateMatchUpdate`.
 3.  Verified with reproduction test `ScoringCalculatorReproductionTest.kt`.
+
+## 2026-02-16 - [Missing Validation in Score Breakdown]
+**Vulnerability:** Input Validation
+**Severity:** MEDIUM
+**Component:** `shared/core` / `ScoreBreakdown`
+
+**Finding:**
+`ScoreBreakdown` lacked input validation for many of its properties (`basePoints`, `comboBonus`, `doubleDownBonus`, `timeBonus`, `moveBonus`, `dailyChallengeBonus`), allowing the creation of a breakdown with negative values. While `totalScore` and `earnedCurrency` were validated, negative intermediate bonus points could lead to invalid states, corrupt stats, and potential logic bypasses during score serialization or display logic.
+
+**Remediation:**
+1.  Added strict `require` checks in `ScoreBreakdown` init block for all sub-scores (`>= 0`).
+2.  Verified with unit tests in `ScoreBreakdownTest.kt`.
