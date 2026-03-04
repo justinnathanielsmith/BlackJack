@@ -41,3 +41,7 @@
 ## 2026-10-28 - Brush/ShaderBrush Limitations for Animations
 **Learning:** `androidx.compose.ui.graphics.Brush` is a sealed class in Compose Multiplatform and cannot be extended. Furthermore, `ShaderBrush` (the primary way to create custom shaders) internally caches the resulting `Shader` based exclusively on the `Size` of the drawing area. This means you cannot use `ShaderBrush` for continuous animations (like translation) where the animated value changes every frame but the component size remains constant—the shader will freeze after the first frame.
 **Action:** When animating visual properties like translation inside a `TextStyle` or where you must provide a `Brush` instance, it cannot be easily decoupled from recomposition using standard `ShaderBrush`. Fallback to passing `State<T>` to layout/draw modifiers (e.g., `graphicsLayer`, `drawWithCache`) on container elements where possible, rather than trying to animate the `Brush` itself.
+
+## 2026-10-29 - State Reads in Conditionals
+**Learning:** Reading `MutableState` (like alpha or scale) inside an `if` statement during the composition phase (e.g., `if (alpha > 0f)`) forces recomposition on every frame of a continuous animation, defeating the purpose of deferred state reads in `graphicsLayer`.
+**Action:** When animating elements to fade out or scale down, let the `graphicsLayer` handle the zero values and avoid conditional rendering based on continuous animation state to ensure the Composition phase is skipped.
