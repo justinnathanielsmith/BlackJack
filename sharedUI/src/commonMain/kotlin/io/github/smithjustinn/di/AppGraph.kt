@@ -11,7 +11,11 @@ import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import io.github.smithjustinn.domain.repositories.SettingsRepository
 import io.github.smithjustinn.domain.repositories.ShopItemRepository
 import io.github.smithjustinn.domain.services.AdService
+import io.github.smithjustinn.domain.usecases.economy.BuyItemUseCase
 import io.github.smithjustinn.domain.usecases.economy.EarnCurrencyUseCase
+import io.github.smithjustinn.domain.usecases.economy.GetPlayerBalanceUseCase
+import io.github.smithjustinn.domain.usecases.economy.GetShopItemsUseCase
+import io.github.smithjustinn.domain.usecases.economy.SetActiveCosmeticUseCase
 import io.github.smithjustinn.domain.usecases.game.CalculateFinalScoreUseCase
 import io.github.smithjustinn.domain.usecases.game.ClearSavedGameUseCase
 import io.github.smithjustinn.domain.usecases.game.FlipCardUseCase
@@ -28,7 +32,9 @@ import kotlinx.coroutines.CoroutineScope
 
 /**
  * The primary entry point for the dependency graph.
- * This interface only exposes what is needed by the UI layer.
+ * This is a plain interface in commonMain defining all dependencies needed by the UI layer.
+ * Each platform creates a concrete @DependencyGraph implementation that includes
+ * platform-specific providers alongside shared core and data providers.
  */
 interface AppGraph {
     val logger: Logger
@@ -40,6 +46,7 @@ interface AppGraph {
 
     val appDatabase: AppDatabase
 
+    // Repositories
     val gameStateRepository: GameStateRepository
     val settingsRepository: SettingsRepository
     val leaderboardRepository: LeaderboardRepository
@@ -48,7 +55,7 @@ interface AppGraph {
     val playerEconomyRepository: PlayerEconomyRepository
     val shopItemRepository: ShopItemRepository
 
-    // Use Cases
+    // Game Use Cases
     val startNewGameUseCase: StartNewGameUseCase
     val flipCardUseCase: FlipCardUseCase
     val resetErrorCardsUseCase: ResetErrorCardsUseCase
@@ -58,7 +65,13 @@ interface AppGraph {
     val getSavedGameUseCase: GetSavedGameUseCase
     val saveGameStateUseCase: SaveGameStateUseCase
     val clearSavedGameUseCase: ClearSavedGameUseCase
+
+    // Economy Use Cases
     val earnCurrencyUseCase: EarnCurrencyUseCase
+    val buyItemUseCase: BuyItemUseCase
+    val getPlayerBalanceUseCase: GetPlayerBalanceUseCase
+    val getShopItemsUseCase: GetShopItemsUseCase
+    val setActiveCosmeticUseCase: SetActiveCosmeticUseCase
 }
 
 val LocalAppGraph =

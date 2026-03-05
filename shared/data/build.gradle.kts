@@ -46,7 +46,6 @@ kotlin {
             implementation(libs.bundles.ktor.common)
             api(libs.bundles.room)
             implementation(libs.kermit)
-            api(libs.koin.core)
             implementation(libs.compose.resources)
         }
 

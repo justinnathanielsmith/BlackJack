@@ -1,8 +1,12 @@
 package io.github.smithjustinn.data.repositories
 
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.smithjustinn.data.local.GameStatsDao
 import io.github.smithjustinn.data.local.GameStatsEntity
+import io.github.smithjustinn.di.AppScope
 import io.github.smithjustinn.domain.models.GameStats
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import kotlinx.coroutines.flow.Flow
@@ -10,6 +14,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlin.coroutines.cancellation.CancellationException
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class GameStatsRepositoryImpl(
     private val dao: GameStatsDao,
     private val logger: Logger,

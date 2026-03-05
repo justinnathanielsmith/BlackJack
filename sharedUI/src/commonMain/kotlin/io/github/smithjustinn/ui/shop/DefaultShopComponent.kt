@@ -3,16 +3,10 @@ package io.github.smithjustinn.ui.shop
 import com.arkivanov.decompose.ComponentContext
 import io.github.smithjustinn.di.AppGraph
 import io.github.smithjustinn.domain.models.ShopItem
-import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
-import io.github.smithjustinn.domain.usecases.economy.BuyItemUseCase
-import io.github.smithjustinn.domain.usecases.economy.GetPlayerBalanceUseCase
-import io.github.smithjustinn.domain.usecases.economy.GetShopItemsUseCase
-import io.github.smithjustinn.domain.usecases.economy.SetActiveCosmeticUseCase
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.ad_unit_id
 import io.github.smithjustinn.resources.shop_purchase_failed
 import io.github.smithjustinn.services.HapticFeedbackType
-import io.github.smithjustinn.services.HapticsService
 import io.github.smithjustinn.utils.componentScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -23,33 +17,21 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.jetbrains.compose.resources.getString
-import org.koin.core.component.KoinComponent
-import org.koin.core.component.inject
 import kotlin.time.Clock
 
 class DefaultShopComponent(
     componentContext: ComponentContext,
-    private val appGraph: AppGraph, // Using AppGraph for injection if possible, or KoinComponent
+    private val appGraph: AppGraph,
     private val onBackClicked: () -> Unit,
 ) : ShopComponent,
-    ComponentContext by componentContext,
-    KoinComponent {
-    // Inject use cases via Koin (or could be passed via AppGraph if exposed there,
-    // but typically we can inject if AppGraph doesn't have them all property listed)
-    // Actually AppGraph is preferred if available.
-    // For now I'll use Koin inject for the new use cases if they are not in AppGraph interface yet.
-    // Wait, I didn't update AppGraph to expose these use cases.
-    // It's cleaner to inject them here or update AppGraph.
-    // I will use `inject` for expediency as I haven't seen AppGraph definition recently.
-
-    private val buyItemUseCase: BuyItemUseCase by inject()
-    private val getPlayerBalanceUseCase: GetPlayerBalanceUseCase by inject()
-    private val getShopItemsUseCase: GetShopItemsUseCase by inject()
-    private val setActiveCosmeticUseCase: SetActiveCosmeticUseCase by inject()
-
-    // Directly injecting repo for unlocked items for now
-    private val playerEconomyRepository: PlayerEconomyRepository by inject()
-    private val hapticsService: HapticsService by inject()
+    ComponentContext by componentContext {
+    // All dependencies now come from AppGraph (Metro DI)
+    private val buyItemUseCase = appGraph.buyItemUseCase
+    private val getPlayerBalanceUseCase = appGraph.getPlayerBalanceUseCase
+    private val getShopItemsUseCase = appGraph.getShopItemsUseCase
+    private val setActiveCosmeticUseCase = appGraph.setActiveCosmeticUseCase
+    private val playerEconomyRepository = appGraph.playerEconomyRepository
+    private val hapticsService = appGraph.hapticsService
 
     private val _state = MutableStateFlow(ShopState())
     override val state: StateFlow<ShopState> = _state.asStateFlow()

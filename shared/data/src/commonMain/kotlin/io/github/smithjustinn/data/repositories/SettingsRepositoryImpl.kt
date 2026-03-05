@@ -1,8 +1,12 @@
 package io.github.smithjustinn.data.repositories
 
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.smithjustinn.data.extensions.mapToStateFlow
 import io.github.smithjustinn.data.local.SettingsDao
 import io.github.smithjustinn.data.local.SettingsEntity
+import io.github.smithjustinn.di.AppScope
 import io.github.smithjustinn.domain.repositories.SettingsRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -14,6 +18,9 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class SettingsRepositoryImpl(
     private val dao: SettingsDao,
 ) : SettingsRepository {

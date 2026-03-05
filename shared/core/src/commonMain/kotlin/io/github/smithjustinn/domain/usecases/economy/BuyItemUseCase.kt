@@ -1,8 +1,10 @@
 package io.github.smithjustinn.domain.usecases.economy
 
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
+import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.repositories.ShopItemRepository
 
+@Inject
 class BuyItemUseCase(
     private val repository: PlayerEconomyRepository,
     private val shopItemRepository: ShopItemRepository,

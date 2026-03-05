@@ -1,6 +1,7 @@
 package io.github.smithjustinn.domain.usecases.game
 
 import io.github.smithjustinn.domain.models.DailyChallengeMutator
+import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState
@@ -14,6 +15,7 @@ import kotlin.time.Clock
 /**
  * Use case to initialize a new memory game state.
  */
+@Inject
 open class StartNewGameUseCase {
     open operator fun invoke(
         pairCount: Int,

@@ -1,12 +1,14 @@
 package io.github.smithjustinn.domain.usecases.economy
 
 import io.github.smithjustinn.domain.models.CardBackTheme
+import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.GameMusic
 import io.github.smithjustinn.domain.models.GamePowerUp
 import io.github.smithjustinn.domain.models.ShopItemType
 import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 
+@Inject
 class SetActiveCosmeticUseCase(
     private val playerEconomyRepository: PlayerEconomyRepository,
 ) {

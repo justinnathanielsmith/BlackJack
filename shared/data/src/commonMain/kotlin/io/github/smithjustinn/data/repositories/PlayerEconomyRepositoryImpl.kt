@@ -1,9 +1,13 @@
 package io.github.smithjustinn.data.repositories
 
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.smithjustinn.data.extensions.mapToStateFlow
 import io.github.smithjustinn.data.local.PlayerEconomyDao
 import io.github.smithjustinn.data.local.PlayerEconomyEntity
+import io.github.smithjustinn.di.AppScope
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.GameMusic
@@ -20,6 +24,9 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class PlayerEconomyRepositoryImpl(
     private val dao: PlayerEconomyDao,
     private val logger: Logger,

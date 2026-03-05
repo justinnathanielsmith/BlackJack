@@ -1,6 +1,7 @@
 package io.github.smithjustinn.domain.usecases.stats
 
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.GameStats
 import io.github.smithjustinn.domain.models.LeaderboardEntry
@@ -13,6 +14,7 @@ import kotlin.time.Clock
  * Use case to save the result of a completed game.
  * Handles updating the best scores and adding to the leaderboard.
  */
+@Inject
 open class SaveGameResultUseCase(
     private val gameStatsRepository: GameStatsRepository,
     private val leaderboardRepository: LeaderboardRepository,

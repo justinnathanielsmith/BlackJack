@@ -58,7 +58,6 @@ kotlin {
             implementation(libs.kotlinx.collections.immutable)
             implementation(libs.kotlinx.datetime)
             implementation(libs.bundles.coil)
-            api(libs.bundles.koin)
             implementation(libs.compottie)
             implementation(libs.compottie.resources)
             implementation(libs.ktor.client.core)
@@ -71,7 +70,6 @@ kotlin {
 
         if (buildAndroid) {
             androidMain.dependencies {
-                api(libs.koin.android)
                 implementation(libs.kotlinx.coroutines.android)
                 implementation(libs.ktor.client.okhttp)
                 implementation(libs.google.play.services.ads)

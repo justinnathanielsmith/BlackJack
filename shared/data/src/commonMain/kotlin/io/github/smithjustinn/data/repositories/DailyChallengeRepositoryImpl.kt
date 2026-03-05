@@ -1,13 +1,20 @@
 package io.github.smithjustinn.data.repositories
 
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.smithjustinn.data.local.DailyChallengeDao
 import io.github.smithjustinn.data.local.DailyChallengeEntity
+import io.github.smithjustinn.di.AppScope
 import io.github.smithjustinn.domain.repositories.DailyChallengeRepository
 import io.github.smithjustinn.utils.CoroutineDispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.withContext
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class DailyChallengeRepositoryImpl(
     private val dao: DailyChallengeDao,
     private val dispatchers: CoroutineDispatchers,

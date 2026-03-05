@@ -32,10 +32,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
-import org.koin.core.context.startKoin
-import org.koin.core.context.stopKoin
-import org.koin.dsl.module
-import kotlin.test.AfterTest
 import kotlin.test.BeforeTest
 import kotlin.test.Test
 
@@ -70,6 +66,12 @@ class DefaultShopComponentTest {
         every { appGraph.coroutineDispatchers } returns coroutineDispatchers
         every { appGraph.adService } returns adService
         every { appGraph.earnCurrencyUseCase } returns earnCurrencyUseCase
+        every { appGraph.buyItemUseCase } returns buyItemUseCase
+        every { appGraph.getPlayerBalanceUseCase } returns getPlayerBalanceUseCase
+        every { appGraph.getShopItemsUseCase } returns getShopItemsUseCase
+        every { appGraph.setActiveCosmeticUseCase } returns setActiveCosmeticUseCase
+        every { appGraph.playerEconomyRepository } returns playerEconomyRepository
+        every { appGraph.hapticsService } returns hapticsService
         every { playerEconomyRepository.balance } returns MutableStateFlow(1000L)
         every { playerEconomyRepository.unlockedItemIds } returns MutableStateFlow(emptySet())
         every { playerEconomyRepository.selectedTheme } returns MutableStateFlow(CardBackTheme.GEOMETRIC)
@@ -77,27 +79,6 @@ class DefaultShopComponentTest {
         every { playerEconomyRepository.selectedSkin } returns MutableStateFlow(CardSymbolTheme.CLASSIC)
         every { playerEconomyRepository.selectedSkinId } returns MutableStateFlow(CardSymbolTheme.CLASSIC.id)
         everySuspend { shopItemRepository.getShopItems() } returns emptyList()
-
-        startKoin {
-            modules(
-                module {
-                    single { buyItemUseCase }
-                    single { getPlayerBalanceUseCase }
-                    single { getShopItemsUseCase }
-                    single { setActiveCosmeticUseCase }
-                    single { earnCurrencyUseCase }
-                    single { playerEconomyRepository }
-                    single { hapticsService }
-                    single { shopItemRepository }
-                    single { adService }
-                },
-            )
-        }
-    }
-
-    @AfterTest
-    fun tearDown() {
-        stopKoin()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)

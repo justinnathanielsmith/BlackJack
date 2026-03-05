@@ -1,13 +1,20 @@
 package io.github.smithjustinn.data.repositories
 
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.smithjustinn.data.local.GameStateDao
 import io.github.smithjustinn.data.local.GameStateEntity
+import io.github.smithjustinn.di.AppScope
 import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 import kotlin.coroutines.cancellation.CancellationException
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class GameStateRepositoryImpl(
     private val dao: GameStateDao,
     private val logger: Logger,

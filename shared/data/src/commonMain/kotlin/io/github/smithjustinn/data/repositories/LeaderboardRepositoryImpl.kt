@@ -1,8 +1,12 @@
 package io.github.smithjustinn.data.repositories
 
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.ContributesBinding
+import dev.zacsweers.metro.Inject
+import dev.zacsweers.metro.SingleIn
 import io.github.smithjustinn.data.local.LeaderboardDao
 import io.github.smithjustinn.data.local.LeaderboardEntity
+import io.github.smithjustinn.di.AppScope
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
@@ -11,6 +15,9 @@ import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.map
 import kotlin.coroutines.cancellation.CancellationException
 
+@SingleIn(AppScope::class)
+@ContributesBinding(AppScope::class)
+@Inject
 class LeaderboardRepositoryImpl(
     private val dao: LeaderboardDao,
     private val logger: Logger,

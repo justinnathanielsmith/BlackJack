@@ -15,20 +15,11 @@ import com.arkivanov.decompose.defaultComponentContext
 import io.github.smithjustinn.App
 import io.github.smithjustinn.ui.root.DeepLinkHandler
 import io.github.smithjustinn.ui.root.DefaultRootComponent
-import org.koin.core.context.loadKoinModules
-import org.koin.core.context.unloadKoinModules
-import org.koin.dsl.module
 
 class AppActivity : ComponentActivity() {
-    private val activityModule =
-        module {
-            single<Activity> { this@AppActivity }
-        }
-
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        loadKoinModules(activityModule)
         enableEdgeToEdge()
         val appGraph = (application as MemoryMatchApp).appGraph
         val root =
@@ -51,11 +42,6 @@ class AppActivity : ComponentActivity() {
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        unloadKoinModules(activityModule)
     }
 
     private fun handleIntent(intent: Intent?) {

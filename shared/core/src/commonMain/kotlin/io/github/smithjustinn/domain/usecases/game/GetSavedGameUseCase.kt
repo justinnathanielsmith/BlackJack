@@ -1,12 +1,14 @@
 package io.github.smithjustinn.domain.usecases.game
 
 import co.touchlab.kermit.Logger
+import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.domain.models.SavedGame
 import io.github.smithjustinn.domain.repositories.GameStateRepository
 
 /**
  * Use case to retrieve the saved game state.
  */
+@Inject
 open class GetSavedGameUseCase(
     private val gameStateRepository: GameStateRepository,
     private val logger: Logger,
