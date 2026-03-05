@@ -28,9 +28,8 @@ class LeaderboardRepositoryImpl(
     ): Flow<List<LeaderboardEntry>> =
         dao
             .getTopEntries(pairCount, gameMode)
-            .map { entities ->
-                entities.map { it.toDomain() }
-            }.catch { e ->
+            .mapToDomain()
+            .catch { e ->
                 if (e is CancellationException) throw e
                 logger.e(e) { "Error fetching leaderboard for difficulty: $pairCount, mode: $gameMode" }
                 emit(emptyList())
@@ -39,9 +38,8 @@ class LeaderboardRepositoryImpl(
     override fun getAllTopEntries(gameMode: GameMode): Flow<List<LeaderboardEntry>> =
         dao
             .getAllTopEntries(gameMode)
-            .map { entities ->
-                entities.map { it.toDomain() }
-            }.catch { e ->
+            .mapToDomain()
+            .catch { e ->
                 if (e is CancellationException) throw e
                 logger.e(e) { "Error fetching all leaderboards for mode: $gameMode" }
                 emit(emptyList())
@@ -79,4 +77,7 @@ class LeaderboardRepositoryImpl(
             timestamp = timestamp,
             gameMode = gameMode,
         )
+
+    private fun Flow<List<LeaderboardEntity>>.mapToDomain(): Flow<List<LeaderboardEntry>> =
+        map { entities -> entities.map { it.toDomain() } }
 }
