@@ -6,6 +6,7 @@ import com.arkivanov.essenty.lifecycle.Lifecycle
 import dev.mokkery.answering.returns
 import dev.mokkery.every
 import dev.mokkery.everySuspend
+import dev.mokkery.matcher.any
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.DifficultyLevel
@@ -158,6 +159,34 @@ class StartComponentTest : BaseComponentTest() {
 
             component.onStartGame()
             assertEquals(GameNavArgs(10, GameMode.DAILY_CHALLENGE, DifficultyType.MASTER, true), navigatedToGame)
+        }
+
+    @Test
+    fun `onDailyChallengeClick navigates to game when challenge is not completed`() =
+        runTest { lifecycle ->
+            every { context.dailyChallengeRepository.isChallengeCompleted(any()) } returns
+                MutableStateFlow(false)
+
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.onDailyChallengeClick()
+
+            assertEquals(GameNavArgs(8, GameMode.DAILY_CHALLENGE, DifficultyType.CASUAL, true), navigatedToGame)
+        }
+
+    @Test
+    fun `onDailyChallengeClick does not navigate when challenge is completed`() =
+        runTest { lifecycle ->
+            every { context.dailyChallengeRepository.isChallengeCompleted(any()) } returns
+                MutableStateFlow(true)
+
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.onDailyChallengeClick()
+
+            assertEquals(null, navigatedToGame)
         }
 
     @Test
