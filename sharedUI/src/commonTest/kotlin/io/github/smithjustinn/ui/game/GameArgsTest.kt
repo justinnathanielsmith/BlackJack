@@ -46,4 +46,17 @@ class GameArgsTest {
             )
         }
     }
+
+    @Test
+    fun `should throw exception for negative seed`() {
+        assertFailsWith<IllegalArgumentException> {
+            GameArgs(
+                pairCount = 8,
+                mode = GameMode.TIME_ATTACK,
+                difficulty = DifficultyType.CASUAL,
+                forceNewGame = true,
+                seed = -1L,
+            )
+        }
+    }
 }

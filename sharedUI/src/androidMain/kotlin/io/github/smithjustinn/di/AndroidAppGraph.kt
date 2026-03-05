@@ -11,8 +11,11 @@ import dev.zacsweers.metro.createGraphFactory
  * Uses a Factory to accept runtime inputs (Context and Activity).
  */
 @DependencyGraph(AppScope::class)
-interface AndroidAppGraphImpl : AppGraph, CoreProviders, DataProviders, AndroidProviders {
-
+interface AndroidAppGraphImpl :
+    AppGraph,
+    CoreProviders,
+    DataProviders,
+    AndroidProviders {
     /**
      * Factory for creating the Android dependency graph with runtime inputs.
      * Context is provided as a dependency that Android providers can use.
