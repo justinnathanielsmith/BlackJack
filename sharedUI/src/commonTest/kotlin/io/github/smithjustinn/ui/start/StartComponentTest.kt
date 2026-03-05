@@ -27,6 +27,8 @@ class StartComponentTest : BaseComponentTest() {
     private var navigatedToGame: GameNavArgs? = null
     private var navigatedToSettings = false
     private var navigatedToStats = false
+    private var navigatedToShop = false
+    private var navigatedToDebug = false
 
     @Test
     fun `initial state is correct`() =
@@ -175,6 +177,46 @@ class StartComponentTest : BaseComponentTest() {
             assertEquals(GameNavArgs(12, GameMode.TIME_ATTACK, DifficultyType.CASUAL, false), navigatedToGame)
         }
 
+    @Test
+    fun `onSettingsClick triggers navigation callback`() =
+        runTest { lifecycle ->
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.onSettingsClick()
+            assertTrue(navigatedToSettings)
+        }
+
+    @Test
+    fun `onStatsClick triggers navigation callback`() =
+        runTest { lifecycle ->
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.onStatsClick()
+            assertTrue(navigatedToStats)
+        }
+
+    @Test
+    fun `onShopClick triggers navigation callback`() =
+        runTest { lifecycle ->
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.onShopClick()
+            assertTrue(navigatedToShop)
+        }
+
+    @Test
+    fun `onDebugClick triggers navigation callback`() =
+        runTest { lifecycle ->
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.onDebugClick()
+            assertTrue(navigatedToDebug)
+        }
+
     private fun createDefaultComponent(lifecycle: Lifecycle): DefaultStartComponent =
         DefaultStartComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
@@ -184,8 +226,8 @@ class StartComponentTest : BaseComponentTest() {
             },
             onNavigateToSettings = { navigatedToSettings = true },
             onNavigateToStats = { navigatedToStats = true },
-            onNavigateToShop = {},
-            onNavigateToDebug = {},
+            onNavigateToShop = { navigatedToShop = true },
+            onNavigateToDebug = { navigatedToDebug = true },
         )
 }
 
