@@ -6,6 +6,7 @@ plugins {
     alias(libs.plugins.ksp)
     alias(libs.plugins.kover)
     alias(libs.plugins.mokkery)
+    alias(libs.plugins.metro)
 }
 
 val buildAndroid = project.findProperty("target") == "android" || project.findProperty("target") == null

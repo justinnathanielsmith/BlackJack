@@ -9,6 +9,7 @@ plugins {
     alias(libs.plugins.kotlinx.serialization)
     alias(libs.plugins.mokkery)
     alias(libs.plugins.kover)
+    alias(libs.plugins.metro)
 }
 
 val buildAndroid = project.findProperty("target") == "android" || project.findProperty("target") == null

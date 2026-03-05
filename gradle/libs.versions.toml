@@ -25,6 +25,7 @@ coil = "3.3.0"
 
 # Architecture & DI
 koin = "4.1.1"
+metro = "0.11.2"
 decompose = "3.4.0"
 
 # Data & Networking
@@ -163,3 +164,4 @@ room = { id = "androidx.room", version.ref = "room" }
 spotless = { id = "com.diffplug.spotless", version.ref = "spotless" }
 detekt = { id = "io.gitlab.arturbosch.detekt", version.ref = "detekt" }
 kover = { id = "org.jetbrains.kotlinx.kover", version.ref = "kover" }
+metro = { id = "dev.zacsweers.metro", version.ref = "metro" }
