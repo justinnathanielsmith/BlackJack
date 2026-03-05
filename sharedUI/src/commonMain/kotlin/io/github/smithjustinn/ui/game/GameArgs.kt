@@ -22,5 +22,10 @@ data class GameArgs(
         require(mode != GameMode.DAILY_CHALLENGE || seed == null) {
             "Seed cannot be specified for DAILY_CHALLENGE mode"
         }
+        if (seed != null) {
+            require(seed >= 0L) {
+                "Seed cannot be negative"
+            }
+        }
     }
 }

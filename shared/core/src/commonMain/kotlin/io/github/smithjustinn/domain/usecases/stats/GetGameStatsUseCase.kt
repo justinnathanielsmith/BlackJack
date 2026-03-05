@@ -1,7 +1,7 @@
 package io.github.smithjustinn.domain.usecases.stats
 
-import io.github.smithjustinn.domain.models.GameStats
 import dev.zacsweers.metro.Inject
+import io.github.smithjustinn.domain.models.GameStats
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import kotlinx.coroutines.flow.Flow
 

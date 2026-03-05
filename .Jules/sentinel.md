@@ -172,3 +172,15 @@ A malicious actor or a bug in the time tracking logic could inject negative valu
 **Remediation:**
 1.  Added strict `require` checks in `ScoreBreakdown` init block for all sub-scores (`>= 0`).
 2.  Verified with unit tests in `ScoreBreakdownTest.kt`.
+
+## 2024-05-23 - [GameArgs Negative Seed Vulnerability]
+
+**Type:** Validation
+**Severity:** MEDIUM
+**Component:** `sharedUI` / `GameArgs`
+
+**Finding:**
+Deep links allowing custom seeds must strictly validate that the seed is non-negative. Permitting arbitrary negative seeds via deep link allows bypassing randomness logic, leading to unfair high scores or predictable leaderboards.
+
+**Remediation:**
+1. A `require(seed >= 0)` constraint was added to `GameArgs`.

@@ -8,7 +8,11 @@ import dev.zacsweers.metro.createGraph
  * Extends AppGraph and all provider interfaces so Metro can compile the full graph.
  */
 @DependencyGraph(AppScope::class)
-interface IosAppGraphImpl : AppGraph, CoreProviders, DataProviders, IosProviders
+interface IosAppGraphImpl :
+    AppGraph,
+    CoreProviders,
+    DataProviders,
+    IosProviders
 
 /**
  * Creates the iOS dependency graph using Metro's compile-time graph.

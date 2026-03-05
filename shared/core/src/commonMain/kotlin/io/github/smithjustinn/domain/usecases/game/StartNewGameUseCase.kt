@@ -1,7 +1,7 @@
 package io.github.smithjustinn.domain.usecases.game
 
-import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import dev.zacsweers.metro.Inject
+import io.github.smithjustinn.domain.models.DailyChallengeMutator
 import io.github.smithjustinn.domain.models.DifficultyType
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.domain.models.MemoryGameState

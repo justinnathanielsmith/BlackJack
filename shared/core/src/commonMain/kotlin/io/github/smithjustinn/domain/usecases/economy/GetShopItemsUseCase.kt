@@ -1,7 +1,7 @@
 package io.github.smithjustinn.domain.usecases.economy
 
-import io.github.smithjustinn.domain.models.ShopItem
 import dev.zacsweers.metro.Inject
+import io.github.smithjustinn.domain.models.ShopItem
 import io.github.smithjustinn.domain.repositories.ShopItemRepository
 
 @Inject
