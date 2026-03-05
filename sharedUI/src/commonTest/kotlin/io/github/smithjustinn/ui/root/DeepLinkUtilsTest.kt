@@ -121,4 +121,23 @@ class DeepLinkUtilsTest {
         // Path should be stripped, params redacted
         assertEquals("memorymatch://game?mode=REDACTED", sanitized)
     }
+
+    @Test
+    fun `invalid host in deep link returns null`() {
+        val url = "memorymatch://game.attacker.com?mode=TIME_ATTACK"
+        assertNull(DeepLinkUtils.parseDeepLink(url))
+    }
+
+    @Test
+    fun `invalid scheme in deep link returns null`() {
+        val url = "https://game?mode=TIME_ATTACK"
+        assertNull(DeepLinkUtils.parseDeepLink(url))
+    }
+
+    @Test
+    fun `invalid path in deep link returns null`() {
+        // We only expect memorymatch://game (empty path or /)
+        val url = "memorymatch://game/malicious/path?mode=TIME_ATTACK"
+        assertNull(DeepLinkUtils.parseDeepLink(url))
+    }
 }

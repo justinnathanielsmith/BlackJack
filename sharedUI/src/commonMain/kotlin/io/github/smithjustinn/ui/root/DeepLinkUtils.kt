@@ -16,10 +16,18 @@ object DeepLinkUtils {
     private const val DEFAULT_PAIR_COUNT = 8
 
     fun parseDeepLink(url: String): DeepLinkParams? {
-        if (!url.startsWith(Constants.DEEP_LINK_PREFIX)) return null
-
         return try {
-            val urlParams = Url(url).parameters
+            val parsedUrl = Url(url)
+
+            // Validate scheme, host, and path to prevent unauthorized deep link execution
+            if (parsedUrl.protocol.name != Constants.DEEP_LINK_SCHEME) return null
+            if (parsedUrl.host != Constants.DEEP_LINK_HOST_GAME) return null
+
+            // Only allow empty path or root "/" for the game deep link
+            val path = parsedUrl.encodedPath
+            if (path.isNotEmpty() && path != "/") return null
+
+            val urlParams = parsedUrl.parameters
             val modeStr = urlParams[Constants.QUERY_PARAM_MODE]
             val pairsStr = urlParams[Constants.QUERY_PARAM_PAIRS]
             val seedStr = urlParams[Constants.QUERY_PARAM_SEED]
