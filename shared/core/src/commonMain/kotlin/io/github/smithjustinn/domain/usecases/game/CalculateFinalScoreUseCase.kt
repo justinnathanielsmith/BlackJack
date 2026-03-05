@@ -1,7 +1,7 @@
 package io.github.smithjustinn.domain.usecases.game
 
-import io.github.smithjustinn.domain.models.MemoryGameState
 import dev.zacsweers.metro.Inject
+import io.github.smithjustinn.domain.models.MemoryGameState
 import io.github.smithjustinn.domain.services.ScoreKeeper
 
 /**

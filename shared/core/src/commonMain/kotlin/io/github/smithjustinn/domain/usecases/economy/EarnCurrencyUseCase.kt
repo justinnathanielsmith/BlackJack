@@ -1,9 +1,9 @@
 package io.github.smithjustinn.domain.usecases.economy
 
-import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import io.github.smithjustinn.di.AppScope
+import io.github.smithjustinn.domain.repositories.PlayerEconomyRepository
 
 interface EarnCurrencyUseCase {
     suspend fun execute(amount: Long)
