@@ -48,3 +48,7 @@
 ## 2026-10-29 - Missing Keys in Lazy Grid/Column
 **Learning:** Missing `key` parameters in `items` for `LazyColumn` and `LazyVerticalGrid` cause full recomposition of all visible items when the underlying list changes (e.g., adding/removing items or updating list order), rather than just updating the changed items.
 **Action:** Always provide a stable, unique `key` (like an item ID) to `items` functions in lazy layouts to enable Compose to track items efficiently and prevent unnecessary recompositions.
+
+## 2026-10-30 - Collection Iteration Overhead in Frame Loops
+**Learning:** Using `filter` or other higher-order collection functions on an immutable `List` inside a `withFrameNanos` loop forces the creation of a new `ArrayList` object on every single 60fps frame, causing severe Garbage Collection (GC) churn.
+**Action:** For collection data strictly localized to continuous animation loops, replace `immutableList` + `filter` with a standard `ArrayList` and iterate backwards (`for (i in list.lastIndex downTo 0)`) to mutate and remove expired items in-place without triggering O(N^2) element shifting or allocating memory per frame.
