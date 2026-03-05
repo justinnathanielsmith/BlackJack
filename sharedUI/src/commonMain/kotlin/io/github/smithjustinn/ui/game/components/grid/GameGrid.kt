@@ -72,16 +72,19 @@ internal fun GameGrid(
                 .fillMaxSize(),
         contentAlignment = Alignment.Center,
     ) {
-        GridBackground(
-            theme = settings.cardTheme.back,
-            modifier =
+        val insets = WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom)
+        val gridBackgroundModifier =
+            remember(insets) {
                 Modifier
                     .fillMaxSize()
-                    .windowInsetsPadding(
-                        WindowInsets.safeDrawing.only(WindowInsetsSides.Horizontal + WindowInsetsSides.Bottom),
-                    ).onGloballyPositioned { layoutCoordinates ->
+                    .windowInsetsPadding(insets)
+                    .onGloballyPositioned { layoutCoordinates ->
                         gridPosition = layoutCoordinates.positionInRoot()
-                    },
+                    }
+            }
+        GridBackground(
+            theme = settings.cardTheme.back,
+            modifier = gridBackgroundModifier,
         )
 
         if (gridCardState.cards.isNotEmpty()) {
@@ -292,7 +295,7 @@ private fun GridItem(
 
     val onClick = remember(card.id, onCardClick) { { onCardClick(card.id) } }
     val modifier =
-        remember(card.id, cardLayouts) {
+        remember(card.id) {
             Modifier.onGloballyPositioned { layoutCoordinates ->
                 cardLayouts[card.id] =
                     CardLayoutInfo(

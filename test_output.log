@@ -1,0 +1,31 @@
+Starting a Gradle Daemon (subsequent builds will be faster)
+Calculating task graph as no cached configuration is available for tasks: :sharedUI:allTests :androidApp:testDebugUnitTest :desktopApp:test
+Checking the license for package Android SDK Build-Tools 36 in /opt/android-sdk/licenses
+License for package Android SDK Build-Tools 36 accepted.
+Preparing "Install Android SDK Build-Tools 36 v.36.0.0".
+"Install Android SDK Build-Tools 36 v.36.0.0" ready.
+Installing Android SDK Build-Tools 36 in /opt/android-sdk/build-tools/36.0.0
+"Install Android SDK Build-Tools 36 v.36.0.0" complete.
+"Install Android SDK Build-Tools 36 v.36.0.0" finished.
+[=========                              ] 25%
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Gradle build daemon has been stopped: stop command received
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+[0;36m
+   __  __                                __  __       _       _
+  |  \/  | ___ _ __ ___   ___  _ __ _   _|  \/  | __ _| |_ ___| |__
+  | |\/| |/ _ \ '_ ` _ \ / _ \| '__| | | | |\/| |/ _` | __/ __| '_ \
+  | |  | |  __/ | | | | | (_) | |  | |_| | |  | | (_| | || (__| | | |
+  |_|  |_|\___|_| |_| |_|\___/|_|   \__, |_|  |_|\__,_|\__\___|_| |_|
+                                     |___/                           [0m
+  [1mMemory-Match CLI[0m [0;90mv1.3.0[0m
+
+[0;90m•[0m [0;34m[1mRunning tests for module: all...[0m
+[0;31m✘[0m [0;31m[1mCommand failed: ./gradlew :sharedUI:allTests :androidApp:testDebugUnitTest :desktopApp:test[0m

@@ -43,8 +43,12 @@ fun ScoreFlyingEffect(
     targetPosition: Offset,
     modifier: Modifier = Modifier,
 ) {
-    var points by remember { mutableStateOf(emptyList<FlyingPoint>()) }
+    // Bolt: Use ArrayList instead of immutable lists to avoid high-frequency allocations in withFrameNanos loop
+    val points = remember { ArrayList<FlyingPoint>() }
     val timeSource = TimeSource.Monotonic
+
+    // Frame ticker to ensure smooth animation redraws
+    var frameTick by remember { mutableStateOf(0L) }
 
     // Trigger points when matchPositions changes and is not empty
     LaunchedEffect(matchPositions) {
@@ -54,24 +58,26 @@ fun ScoreFlyingEffect(
                 matchPositions.flatMap { pos ->
                     generateParticles(pos, targetPosition, now)
                 }
-            points = points + newPoints
+            points.addAll(newPoints)
+            // Trigger a redraw in case the frame loop is suspended
+            frameTick = timeSource.markNow().elapsedNow().inWholeNanoseconds
         }
     }
 
-    // Frame ticker to ensure smooth animation redraws
-    var frameTick by remember { mutableStateOf(0L) }
     if (points.isNotEmpty()) {
         LaunchedEffect(Unit) {
-            while (true) {
+            while (points.isNotEmpty()) {
                 withFrameNanos { tick ->
-                    frameTick = tick
-                    val remaining =
-                        points.filter { point ->
-                            point.startTime.elapsedNow() < point.duration + point.delay
+                    var hasRemovals = false
+                    // Bolt: Iterate backwards when removing items to prevent O(N^2) shifting
+                    for (i in points.lastIndex downTo 0) {
+                        val point = points[i]
+                        if (point.startTime.elapsedNow() >= point.duration + point.delay) {
+                            points.removeAt(i)
+                            hasRemovals = true
                         }
-                    if (remaining.size != points.size) {
-                        points = remaining
                     }
+                    frameTick = tick
                 }
             }
         }
@@ -82,8 +88,8 @@ fun ScoreFlyingEffect(
     Canvas(modifier = modifier.fillMaxSize()) {
         frameTick // trigger redraw
 
-        points.forEach { point ->
-            drawParticle(point)
+        for (i in 0 until points.size) {
+            drawParticle(points[i])
         }
     }
 }
