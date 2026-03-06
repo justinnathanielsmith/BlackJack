@@ -30,6 +30,9 @@ class SettingsComponentTest : BaseComponentTest() {
         everySuspend { context.settingsRepository.setSoundVolume(any()) } returns Unit
         everySuspend { context.settingsRepository.setMusicVolume(any()) } returns Unit
         everySuspend { context.settingsRepository.setSuitsMultiColored(any()) } returns Unit
+        everySuspend { context.settingsRepository.setThirdEyeEnabled(any()) } returns Unit
+        everySuspend { context.settingsRepository.setHeatShieldEnabled(any()) } returns Unit
+        everySuspend { context.settingsRepository.setWalkthroughCompleted(any()) } returns Unit
     }
 
     @Test
@@ -77,6 +80,90 @@ class SettingsComponentTest : BaseComponentTest() {
             testDispatcher.scheduler.runCurrent()
 
             verifySuspend { context.settingsRepository.setSuitsMultiColored(true) }
+        }
+
+    @Test
+    fun `toggleSoundEnabled updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.toggleSoundEnabled(true)
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setSoundEnabled(true) }
+        }
+
+    @Test
+    fun `toggleMusicEnabled updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.toggleMusicEnabled(true)
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setMusicEnabled(true) }
+        }
+
+    @Test
+    fun `setSoundVolume updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.setSoundVolume(0.5f)
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setSoundVolume(0.5f) }
+        }
+
+    @Test
+    fun `setMusicVolume updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.setMusicVolume(0.5f)
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setMusicVolume(0.5f) }
+        }
+
+    @Test
+    fun `toggleThirdEyeEnabled updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.toggleThirdEyeEnabled(true)
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setThirdEyeEnabled(true) }
+        }
+
+    @Test
+    fun `toggleHeatShieldEnabled updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.toggleHeatShieldEnabled(true)
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setHeatShieldEnabled(true) }
+        }
+
+    @Test
+    fun `resetWalkthrough updates repository`() =
+        runTest { lifecycle ->
+            component = createComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.resetWalkthrough()
+            testDispatcher.scheduler.runCurrent()
+
+            verifySuspend { context.settingsRepository.setWalkthroughCompleted(false) }
         }
 
     private fun createComponent(lifecycle: Lifecycle): DefaultSettingsComponent =
