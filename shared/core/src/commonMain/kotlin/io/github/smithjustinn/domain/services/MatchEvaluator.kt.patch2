@@ -1,0 +1,18 @@
+--- shared/core/src/commonMain/kotlin/io/github/smithjustinn/domain/services/MatchEvaluator.kt
++++ shared/core/src/commonMain/kotlin/io/github/smithjustinn/domain/services/MatchEvaluator.kt
+@@ -47,7 +47,15 @@
+                         if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
+                 )
+
+-            val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
++            val activeCards = mutableListOf<CardState>()
++            for (c in newState.cards) {
++                if (c.isFaceUp && !c.isMatched) {
++                    activeCards.add(c)
++                    if (activeCards.size >= MatchConstants.PAIR_SIZE) break
++                }
++            }
++
+             when (activeCards.size) {
+                 MatchConstants.SINGLE_CARD -> newState to GameDomainEvent.CardFlipped
+                 MatchConstants.PAIR_SIZE -> checkForMatch(newState, activeCards)

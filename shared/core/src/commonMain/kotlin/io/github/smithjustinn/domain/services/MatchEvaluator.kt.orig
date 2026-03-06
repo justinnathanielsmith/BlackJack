@@ -43,15 +43,7 @@ object MatchEvaluator {
                         if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
                 )
 
-            val activeCards = mutableListOf<CardState>()
-            val cards = newState.cards
-            for (i in 0 until cards.size) {
-                val c = cards[i]
-                if (c.isFaceUp && !c.isMatched) {
-                    activeCards.add(c)
-                    if (activeCards.size == MatchConstants.PAIR_SIZE) break
-                }
-            }
+            val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
             when (activeCards.size) {
                 MatchConstants.SINGLE_CARD -> newState to GameDomainEvent.CardFlipped
                 MatchConstants.PAIR_SIZE -> checkForMatch(newState, activeCards)
