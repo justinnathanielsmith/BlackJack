@@ -1,20 +1,19 @@
 package io.github.smithjustinn.di
 
 import dev.zacsweers.metro.DependencyGraph
-import dev.zacsweers.metro.createGraph
 
 /**
  * iOS-specific concrete dependency graph.
  * Extends AppGraph and all provider interfaces so Metro can compile the full graph.
  */
 @DependencyGraph(AppScope::class)
-interface IosAppGraphImpl :
+interface IosAppGraph :
     AppGraph,
     CoreProviders,
     DataProviders,
-    IosProviders
+    IosUiModule
 
 /**
- * Creates the iOS dependency graph using Metro's compile-time graph.
+ * Creates the iOS dependency graph using Metro's compile-time graph factory.
  */
-fun createIosGraph(): AppGraph = createGraph<IosAppGraphImpl>()
+fun createIosGraph(): AppGraph = createGraphFactory<IosAppGraph>().create()

@@ -153,7 +153,7 @@ object ScoringCalculator {
         // Move Efficiency Bonus (dominant factor)
         // Ensure moves is at least 1 to avoid division by zero or infinity.
         val effectiveMoves = state.moves.coerceAtLeast(1)
-        return ((state.pairCount.toLong() * config.moveBonusMultiplier) / effectiveMoves).toInt()
+        return (state.pairCount.toLong() * config.moveBonusMultiplier / effectiveMoves).toInt()
     }
 
     private fun calculateTimeBonus(

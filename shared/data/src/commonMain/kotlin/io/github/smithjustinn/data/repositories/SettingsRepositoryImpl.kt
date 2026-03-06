@@ -21,6 +21,7 @@ import kotlinx.coroutines.sync.withLock
 @SingleIn(AppScope::class)
 @ContributesBinding(AppScope::class)
 @Inject
+@Suppress("TooManyFunctions")
 class SettingsRepositoryImpl(
     private val dao: SettingsDao,
 ) : SettingsRepository {

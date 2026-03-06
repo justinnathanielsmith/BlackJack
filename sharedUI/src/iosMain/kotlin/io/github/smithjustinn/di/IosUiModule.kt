@@ -25,7 +25,7 @@ import platform.Foundation.NSHomeDirectory
  * Replaces the old iosUiModule.
  */
 @ContributesTo(AppScope::class)
-interface IosProviders {
+interface IosUiModule {
     @SingleIn(AppScope::class)
     @Provides
     fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)

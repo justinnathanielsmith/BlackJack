@@ -205,7 +205,7 @@ class GameStateMachineTest : BaseLogicTest() {
             runCurrent()
 
             // Advance by half the delay
-            advanceTimeBy((GameStateMachine.MISMATCH_DELAY_MS / 2) + 10)
+            advanceTimeBy(GameStateMachine.MISMATCH_DELAY_MS / 2 + 10)
             runCurrent()
 
             val countAfterReset =

@@ -24,7 +24,7 @@ import java.io.File
  * Replaces the old jvmUiModule.
  */
 @ContributesTo(AppScope::class)
-interface JvmProviders {
+interface JvmUiModule {
     @SingleIn(AppScope::class)
     @Provides
     fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)

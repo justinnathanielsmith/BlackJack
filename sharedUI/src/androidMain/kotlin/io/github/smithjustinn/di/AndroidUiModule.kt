@@ -25,7 +25,7 @@ import kotlinx.coroutines.SupervisorJob
  * Replaces the old androidUiModule.
  */
 @ContributesTo(AppScope::class)
-interface AndroidProviders {
+interface AndroidUiModule {
     @SingleIn(AppScope::class)
     @Provides
     fun provideApplicationScope(): CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
