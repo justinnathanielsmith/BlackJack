@@ -9,7 +9,11 @@ import dev.zacsweers.metro.createGraph
  * so Metro can discover their @Provides methods at compile time.
  */
 @DependencyGraph(AppScope::class)
-interface JvmAppGraphImpl : AppGraph, CoreProviders, DataProviders, JvmProviders
+interface JvmAppGraphImpl :
+    AppGraph,
+    CoreProviders,
+    DataProviders,
+    JvmProviders
 
 /**
  * Creates the JVM/Desktop dependency graph using Metro's compile-time graph.
