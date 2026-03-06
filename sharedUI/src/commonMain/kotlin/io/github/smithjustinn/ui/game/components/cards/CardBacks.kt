@@ -303,25 +303,11 @@ internal fun PatternCardBack(baseColor: Color) {
                 .fillMaxSize()
                 .clip(RoundedCornerShape(12.dp))
                 .drawWithCache {
-                    val path = Path()
                     val step = 20.dp.toPx()
                     val width = size.width
                     val height = size.height
 
-                    for (y in -1 until (height / step).toInt() + 2) {
-                        val yPos = y * step
-                        path.moveTo(0f, yPos)
-
-                        for (x in 0 until (width / step).toInt() + 1) {
-                            val xPos = x * step
-                            path.quadraticTo(
-                                xPos + step / 2,
-                                yPos + if (x % HALF_DIVISOR == 0) step / HALF_DIVISOR else -step / HALF_DIVISOR,
-                                xPos + step,
-                                yPos,
-                            )
-                        }
-                    }
+                    val path = createPatternPath(width, height, step)
 
                     val patternColor = Color.White.copy(alpha = LOW_ALPHA)
                     val strokeWidth = 2.dp.toPx()
@@ -332,22 +318,60 @@ internal fun PatternCardBack(baseColor: Color) {
 
                     onDrawBehind {
                         drawRect(baseColor)
-
-                        drawPath(
-                            path = path,
-                            color = patternColor,
-                            style = Stroke(width = strokeWidth),
-                        )
-
-                        drawRoundRect(
-                            color = borderColor,
-                            topLeft = Offset(borderOffset, borderOffset),
-                            size = Size(size.width - borderOffset * 2, size.height - borderOffset * 2),
-                            cornerRadius = CornerRadius(cornerRadius),
-                            style = Stroke(width = borderStrokeWidth),
-                        )
+                        drawPatternLines(path, patternColor, strokeWidth)
+                        drawPatternBorder(borderColor, borderOffset, cornerRadius, borderStrokeWidth)
                     }
                 },
+    )
+}
+
+private fun createPatternPath(
+    width: Float,
+    height: Float,
+    step: Float,
+): Path {
+    val path = Path()
+    for (y in -1 until (height / step).toInt() + 2) {
+        val yPos = y * step
+        path.moveTo(0f, yPos)
+
+        for (x in 0 until (width / step).toInt() + 1) {
+            val xPos = x * step
+            path.quadraticTo(
+                xPos + step / 2,
+                yPos + if (x % HALF_DIVISOR == 0) step / HALF_DIVISOR else -step / HALF_DIVISOR,
+                xPos + step,
+                yPos,
+            )
+        }
+    }
+    return path
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPatternLines(
+    path: Path,
+    patternColor: Color,
+    strokeWidth: Float,
+) {
+    drawPath(
+        path = path,
+        color = patternColor,
+        style = Stroke(width = strokeWidth),
+    )
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPatternBorder(
+    borderColor: Color,
+    borderOffset: Float,
+    cornerRadius: Float,
+    borderStrokeWidth: Float,
+) {
+    drawRoundRect(
+        color = borderColor,
+        topLeft = Offset(borderOffset, borderOffset),
+        size = Size(size.width - borderOffset * 2, size.height - borderOffset * 2),
+        cornerRadius = CornerRadius(cornerRadius),
+        style = Stroke(width = borderStrokeWidth),
     )
 }
 
