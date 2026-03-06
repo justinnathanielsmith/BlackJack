@@ -217,31 +217,70 @@ internal fun GeometricCardBack(baseColor: Color) {
                     val cornerRadius = CornerRadius(8.dp.toPx())
 
                     onDrawBehind {
-                        drawRect(baseColor)
-
-                        for (x in xStart until xEnd step stepInt) {
-                            for (y in yStart until yEnd step stepInt) {
-                                rotate(DIAGONAL_ROTATION, Offset(x.toFloat(), y.toFloat())) {
-                                    drawRect(
-                                        color = patternColor,
-                                        topLeft = Offset(x.toFloat(), y.toFloat()),
-                                        size = rectSize,
-                                        style = rectStroke,
-                                    )
-                                }
-                            }
-                        }
-
-                        // Inner border
-                        drawRoundRect(
-                            color = borderColor,
-                            topLeft = borderTopLeft,
-                            size = borderSize,
+                        drawGeometricBackground(baseColor)
+                        drawGeometricPattern(
+                            patternColor = patternColor,
+                            rectStroke = rectStroke,
+                            rectSize = rectSize,
+                            stepInt = stepInt,
+                            xStart = xStart,
+                            xEnd = xEnd,
+                            yStart = yStart,
+                            yEnd = yEnd,
+                        )
+                        drawGeometricInnerBorder(
+                            borderColor = borderColor,
+                            borderTopLeft = borderTopLeft,
+                            borderSize = borderSize,
                             cornerRadius = cornerRadius,
-                            style = borderStroke,
+                            borderStroke = borderStroke,
                         )
                     }
                 },
+    )
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawGeometricBackground(baseColor: Color) {
+    drawRect(baseColor)
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawGeometricPattern(
+    patternColor: Color,
+    rectStroke: Stroke,
+    rectSize: Size,
+    stepInt: Int,
+    xStart: Int,
+    xEnd: Int,
+    yStart: Int,
+    yEnd: Int,
+) {
+    for (x in xStart until xEnd step stepInt) {
+        for (y in yStart until yEnd step stepInt) {
+            rotate(DIAGONAL_ROTATION, Offset(x.toFloat(), y.toFloat())) {
+                drawRect(
+                    color = patternColor,
+                    topLeft = Offset(x.toFloat(), y.toFloat()),
+                    size = rectSize,
+                    style = rectStroke,
+                )
+            }
+        }
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawGeometricInnerBorder(
+    borderColor: Color,
+    borderTopLeft: Offset,
+    borderSize: Size,
+    cornerRadius: CornerRadius,
+    borderStroke: Stroke,
+) {
+    drawRoundRect(
+        color = borderColor,
+        topLeft = borderTopLeft,
+        size = borderSize,
+        cornerRadius = cornerRadius,
+        style = borderStroke,
     )
 }
 
@@ -417,15 +456,14 @@ private fun createPokerDiamondPath(
     centerY: Float,
     verticalRadius: Float,
     horizontalRadius: Float,
-): Path {
-    return Path().apply {
+): Path =
+    Path().apply {
         moveTo(centerX, centerY - verticalRadius)
         lineTo(centerX + horizontalRadius, centerY)
         lineTo(centerX, centerY + verticalRadius)
         lineTo(centerX - horizontalRadius, centerY)
         close()
     }
-}
 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPokerBackground(
     baseColor: Color,
