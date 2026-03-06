@@ -71,7 +71,7 @@ class JvmAudioServiceImpl(
         settingsRepository.musicVolume
             .onEach { volume ->
                 musicVolume = volume
-                musicPlayer?.volume = volume.toDouble()
+                musicPlayer?.let { it.volume = volume.toDouble() }
             }.launchIn(scope)
 
         scope.launch {
