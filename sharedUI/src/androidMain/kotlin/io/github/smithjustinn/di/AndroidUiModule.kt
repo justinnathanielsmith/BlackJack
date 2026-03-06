@@ -44,8 +44,7 @@ interface AndroidProviders {
 
     @SingleIn(AppScope::class)
     @Provides
-    fun provideAdService(activity: Activity?): AdService =
-        AndroidAdService(activityProvider = { activity })
+    fun provideAdService(activity: Activity?): AdService = AndroidAdService(activityProvider = { activity })
 
     @SingleIn(AppScope::class)
     @Provides

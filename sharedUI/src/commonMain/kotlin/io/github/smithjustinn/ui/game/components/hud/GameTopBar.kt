@@ -25,10 +25,9 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.statusBarsPadding
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme.typography
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipBox
@@ -47,8 +46,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.PathEffect
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.graphicsLayer
-import androidx.compose.ui.input.pointer.PointerIcon
-import androidx.compose.ui.input.pointer.pointerHoverIcon
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
@@ -58,7 +55,6 @@ import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import io.github.smithjustinn.di.LocalAppGraph
 import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.resources.Res
 import io.github.smithjustinn.resources.back_content_description
@@ -301,8 +297,7 @@ private fun BackButton(
                         onClick = onClick,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
-                    )
-                    .semantics { contentDescription = contentDesc },
+                    ).semantics { contentDescription = contentDesc },
         ) {
             Box(contentAlignment = Alignment.Center) {
                 // Dashed border effect (simplified for icon button)
@@ -357,8 +352,7 @@ private fun RestartButton(
                         onClick = onClick,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
-                    )
-                    .semantics { contentDescription = contentDesc },
+                    ).semantics { contentDescription = contentDesc },
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
@@ -405,8 +399,7 @@ private fun MuteButton(
                         onClick = onClick,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
-                    )
-                    .semantics { contentDescription = contentDesc },
+                    ).semantics { contentDescription = contentDesc },
         ) {
             Box(contentAlignment = Alignment.Center) {
                 Icon(
