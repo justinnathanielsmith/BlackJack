@@ -88,29 +88,35 @@ class IosAudioServiceImpl(
             AudioService.SoundEffect.entries.forEach { effect ->
                 try {
                     val resource = effect.toResource()
-                    val name = getString(resource)
-                    val path = "$name.m4a"
-                    val bytes = Res.readBytes("files/$path")
-                    if (bytes.isEmpty()) {
-                        logger.w { "Sound file is empty: $name" }
-                        return@forEach
-                    }
-                    val data =
-                        bytes.usePinned { pinned ->
-                            NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                    val pool =
+                        withContext(Dispatchers.Default) {
+                            val name = getString(resource)
+                            val path = "$name.m4a"
+                            val bytes = Res.readBytes("files/$path")
+                            if (bytes.isEmpty()) {
+                                logger.w { "Sound file is empty: $name" }
+                                return@withContext null
+                            }
+                            val data =
+                                bytes.usePinned { pinned ->
+                                    NSData.create(bytes = pinned.addressOf(0), length = bytes.size.toULong())
+                                }
+
+                            // Create a pool of players for polyphony support
+                            val localPool = mutableListOf<AVAudioPlayer>()
+                            repeat(PLAYER_POOL_SIZE) {
+                                val player = AVAudioPlayer(data = data, error = null)
+                                player.volume = soundVolume
+                                player.prepareToPlay()
+                                localPool.add(player)
+                            }
+                            localPool
                         }
 
-                    // Create a pool of players for polyphony support
-                    val pool = mutableListOf<AVAudioPlayer>()
-                    repeat(PLAYER_POOL_SIZE) {
-                        val player = AVAudioPlayer(data = data, error = null)
-                        player.volume = soundVolume
-                        player.prepareToPlay()
-                        pool.add(player)
+                    if (pool != null) {
+                        playerPools[resource] = pool
+                        poolIndices[resource] = 0
                     }
-
-                    playerPools[resource] = pool
-                    poolIndices[resource] = 0
                 } catch (
                     @Suppress("TooGenericExceptionCaught") e: Exception,
                 ) {
