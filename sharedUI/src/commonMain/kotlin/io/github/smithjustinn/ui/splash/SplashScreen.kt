@@ -66,33 +66,38 @@ fun SplashScreen(onDataLoaded: () -> Unit) {
             visible = isVisible,
             enter = fadeIn(animationSpec = tween(SPLASH_FADE_DURATION_MS)),
         ) {
-            Column(
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.Center,
-            ) {
-                // Main Title with Golden Glimmer
-                GlimmerText(stringResource(Res.string.splash_title), fontSize = 36.sp)
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // Animated Card Preview
-                CardPreview(
-                    modifier = Modifier.width(280.dp), // Slightly smaller to look focused
-                )
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // Subtle Loading Text
-                val glimmerBrush = rememberGlimmerBrush()
-                Text(
-                    text = stringResource(Res.string.splash_dealing_cards),
-                    style =
-                        MaterialTheme.typography.bodyMedium.copy(
-                            brush = glimmerBrush,
-                            fontWeight = FontWeight.Medium,
-                        ),
-                )
-            }
+            SplashContent()
         }
+    }
+}
+
+@Composable
+private fun SplashContent() {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center,
+    ) {
+        // Main Title with Golden Glimmer
+        GlimmerText(stringResource(Res.string.splash_title), fontSize = 36.sp)
+
+        Spacer(modifier = Modifier.height(32.dp))
+
+        // Animated Card Preview
+        CardPreview(
+            modifier = Modifier.width(280.dp), // Slightly smaller to look focused
+        )
+
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Subtle Loading Text
+        val glimmerBrush = rememberGlimmerBrush()
+        Text(
+            text = stringResource(Res.string.splash_dealing_cards),
+            style =
+                MaterialTheme.typography.bodyMedium.copy(
+                    brush = glimmerBrush,
+                    fontWeight = FontWeight.Medium,
+                ),
+        )
     }
 }
