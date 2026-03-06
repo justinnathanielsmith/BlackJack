@@ -15,44 +15,35 @@ data class DeepLinkParams(
 object DeepLinkUtils {
     private const val DEFAULT_PAIR_COUNT = 8
 
+    @Suppress("ReturnCount")
     fun parseDeepLink(url: String): DeepLinkParams? {
-        return try {
-            val parsedUrl = Url(url)
+        val parsedUrl = Url(url)
 
-            // Validate scheme, host, and path to prevent unauthorized deep link execution
-            if (parsedUrl.protocol.name != Constants.DEEP_LINK_SCHEME) return null
-            if (parsedUrl.host != Constants.DEEP_LINK_HOST_GAME) return null
+        // Validate scheme, host, and path to prevent unauthorized deep link execution
+        if (parsedUrl.protocol.name != Constants.DEEP_LINK_SCHEME) return null
+        if (parsedUrl.host != Constants.DEEP_LINK_HOST_GAME) return null
 
-            // Only allow empty path or root "/" for the game deep link
-            val path = parsedUrl.encodedPath
-            if (path.isNotEmpty() && path != "/") return null
+        // Only allow empty path or root "/" for the game deep link
+        val path = parsedUrl.encodedPath
+        if (path.isNotEmpty() && path != "/") return null
 
-            val urlParams = parsedUrl.parameters
-            val modeStr = urlParams[Constants.QUERY_PARAM_MODE]
-            val pairsStr = urlParams[Constants.QUERY_PARAM_PAIRS]
-            val seedStr = urlParams[Constants.QUERY_PARAM_SEED]
+        val urlParams = parsedUrl.parameters
+        val modeStr = urlParams[Constants.QUERY_PARAM_MODE]
+        val pairsStr = urlParams[Constants.QUERY_PARAM_PAIRS]
+        val seedStr = urlParams[Constants.QUERY_PARAM_SEED]
 
-            val mode =
-                modeStr?.let { name ->
-                    GameMode.entries.find { it.name == name }
-                } ?: GameMode.TIME_ATTACK
+        val mode =
+            modeStr?.let { name ->
+                GameMode.entries.find { it.name == name }
+            } ?: GameMode.TIME_ATTACK
 
-            val pairs =
-                (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT)
-                    .coerceIn(GameArgs.MIN_PAIRS, GameArgs.MAX_PAIRS)
+        val pairs =
+            (pairsStr?.toIntOrNull() ?: DEFAULT_PAIR_COUNT)
+                .coerceIn(GameArgs.MIN_PAIRS, GameArgs.MAX_PAIRS)
 
-            val seed = if (mode == GameMode.DAILY_CHALLENGE) null else seedStr?.toLongOrNull()
+        val seed = if (mode == GameMode.DAILY_CHALLENGE) null else seedStr?.toLongOrNull()
 
-            DeepLinkParams(mode, pairs, seed)
-        } catch (
-            @Suppress("SwallowedException") _: IllegalArgumentException,
-        ) {
-            null
-        } catch (
-            @Suppress("SwallowedException") _: IllegalStateException,
-        ) {
-            null
-        }
+        return DeepLinkParams(mode, pairs, seed)
     }
 
     fun sanitizeForLogging(url: String): String =

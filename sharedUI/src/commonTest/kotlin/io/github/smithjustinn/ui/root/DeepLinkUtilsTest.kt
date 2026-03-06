@@ -4,6 +4,7 @@ import io.github.smithjustinn.domain.models.GameMode
 import io.github.smithjustinn.ui.game.GameArgs
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertFailsWith
 import kotlin.test.assertNotNull
 import kotlin.test.assertNull
 
@@ -105,6 +106,15 @@ class DeepLinkUtilsTest {
         val url = ":"
         val sanitized = DeepLinkUtils.sanitizeForLogging(url)
         assertEquals("Malformatted Deep Link", sanitized)
+    }
+
+    @Test
+    fun `parse invalid url throws exception`() {
+        val url = ":"
+        // Ktor's Url parser wraps the failure in a URLParserException, which is a subtype of IllegalStateException.
+        assertFailsWith<IllegalStateException> {
+            DeepLinkUtils.parseDeepLink(url)
+        }
     }
 
     @Test
