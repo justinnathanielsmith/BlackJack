@@ -27,6 +27,8 @@ class SettingsRepositoryImpl(
     private val scope = CoroutineScope(Dispatchers.IO)
     private val writeMutex = Mutex()
 
+    private var inMemorySettings: SettingsEntity? = null
+
     private val settingsFlow =
         dao
             .getSettings()
@@ -35,6 +37,18 @@ class SettingsRepositoryImpl(
                 started = SharingStarted.Eagerly,
                 replay = 1,
             )
+
+    private suspend fun getCurrentSettings(): SettingsEntity =
+        inMemorySettings ?: settingsFlow.firstOrNull() ?: SettingsEntity()
+
+    private suspend fun updateSettings(transform: (SettingsEntity) -> SettingsEntity) {
+        writeMutex.withLock {
+            val current = getCurrentSettings()
+            val next = transform(current)
+            dao.saveSettings(next)
+            inMemorySettings = next
+        }
+    }
 
     override val isPeekEnabled: StateFlow<Boolean> =
         settingsFlow.mapToStateFlow(
@@ -90,57 +104,24 @@ class SettingsRepositoryImpl(
             initialValue = false,
         ) { it?.isHeatShieldEnabled ?: false }
 
-    override suspend fun setPeekEnabled(enabled: Boolean) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(isPeekEnabled = enabled))
-        }
+    override suspend fun setPeekEnabled(enabled: Boolean) = updateSettings { it.copy(isPeekEnabled = enabled) }
 
-    override suspend fun setSoundEnabled(enabled: Boolean) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(isSoundEnabled = enabled))
-        }
+    override suspend fun setSoundEnabled(enabled: Boolean) = updateSettings { it.copy(isSoundEnabled = enabled) }
 
-    override suspend fun setMusicEnabled(enabled: Boolean) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(isMusicEnabled = enabled))
-        }
+    override suspend fun setMusicEnabled(enabled: Boolean) = updateSettings { it.copy(isMusicEnabled = enabled) }
 
     override suspend fun setWalkthroughCompleted(completed: Boolean) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(isWalkthroughCompleted = completed))
-        }
+        updateSettings { it.copy(isWalkthroughCompleted = completed) }
 
-    override suspend fun setSoundVolume(volume: Float) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(soundVolume = volume))
-        }
+    override suspend fun setSoundVolume(volume: Float) = updateSettings { it.copy(soundVolume = volume) }
 
-    override suspend fun setMusicVolume(volume: Float) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(musicVolume = volume))
-        }
+    override suspend fun setMusicVolume(volume: Float) = updateSettings { it.copy(musicVolume = volume) }
 
     override suspend fun setSuitsMultiColored(enabled: Boolean) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(areSuitsMultiColored = enabled))
-        }
+        updateSettings { it.copy(areSuitsMultiColored = enabled) }
 
-    override suspend fun setThirdEyeEnabled(enabled: Boolean) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(isThirdEyeEnabled = enabled))
-        }
+    override suspend fun setThirdEyeEnabled(enabled: Boolean) = updateSettings { it.copy(isThirdEyeEnabled = enabled) }
 
     override suspend fun setHeatShieldEnabled(enabled: Boolean) =
-        writeMutex.withLock {
-            val current = dao.getSettings().firstOrNull() ?: SettingsEntity()
-            dao.saveSettings(current.copy(isHeatShieldEnabled = enabled))
-        }
+        updateSettings { it.copy(isHeatShieldEnabled = enabled) }
 }
