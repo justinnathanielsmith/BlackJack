@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import io.github.smithjustinn.data.extensions.mapList
 import io.github.smithjustinn.data.local.GameStatsDao
 import io.github.smithjustinn.data.local.GameStatsEntity
 import io.github.smithjustinn.di.AppScope
@@ -34,7 +35,7 @@ class GameStatsRepositoryImpl(
     override fun getAllStats(): Flow<List<GameStats>> =
         dao
             .getAllStats()
-            .map { entities -> entities.map { it.toDomain() } }
+            .mapList { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
                 logger.e(e) { "Error fetching all stats" }

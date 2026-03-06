@@ -13,3 +13,6 @@ internal fun <T, R> Flow<T>.mapToStateFlow(
     started: SharingStarted = SharingStarted.Eagerly,
     transform: suspend (T) -> R,
 ): StateFlow<R> = map(transform).stateIn(scope, started, initialValue)
+
+internal inline fun <T, R> Flow<Iterable<T>>.mapList(crossinline transform: suspend (T) -> R): Flow<List<R>> =
+    map { list -> list.map { transform(it) } }
