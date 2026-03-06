@@ -2,6 +2,9 @@ package io.github.smithjustinn.ui.assets
 
 import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
+import androidx.compose.ui.test.ExperimentalTestApi
+import androidx.compose.ui.test.runComposeUiTest
+import io.github.smithjustinn.utils.Constants
 import kotlin.test.Test
 import kotlin.test.assertEquals
 import kotlin.test.assertNotNull
@@ -55,4 +58,58 @@ class AssetProviderTest {
             assertNotNull(AssetProvider.getSymbolTheme(id), "Symbol theme ID '$id' should resolve")
         }
     }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `CardPreview renders card back preview successfully`() =
+        runComposeUiTest {
+            setContent {
+                AssetProvider.CardPreview(shopItemId = "theme_standard")
+            }
+        }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `CardPreview renders card face preview successfully`() =
+        runComposeUiTest {
+            setContent {
+                AssetProvider.CardPreview(shopItemId = "skin_classic")
+            }
+        }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `CardPreview renders four color preview successfully`() =
+        runComposeUiTest {
+            setContent {
+                AssetProvider.CardPreview(shopItemId = Constants.FEATURE_FOUR_COLOR_SUITS)
+            }
+        }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `CardPreview renders third eye preview successfully`() =
+        runComposeUiTest {
+            setContent {
+                AssetProvider.CardPreview(shopItemId = Constants.FEATURE_THIRD_EYE)
+            }
+        }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `CardPreview renders heat shield preview successfully`() =
+        runComposeUiTest {
+            setContent {
+                AssetProvider.CardPreview(shopItemId = Constants.FEATURE_HEAT_SHIELD)
+            }
+        }
+
+    @OptIn(ExperimentalTestApi::class)
+    @Test
+    fun `CardPreview renders empty box for unknown ID successfully`() =
+        runComposeUiTest {
+            setContent {
+                AssetProvider.CardPreview(shopItemId = "unknown_id")
+            }
+        }
 }
