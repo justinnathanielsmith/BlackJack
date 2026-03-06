@@ -246,6 +246,23 @@ class StartComponentTest : BaseComponentTest() {
             assertTrue(navigatedToDebug)
         }
 
+    @Test
+    fun `onEntranceAnimationCompleted updates shouldAnimateEntrance to false`() =
+        runTest { lifecycle ->
+            component = createDefaultComponent(lifecycle)
+            testDispatcher.scheduler.runCurrent()
+
+            component.state.test {
+                val initialState = awaitItem()
+                assertTrue(initialState.shouldAnimateEntrance)
+
+                component.onEntranceAnimationCompleted()
+
+                val updatedState = awaitItem()
+                assertFalse(updatedState.shouldAnimateEntrance)
+            }
+        }
+
     private fun createDefaultComponent(lifecycle: Lifecycle): DefaultStartComponent =
         DefaultStartComponent(
             componentContext = DefaultComponentContext(lifecycle = lifecycle),
