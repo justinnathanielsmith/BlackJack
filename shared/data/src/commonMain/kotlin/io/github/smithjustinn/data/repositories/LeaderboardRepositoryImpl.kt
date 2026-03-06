@@ -4,6 +4,7 @@ import co.touchlab.kermit.Logger
 import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
+import io.github.smithjustinn.data.extensions.mapList
 import io.github.smithjustinn.data.local.LeaderboardDao
 import io.github.smithjustinn.data.local.LeaderboardEntity
 import io.github.smithjustinn.di.AppScope
@@ -12,7 +13,6 @@ import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlin.coroutines.cancellation.CancellationException
 
 @SingleIn(AppScope::class)
@@ -28,7 +28,7 @@ class LeaderboardRepositoryImpl(
     ): Flow<List<LeaderboardEntry>> =
         dao
             .getTopEntries(pairCount, gameMode)
-            .mapToDomain()
+            .mapList { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
                 logger.e(e) { "Error fetching leaderboard for difficulty: $pairCount, mode: $gameMode" }
@@ -38,7 +38,7 @@ class LeaderboardRepositoryImpl(
     override fun getAllTopEntries(gameMode: GameMode): Flow<List<LeaderboardEntry>> =
         dao
             .getAllTopEntries(gameMode)
-            .mapToDomain()
+            .mapList { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
                 logger.e(e) { "Error fetching all leaderboards for mode: $gameMode" }
@@ -77,7 +77,4 @@ class LeaderboardRepositoryImpl(
             timestamp = timestamp,
             gameMode = gameMode,
         )
-
-    private fun Flow<List<LeaderboardEntity>>.mapToDomain(): Flow<List<LeaderboardEntry>> =
-        map { entities -> entities.map { it.toDomain() } }
 }
