@@ -86,7 +86,9 @@ fun SteamEffect(
     Canvas(modifier = modifier.fillMaxSize()) {
         frameState.longValue // Trigger redraw
 
-        particles.forEach { p ->
+        // Bolt: Use index-based loop instead of forEach to prevent Iterator allocation in hot Canvas draw loop
+        for (i in 0 until particles.size) {
+            val p = particles[i]
             if (p.life == 0f && p.y == 0f) {
                 p.reset(size.width, size.height)
             }

@@ -110,7 +110,9 @@ fun ConfettiEffect(
         frameState.longValue
 
         val canvasCenter = center
-        particles.forEach { p ->
+        // Bolt: Use index-based loop instead of forEach to prevent Iterator allocation in hot Canvas draw pass
+        for (i in 0 until particles.size) {
+            val p = particles[i]
             val position = canvasCenter + Offset(p.x, p.y)
             rotate(p.rotation, pivot = position) {
                 drawRect(

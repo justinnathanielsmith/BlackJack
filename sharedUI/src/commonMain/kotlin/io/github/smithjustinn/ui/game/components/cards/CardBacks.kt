@@ -417,15 +417,14 @@ private fun createPokerDiamondPath(
     centerY: Float,
     verticalRadius: Float,
     horizontalRadius: Float,
-): Path {
-    return Path().apply {
+): Path =
+    Path().apply {
         moveTo(centerX, centerY - verticalRadius)
         lineTo(centerX + horizontalRadius, centerY)
         lineTo(centerX, centerY + verticalRadius)
         lineTo(centerX - horizontalRadius, centerY)
         close()
     }
-}
 
 private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPokerBackground(
     baseColor: Color,

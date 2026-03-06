@@ -180,7 +180,10 @@ private fun PhysicsEngine(
                 withFrameNanos { frameTime ->
                     if (startTimeNanos == 0L) startTimeNanos = frameTime
                     val elapsedSeconds = (frameTime - startTimeNanos) / NANOS_PER_SECOND
-                    celebrationCards.forEach { it.update(GRAVITY, FRICTION, elapsedSeconds, heightPx) }
+                    // Bolt: Use index-based loop instead of forEach to avoid Iterator allocation inside withFrameNanos loop
+                    for (i in 0 until celebrationCards.size) {
+                        celebrationCards[i].update(GRAVITY, FRICTION, elapsedSeconds, heightPx)
+                    }
                 }
             }
         }
@@ -193,7 +196,9 @@ private fun CelebrationCardsLayer(
     theme: CardTheme,
     areSuitsMultiColored: Boolean,
 ) {
-    celebrationCards.forEach { cCard ->
+    // Bolt: Use index-based loop to prevent Iterator allocation in Compose loop
+    for (i in 0 until celebrationCards.size) {
+        val cCard = celebrationCards[i]
         key(cCard.card.id) {
             PlayingCard(
                 content =
