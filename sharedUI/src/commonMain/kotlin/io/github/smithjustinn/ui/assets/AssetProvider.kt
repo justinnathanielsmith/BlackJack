@@ -23,6 +23,9 @@ import io.github.smithjustinn.domain.models.CardBackTheme
 import io.github.smithjustinn.domain.models.CardSymbolTheme
 import io.github.smithjustinn.domain.models.Rank
 import io.github.smithjustinn.domain.models.Suit
+import io.github.smithjustinn.resources.Res
+import io.github.smithjustinn.resources.settings_enable_heat_shield
+import io.github.smithjustinn.resources.settings_enable_third_eye
 import io.github.smithjustinn.theme.PokerTheme
 import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.game.components.cards.CardBack
@@ -30,6 +33,7 @@ import io.github.smithjustinn.ui.game.components.cards.CardFace
 import io.github.smithjustinn.ui.game.components.cards.ShimmerEffect
 import io.github.smithjustinn.ui.game.components.grid.CARD_ASPECT_RATIO
 import io.github.smithjustinn.utils.Constants
+import org.jetbrains.compose.resources.stringResource
 
 /**
  * AssetProvider provides Composable previews for shop items.
@@ -94,6 +98,7 @@ object AssetProvider {
                         backColor = PokerTheme.colors.feltGreen,
                         rotation = 180f,
                         modifier = Modifier.fillMaxSize(),
+                        contentDescription = stringResource(Res.string.settings_enable_third_eye),
                     )
                 }
                 shopItemId == Constants.FEATURE_HEAT_SHIELD -> {
@@ -102,6 +107,7 @@ object AssetProvider {
                         backColor = PokerTheme.colors.tacticalRed,
                         rotation = 0f,
                         modifier = Modifier.fillMaxSize(),
+                        contentDescription = stringResource(Res.string.settings_enable_heat_shield),
                     )
                 }
                 else -> {
@@ -171,6 +177,7 @@ object AssetProvider {
         backColor: Color,
         rotation: Float,
         modifier: Modifier = Modifier,
+        contentDescription: String? = null,
     ) {
         Box(
             modifier = modifier,
@@ -183,7 +190,7 @@ object AssetProvider {
             )
             Icon(
                 imageVector = icon,
-                contentDescription = null,
+                contentDescription = contentDescription,
                 modifier = Modifier.size(48.dp),
                 tint = PokerTheme.colors.goldenYellow,
             )
