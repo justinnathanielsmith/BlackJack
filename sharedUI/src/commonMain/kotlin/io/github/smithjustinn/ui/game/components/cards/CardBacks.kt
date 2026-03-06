@@ -369,30 +369,11 @@ internal fun PokerCardBack(baseColor: Color) {
                     val strokeWidth = 1.dp.toPx()
                     val cornerRadius = CornerRadius(8.dp.toPx())
 
-                    val gridPath = Path()
-                    val count = ((innerWidth + innerHeight) / step).toInt()
-
-                    for (i in 0 until count) {
-                        val offset = i * step
-                        // Diagonal /
-                        gridPath.moveTo(borderSize + offset, borderSize)
-                        gridPath.lineTo(borderSize, borderSize + offset)
-
-                        // Diagonal \
-                        gridPath.moveTo(borderSize, innerHeight + borderSize - offset)
-                        gridPath.lineTo(borderSize + offset, innerHeight + borderSize)
-                    }
-
                     val centerX = width / 2
                     val centerY = height / 2
-                    val diamondPath =
-                        Path().apply {
-                            moveTo(centerX, centerY - 20.dp.toPx())
-                            lineTo(centerX + 15.dp.toPx(), centerY)
-                            lineTo(centerX, centerY + 20.dp.toPx())
-                            lineTo(centerX - 15.dp.toPx(), centerY)
-                            close()
-                        }
+
+                    val gridPath = createPokerGridPath(innerWidth, innerHeight, step, borderSize)
+                    val diamondPath = createPokerDiamondPath(centerX, centerY, 20.dp.toPx(), 15.dp.toPx())
 
                     val patternColor = Color.Black.copy(alpha = 0.15f)
                     val emblemColor1 = Color.White.copy(alpha = 0.2f)
@@ -401,28 +382,89 @@ internal fun PokerCardBack(baseColor: Color) {
                     val emblemStroke = Stroke(width = 2.dp.toPx())
 
                     onDrawBehind {
-                        // White Border usually
-                        drawRect(Color.White)
-
-                        // Inner Color Area
-                        drawRoundRect(
-                            color = baseColor,
-                            topLeft = Offset(borderSize, borderSize),
-                            size = Size(innerWidth, innerHeight),
-                            cornerRadius = cornerRadius,
-                        )
-
-                        // Grid
-                        drawPath(
-                            path = gridPath,
-                            color = patternColor,
-                            style = gridStroke,
-                        )
-
-                        // Large Center Emblem (Diamond)
-                        drawPath(diamondPath, emblemColor1)
-                        drawPath(diamondPath, color = emblemColor2, style = emblemStroke)
+                        drawPokerBackground(baseColor, borderSize, innerWidth, innerHeight, cornerRadius)
+                        drawPokerGrid(gridPath, patternColor, gridStroke)
+                        drawPokerEmblem(diamondPath, emblemColor1, emblemColor2, emblemStroke)
                     }
                 },
     )
+}
+
+private fun createPokerGridPath(
+    innerWidth: Float,
+    innerHeight: Float,
+    step: Float,
+    borderSize: Float,
+): Path {
+    val gridPath = Path()
+    val count = ((innerWidth + innerHeight) / step).toInt()
+
+    for (i in 0 until count) {
+        val offset = i * step
+        // Diagonal /
+        gridPath.moveTo(borderSize + offset, borderSize)
+        gridPath.lineTo(borderSize, borderSize + offset)
+
+        // Diagonal \
+        gridPath.moveTo(borderSize, innerHeight + borderSize - offset)
+        gridPath.lineTo(borderSize + offset, innerHeight + borderSize)
+    }
+    return gridPath
+}
+
+private fun createPokerDiamondPath(
+    centerX: Float,
+    centerY: Float,
+    verticalRadius: Float,
+    horizontalRadius: Float,
+): Path {
+    return Path().apply {
+        moveTo(centerX, centerY - verticalRadius)
+        lineTo(centerX + horizontalRadius, centerY)
+        lineTo(centerX, centerY + verticalRadius)
+        lineTo(centerX - horizontalRadius, centerY)
+        close()
+    }
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPokerBackground(
+    baseColor: Color,
+    borderSize: Float,
+    innerWidth: Float,
+    innerHeight: Float,
+    cornerRadius: CornerRadius,
+) {
+    // White Border usually
+    drawRect(Color.White)
+
+    // Inner Color Area
+    drawRoundRect(
+        color = baseColor,
+        topLeft = Offset(borderSize, borderSize),
+        size = Size(innerWidth, innerHeight),
+        cornerRadius = cornerRadius,
+    )
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPokerGrid(
+    gridPath: Path,
+    patternColor: Color,
+    gridStroke: Stroke,
+) {
+    drawPath(
+        path = gridPath,
+        color = patternColor,
+        style = gridStroke,
+    )
+}
+
+private fun androidx.compose.ui.graphics.drawscope.DrawScope.drawPokerEmblem(
+    diamondPath: Path,
+    emblemColor1: Color,
+    emblemColor2: Color,
+    emblemStroke: Stroke,
+) {
+    // Large Center Emblem (Diamond)
+    drawPath(diamondPath, emblemColor1)
+    drawPath(diamondPath, color = emblemColor2, style = emblemStroke)
 }
