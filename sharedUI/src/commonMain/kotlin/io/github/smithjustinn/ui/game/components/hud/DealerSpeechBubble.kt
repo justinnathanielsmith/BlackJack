@@ -29,6 +29,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Path
 import androidx.compose.ui.semantics.clearAndSetSemantics
 import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -59,27 +60,6 @@ private fun SpeechBubbleContent(matchComment: MatchComment) {
     @Suppress("SpreadOperator")
     val commentText = stringResource(matchComment.res, *matchComment.args.toTypedArray())
 
-    var displayedText by remember(commentText) { mutableStateOf("") }
-
-    LaunchedEffect(commentText) {
-        displayedText = ""
-        var currentIndex = 0
-        while (currentIndex < commentText.length) {
-            kotlinx.coroutines.delay(30)
-
-            // Advance by length to avoid splitting surrogate pairs
-            val charLength =
-                if (commentText[currentIndex].isHighSurrogate() && currentIndex + 1 < commentText.length) {
-                    2
-                } else {
-                    1
-                }
-            currentIndex += charLength
-
-            displayedText = commentText.substring(0, currentIndex)
-        }
-    }
-
     Column(
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier =
@@ -99,8 +79,8 @@ private fun SpeechBubbleContent(matchComment: MatchComment) {
                     .padding(horizontal = 16.dp, vertical = 12.dp)
                     .widthIn(max = 280.dp),
         ) {
-            Text(
-                text = displayedText,
+            TypewriterText(
+                text = commentText,
                 style =
                     MaterialTheme.typography.bodyMedium.copy(
                         fontFamily = FontFamily.Serif,
@@ -125,6 +105,44 @@ private fun SpeechBubbleContent(matchComment: MatchComment) {
             drawPath(path, color = Color.White)
         }
     }
+}
+
+@Composable
+private fun TypewriterText(
+    text: String,
+    modifier: Modifier = Modifier,
+    style: TextStyle = MaterialTheme.typography.bodyMedium,
+    fontWeight: FontWeight? = null,
+    textAlign: TextAlign? = null,
+) {
+    var displayedText by remember(text) { mutableStateOf("") }
+
+    LaunchedEffect(text) {
+        displayedText = ""
+        var currentIndex = 0
+        while (currentIndex < text.length) {
+            kotlinx.coroutines.delay(30)
+
+            // Advance by length to avoid splitting surrogate pairs
+            val charLength =
+                if (text[currentIndex].isHighSurrogate() && currentIndex + 1 < text.length) {
+                    2
+                } else {
+                    1
+                }
+            currentIndex += charLength
+
+            displayedText = text.substring(0, currentIndex)
+        }
+    }
+
+    Text(
+        text = displayedText,
+        modifier = modifier,
+        style = style,
+        fontWeight = fontWeight,
+        textAlign = textAlign,
+    )
 }
 
 private val BubbleShape = RoundedCornerShape(16.dp)
