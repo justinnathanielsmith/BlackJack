@@ -153,7 +153,9 @@ class JvmAudioServiceImpl(
                     musicPlayer =
                         MediaPlayer(media).apply {
                             cycleCount = MediaPlayer.INDEFINITE
-                            volume = musicVolume.toDouble()
+                            setOnReady {
+                                volume = musicVolume.toDouble()
+                            }
                         }
                 }
 
