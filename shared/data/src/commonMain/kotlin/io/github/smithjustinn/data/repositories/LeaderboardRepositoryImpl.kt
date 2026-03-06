@@ -57,24 +57,8 @@ class LeaderboardRepositoryImpl(
     }
 
     private fun LeaderboardEntity.toDomain(): LeaderboardEntry =
-        LeaderboardEntry(
-            id = id,
-            pairCount = pairCount,
-            score = score,
-            timeSeconds = timeSeconds,
-            moves = moves,
-            timestamp = timestamp,
-            gameMode = gameMode,
-        )
+        LeaderboardEntry(id, pairCount, score, timeSeconds, moves, timestamp, gameMode)
 
     private fun LeaderboardEntry.toEntity(): LeaderboardEntity =
-        LeaderboardEntity(
-            id = id,
-            pairCount = pairCount,
-            score = score,
-            timeSeconds = timeSeconds,
-            moves = moves,
-            timestamp = timestamp,
-            gameMode = gameMode,
-        )
+        LeaderboardEntity(id, pairCount, score, timeSeconds, moves, timestamp, gameMode)
 }
