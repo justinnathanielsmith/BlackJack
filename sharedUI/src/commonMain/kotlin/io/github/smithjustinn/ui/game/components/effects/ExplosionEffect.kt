@@ -70,7 +70,9 @@ fun ExplosionEffect(
     Canvas(modifier = modifier.fillMaxSize()) {
         val center = centerOverride ?: Offset(size.width / 2, size.height / 2)
 
-        particles.forEach { particle ->
+        // Bolt: Use index-based loop to prevent Iterator allocation in hot Canvas draw pass
+        for (i in 0 until particles.size) {
+            val particle = particles[i]
             val currentX = center.x + particle.vx * progress.value * PARTICLE_DISTANCE_MULTIPLIER
             val currentY = center.y + particle.vy * progress.value * PARTICLE_DISTANCE_MULTIPLIER
             val alpha = (1f - progress.value).coerceIn(0f, 1f)

@@ -123,7 +123,9 @@ fun ParticleEmbers(
             // Access frameState to trigger recomposition
             frameState.longValue
 
-            particles.forEach { p ->
+            // Bolt: Use index-based loop instead of forEach to prevent Iterator allocation in hot Canvas draw loop
+            for (i in 0 until particles.size) {
+                val p = particles[i]
                 if (p.isDead()) {
                     p.reset(size.width, size.height)
                     if (p.x == INITIAL_X && p.y == INITIAL_Y) {
