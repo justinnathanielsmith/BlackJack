@@ -225,6 +225,5 @@ class PlayerEconomyRepositoryImpl(
             logger.d { "Selected power up: $powerUpId" }
         }
 
-    private suspend fun getOrCreateEntity(): PlayerEconomyEntity =
-        dao.getPlayerEconomy().firstOrNull() ?: PlayerEconomyEntity()
+    private suspend fun getOrCreateEntity(): PlayerEconomyEntity = economyFlow.firstOrNull() ?: PlayerEconomyEntity()
 }
