@@ -5,6 +5,7 @@ import dev.zacsweers.metro.ContributesBinding
 import dev.zacsweers.metro.Inject
 import dev.zacsweers.metro.SingleIn
 import io.github.smithjustinn.data.extensions.mapList
+import io.github.smithjustinn.data.extensions.mapNullable
 import io.github.smithjustinn.data.local.GameStatsDao
 import io.github.smithjustinn.data.local.GameStatsEntity
 import io.github.smithjustinn.di.AppScope
@@ -12,7 +13,6 @@ import io.github.smithjustinn.domain.models.GameStats
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
-import kotlinx.coroutines.flow.map
 import kotlin.coroutines.cancellation.CancellationException
 
 @SingleIn(AppScope::class)
@@ -25,7 +25,7 @@ class GameStatsRepositoryImpl(
     override fun getStatsForDifficulty(pairCount: Int): Flow<GameStats?> =
         dao
             .getStatsForDifficulty(pairCount)
-            .map { it?.toDomain() }
+            .mapNullable { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
                 logger.e(e) { "Error fetching stats for difficulty: $pairCount" }

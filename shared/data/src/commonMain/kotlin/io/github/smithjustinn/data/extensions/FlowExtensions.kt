@@ -16,3 +16,6 @@ internal fun <T, R> Flow<T>.mapToStateFlow(
 
 internal inline fun <T, R> Flow<Iterable<T>>.mapList(crossinline transform: suspend (T) -> R): Flow<List<R>> =
     map { list -> list.map { transform(it) } }
+
+internal inline fun <T, R> Flow<T?>.mapNullable(crossinline transform: suspend (T) -> R): Flow<R?> =
+    map { it?.let { transform(it) } }
