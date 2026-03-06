@@ -58,29 +58,31 @@ object ScoringCalculator {
         elapsedTimeSeconds: Long,
     ): MemoryGameState {
         require(elapsedTimeSeconds >= 0) { "Elapsed time cannot be negative" }
-        if (!state.isGameWon) return state
+        return if (state.isGameWon) {
+            val config = state.config
+            val timeBonus = calculateTimeBonus(state, elapsedTimeSeconds, config)
+            val moveBonus = calculateMoveBonus(state, config)
+            val totalScore = (state.score.toLong() + timeBonus + moveBonus).coerceIn(0, MAX_SCORE).toInt()
+            val earnedCurrency = calculateEarnedCurrency(state, totalScore)
+            val dailyChallengeBonus = if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
 
-        val config = state.config
-        val timeBonus = calculateTimeBonus(state, elapsedTimeSeconds, config)
-        val moveBonus = calculateMoveBonus(state, config)
-        val totalScore = (state.score.toLong() + timeBonus + moveBonus).coerceIn(0, MAX_SCORE).toInt()
-        val earnedCurrency = calculateEarnedCurrency(state, totalScore)
-        val dailyChallengeBonus = if (state.mode == GameMode.DAILY_CHALLENGE) DAILY_CHALLENGE_CURRENCY_BONUS else 0
-
-        return state.copy(
-            score = totalScore,
-            scoreBreakdown =
-                ScoreBreakdown(
-                    basePoints = state.totalBasePoints,
-                    comboBonus = state.totalComboBonus,
-                    doubleDownBonus = state.totalDoubleDownBonus,
-                    timeBonus = timeBonus,
-                    moveBonus = moveBonus,
-                    dailyChallengeBonus = dailyChallengeBonus,
-                    totalScore = totalScore,
-                    earnedCurrency = earnedCurrency,
-                ),
-        )
+            state.copy(
+                score = totalScore,
+                scoreBreakdown =
+                    ScoreBreakdown(
+                        basePoints = state.totalBasePoints,
+                        comboBonus = state.totalComboBonus,
+                        doubleDownBonus = state.totalDoubleDownBonus,
+                        timeBonus = timeBonus,
+                        moveBonus = moveBonus,
+                        dailyChallengeBonus = dailyChallengeBonus,
+                        totalScore = totalScore,
+                        earnedCurrency = earnedCurrency,
+                    ),
+            )
+        } else {
+            state
+        }
     }
 
     /**

@@ -109,29 +109,29 @@ class GameStateMachine(
     @Suppress("CyclomaticComplexMethod")
     private fun handleFlipCard(action: GameAction.FlipCard) {
         val currentState = _state.value
-        if (currentState.isGameOver || currentState.cards.count { it.isFaceUp && !it.isMatched } >= 2) return
+        if (!(currentState.isGameOver || currentState.cards.count { it.isFaceUp && !it.isMatched } >= 2)) {
+            val (flippedState, event) = MatchEvaluator.flipCard(currentState, action.cardId)
+            if (!(flippedState === currentState && event == null)) {
+                val result =
+                    gameStateMachine(flippedState, internalTimeSeconds) {
+                        when (event) {
+                            GameDomainEvent.CardFlipped -> effect(GameEffect.PlayFlipSound)
+                            GameDomainEvent.MatchSuccess, GameDomainEvent.TheNutsAchieved ->
+                                handleMatchEvent(
+                                    flippedState,
+                                    event,
+                                )
+                            GameDomainEvent.MatchFailure -> handleMismatchEvent(flippedState)
+                            GameDomainEvent.GameWon -> handleGameWon(flippedState)
+                            GameDomainEvent.GameOver -> handleGameOver()
+                            GameDomainEvent.HeatShieldUsed -> handleHeatShieldUsed(flippedState)
+                            null -> {}
+                        }
+                    }
 
-        val (flippedState, event) = MatchEvaluator.flipCard(currentState, action.cardId)
-        if (flippedState === currentState && event == null) return
-
-        val result =
-            gameStateMachine(flippedState, internalTimeSeconds) {
-                when (event) {
-                    GameDomainEvent.CardFlipped -> effect(GameEffect.PlayFlipSound)
-                    GameDomainEvent.MatchSuccess, GameDomainEvent.TheNutsAchieved ->
-                        handleMatchEvent(
-                            flippedState,
-                            event,
-                        )
-                    GameDomainEvent.MatchFailure -> handleMismatchEvent(flippedState)
-                    GameDomainEvent.GameWon -> handleGameWon(flippedState)
-                    GameDomainEvent.GameOver -> handleGameOver()
-                    GameDomainEvent.HeatShieldUsed -> handleHeatShieldUsed(flippedState)
-                    null -> {}
-                }
+                applyResult(result)
             }
-
-        applyResult(result)
+        }
     }
 
     private fun StateMachineBuilder.handleGameWon(flippedState: MemoryGameState) {
