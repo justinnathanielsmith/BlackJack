@@ -32,25 +32,25 @@ object MatchEvaluator {
             if (cardAtIndex?.id == cardId) cardId else state.cards.indexOfFirst { it.id == cardId }
         val cardToFlip = state.cards.getOrNull(index)
 
-        if (!canFlip(state, cardToFlip)) {
-            return state to null
-        }
+        return if (canFlip(state, cardToFlip)) {
+            // Proceed with flip
+            val newCards = state.cards.set(index, cardToFlip!!.copy(isFaceUp = true))
+            val faceUpCountBefore = state.cards.count { it.isFaceUp && !it.isMatched }
+            val newState =
+                state.copy(
+                    cards = newCards,
+                    lastMatchedIds =
+                        if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
+                )
 
-        // Proceed with flip
-        val newCards = state.cards.set(index, cardToFlip!!.copy(isFaceUp = true))
-        val faceUpCountBefore = state.cards.count { it.isFaceUp && !it.isMatched }
-        val newState =
-            state.copy(
-                cards = newCards,
-                lastMatchedIds =
-                    if (faceUpCountBefore == 0) persistentListOf() else state.lastMatchedIds,
-            )
-
-        val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
-        return when (activeCards.size) {
-            MatchConstants.SINGLE_CARD -> newState to GameDomainEvent.CardFlipped
-            MatchConstants.PAIR_SIZE -> checkForMatch(newState, activeCards)
-            else -> newState to null
+            val activeCards = newState.cards.filter { it.isFaceUp && !it.isMatched }
+            when (activeCards.size) {
+                MatchConstants.SINGLE_CARD -> newState to GameDomainEvent.CardFlipped
+                MatchConstants.PAIR_SIZE -> checkForMatch(newState, activeCards)
+                else -> newState to null
+            }
+        } else {
+            state to null
         }
     }
 
@@ -58,18 +58,28 @@ object MatchEvaluator {
         state: MemoryGameState,
         card: CardState?,
     ): Boolean {
-        if (state.isGameOver) return false
-        if (card == null || card.isFaceUp || card.isMatched) return false
+        val isGameOverOrInvalidCard = state.isGameOver || card == null || card.isFaceUp || card.isMatched
+        return if (isGameOverOrInvalidCard) {
+            false
+        } else {
+            // Bolt optimization: Count active cards without full iteration if possible
+            countActiveCardsAndCheckIfCanFlip(state)
+        }
+    }
 
-        // Bolt optimization: Count active cards without full iteration if possible
+    private fun countActiveCardsAndCheckIfCanFlip(state: MemoryGameState): Boolean {
         var faceUpCount = 0
+        var canStillFlip = true
         for (c in state.cards) {
             if (c.isFaceUp && !c.isMatched) {
                 faceUpCount++
-                if (faceUpCount >= MatchConstants.PAIR_SIZE) return false
+                if (faceUpCount >= MatchConstants.PAIR_SIZE) {
+                    canStillFlip = false
+                    break
+                }
             }
         }
-        return faceUpCount < MatchConstants.PAIR_SIZE
+        return canStillFlip && faceUpCount < MatchConstants.PAIR_SIZE
     }
 
     /**

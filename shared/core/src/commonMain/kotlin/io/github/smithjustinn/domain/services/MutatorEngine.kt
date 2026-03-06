@@ -33,23 +33,25 @@ object MutatorEngine {
     ): MemoryGameState {
         val unmatchedIndices = state.cards.mapIndexedNotNull { index, card -> index.takeUnless { card.isMatched } }
         val size = unmatchedIndices.size
-        if (size < PAIR_SIZE) return state
+        return if (size < PAIR_SIZE) {
+            state
+        } else {
+            // Pick two distinct random indices
+            val i1 = random.nextInt(size)
+            // Adjust second index to ensure it's distinct from the first
+            val i2 = random.nextInt(size - 1).let { if (it >= i1) it + 1 else it }
 
-        // Pick two distinct random indices
-        val i1 = random.nextInt(size)
-        // Adjust second index to ensure it's distinct from the first
-        val i2 = random.nextInt(size - 1).let { if (it >= i1) it + 1 else it }
+            val idx1 = unmatchedIndices[i1]
+            val idx2 = unmatchedIndices[i2]
 
-        val idx1 = unmatchedIndices[i1]
-        val idx2 = unmatchedIndices[i2]
+            val newCards =
+                state.cards.mutate { list ->
+                    val temp = list[idx1]
+                    list[idx1] = list[idx2]
+                    list[idx2] = temp
+                }
 
-        val newCards =
-            state.cards.mutate { list ->
-                val temp = list[idx1]
-                list[idx1] = list[idx2]
-                list[idx2] = temp
-            }
-
-        return state.copy(cards = newCards)
+            state.copy(cards = newCards)
+        }
     }
 }
