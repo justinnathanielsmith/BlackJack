@@ -94,9 +94,9 @@ class DefaultRootComponent(
 
     // Url format: memorymatch://game?mode=TIME_ATTACK&pairs=8&seed=12345
     private fun handleDeepLink(url: String) {
-        val params = DeepLinkUtils.parseDeepLink(url) ?: return
-
         try {
+            val params = DeepLinkUtils.parseDeepLink(url) ?: return
+
             @OptIn(DelicateDecomposeApi::class)
             navigation.push(
                 Config.Game(
