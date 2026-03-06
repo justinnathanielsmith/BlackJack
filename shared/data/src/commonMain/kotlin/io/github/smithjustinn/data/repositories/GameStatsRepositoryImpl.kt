@@ -54,18 +54,8 @@ class GameStatsRepositoryImpl(
     }
 
     private fun GameStatsEntity.toDomain(): GameStats =
-        GameStats(
-            pairCount = pairCount,
-            bestScore = bestScore,
-            bestTimeSeconds = bestTimeSeconds,
-            gamesPlayed = gamesPlayed,
-        )
+        GameStats(pairCount, bestScore, bestTimeSeconds, gamesPlayed)
 
     private fun GameStats.toEntity(): GameStatsEntity =
-        GameStatsEntity(
-            pairCount = pairCount,
-            bestScore = bestScore,
-            bestTimeSeconds = bestTimeSeconds,
-            gamesPlayed = gamesPlayed,
-        )
+        GameStatsEntity(pairCount, bestScore, bestTimeSeconds, gamesPlayed)
 }
