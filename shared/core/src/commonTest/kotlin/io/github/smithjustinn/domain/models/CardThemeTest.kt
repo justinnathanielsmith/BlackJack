@@ -5,7 +5,6 @@ import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
 class CardThemeTest {
-
     @Test
     fun testCardBackThemeFromIdOrName() {
         // Exact ID match
@@ -48,11 +47,12 @@ class CardThemeTest {
         assertEquals(CardSymbolTheme.CLASSIC, theme.skin)
         assertNull(theme.backColorHex)
 
-        val customTheme = CardTheme(
-            back = CardBackTheme.POKER,
-            skin = CardSymbolTheme.CYBERPUNK,
-            backColorHex = "#FFFFFF"
-        )
+        val customTheme =
+            CardTheme(
+                back = CardBackTheme.POKER,
+                skin = CardSymbolTheme.CYBERPUNK,
+                backColorHex = "#FFFFFF",
+            )
         assertEquals(CardBackTheme.POKER, customTheme.back)
         assertEquals(CardSymbolTheme.CYBERPUNK, customTheme.skin)
         assertEquals("#FFFFFF", customTheme.backColorHex)
