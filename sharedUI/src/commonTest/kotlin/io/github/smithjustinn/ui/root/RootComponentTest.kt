@@ -64,4 +64,23 @@ class RootComponentTest : BaseComponentTest() {
 
             assertTrue(root.childStack.value.active.instance is RootComponent.Child.Stats)
         }
+
+    @Test
+    fun `pop returns to previous child in stack`() =
+        runTest { lifecycle ->
+            val root =
+                DefaultRootComponent(
+                    componentContext = DefaultComponentContext(lifecycle = lifecycle),
+                    appGraph = context.appGraph,
+                )
+
+            val startChild = root.childStack.value.active.instance as RootComponent.Child.Start
+            startChild.component.onStartGame()
+
+            assertTrue(root.childStack.value.active.instance is RootComponent.Child.Game)
+
+            root.pop()
+
+            assertTrue(root.childStack.value.active.instance is RootComponent.Child.Start)
+        }
 }
