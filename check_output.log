@@ -1,0 +1,108 @@
+Calculating task graph as no cached configuration is available for tasks: check
+Checking the license for package Android SDK Build-Tools 36 in /opt/android-sdk/licenses
+License for package Android SDK Build-Tools 36 accepted.
+Preparing "Install Android SDK Build-Tools 36 v.36.0.0".
+"Install Android SDK Build-Tools 36 v.36.0.0" ready.
+Installing Android SDK Build-Tools 36 in /opt/android-sdk/build-tools/36.0.0
+"Install Android SDK Build-Tools 36 v.36.0.0" complete.
+"Install Android SDK Build-Tools 36 v.36.0.0" finished.
+[=========                              ] 25%                                   > Task :sharedUI:kmpPartiallyResolvedDependenciesChecker
+> Task :sharedUI:convertXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :sharedUI:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :sharedUI:convertXmlValueResourcesForCommonMain NO-SOURCE
+> Task :sharedUI:copyNonXmlValueResourcesForCommonMain NO-SOURCE
+> Task :sharedUI:copyNonXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :sharedUI:prepareComposeResourcesTaskForAndroidMain NO-SOURCE
+> Task :sharedUI:prepareComposeResourcesTaskForCommonMain NO-SOURCE
+> Task :sharedUI:generateResourceAccessorsForCommonMain NO-SOURCE
+> Task :sharedUI:androidPreBuild UP-TO-DATE
+> Task :sharedUI:preAndroidMainBuild UP-TO-DATE
+> Task :sharedUI:generateResourceAccessorsForAndroidMain NO-SOURCE
+> Task :koverGenerateArtifact
+> Task :sharedUI:copyAndroidMainComposeResourcesToAndroidAssets
+> Task :sharedUI:generateActualResourceCollectorsForAndroidMain
+> Task :sharedUI:generateComposeResClass UP-TO-DATE
+> Task :sharedUI:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
+> Task :sharedUI:generateAndroidMainEmptyResourceFiles
+> Task :shared:core:kmpPartiallyResolvedDependenciesChecker
+> Task :shared:core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:core:convertXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :shared:core:copyNonXmlValueResourcesForAndroidMain NO-SOURCE
+> Task :shared:core:convertXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :shared:core:prepareComposeResourcesTaskForAndroidMain NO-SOURCE
+> Task :shared:core:generateResourceAccessorsForAndroidMain NO-SOURCE
+> Task :shared:core:androidPreBuild UP-TO-DATE
+> Task :shared:core:preAndroidMainBuild UP-TO-DATE
+> Task :shared:core:copyNonXmlValueResourcesForCommonMain UP-TO-DATE
+> Task :shared:core:generateAndroidMainEmptyResourceFiles
+> Task :shared:core:generateComposeResClass UP-TO-DATE
+> Task :shared:core:prepareComposeResourcesTaskForCommonMain UP-TO-DATE
+> Task :shared:core:generateResourceAccessorsForCommonMain UP-TO-DATE
+> Task :shared:core:generateActualResourceCollectorsForAndroidMain
+> Task :shared:core:generateExpectResourceCollectorsForCommonMain UP-TO-DATE
+> Task :shared:data:kmpPartiallyResolvedDependenciesChecker
+> Task :shared:data:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:core:copyAndroidMainComposeResourcesToAndroidAssets
+> Task :sharedUI:packageAndroidMainResources
+> Task :shared:core:packageAndroidMainResources
+> Task :sharedUI:parseAndroidMainLocalResources
+> Task :shared:core:parseAndroidMainLocalResources
+> Task :sharedUI:generateAndroidMainRFile
+> Task :shared:core:generateAndroidMainRFile
+> Task :shared:core:convertXmlValueResourcesForAppleMain NO-SOURCE
+> Task :shared:core:copyNonXmlValueResourcesForAppleMain NO-SOURCE
+> Task :shared:core:prepareComposeResourcesTaskForAppleMain NO-SOURCE
+> Task :shared:core:generateResourceAccessorsForAppleMain NO-SOURCE
+> Task :shared:core:convertXmlValueResourcesForIosMain NO-SOURCE
+> Task :shared:core:copyNonXmlValueResourcesForIosMain NO-SOURCE
+> Task :shared:core:prepareComposeResourcesTaskForIosMain NO-SOURCE
+> Task :shared:core:generateResourceAccessorsForIosMain NO-SOURCE
+> Task :shared:core:convertXmlValueResourcesForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:core:copyNonXmlValueResourcesForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:core:prepareComposeResourcesTaskForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:core:generateResourceAccessorsForIosSimulatorArm64Main NO-SOURCE
+> Task :shared:core:convertXmlValueResourcesForNativeMain NO-SOURCE
+> Task :shared:core:copyNonXmlValueResourcesForNativeMain NO-SOURCE
+> Task :shared:core:prepareComposeResourcesTaskForNativeMain NO-SOURCE
+> Task :shared:core:generateResourceAccessorsForNativeMain NO-SOURCE
+> Task :shared:core:generateActualResourceCollectorsForIosSimulatorArm64Main
+
+> Task :detekt
+/app/sharedUI/src/androidMain/kotlin/io/github/smithjustinn/di/AndroidUiModule.kt:28:11: The file name 'AndroidUiModule' does not match the name of the single top-level declaration 'AndroidProviders'. [MatchingDeclarationName]
+/app/sharedUI/src/androidMain/kotlin/io/github/smithjustinn/di/AndroidAppGraph.kt:14:11: The file name 'AndroidAppGraph' does not match the name of the single top-level declaration 'AndroidAppGraphImpl'. [MatchingDeclarationName]
+/app/sharedUI/src/iosMain/kotlin/io/github/smithjustinn/di/IosUiModule.kt:28:11: The file name 'IosUiModule' does not match the name of the single top-level declaration 'IosProviders'. [MatchingDeclarationName]
+/app/sharedUI/src/iosMain/kotlin/io/github/smithjustinn/di/IosAppGraph.kt:11:11: The file name 'IosAppGraph' does not match the name of the single top-level declaration 'IosAppGraphImpl'. [MatchingDeclarationName]
+/app/sharedUI/src/jvmMain/kotlin/io/github/smithjustinn/di/JvmAppGraph.kt:12:11: The file name 'JvmAppGraph' does not match the name of the single top-level declaration 'JvmAppGraphImpl'. [MatchingDeclarationName]
+/app/sharedUI/src/jvmMain/kotlin/io/github/smithjustinn/di/JvmUiModule.kt:27:11: The file name 'JvmUiModule' does not match the name of the single top-level declaration 'JvmProviders'. [MatchingDeclarationName]
+/app/sharedUI/src/commonMain/kotlin/io/github/smithjustinn/ui/root/DeepLinkUtils.kt:18:9: Function parseDeepLink has 4 return statements which exceeds the limit of 2. [ReturnCount]
+
+
+> Task :detekt FAILED
+> Task :shared:core:compileAndroidMain
+> Task :shared:core:downloadKotlinNativeDistribution
+> Task :shared:data:downloadKotlinNativeDistribution
+Kotlin/Native bundle directory /home/jules/.konan/kotlin-native-prebuilt-linux-x86_64-2.3.10 is not empty. Native bundle files will be overwritten.
+
+[Incubating] Problems report is available at: file:///app/build/reports/problems/problems-report.html
+
+FAILURE: Build failed with an exception.
+
+* What went wrong:
+Execution failed for task ':detekt'.
+> Analysis failed with 7 weighted issues.
+
+* Try:
+> Run with --stacktrace option to get the stack trace.
+> Run with --info or --debug option to get more log output.
+> Run with --scan to get full insights from a Build Scan (powered by Develocity).
+> Get more help at https://help.gradle.org.
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 10.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/9.4.0-rc-1/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD FAILED in 5m 24s
+29 actionable tasks: 21 executed, 8 up-to-date
+Configuration cache entry stored.
