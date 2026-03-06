@@ -59,7 +59,6 @@ class JvmAudioServiceImpl(
         settingsRepository.soundVolume
             .onEach { volume ->
                 soundVolume = volume
-                players.values.forEach { it.volume = volume.toDouble() }
             }.launchIn(scope)
 
         settingsRepository.isMusicEnabled
@@ -100,7 +99,9 @@ class JvmAudioServiceImpl(
                 val tempFile = getAudioFile(resource)
                 val media = Media(tempFile.toURI().toString())
                 val player = MediaPlayer(media)
-                player.volume = soundVolume.toDouble()
+                player.setOnReady {
+                    player.volume = soundVolume.toDouble()
+                }
                 players[resource] = player
                 player
             } catch (
@@ -117,6 +118,7 @@ class JvmAudioServiceImpl(
         val player = players[resource] ?: return
         player.stop()
         player.seek(Duration.ZERO)
+        player.volume = soundVolume.toDouble()
         player.play()
     }
 
