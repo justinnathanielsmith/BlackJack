@@ -12,8 +12,7 @@ import kotlin.test.assertTrue
 class FakeDailyChallengeRepository : DailyChallengeRepository {
     private val completedDates = MutableStateFlow<Set<Long>>(emptySet())
 
-    override fun isChallengeCompleted(date: Long): Flow<Boolean> =
-        completedDates.map { it.contains(date) }
+    override fun isChallengeCompleted(date: Long): Flow<Boolean> = completedDates.map { it.contains(date) }
 
     override suspend fun saveChallengeResult(
         date: Long,
