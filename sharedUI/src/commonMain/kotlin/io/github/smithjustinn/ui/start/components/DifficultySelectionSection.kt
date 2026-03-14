@@ -25,7 +25,6 @@ import io.github.smithjustinn.resources.resume_game
 import io.github.smithjustinn.resources.select_difficulty
 import io.github.smithjustinn.resources.start
 import io.github.smithjustinn.theme.PokerTheme
-import io.github.smithjustinn.ui.components.AppIcons
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.PokerChip
 import io.github.smithjustinn.ui.start.DifficultyState
@@ -171,7 +170,6 @@ private fun PrimaryActionButtons(
                 text = stringResource(Res.string.resume_game),
                 onClick = onResumeGame,
                 modifier = Modifier.fillMaxWidth(),
-                trailingIcon = AppIcons.ChevronLeft,
                 isPrimary = true,
                 isPulsing = true,
                 applyGlimmer = true,
