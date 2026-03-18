@@ -8,7 +8,6 @@ import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.infiniteRepeatable
-import androidx.compose.animation.core.keyframes
 import androidx.compose.animation.core.spring
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.core.updateTransition
@@ -310,32 +309,21 @@ private fun rememberCardTransform(targetState: AnimationTargetState): Pair<State
         }
 
     val scale =
-        transition.animateFloat(
-            transitionSpec = {
-                if (initialState.isFaceUp != targetState.isFaceUp) {
-                    keyframes {
-                        durationMillis = FLIP_DURATION_MS
-                        1.0f at 0
-                        FLIP_POP_SCALE at FLIP_DURATION_MS / 2
-                        1.0f at FLIP_DURATION_MS
-                    }
-                } else if (targetState.isPressed || initialState.isPressed) {
-                    // Snappy response for touch feedback
-                    spring(dampingRatio = Spring.DampingRatioNoBouncy, stiffness = Spring.StiffnessMedium)
-                } else {
-                    // Bouncy for other states (pulse, hover)
-                    spring(dampingRatio = Spring.DampingRatioMediumBouncy, stiffness = Spring.StiffnessLow)
-                }
-            },
-            label = "scale",
-        ) { state ->
-            when {
-                state.isMatched -> MATCHED_SCALE
-                state.isPressed && !state.isFaceUp -> PRESSED_SCALE
-                state.isRecentlyMatched || state.isHovered && !state.isFaceUp -> PULSE_SCALE
-                else -> DEFAULT_SCALE
-            }
-        }
+        animateFloatAsState(
+            targetValue =
+                when {
+                    targetState.isMatched -> MATCHED_SCALE
+                    targetState.isPressed && !targetState.isFaceUp -> PRESSED_SCALE
+                    targetState.isRecentlyMatched || (targetState.isHovered && !targetState.isFaceUp) -> PULSE_SCALE
+                    else -> DEFAULT_SCALE
+                },
+            animationSpec =
+                spring(
+                    dampingRatio = Spring.DampingRatioMediumBouncy,
+                    stiffness = Spring.StiffnessLow,
+                ),
+            label = "cardScale",
+        )
 
     return rotation to scale
 }

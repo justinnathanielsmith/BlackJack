@@ -1,6 +1,7 @@
 package io.github.smithjustinn.di
 
 import dev.zacsweers.metro.DependencyGraph
+import dev.zacsweers.metro.createGraphFactory
 
 /**
  * JVM/Desktop-specific concrete dependency graph.
@@ -12,9 +13,14 @@ interface JvmAppGraph :
     AppGraph,
     CoreProviders,
     DataProviders,
-    JvmUiModule
+    JvmUiModule {
+    @DependencyGraph.Factory
+    interface Factory {
+        fun create(): JvmAppGraph
+    }
+}
 
 /**
  * Creates the JVM/Desktop dependency graph using Metro's compile-time graph factory.
  */
-fun createJvmGraph(): AppGraph = createGraphFactory<JvmAppGraph>().create()
+fun createJvmGraph(): AppGraph = createGraphFactory<JvmAppGraph.Factory>().create()
