@@ -12,9 +12,17 @@ interface JvmAppGraph :
     AppGraph,
     CoreProviders,
     DataProviders,
-    JvmUiModule
+    JvmUiModule {
+    @dev.zacsweers.metro.DependencyGraph.Factory
+    interface Factory {
+        fun create(): JvmAppGraph
+    }
+}
 
 /**
  * Creates the JVM/Desktop dependency graph using Metro's compile-time graph factory.
  */
-fun createJvmGraph(): AppGraph = createGraphFactory<JvmAppGraph>().create()
+fun createJvmGraph(): AppGraph =
+    dev.zacsweers.metro
+        .createGraphFactory<JvmAppGraph.Factory>()
+        .create()
