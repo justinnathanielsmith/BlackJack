@@ -41,8 +41,14 @@ private fun handleGameEvent(
 ) {
     when (event) {
         GameUiEvent.PlayFlip -> audioService.playEffect(AudioService.SoundEffect.FLIP)
-        GameUiEvent.PlayMatch -> audioService.playEffect(AudioService.SoundEffect.MATCH)
-        GameUiEvent.PlayMismatch -> audioService.playEffect(AudioService.SoundEffect.MISMATCH)
+        GameUiEvent.PlayMatch -> {
+            audioService.playEffect(AudioService.SoundEffect.MATCH)
+            hapticsService.vibrateMatch()
+        }
+        GameUiEvent.PlayMismatch -> {
+            audioService.playEffect(AudioService.SoundEffect.MISMATCH)
+            hapticsService.vibrateMismatch()
+        }
         GameUiEvent.PlayTheNuts -> {
             audioService.playEffect(AudioService.SoundEffect.THE_NUTS)
             onTheNuts()
