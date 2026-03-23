@@ -92,12 +92,14 @@ fun ConfettiEffect(
             withFrameNanos { time ->
                 frameState.longValue = time
 
-                // Iterate backwards to avoid Iterator allocation and O(N^2) shifting during removal
+                // Iterate backwards to avoid Iterator allocation and O(N^2) shifting during removal.
+                // Bolt: Used O(1) swap-and-remove to avoid O(N) array shifting per frame.
                 for (i in particles.indices.reversed()) {
                     val p = particles[i]
                     p.update()
                     if (p.alpha <= 0) {
-                        particles.removeAt(i)
+                        particles[i] = particles.last()
+                        particles.removeLast()
                     }
                 }
             }
