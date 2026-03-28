@@ -8,6 +8,7 @@ import io.github.smithjustinn.domain.models.LeaderboardEntry
 import io.github.smithjustinn.domain.repositories.GameStatsRepository
 import io.github.smithjustinn.domain.repositories.LeaderboardRepository
 import kotlinx.coroutines.flow.firstOrNull
+import kotlin.coroutines.cancellation.CancellationException
 import kotlin.time.Clock
 
 /**
@@ -20,6 +21,7 @@ open class SaveGameResultUseCase(
     private val leaderboardRepository: LeaderboardRepository,
     private val logger: Logger,
 ) {
+    @Suppress("TooGenericExceptionCaught")
     open suspend operator fun invoke(
         pairCount: Int,
         score: Int,
@@ -27,7 +29,7 @@ open class SaveGameResultUseCase(
         moves: Int,
         gameMode: GameMode,
     ): Result<Unit> =
-        runCatching {
+        try {
             require(pairCount > 0) { "Pair count must be positive" }
             require(score >= 0) { "Score cannot be negative" }
             require(timeSeconds >= 0) { "Time cannot be negative" }
@@ -48,8 +50,12 @@ open class SaveGameResultUseCase(
                     gameMode = gameMode,
                 ),
             )
-        }.onFailure { e ->
-            logger.e(e) { "Failed to save game result via use case" }
+            Result.success(Unit)
+        } catch (e: CancellationException) {
+            throw e
+        } catch (e: Exception) {
+            logger.e { "Failed to save game result via use case" }
+            Result.failure(e)
         }
 
     private fun calculateUpdatedStats(
