@@ -78,7 +78,7 @@ class DefaultStartComponent(
                     )
                 }
             } catch (e: Exception) {
-                logger.e(e) { "Error checking for saved game" }
+                logger.e { "Error checking for saved game" }
             }
         }
     }
@@ -93,7 +93,7 @@ class DefaultStartComponent(
                     _state.update { it.copy(isDailyChallengeCompleted = isCompleted) }
                 }
             } catch (e: Exception) {
-                logger.e(e) { "Error checking daily challenge status" }
+                logger.e { "Error checking daily challenge status" }
             }
         }
     }
