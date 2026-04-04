@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -295,6 +296,7 @@ private fun BackButton(
                     .size(size)
                     .pokerClickable(
                         onClick = onClick,
+                        role = Role.Button,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
                     ).semantics { contentDescription = contentDesc },
@@ -350,6 +352,7 @@ private fun RestartButton(
                     .size(if (compact) 40.dp else 48.dp)
                     .pokerClickable(
                         onClick = onClick,
+                        role = Role.Button,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
                     ).semantics { contentDescription = contentDesc },
@@ -397,6 +400,7 @@ private fun MuteButton(
                     .size(if (compact) 40.dp else 48.dp)
                     .pokerClickable(
                         onClick = onClick,
+                        role = Role.Button,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
                     ).semantics { contentDescription = contentDesc },
