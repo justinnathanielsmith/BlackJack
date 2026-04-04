@@ -102,12 +102,12 @@ class AndroidAudioServiceImpl(
             soundMap[resource] = id
             id
         } catch (e: IOException) {
-            logger.e(e) { "IO Error loading sound resource: $resource" }
+            logger.e { "IO Error loading sound resource: $resource" }
             null
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception,
         ) {
-            logger.e(e) { "Unexpected error loading sound resource: $resource" }
+            logger.e { "Unexpected error loading sound resource: $resource" }
             null
         }
 
@@ -159,7 +159,7 @@ class AndroidAudioServiceImpl(
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
-                logger.e(e) { "Error playing fallback sound: $name" }
+                logger.e { "Error playing fallback sound: $name" }
                 fallbackPlayers.remove(resource)?.release()
             }
         }
@@ -182,12 +182,12 @@ class AndroidAudioServiceImpl(
             }
             fallbackPlayers[resource] = newPlayer
         } catch (e: IOException) {
-            logger.e(e) { "IO Error initializing fallback player: $name" }
+            logger.e { "IO Error initializing fallback player: $name" }
             newPlayer?.release()
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception,
         ) {
-            logger.e(e) { "Unexpected error initializing fallback player: $name" }
+            logger.e { "Unexpected error initializing fallback player: $name" }
             newPlayer?.release()
             fallbackPlayers.remove(resource)?.release()
         }
@@ -253,11 +253,11 @@ class AndroidAudioServiceImpl(
                         }
                 }
             } catch (e: IOException) {
-                logger.e(e) { "IO Error starting music" }
+                logger.e { "IO Error starting music" }
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
-                logger.e(e) { "Unexpected error starting music" }
+                logger.e { "Unexpected error starting music" }
             }
         }
     }

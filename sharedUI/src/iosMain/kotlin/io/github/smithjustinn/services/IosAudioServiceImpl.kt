@@ -79,7 +79,7 @@ class IosAudioServiceImpl(
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception,
         ) {
-            logger.e(e) { "Error setting up AVAudioSession" }
+            logger.e { "Error setting up AVAudioSession" }
         }
     }
 
@@ -120,7 +120,7 @@ class IosAudioServiceImpl(
                 } catch (
                     @Suppress("TooGenericExceptionCaught") e: Exception,
                 ) {
-                    logger.e(e) { "Error pre-loading sound effect: $effect" }
+                    logger.e { "Error pre-loading sound effect: $effect" }
                 }
             }
         }
@@ -190,7 +190,7 @@ class IosAudioServiceImpl(
                 } catch (
                     @Suppress("TooGenericExceptionCaught") e: Exception,
                 ) {
-                    logger.e(e) { "Error starting music" }
+                    logger.e { "Error starting music" }
                 } finally {
                     musicLoadingJob = null
                 }
