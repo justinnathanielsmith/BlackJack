@@ -73,7 +73,9 @@ fun ScoreFlyingEffect(
                     for (i in points.lastIndex downTo 0) {
                         val point = points[i]
                         if (point.startTime.elapsedNow() >= point.duration + point.delay) {
-                            points.removeAt(i)
+                            // Bolt: Use O(1) swap-and-remove pattern instead of O(N) removeAt(i)
+                            points[i] = points.last()
+                            points.removeLast()
                             hasRemovals = true
                         }
                     }
