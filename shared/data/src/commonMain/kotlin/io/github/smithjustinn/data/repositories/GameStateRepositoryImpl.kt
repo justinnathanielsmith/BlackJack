@@ -29,7 +29,7 @@ class GameStateRepositoryImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            logger.e(e) { "Failed to save game state" }
+            logger.e { "Failed to save game state" }
         }
     }
 
@@ -41,7 +41,7 @@ class GameStateRepositoryImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            logger.e(e) { "Failed to retrieve saved game state: Database error" }
+            logger.e { "Failed to retrieve saved game state: Database error" }
             null
         }
     }
@@ -53,7 +53,7 @@ class GameStateRepositoryImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            logger.e(e) { "Failed to clear saved game state" }
+            logger.e { "Failed to clear saved game state" }
         }
     }
 }

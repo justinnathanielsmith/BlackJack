@@ -16,6 +16,6 @@ open class ClearSavedGameUseCase(
         runCatching {
             gameStateRepository.clearSavedGameState()
         }.onFailure { e ->
-            logger.e(e) { "Failed to clear saved game state via use case" }
+            logger.e { "Failed to clear saved game state via use case" }
         }
 }

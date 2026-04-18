@@ -49,7 +49,7 @@ class JvmAudioServiceImpl(
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception,
         ) {
-            logger.e(e) { "Error initializing JavaFX toolkit" }
+            logger.e { "Error initializing JavaFX toolkit" }
         }
 
         settingsRepository.isSoundEnabled
@@ -107,7 +107,7 @@ class JvmAudioServiceImpl(
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
-                logger.e(e) { "Error pre-loading sound resource: $resource" }
+                logger.e { "Error pre-loading sound resource: $resource" }
                 null
             }
         }
@@ -167,7 +167,7 @@ class JvmAudioServiceImpl(
             } catch (
                 @Suppress("TooGenericExceptionCaught") e: Exception,
             ) {
-                logger.e(e) { "Error starting music" }
+                logger.e { "Error starting music" }
             }
         }
     }

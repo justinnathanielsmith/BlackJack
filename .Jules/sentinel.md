@@ -184,3 +184,15 @@ Deep links allowing custom seeds must strictly validate that the seed is non-neg
 
 **Remediation:**
 1. A `require(seed >= 0)` constraint was added to `GameArgs`.
+
+## 2026-02-18 - [Secure Logging Enforcement]
+**Vulnerability:** Data Leakage
+**Severity:** MEDIUM
+**Component:** `shared/data`, `sharedUI`, `shared/core`
+
+**Finding:**
+Several components were passing exception objects directly to Kermit's `logger.e` (e.g., `logger.e(e) { "Message" }`). This practice risks leaking sensitive information, such as PII, stack traces containing internal paths, or secrets embedded in the exception message, into production logs.
+
+**Remediation:**
+1.  Replaced all instances of `logger.e(e) { ... }` with `logger.e { ... }` across the codebase.
+2.  Ensured that exceptions are handled securely and only safe, contextual messages are logged.
