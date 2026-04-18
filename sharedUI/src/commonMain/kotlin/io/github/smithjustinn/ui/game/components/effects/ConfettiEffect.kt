@@ -97,7 +97,8 @@ fun ConfettiEffect(
                     val p = particles[i]
                     p.update()
                     if (p.alpha <= 0) {
-                        particles.removeAt(i)
+                        particles[i] = particles.last()
+                        particles.removeLast()
                     }
                 }
             }

@@ -1,0 +1,3 @@
+## 2024-04-18 - [Optimization] O(1) swap-and-remove for lists in Compose animation loops
+**Learning:** Using `removeAt(i)` on standard `ArrayList` within high-frequency Jetpack Compose animation loops (like `withFrameNanos` or Canvas draw phases) causes O(N) element shifts on every removal, which becomes a noticeable bottleneck when dealing with particle systems or multi-element effects.
+**Action:** When iterating backwards to remove expired elements in animation loops, use an O(1) swap-and-remove pattern: `list[i] = list.last(); list.removeLast()` instead of `list.removeAt(i)` to avoid array shifting overhead.
