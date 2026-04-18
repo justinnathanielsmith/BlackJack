@@ -31,7 +31,7 @@ class LeaderboardRepositoryImpl(
             .mapList { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
-                logger.e(e) { "Error fetching leaderboard for difficulty: $pairCount, mode: $gameMode" }
+                logger.e { "Error fetching leaderboard for difficulty: $pairCount, mode: $gameMode" }
                 emit(emptyList())
             }
 
@@ -41,7 +41,7 @@ class LeaderboardRepositoryImpl(
             .mapList { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
-                logger.e(e) { "Error fetching all leaderboards for mode: $gameMode" }
+                logger.e { "Error fetching all leaderboards for mode: $gameMode" }
                 emit(emptyList())
             }
 
@@ -52,7 +52,7 @@ class LeaderboardRepositoryImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            logger.e(e) { "Error adding leaderboard entry: $entry" }
+            logger.e { "Error adding leaderboard entry: $entry" }
         }
     }
 

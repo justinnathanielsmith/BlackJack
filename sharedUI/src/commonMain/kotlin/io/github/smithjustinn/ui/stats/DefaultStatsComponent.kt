@@ -66,7 +66,7 @@ class DefaultStatsComponent(
             }.onEach { newState ->
                 _state.update { newState }
             }.catch { e ->
-                logger.e(e) { "Error loading leaderboards" }
+                logger.e { "Error loading leaderboards" }
             }.launchIn(scope)
     }
 

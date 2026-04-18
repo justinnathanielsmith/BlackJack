@@ -28,7 +28,7 @@ class GameStatsRepositoryImpl(
             .mapNullable { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
-                logger.e(e) { "Error fetching stats for difficulty: $pairCount" }
+                logger.e { "Error fetching stats for difficulty: $pairCount" }
                 emit(null)
             }
 
@@ -38,7 +38,7 @@ class GameStatsRepositoryImpl(
             .mapList { it.toDomain() }
             .catch { e ->
                 if (e is CancellationException) throw e
-                logger.e(e) { "Error fetching all stats" }
+                logger.e { "Error fetching all stats" }
                 emit(emptyList())
             }
 
@@ -49,7 +49,7 @@ class GameStatsRepositoryImpl(
         } catch (e: CancellationException) {
             throw e
         } catch (e: Exception) {
-            logger.e(e) { "Error updating stats: $stats" }
+            logger.e { "Error updating stats: $stats" }
         }
     }
 

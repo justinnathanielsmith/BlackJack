@@ -110,7 +110,7 @@ class DefaultRootComponent(
         } catch (
             @Suppress("TooGenericExceptionCaught") e: Exception,
         ) {
-            logger.e(e) { "Error handling deep link: ${DeepLinkUtils.sanitizeForLogging(url)}" }
+            logger.e { "Error handling deep link: ${DeepLinkUtils.sanitizeForLogging(url)}" }
         }
     }
 
