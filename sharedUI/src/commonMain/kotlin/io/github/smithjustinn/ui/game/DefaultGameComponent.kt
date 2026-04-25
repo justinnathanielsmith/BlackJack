@@ -214,7 +214,7 @@ class DefaultGameComponent(
             } catch (e: CancellationException) {
                 throw e
             } catch (e: Exception) {
-                appGraph.logger.e(e) { "Error starting game" }
+                appGraph.logger.e { "Error starting game" }
             }
         }
     }

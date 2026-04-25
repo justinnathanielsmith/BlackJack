@@ -18,7 +18,7 @@ open class GetSavedGameUseCase(
         try {
             gameStateRepository.getSavedGameState()
         } catch (e: Exception) {
-            logger.e(e) { "Failed to get saved game state via use case" }
+            logger.e { "Failed to get saved game state via use case" }
             null
         }
 }
