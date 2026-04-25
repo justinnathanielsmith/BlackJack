@@ -73,7 +73,8 @@ fun ScoreFlyingEffect(
                     for (i in points.lastIndex downTo 0) {
                         val point = points[i]
                         if (point.startTime.elapsedNow() >= point.duration + point.delay) {
-                            points.removeAt(i)
+                            points[i] = points.last()
+                            points.removeLast()
                             hasRemovals = true
                         }
                     }
