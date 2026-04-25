@@ -49,7 +49,7 @@ open class SaveGameResultUseCase(
                 ),
             )
         }.onFailure { e ->
-            logger.e(e) { "Failed to save game result via use case" }
+            logger.e { "Failed to save game result via use case" }
         }
 
     private fun calculateUpdatedStats(

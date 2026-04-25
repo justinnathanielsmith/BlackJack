@@ -20,6 +20,6 @@ open class SaveGameStateUseCase(
         runCatching {
             gameStateRepository.saveGameState(state, elapsedTimeSeconds)
         }.onFailure { e ->
-            logger.e(e) { "Failed to save game state via use case" }
+            logger.e { "Failed to save game state via use case" }
         }
 }
