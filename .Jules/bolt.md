@@ -53,3 +53,7 @@
 ## 2026-10-30 - Collection Iteration Overhead in Frame Loops
 **Learning:** Using `filter` or other higher-order collection functions on an immutable `List` inside a `withFrameNanos` loop forces the creation of a new `ArrayList` object on every single 60fps frame, causing severe Garbage Collection (GC) churn.
 **Action:** For collection data strictly localized to continuous animation loops, replace `immutableList` + `filter` with a standard `ArrayList` and iterate backwards (`for (i in list.lastIndex downTo 0)`) to mutate and remove expired items in-place without triggering O(N^2) element shifting or allocating memory per frame.
+
+## 2024-05-23 - O(1) List Removal in Animation Loops
+**Learning:** Using `removeAt(i)` on an `ArrayList` while iterating backwards in high-frequency loops (like `withFrameNanos` or `Canvas` draws) triggers an O(N) array shift for every removed item. This can cause CPU spikes and dropped frames when many particles are removed simultaneously.
+**Action:** When order doesn't matter (like independent particles), use the O(1) swap-and-remove pattern (`list[i] = list.last(); list.removeLast()`) instead of `removeAt(i)` to avoid O(N) element shifting.
