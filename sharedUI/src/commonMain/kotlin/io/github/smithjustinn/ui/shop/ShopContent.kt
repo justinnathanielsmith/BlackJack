@@ -1,7 +1,6 @@
 package io.github.smithjustinn.ui.shop
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -34,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
@@ -66,6 +66,7 @@ import io.github.smithjustinn.ui.components.AuroraEffect
 import io.github.smithjustinn.ui.components.PokerButton
 import io.github.smithjustinn.ui.components.ShopIcons
 import io.github.smithjustinn.ui.components.pokerBackground
+import io.github.smithjustinn.ui.extensions.pokerClickable
 import org.jetbrains.compose.resources.getString
 import org.jetbrains.compose.resources.stringResource
 
@@ -276,9 +277,11 @@ fun ShopItemCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable(enabled = canClick) {
-                    if (isOwned) onEquip() else onBuy()
-                },
+                .pokerClickable(
+                    enabled = canClick,
+                    onClick = { if (isOwned) onEquip() else onBuy() },
+                    role = Role.Button,
+                ),
         backgroundColor = getCardBackgroundColor(shopItemState),
         border =
             if (isEquipped) {
@@ -436,7 +439,11 @@ private fun ShopAdRewardCard(
         modifier =
             modifier
                 .fillMaxWidth()
-                .clickable(enabled = isAvailable) { onWatchAd() },
+                .pokerClickable(
+                    enabled = isAvailable,
+                    onClick = onWatchAd,
+                    role = Role.Button,
+                ),
         backgroundColor = PokerTheme.colors.surface.copy(alpha = 0.9f),
         border = if (isAvailable) BorderStroke(1.dp, PokerTheme.colors.bonusGreen) else null,
     ) {
