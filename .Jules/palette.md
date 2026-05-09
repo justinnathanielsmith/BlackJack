@@ -24,3 +24,6 @@
 
 ### Redundant Labels
 - **Clearing Semantics**: When a custom component (like `PokerChip`) already includes all necessary information in its `contentDescription` (e.g., "6 pairs, Easy"), redundant text labels below it should be hidden from accessibility services using `Modifier.clearAndSetSemantics { }` to prevent double announcement and confusion during navigation.
+
+### Buttons & Selection
+- **Role.Button on Interactive Cards**: When a custom card or item row behaves like a button (e.g., Shop items), replace standard `Modifier.clickable` with `Modifier.pokerClickable(role = Role.Button)`. This ensures consistent accessibility focus/roles, automatic minimum 48dp tap target formatting, natural desktop hover cursors (`PointerIcon.Hand`), and proper haptic/audio responses.
