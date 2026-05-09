@@ -97,7 +97,9 @@ fun ConfettiEffect(
                     val p = particles[i]
                     p.update()
                     if (p.alpha <= 0) {
-                        particles.removeAt(i)
+                        // Bolt: O(1) swap-and-remove to avoid O(N^2) array shifting in high-frequency 60fps frame loops
+                        particles[i] = particles.last()
+                        particles.removeLast()
                     }
                 }
             }
