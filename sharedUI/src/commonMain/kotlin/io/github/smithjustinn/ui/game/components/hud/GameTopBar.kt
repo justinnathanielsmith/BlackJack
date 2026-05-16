@@ -49,6 +49,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.layout.layout
 import androidx.compose.ui.layout.onGloballyPositioned
 import androidx.compose.ui.layout.positionInRoot
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontFamily
@@ -297,6 +298,7 @@ private fun BackButton(
                         onClick = onClick,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
+                        role = Role.Button,
                     ).semantics { contentDescription = contentDesc },
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -352,6 +354,7 @@ private fun RestartButton(
                         onClick = onClick,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
+                        role = Role.Button,
                     ).semantics { contentDescription = contentDesc },
         ) {
             Box(contentAlignment = Alignment.Center) {
@@ -399,6 +402,7 @@ private fun MuteButton(
                         onClick = onClick,
                         hapticType = HapticFeedbackType.LIGHT,
                         soundEffect = AudioService.SoundEffect.CLICK,
+                        role = Role.Button,
                     ).semantics { contentDescription = contentDesc },
         ) {
             Box(contentAlignment = Alignment.Center) {

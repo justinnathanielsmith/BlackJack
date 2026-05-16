@@ -24,3 +24,6 @@
 
 ### Redundant Labels
 - **Clearing Semantics**: When a custom component (like `PokerChip`) already includes all necessary information in its `contentDescription` (e.g., "6 pairs, Easy"), redundant text labels below it should be hidden from accessibility services using `Modifier.clearAndSetSemantics { }` to prevent double announcement and confusion during navigation.
+
+### Button Roles
+- **Semantics**: For custom buttons that do not internally define their semantics, always set `role = Role.Button` on their `clickable` (or custom `pokerClickable`) modifiers to ensure correct screen reader announcements.
